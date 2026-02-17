@@ -1,0 +1,109 @@
+import { ShieldCheck, GraduationCap, MapPin, Wallet } from 'lucide-react';
+
+const format_rwf = (n) => `RWF ${new Intl.NumberFormat('rw-RW').format(n)}`;
+
+function HeroAvatar({ full_name, avatar_url, gender }) {
+  const initials = full_name
+    .split(' ')
+    .map((w) => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+
+  const gender_gradient =
+    gender === 'female'
+      ? 'from-rose-300 via-pink-300 to-fuchsia-400'
+      : gender === 'male'
+      ? 'from-sky-300 via-blue-300 to-indigo-400'
+      : 'from-violet-300 to-purple-400';
+
+  if (avatar_url && !avatar_url.includes('api.wiyorent.com')) {
+    return (
+      <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden ring-4 ring-base-100 shadow-xl flex-shrink-0">
+        <img src={avatar_url} alt={full_name} className="w-full h-full object-cover" />
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={`w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-br ${gender_gradient} ring-4 ring-base-100 shadow-xl flex items-center justify-center flex-shrink-0`}
+    >
+      <span className="font-primary text-3xl sm:text-4xl font-extrabold text-white drop-shadow">
+        {initials}
+      </span>
+    </div>
+  );
+}
+
+export default function ProfileHero({
+  full_name,
+  avatar_url,
+  nationality,
+  university_name,
+  is_verified,
+  gender,
+  preferred_locations,
+  budget,
+}) {
+  return (
+    <div className="bg-base-100 rounded-box shadow-sm overflow-hidden">
+      {/* Accent band */}
+      <div className="h-2 bg-accent w-full" />
+
+      <div className="p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center gap-6">
+        <HeroAvatar full_name={full_name} avatar_url={avatar_url} gender={gender} />
+
+        {/* Info block */}
+        <div className="flex-1 min-w-0">
+          {/* Name + badge */}
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="font-primary text-3xl sm:text-4xl font-extrabold text-base-content uppercase tracking-tight leading-none">
+              {full_name}
+            </h1>
+            {is_verified && (
+              <span className="inline-flex items-center gap-1.5 bg-success/10 text-success border border-success/25 px-2.5 py-1 rounded-field text-xs font-primary font-bold uppercase tracking-wide flex-shrink-0">
+                <ShieldCheck size={12} />
+                Verified
+              </span>
+            )}
+          </div>
+
+          {/* Nationality chip */}
+          <span className="mt-2 inline-block font-secondary text-xs text-base-content/45 bg-base-200 px-2.5 py-1 rounded-field">
+            {nationality}
+          </span>
+
+          {/* University */}
+          <div className="flex items-center gap-2 mt-3">
+            <GraduationCap size={15} className="text-accent flex-shrink-0" />
+            <span className="font-secondary text-sm text-base-content/65">
+              {university_name}
+            </span>
+          </div>
+
+          {/* Budget */}
+          <div className="flex items-center gap-2 mt-1.5">
+            <Wallet size={15} className="text-accent flex-shrink-0" />
+            <span className="font-secondary text-sm text-base-content/65">
+              {format_rwf(budget.min)} – {format_rwf(budget.max)} / month
+            </span>
+          </div>
+
+          {/* Location pills */}
+          <div className="flex items-center gap-2 flex-wrap mt-3">
+            <MapPin size={13} className="text-base-content/30 flex-shrink-0" />
+            {preferred_locations.map((loc) => (
+              <span
+                key={loc}
+                className="bg-accent text-accent-content font-primary text-xs font-bold px-3 py-1 rounded-field uppercase tracking-wide shadow-sm"
+              >
+                {loc}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
