@@ -1,0 +1,65 @@
+@import "tailwindcss";
+@plugin "daisyui";
+@plugin "daisyui/theme" {
+  name: "mytheme";
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+
+  /* Add custom fonts for Oswald and Inter */
+  --font-primary: Oswald, sans-serif; /* For headings, buttons, titles */
+  --font-secondary: Inter, sans-serif; /* For paragraphs, body text */
+
+  /* Base colors - Updated for WiyoRent's clean, modern neutrals */
+  --color-base-100: oklch(99% 0.002 240); /* Keeping light background */
+  --color-base-200: oklch(97% 0.003 240);
+  --color-base-300: oklch(93% 0.005 240);
+  --color-base-content: oklch(15% 0.02 240); /* Dark grey for content, close to black */
+
+  /* Primary - Changed to a softer dark, often used for background elements in WiyoRent's minimal design */
+  --color-primary: oklch(0.9821 0 0) /* A very dark grey, softer than pure black but providing contrast */
+  --color-primary-content: oklch(98% 0.002 240); /* Light text on dark primary */
+
+  /* Secondary - WiyoRent's Rich black (#010101) */
+  --color-secondary: oklch(10% 0.01 240); /* Closest oklch for #010101 black */
+  --color-secondary-content: oklch(98% 0.002 240); /* Light text on secondary black */
+
+  /* Accent - WiyoRent's Luxurious bright yellow (#F1C528) */
+  --color-accent: oklch(75% 0.15 85); /* Closest oklch for #F1C528 bright yellow */
+  --color-accent-content: oklch(20% 0.03 85); /* Dark text on accent yellow */
+
+  /* Neutral - Darker grey for contrast, often used for borders or secondary text */
+  --color-neutral: oklch(40% 0.01 240);
+  --color-neutral-content: oklch(98% 0.002 240);
+
+  /* Info, Success, Warning, Error - Retained as they are functional colors, adjust as needed if specific brand shades are required */
+  --color-info: oklch(70% 0.08 240);
+  --color-info-content: oklch(98% 0.002 240);
+  --color-success: oklch(65% 0.12 150);
+  --color-success-content: oklch(98% 0.002 150);
+  --color-warning: oklch(70% 0.18 75);
+  --color-warning-content: oklch(20% 0.03 75);
+  --color-error: oklch(60% 0.20 25);
+  --color-error-content: oklch(98% 0.002 25);
+
+  /* Border radius - Modern but not too rounded */
+  --radius-selector: 0.5rem;
+  --radius-field: 0.375rem;
+  --radius-box: 0.75rem;
+
+  /* Base sizes */
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+
+  /* Border size */
+  --border: 1px;
+
+  /* Effects */
+  --depth: 1;
+  --noise: 0;
+}
+  /* Custom CSS to hide password reveal icon */
+    input::-ms-reveal,
+    input::-ms-clear {
+      display: none;
+    }
