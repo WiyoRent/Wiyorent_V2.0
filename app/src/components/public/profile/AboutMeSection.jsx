@@ -39,7 +39,7 @@ export default function AboutMeSection({ about_me, set_about_me }) {
           placeholder="Hey! I'm [name], a [year]-year [program] student. I'm passionate about... Looking for..."
           rows={6}
           maxLength={MAX_CHARS}
-          className={`textarea textarea-bordered rounded-field font-secondary text-sm leading-relaxed resize-y ${
+          className={`w-full textarea textarea-bordered rounded-field font-secondary text-sm leading-relaxed resize-y ${
             is_over_limit ? 'textarea-error' : ''
           }`}
           required

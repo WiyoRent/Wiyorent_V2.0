@@ -17,7 +17,6 @@ export default function Sidebar() {
     { icon: Users, label: "Housemates", href: "/housemates" },
     { icon: Heart, label: "Favourites", href: "/favourites" },
     { icon: User, label: "My Profile", href: "/profile" },
-    { icon: FileText, label: "Blogs", href: "/blogs" },
   ];
 
 

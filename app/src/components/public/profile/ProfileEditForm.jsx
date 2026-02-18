@@ -57,7 +57,7 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods 
 
   const [is_saving, set_is_saving] = useState(false);
 
-  const handle_save = async () => {
+   const handle_save = async () => {
     set_is_saving(true);
     const payload = {
       is_profile_public,

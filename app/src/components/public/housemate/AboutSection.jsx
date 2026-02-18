@@ -7,7 +7,7 @@ export default function AboutSection({ about_me }) {
         <span className="w-1 h-5 bg-accent rounded-full inline-block" />
         About Me
       </h2>
-      <p className="font-secondary text-sm text-base-content/65 leading-relaxed">
+      <p className="font-secondary text-sm text-base-content/65 w-full leading-relaxed">
         {about_me}
       </p>
     </section>
