@@ -8,6 +8,7 @@ import Partners from "../components/public/home/Partners.jsx";
 import Testimonials from "@/components/public/home/Testimonials.jsx";
 import Footer from "@/components/public/home/Footer.jsx";
 import AOSProvider from "@/context/AOSProvider.jsx";
+import { ToastContainer } from "react-toastify";
 
 export default function HomePage() {
   return (
@@ -22,6 +23,7 @@ export default function HomePage() {
         <Partners />
         <Testimonials />
         <Footer />
+        <ToastContainer />
       </main>
     </AOSProvider>
   );

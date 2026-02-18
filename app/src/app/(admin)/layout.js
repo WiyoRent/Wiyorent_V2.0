@@ -1,6 +1,8 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
 import AdminSidebar from "@/components/admin/shared/AdminSidebar";
+import { ToastContainer } from "react-toastify";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,6 +21,7 @@ export default function AdminLayout({ children }) {
       <main className="sm:mt-12 md:mt-0 flex-1 p-4">
         {children}
       </main>
+      <ToastContainer autoClose={3000} />
     </div>
   );
 }
