@@ -4,8 +4,7 @@ const PROPERTY_TYPES = [
   { value: 'room', label: 'Room' },
   { value: 'studio', label: 'Studio' },
   { value: 'apartment', label: 'Apartment' },
-  { value: 'house', label: 'House' },
-  { value: 'villa', label: 'Villa' },
+  { value: 'house', label: 'House' }
 ];
 
 export default function SpecificationsSection({ specifications, set_specifications }) {

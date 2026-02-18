@@ -10,20 +10,22 @@ export default function ImagesSection({ image_urls, set_image_urls }) {
   const input_ref = useRef(null);
 
   const handle_files = (files) => {
-    const new_entries = Array.from(files)
-      .filter((f) => f.type.startsWith('image/'))
-      .map((file) => ({
-        file,
-        preview_url: URL.createObjectURL(file),
-      }));
+    console.log(files, '-------')
+    const new_file = Array.from(files).map((file) => (
+      {file,
+      preview_url:URL.createObjectURL(file)}
+    ))
+    
+    console.log(new_file)
 
-    set_image_urls((prev) => [...prev, ...new_entries]);
+    return set_image_urls(prev => [...prev, ...new_file])
   };
 
   const handle_input_change = (e) => {
-    if (e.target.files?.length) {
-      handle_files(e.target.files);
-      e.target.value = '';
+    const files = e.target.files; // Get the whole FileList object
+    
+    if(files && files.length > 0){
+      handle_files(files); 
     }
   };
 

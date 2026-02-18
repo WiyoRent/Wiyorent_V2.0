@@ -89,6 +89,7 @@ export default function StatusSection({
             </span>
           </label>
           <input
+            min={new Date().toISOString().split('T')[0]}
             type="date"
             className="input input-bordered rounded-field font-secondary text-sm w-full"
             value={available_from}

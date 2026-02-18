@@ -11,8 +11,11 @@ import LandlordSection from '@/components/admin/create-listing/LandlordSection';
 import StatusSection from '@/components/admin/create-listing/StatusSection';
 import FormHeader from '@/components/admin/create-listing/FormHeader';
 import FormActions from '@/components/admin/create-listing/FormActions';
+import { getBaseURL } from '@/lib/getBaseURL';
+import { toast } from 'react-toastify';
 
-// ─── Default mockup ────────────────────────────────────────────────────────────
+// Default mockup 
+
 const default_listing = {
   title: '',
   description: '',
@@ -49,7 +52,7 @@ const default_listing = {
 export default function CreateListingPage() {
   const [listing, set_listing] = useState(default_listing);
 
-  // ── Granular setters passed to children ──────────────────────────────────────
+
   const set_title = (val) => set_listing((prev) => ({ ...prev, title: val }));
   const set_description = (val) => set_listing((prev) => ({ ...prev, description: val }));
 
@@ -72,12 +75,125 @@ export default function CreateListingPage() {
       ...prev,
       image_urls: typeof val === 'function' ? val(prev.image_urls) : val,
     }));
+    
+  const [isLoading, setIsLoading] = useState(false)
 
-  // ── Submit ────────────────────────────────────────────────────────────────────
-  const handle_submit = (e) => {
+  
+  const handle_submit = async (e) => {
     e.preventDefault();
     console.log('Submitting listing:', listing);
-    // TODO: call API
+    
+    const formData = new FormData()
+
+    formData.append('title', listing.title)
+    formData.append('is_active', listing.is_active)
+    formData.append('is_verified', listing.is_verified)
+    formData.append('description', listing.description)
+    formData.append('available_status', listing.available_status)
+    formData.append('available_from', listing.available_from)
+formData.append('amenities', listing.amenities)
+formData.append('house_rules', listing.house_rules)
+
+
+    for(const [key,value] of Object.entries(listing.financials)){
+      formData.append(key,value)
+    }
+
+    for(const [key,value] of Object.entries(listing.landlord)){
+      formData.append(key,value)
+    }
+
+    for(const [key,value] of Object.entries(listing.location)){
+      formData.append(key,value)
+    }
+
+    for(const [key,value] of Object.entries(listing.specifications)){
+      formData.append(key,value)
+    }
+
+    for(const img of listing.image_urls){
+      const {file, preview_url} = img
+        formData.append('images', file)
+    }
+
+    for(const [key,value] of formData.entries()){
+      
+      if(key === 'images' && key.length === 0){
+        toast.error('Please enter atleast one image')
+        return
+      }
+
+      if(key !== 'house_rules' && key !== 'amenities' && !value){
+        toast.error('Please enter atleast one image')
+        return
+      }
+      
+    }
+    
+    
+
+    try {
+      const loadingToast = toast.loading('Creating Listing...', {autoClose: false})
+
+      setIsLoading(true)
+
+      const url = getBaseURL() + 'api/v1/admin/createListing'
+
+      const response = await fetch(url , {
+        method : 'POST',
+        body : formData
+      })
+
+      if(!response.ok){
+        throw new Error (`HTTP error! status: ${response.status}`)
+      }
+
+      const result = await response.json()
+
+      console.log(result)
+
+      if(!result.success){
+        toast.update(
+            loadingToast, {
+            render : result.message,
+            type: "error",
+            isLoading: false,
+            autoClose : 3000
+          }
+        )
+      }
+
+      toast.update(
+        loadingToast,{
+          render : result.message,
+          type : 'success',
+          isLoading : false,
+          autoClose : 3000
+        }
+      )
+
+      handle_reset()
+
+    } catch (error) {
+      console.log(error)
+      toast.update(
+        loadingToast,{
+          render : 'An error occured',
+          type : 'error',
+          isLoading : false,
+          autoClose : 3000
+        }
+      )
+    }finally{
+      setIsLoading(false)
+      toast.update(
+        loadingToast, {
+          type: 'success',
+          autoClose : 3000
+        }
+      )
+    }
+
   };
 
   const handle_reset = () => {
@@ -149,7 +265,10 @@ export default function CreateListingPage() {
           />
 
           {/* Actions */}
-          <FormActions on_reset={handle_reset} />
+          <FormActions  
+            on_reset={handle_reset}
+            isLoading = {isLoading}
+          />
         </form>
       </div>
     </div>
