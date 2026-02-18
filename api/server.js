@@ -16,7 +16,7 @@ app.use(express.json())
 
 // Endpoints
 app.get('/', (req,res) => {
-    res.send("Welcom to WiyoBackend")
+    res.send("Welcome to WiyoBackend")
 })
 
 app.use('/api/v1/admin', adminRouter)
