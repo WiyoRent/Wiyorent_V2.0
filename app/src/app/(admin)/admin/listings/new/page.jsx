@@ -118,7 +118,7 @@ formData.append('house_rules', listing.house_rules)
 
     for(const [key,value] of formData.entries()){
       
-      if(key === 'images' && key.length === 0){
+      if(listing.image_urls.length === 0){
         toast.error('Please enter atleast one image')
         return
       }
@@ -132,25 +132,28 @@ formData.append('house_rules', listing.house_rules)
     
     
 
+    const loadingToast = toast.loading('Creating Listing...', {autoClose: false})
+    
     try {
-      const loadingToast = toast.loading('Creating Listing...', {autoClose: false})
-
+      // Set loading to true to disable buttons
       setIsLoading(true)
 
+      // Get our base url
       const url = getBaseURL() + 'api/v1/admin/createListing'
 
+      // API endpoint we send our post request to the backedn
       const response = await fetch(url , {
         method : 'POST',
         body : formData
       })
 
+      // If response is not okay we throw a new error
       if(!response.ok){
         throw new Error (`HTTP error! status: ${response.status}`)
       }
 
+      // Handling result from backend
       const result = await response.json()
-
-      console.log(result)
 
       if(!result.success){
         toast.update(
@@ -161,6 +164,7 @@ formData.append('house_rules', listing.house_rules)
             autoClose : 3000
           }
         )
+        return 
       }
 
       toast.update(
@@ -186,12 +190,6 @@ formData.append('house_rules', listing.house_rules)
       )
     }finally{
       setIsLoading(false)
-      toast.update(
-        loadingToast, {
-          type: 'success',
-          autoClose : 3000
-        }
-      )
     }
 
   };

@@ -7,9 +7,10 @@ export const errorMsg = (res,err = 422,msg = 'An error occured') => {
     })
 }
 
-export const successMsg = (res,status,msg) => {
+export const successMsg = (res,status,msg,data=[] || {}) => {
     return res.status(status).json({
         success: true,
-        message: msg
+        message: msg,
+        data
     })
 }

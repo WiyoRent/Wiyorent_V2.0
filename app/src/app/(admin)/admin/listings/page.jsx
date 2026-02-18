@@ -5,64 +5,36 @@ import ListingsTable from '@/components/admin/listings/ListingsTable';
 import ListingsFilterBar from '@/components/admin/listings/ListingsFilterBar';
 import { Plus, Home } from 'lucide-react';
 import Link from 'next/link';
+import { getBaseURL } from '@/lib/getBaseURL';
+import { toast } from 'react-toastify';
 
-const admin_listings_data = [
-  {
-    listing_id: 'house_8826',
-    title: 'Luxury Apartment in Remera',
-    thumbnail_url: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=200&q=80',
-    is_active: true,
-    is_verified: true,
-    available_status: 'available',
-    analytics: { number_of_saves: 142, number_of_views: 1205 },
-    landlord: { full_name: 'WiyoRent Ltd', phone_number: '+250780000000' },
-    location: { neighborhood: 'Remera', city: 'Kigali', country: 'Rwanda' },
-  },
-  {
-    listing_id: 'house_8821',
-    title: 'Modern Room in Kicukiro',
-    thumbnail_url: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=200&q=80',
-    is_active: true,
-    is_verified: true,
-    available_status: 'booked',
-    analytics: { number_of_saves: 89, number_of_views: 743 },
-    landlord: { full_name: 'Mutesi Properties', phone_number: '+250788123456' },
-    location: { neighborhood: 'Kicukiro', city: 'Kigali', country: 'Rwanda' },
-  },
-  {
-    listing_id: 'house_8823',
-    title: 'Shared Villa in Gasabo',
-    thumbnail_url: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=200&q=80',
-    is_active: false,
-    is_verified: false,
-    available_status: 'maintenance',
-    analytics: { number_of_saves: 56, number_of_views: 421 },
-    landlord: { full_name: 'Uwera Estates', phone_number: '+250782456789' },
-    location: { neighborhood: 'Gasabo', city: 'Kigali', country: 'Rwanda' },
-  },
-  {
-    listing_id: 'house_8824',
-    title: '1 Bedroom House in Zindiro',
-    thumbnail_url: 'https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?w=200&q=80',
-    is_active: true,
-    is_verified: true,
-    available_status: 'available',
-    analytics: { number_of_saves: 34, number_of_views: 298 },
-    landlord: { full_name: 'Nkusi Homes', phone_number: '+250785678901' },
-    location: { neighborhood: 'Zindiro', city: 'Kigali', country: 'Rwanda' },
-  },
-  {
-    listing_id: 'house_8825',
-    title: 'Budget Room in Kimironko',
-    thumbnail_url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&q=80',
-    is_active: true,
-    is_verified: false,
-    available_status: 'available',
-    analytics: { number_of_saves: 67, number_of_views: 589 },
-    landlord: { full_name: 'Kalisa Realty', phone_number: '+250789012345' },
-    location: { neighborhood: 'Kimironko', city: 'Kigali', country: 'Rwanda' },
-  },
-];
+
+const fetch_listings = async () => {
+  try {
+    const url = getBaseURL() + 'api/v1/admin/fetchAllListings'
+    const response = await fetch (url)
+
+    if(!response.ok){
+      throw new Error(`Failed to fetch. Status: ${response.status}`)
+    }
+
+    const result = await response.json()
+    
+    if(!result.success){
+      toast.error("An error couldn't fetch listing")
+    }
+
+    const data = result.data 
+
+    return data
+  } catch (error) {
+    
+  }
+  
+}
+
+
+const all_listings = await fetch_listings()
 
 export default function AdminListingsPage() {
   const [search_query, set_search_query] = useState('');
@@ -70,7 +42,7 @@ export default function AdminListingsPage() {
   const [neighborhood_filter, set_neighborhood_filter] = useState('all');
 
   
-  const filtered_listings = admin_listings_data.filter((listing) => {
+  const filtered_listings = all_listings.filter((listing) => {
     const matches_search = listing.title.toLowerCase().includes(search_query.toLowerCase()) || 
                           listing.listing_id.toLowerCase().includes(search_query.toLowerCase());
     const matches_status = status_filter === 'all' || listing.available_status === status_filter;
@@ -79,7 +51,7 @@ export default function AdminListingsPage() {
     return matches_search && matches_status && matches_neighborhood;
   });
 
-  const neighborhoods = Array.from(new Set(admin_listings_data.map(l => l.location.neighborhood)));
+  const neighborhoods = Array.from(new Set(all_listings.map(l => l.location.neighborhood)));
 
   return (
     <div className="min-h-screen bg-base-200">
