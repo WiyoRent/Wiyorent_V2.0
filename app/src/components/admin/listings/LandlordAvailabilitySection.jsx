@@ -88,7 +88,8 @@ export default function LandlordAvailabilitySection({
           <br />
           <input
             type="date"
-            value={available_from}
+            min={new Date().toISOString().split('T')[0]}
+            value={new Date(available_from).toISOString().split('T')[0]}
             onChange={(e) => set_available_from(e.target.value)}
             className="input input-bordered rounded-field font-secondary text-sm"
           />
