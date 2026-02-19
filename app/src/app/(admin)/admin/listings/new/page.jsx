@@ -147,13 +147,13 @@ formData.append('house_rules', listing.house_rules)
         body : formData
       })
 
+      // Getting json result from backend
+      const result = await response.json()
+
       // If response is not okay we throw a new error
       if(!response.ok){
-        throw new Error (`HTTP error! status: ${response.status}`)
+        throw new Error (result.message || "Something Went Wrong")
       }
-
-      // Handling result from backend
-      const result = await response.json()
 
       if(!result.success){
         toast.update(
@@ -182,7 +182,7 @@ formData.append('house_rules', listing.house_rules)
       console.log(error)
       toast.update(
         loadingToast,{
-          render : 'An error occured',
+          render : error.message,
           type : 'error',
           isLoading : false,
           autoClose : 3000

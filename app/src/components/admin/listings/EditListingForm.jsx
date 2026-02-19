@@ -9,53 +9,147 @@ import MediaManagerSection from './MediaManagerSection';
 import AmenitiesRulesSection from './AmenitiesRulesSection';
 import { Save, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { getBaseURL } from '@/lib/getBaseURL';
+import { toast } from 'react-toastify';
 
-export default function EditListingForm({ initial_data }) {
-  // State
+
+export default function EditListingForm({ initial_data, listingId }) {
+  // --- State Initialization ---
   const [is_active, set_is_active] = useState(initial_data.is_active);
   const [title, set_title] = useState(initial_data.title);
   const [description, set_description] = useState(initial_data.description);
   const [available_status, set_available_status] = useState(initial_data.available_status);
   const [available_from, set_available_from] = useState(initial_data.available_from);
+  
+  // Landlord
   const [landlord_name, set_landlord_name] = useState(initial_data.landlord.full_name);
   const [landlord_phone, set_landlord_phone] = useState(initial_data.landlord.phone_number);
+  
+  // Financials
   const [price_per_month, set_price_per_month] = useState(initial_data.financials.price_per_month);
   const [commission_fee, set_commission_fee] = useState(initial_data.financials.commission_fee);
   const [caution_fee, set_caution_fee] = useState(initial_data.financials.caution_fee);
+  
+  // Specifications
   const [bedroom_number, set_bedroom_number] = useState(initial_data.specifications.bedroom_number);
   const [bathroom_number, set_bathroom_number] = useState(initial_data.specifications.bathroom_number);
   const [max_roommates, set_max_roommates] = useState(initial_data.specifications.max_roommates);
   const [property_type, set_property_type] = useState(initial_data.specifications.property_type);
   const [is_furnished, set_is_furnished] = useState(initial_data.specifications.is_furnished);
+  
+  // Location
   const [neighborhood, set_neighborhood] = useState(initial_data.location.neighborhood);
   const [city, set_city] = useState(initial_data.location.city);
   const [country, set_country] = useState(initial_data.location.country);
+  
+  // Arrays
   const [image_urls, set_image_urls] = useState(initial_data.image_urls);
   const [amenities, set_amenities] = useState(initial_data.amenities);
   const [house_rules, set_house_rules] = useState(initial_data.house_rules);
 
   const [is_saving, set_is_saving] = useState(false);
 
+  // --- Handlers ---
   const handle_save = async () => {
     set_is_saving(true);
-    const payload = {
-      is_active,
-      title,
-      description,
-      available_status,
-      available_from,
-      landlord: { full_name: landlord_name, phone_number: landlord_phone },
-      financials: { price_per_month, commission_fee, caution_fee },
-      specifications: { bedroom_number, bathroom_number, max_roommates, property_type, is_furnished },
-      location: { neighborhood, city, country },
-      image_urls,
-      amenities,
-      house_rules,
-    };
-    console.log('Saving listing:', payload);
-    // PUT /api/admin/listings/${initial_data.listing_id}
-    await new Promise((res) => setTimeout(res, 1000));
-    set_is_saving(false);
+
+    const loadingToast = toast.loading('Editing Listing', {
+      autoClose: false
+    })
+
+    try {
+      const payload = {
+        is_active,
+        title,
+        description,
+        available_status,
+        available_from,
+        landlord: { full_name: landlord_name, phone_number: landlord_phone },
+        financials: { price_per_month, commission_fee, caution_fee },
+        specifications: { bedroom_number, bathroom_number, max_roommates, property_type, is_furnished },
+        location: { neighborhood, city, country },
+        image_urls,
+        amenities,
+        house_rules,
+      };
+
+
+      const formData = new FormData()
+
+
+      // Nested Objects
+      for (const [key,value] of Object.entries(payload)){
+        if(typeof value == 'object' && key !== 'amenities' && key !== 'house_rules' && key !== 'image_urls'){
+          for(const [nestedKey,nestedValue] of Object.entries(value)){
+            formData.append(nestedKey,nestedValue)
+          }
+        }else if(key !== 'image_urls') {
+          formData.append(key,value)
+        }
+      }
+
+      // Append Images
+      for(const img of image_urls){
+        typeof img === 'string' ? formData.append('images',img) : formData.append('images', img.file)
+      }
+
+      // debugging formData
+
+      for(const [key,value] of formData.entries()){
+        console.log(key,value,'---formData')
+      }
+      
+      //fetch/API call
+      const url = getBaseURL() + `api/v1/admin/editListing/${listingId}`
+
+      // Response
+      const response = await fetch(url, {
+        method : 'PATCH',
+        body: formData,
+      })
+
+      const result = await response.json()
+
+      if(!response.ok){
+        throw new Error(result.message || "Something went wrong")
+      }
+
+      if(!result.success){
+        toast.update(
+          loadingToast,{
+            render : result.message,
+            type: 'error',
+            autoClose : 3000,
+            isLoading: false
+          }
+        )
+        return 
+      }
+
+      toast.update(
+        loadingToast,{
+          render : result.message,
+          type: 'success',
+          autoClose : 3000,
+          isLoading: false
+
+        }
+      )
+      
+    } catch (error) {
+      console.log(error, 'error in catch')
+        toast.update(
+          loadingToast,{
+            isLoading: false,
+            render : error.message,
+            type: 'error',
+            autoClose : 3000
+          }
+        )
+      console.error("Failed to save listing:", error);
+    } finally {
+      set_is_saving(false);
+    }
   };
 
   return (

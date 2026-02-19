@@ -1,6 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
 import streamifier from "streamifier";
-import { connectCloudinary } from "../config/cloudinary.js";
 
 export async function uploadToCloudinary(fileBuffer, folder) {
 
