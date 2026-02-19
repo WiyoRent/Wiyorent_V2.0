@@ -117,19 +117,14 @@ formData.append('house_rules', listing.house_rules)
     }
 
     for(const [key,value] of formData.entries()){
-      
-      if(listing.image_urls.length === 0){
-        toast.error('Please enter atleast one image')
-        return
+      if((key !== 'images' || key !== 'amenities' || key !== 'house_rules') && !value){
+        return toast.error('Please enter all fields')
       }
-
-      if(key !== 'house_rules' && key !== 'amenities' && !value){
-        toast.error('Please enter atleast one image')
-        return
-      }
-      
     }
-    
+
+    if(formData.getAll('images').length < 2){
+      return toast.error('Please upload atleast two images')
+    }
     
 
     const loadingToast = toast.loading('Creating Listing...', {autoClose: false})
