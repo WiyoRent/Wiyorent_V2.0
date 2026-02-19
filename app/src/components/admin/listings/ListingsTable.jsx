@@ -1,8 +1,12 @@
 'use client';
-
+import { getBaseURL } from '@/lib/getBaseURL';
 import { useState } from 'react';
 import { Eye, Heart, Edit2, Trash2, MapPin } from 'lucide-react';
 import Link from 'next/link';
+import { toast } from 'react-toastify';
+import { useRouter } from 'next/navigation';
+
+
 
 function StatusBadge({ status }) {
   const variants = {
@@ -24,7 +28,10 @@ function StatusBadge({ status }) {
   );
 }
 
-function ListingRow({ listing, on_toggle_active, on_delete }) {
+function ListingRow({ listing, on_toggle_active, optimistic_delete }) {
+
+  const router = useRouter()
+
   const [is_active, set_is_active] = useState(listing.is_active);
   const [show_delete_confirm, set_show_delete_confirm] = useState(false);
 
@@ -33,9 +40,40 @@ function ListingRow({ listing, on_toggle_active, on_delete }) {
     on_toggle_active(listing.listing_id, !is_active);
   };
 
-  const handle_delete = () => {
-    on_delete(listing.listing_id);
-    set_show_delete_confirm(false);
+  const handle_delete = async () => {
+
+    optimistic_delete(listing.listing_id)
+
+    try {
+      const url = getBaseURL() + `api/v1/admin/deleteListing/${listing.listing_id}`
+      const response = await fetch(url, {
+        method : 'DELETE'
+      })
+
+      const result = await response.json()
+
+      if(!response.ok){
+        throw new Error( result.message || 'An error occured while deleting')
+      }
+
+      if(!result.success){
+        toast.update(
+          loadingToast,
+          {
+            render : result.message,
+            type: 'error',
+            autoClose: 3000,
+            isLoading: false
+          }
+        )
+        return 
+      }
+
+    } catch (error) {
+      toast.error(
+        error.message
+      )
+    }
   };
 
   return (
@@ -159,7 +197,10 @@ function ListingRow({ listing, on_toggle_active, on_delete }) {
   );
 }
 
-export default function ListingsTable({ listings }) {
+export default function ListingsTable({ optimistic_delete, listings }) {
+
+  const [isDeleting, setIsDeleting] = useState(false)
+
   const handle_toggle_active = (listing_id, new_state) => {
     console.log(`Toggle listing ${listing_id} to ${new_state}`);
     // PUT /api/admin/listings/${listing_id} { is_active: new_state }
@@ -201,6 +242,7 @@ export default function ListingsTable({ listings }) {
               listing={listing}
               on_toggle_active={handle_toggle_active}
               on_delete={handle_delete}
+              optimistic_delete = {optimistic_delete}
             />
           ))}
         </tbody>

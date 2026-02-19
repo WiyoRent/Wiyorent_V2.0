@@ -1,4 +1,4 @@
-import { editListing, fetchAllListings, createListing, fetchSingleListing } from "../../controllers/admin/listings.controller.js";
+import { editListing, fetchAllListings, createListing, fetchSingleListing, deleteListing } from "../../controllers/admin/listings.controller.js";
 import express from 'express'
 import upload from "../../middleware/multer.js";
 
@@ -25,6 +25,11 @@ adminRouter.patch(
     '/editListing/:id',
     upload.array('images', 20),
     editListing
+)
+
+adminRouter.delete(
+    '/deleteListing/:id',
+    deleteListing
 )
 
 export default adminRouter

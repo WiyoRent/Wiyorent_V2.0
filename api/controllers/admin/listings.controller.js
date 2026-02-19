@@ -395,3 +395,24 @@ export const fetchAllListings = async (req,res) => {
     return successMsg(res, 200, 'Data Fetched Successfull', listings)
 
 }
+
+export const deleteListing = async (req,res) => {
+    const id = req.params.id
+
+    if(!id){
+        return errorMsg(res,404, "Couldn't find listing")
+    }
+
+    const result = await pool.query(`
+        DELETE FROM listings
+        WHERE 
+            id = $1
+        RETURNING *
+    `, [id])
+
+    if(result.rowCount == 0){
+        return errorMsg(res, 404, "Couldn't find listing")
+    }
+
+    return successMsg(res,200,"Item Successfully Deleted")
+}
