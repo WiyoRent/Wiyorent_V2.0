@@ -7,39 +7,51 @@ import { Plus, Home } from 'lucide-react';
 import Link from 'next/link';
 import { getBaseURL } from '@/lib/getBaseURL';
 import { toast } from 'react-toastify';
+import { useEffect } from 'react';
 
 
-const fetch_listings = async () => {
-  try {
-    const url = getBaseURL() + 'api/v1/admin/fetchAllListings'
-    const response = await fetch (url)
-
-    if(!response.ok){
-      throw new Error(`Failed to fetch. Status: ${response.status}`)
-    }
-
-    const result = await response.json()
-    
-    if(!result.success){
-      toast.error("An error couldn't fetch listing")
-    }
-
-    const data = result.data 
-
-    return data
-  } catch (error) {
-    
-  }
-  
-}
-
-
-const all_listings = await fetch_listings()
 
 export default function AdminListingsPage() {
+
+  const [all_listings, set_all_listings] = useState([]);
   const [search_query, set_search_query] = useState('');
   const [status_filter, set_status_filter] = useState('all');
   const [neighborhood_filter, set_neighborhood_filter] = useState('all');
+
+
+  const fetch_listings = async () => {
+    try {
+      const url = getBaseURL() + 'api/v1/admin/fetchAllListings'
+
+      const response = await fetch (url, {
+        cache : 'no-store'
+      })
+
+      if(!response.ok){
+        throw new Error(`Failed to fetch.`)
+      }
+
+      const result = await response.json()
+    
+      if(!result.success){
+        toast.error("An error couldn't fetch listing")
+        return
+      }
+
+      set_all_listings(result.data)
+    } catch (error) {
+      toast.error(error.message)
+    }
+  }
+
+  useEffect(() =>  {
+    fetch_listings()
+  }, [])
+
+  const optimistic_delete = (id) => {
+    set_all_listings( prev => prev.filter((item) => item.listing_id !== id ))
+  }
+
 
   
   const filtered_listings = all_listings.filter((listing) => {
@@ -93,7 +105,7 @@ export default function AdminListingsPage() {
 
         {/* Results */}
         {filtered_listings.length > 0 ? (
-          <ListingsTable listings={filtered_listings} />
+          <ListingsTable optimistic_delete={optimistic_delete} listings={filtered_listings} />
         ) : (
           <div className="bg-base-100 rounded-box py-20 flex flex-col items-center border border-dashed border-base-300">
              <Home size={48} className="text-base-content/10 mb-4" />
