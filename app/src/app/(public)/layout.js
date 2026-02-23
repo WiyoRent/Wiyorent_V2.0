@@ -1,6 +1,8 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
 import Sidebar from "@/components/public/shared/Sidebar";
+import ClientSessionProvider from "@/context/ClientSessionProvider";
+import { ToastContainer } from "react-toastify";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,14 +21,14 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-        <div className="flex min-h-screen">
+        <ClientSessionProvider>
+          <div className="flex min-h-screen">
             <Sidebar />
-
-
-          <main className="flex-1 overflow-y-auto mt-12 lg:mt-0">
-            {children}
-          </main>
-        </div>
-  
+            <main className="flex-1 overflow-y-auto mt-12 lg:mt-0">
+              {children}
+            </main>
+          </div>
+          <ToastContainer  />
+        </ClientSessionProvider>  
   );
 }

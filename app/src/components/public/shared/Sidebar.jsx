@@ -5,9 +5,13 @@ import Link from "next/link";
 import { useState } from "react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { LogIn } from "lucide-react";
+import {signIn, signOut, useSession} from "next-auth/react"
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
+
+  const {data: session, status} = useSession()
 
   const pathname = usePathname()
 
@@ -92,13 +96,23 @@ export default function Sidebar() {
           ))}
         </nav>
 
-        {/* Logout */}
-        <div className="p-4 border-t border-gray-800">
-          <button className="flex items-center gap-4 px-4 py-3 w-full text-primary hover:bg-gray-800 rounded-lg transition-colors">
-            <LogOut className="w-5 h-5" />
-            <span className="font-secondary font-medium">Log Out</span>
-          </button>
-        </div>
+        {/* Login */}
+        {session?.user ? (
+          <div className="p-4 border-t border-gray-800">
+            <button onClick={() => signOut()} className="flex items-center gap-4 px-4 py-3 w-full text-primary hover:bg-gray-800 rounded-lg transition-colors">
+              <LogOut  className="w-5 h-5" />
+              <span className="font-secondary font-medium">Log Out</span>
+            </button>
+          </div>
+        ) : (
+          <div className="p-4 border-t border-gray-800">
+            <button onClick={ () =>  signIn("google", {redirect: '/profile'})} className="flex items-center gap-4 px-4 py-3 w-full text-primary hover:bg-gray-800 rounded-lg transition-colors">
+              <LogIn className="w-5 h-5" />
+              <span className="font-secondary font-medium">Log In</span>
+            </button>
+          </div>
+        )}
+        
       </aside>
 
       {/* Mobile Spacer */}
