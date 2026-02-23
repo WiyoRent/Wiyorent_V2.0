@@ -3,7 +3,7 @@ import { MessageSquare } from 'lucide-react';
 const MAX_CHARS = 500;
 
 export default function AboutMeSection({ about_me, set_about_me }) {
-  const char_count = about_me.length;
+  const char_count = about_me?.length;
   const remaining = MAX_CHARS - char_count;
   const is_over_limit = char_count > MAX_CHARS;
 
@@ -34,7 +34,7 @@ export default function AboutMeSection({ about_me, set_about_me }) {
         </label>
         <br />
         <textarea
-          value={about_me}
+          value={about_me || ""}
           onChange={(e) => set_about_me(e.target.value)}
           placeholder="Hey! I'm [name], a [year]-year [program] student. I'm passionate about... Looking for..."
           rows={6}
