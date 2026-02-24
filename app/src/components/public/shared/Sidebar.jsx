@@ -7,6 +7,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { LogIn } from "lucide-react";
 import {signIn, signOut, useSession} from "next-auth/react"
+import { Lock } from "lucide-react";
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,6 +25,35 @@ export default function Sidebar() {
   ];
 
 
+  const displayNav = (label) => {
+
+    const lock = ["Housemates", "Favourites", "My Profile"]
+
+    if(lock.includes(label) && !session?.user?.id){
+      return (
+        <span 
+          className="font-secondary font-medium flex  items-center">
+            {label} 
+            {<Lock className="h-3" color="red" />}
+        </span>
+      )
+    }else if(!session?.user?.is_onboarded && label == 'Housemates'){
+      return (
+      <span 
+        className="font-secondary font-medium flex  items-center">
+          {label} 
+          {<Lock className="h-3" color="red" />}
+      </span>
+      )
+    }else{
+        return (
+          <span 
+            className="font-secondary font-medium flex  items-center">
+              {label} 
+          </span>
+        )
+      }
+    }
   
 
   return (
@@ -91,7 +121,7 @@ export default function Sidebar() {
               }`}
             >
               <item.icon className="w-5 h-5" />
-              <span className="font-secondary font-medium">{item.label}</span>
+              {displayNav(item.label)}
             </Link>
           ))}
         </nav>
