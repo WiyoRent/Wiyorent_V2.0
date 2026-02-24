@@ -68,6 +68,13 @@ export default function BasicProfileSection({
     }
   }
 
+  const handle_nationality = (selectedOption) => {
+    if (!selectedOption) return;
+
+    const countryCode = selectedOption.value;
+    set_nationality(countryCode);
+  }
+
 
 
   return (
@@ -247,8 +254,8 @@ export default function BasicProfileSection({
             className='w-1/2'
             required
             options = {options}
-            value = {nationality || ""}
-            onChange = {set_nationality}
+            value = {options.find(obj => obj.value === nationality)|| ""}
+            onChange = {handle_nationality}
           />
           
         </div>

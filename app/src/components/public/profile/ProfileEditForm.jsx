@@ -63,7 +63,6 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
 
   const [is_saving, set_is_saving] = useState(false);
 
-  console.log(passport_id, '----passsporttt')
 
   // ----------------------HANDLE SAVE----------------------------------
    const handle_save = async () => {
@@ -109,7 +108,7 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
         about_me,
       };
 
-      // ----- FormData ----
+      // ----- FORMDATA ----
       const formData = new FormData()
 
       // 1. Basic Information
@@ -159,6 +158,7 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
         console.log(userId)
       }
 
+      // ------- API CALL -----------
       const url = getBaseURL() + `api/v1/public/updateProfile/${userId}`
 
       const response = await fetch(url, {
