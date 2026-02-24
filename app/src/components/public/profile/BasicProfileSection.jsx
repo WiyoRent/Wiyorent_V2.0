@@ -2,6 +2,11 @@
 
 import { User, Upload } from 'lucide-react';
 import Image from 'next/image';
+import PhoneInputWithCountrySelect from 'react-phone-number-input';
+import 'react-phone-number-input/style.css'
+import Select from 'react-select'
+import countryList from 'react-select-country-list'
+import { useMemo } from 'react';
 
 export default function BasicProfileSection({
   full_name,
@@ -24,6 +29,8 @@ export default function BasicProfileSection({
   set_nationality,
 }) {
 
+  const options = useMemo(() => countryList().getData(), [])
+
   const uploadProfilePicture = (e) => {
     const file = e.target.files[0]
 
@@ -40,8 +47,6 @@ export default function BasicProfileSection({
 
     return 
   }
-
-   console.log(avatar_url, 'adwddw')
 
   const displayProfilepic = (avatar) => {
 
@@ -148,7 +153,6 @@ export default function BasicProfileSection({
             <option value="">Select gender</option>
             <option value="Male">Male</option>
             <option value="Female">Female</option>
-            <option value="Other">Other</option>
           </select>
         </div>
 
@@ -160,13 +164,13 @@ export default function BasicProfileSection({
             </span>
           </label>
           <br />
-          <input
-            type="tel"
+          <PhoneInputWithCountrySelect
+            required 
+            placeholder = "Enter phone number (+250 123 456 789)"
             value={phone_number || ""}
-            onChange={(e) => set_phone_number(e.target.value)}
-            placeholder="+250788888888"
-            className="input input-bordered rounded-field font-secondary text-sm"
-            required
+            onChange={set_phone_number}
+            className='input'
+            defaultCountry='RW'
           />
         </div>
 
@@ -235,18 +239,18 @@ export default function BasicProfileSection({
         <div className="form-control">
           <label className="label">
             <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">
-              Nationality
+              Country Of Origin
             </span>
           </label>
           <br />
-          <input
-            type="text"
-            value={nationality || ""}
-            onChange={(e) => set_nationality(e.target.value)}
-            placeholder="Rwandan"
-            className="input input-bordered rounded-field font-secondary text-sm"
+          <Select
+            className='w-1/2'
             required
+            options = {options}
+            value = {nationality || ""}
+            onChange = {set_nationality}
           />
+          
         </div>
       </div>
     </div>
