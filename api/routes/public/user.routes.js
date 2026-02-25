@@ -1,6 +1,8 @@
 import express from 'express'
 import upload from '../../middleware/multer.js'
 import { updateProfile } from '../../controllers/public/profile.controller.js'
+import { fetchListings, fetchSavedListings, fetchSingleListing, saveListing } from '../../controllers/public/listing.controller.js'
+
 
 const userRouter = express.Router()
 
@@ -13,5 +15,22 @@ userRouter.patch(
     ]),
     updateProfile
 )
+
+userRouter.get(
+    '/getListings',
+    fetchListings
+)
+
+userRouter.get(
+    '/getSingleListing/:id',
+    fetchSingleListing
+)
+
+userRouter.post(
+    '/saveListing',
+    saveListing
+)
+
+userRouter.get('/fetchSavedListings', fetchSavedListings)
 
 export default userRouter
