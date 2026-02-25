@@ -55,13 +55,13 @@ export default function BasicProfileSection({
       return <User size={16} className="text-accent-content" />
     }else if (typeof avatar == 'string'){
       return (
-        <div className='border-2 border-accent relative w-24 rounded-full  h-28'>
+        <div className='object-contain border-2 border-accent relative w-24 rounded-full  h-28'>
           <Image className='rounded-full' alt='Your profile image' fill src={avatar || null} />
         </div> 
       )
     }else {
       return (
-        <div className='border-2 border-accent relative w-24 rounded-full  h-28'>
+        <div className='object-contain border-2 border-accent relative w-24 rounded-full  h-28'>
             <Image className='rounded-full' alt='Your profile image' fill src={avatar.previewUrl || null} />
         </div> 
       )

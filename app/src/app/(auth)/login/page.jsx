@@ -51,7 +51,7 @@ function LoginForm() {
           {/* Welcome Text */}
           <div className="text-center mb-8">
             <h1 className="font-primary text-3xl sm:text-4xl font-extrabold text-base-content uppercase tracking-tight mb-2">
-              Welcome Back
+              Welcome
             </h1>
             <p className="font-secondary text-base-content/60 text-sm">
               Sign in to access your WiyoRent account
