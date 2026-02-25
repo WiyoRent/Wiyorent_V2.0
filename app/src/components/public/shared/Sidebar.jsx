@@ -2,7 +2,7 @@
 
 import { Home, List, Users, Heart, User, FileText, LogOut, Menu, X } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { LogIn } from "lucide-react";
@@ -12,7 +12,13 @@ import { Lock } from "lucide-react";
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
 
-  const {data: session, status} = useSession()
+  let {data: session, status} = useSession()
+
+  const [loadingStatus, setStatus] = useState(status)
+
+  useEffect(() => {
+    setStatus(status)
+  }, [status])
 
   const pathname = usePathname()
 
@@ -27,7 +33,7 @@ export default function Sidebar() {
 
   const displayNav = (label) => {
 
-    const lock = ["Housemates", "Favourites", "My Profile"]
+    const lock = ["Housemates", "My Profile"]
 
     if(lock.includes(label) && !session?.user?.id){
       return (
@@ -54,6 +60,18 @@ export default function Sidebar() {
         )
       }
     }
+
+  const handleLogout = () => {
+    setStatus('loading')
+    signOut()
+  }
+
+  const handleSignIn = () => {
+    setStatus('loading')
+    signIn("google", {redirect : '/profile'})
+  }
+
+
   
 
   return (
@@ -125,20 +143,47 @@ export default function Sidebar() {
             </Link>
           ))}
         </nav>
-
+        
+        
         {/* Login */}
         {session?.user ? (
           <div className="p-4 border-t border-gray-800">
-            <button onClick={() => signOut()} className="flex items-center gap-4 px-4 py-3 w-full text-primary hover:bg-gray-800 rounded-lg transition-colors">
-              <LogOut  className="w-5 h-5" />
-              <span className="font-secondary font-medium">Log Out</span>
+            <button onClick={() => handleLogout()} className={`flex ${loadingStatus ? 'justify-center' : ''} items-center gap-4 px-4 py-3 w-full text-primary hover:bg-gray-800 rounded-lg transition-colors`}>
+              {loadingStatus == 'loading ' ? 
+                (
+                  <>
+                    <span className="text-accent loading loading-spinner loading-xl"></span> 
+                  </>
+                )
+                  :
+                (
+                  <>
+                    <LogOut  className="w-5 h-5" />
+                    <span className="font-secondary font-medium">Log Out</span>
+                  </>
+                )
+                  
+              }
             </button>
           </div>
         ) : (
-          <div className="p-4 border-t border-gray-800">
-            <button onClick={ () =>  signIn("google", {redirect: '/profile'})} className="flex items-center gap-4 px-4 py-3 w-full text-primary hover:bg-gray-800 rounded-lg transition-colors">
-              <LogIn className="w-5 h-5" />
-              <span className="font-secondary font-medium">Log In</span>
+          <div className="p-4 border-t border-gray-800 ">
+            <button onClick={ () =>  handleSignIn()} className={`flex ${loadingStatus ? 'justify-center' : ''} items-center gap-4 px-4 py-3 w-full text-primary hover:bg-gray-800 rounded-lg transition-colors`}>
+              {loadingStatus == 'loading' ? 
+                (
+                  <>
+                    <span className="loading text-accent loading-spinner loading-xl"></span> 
+                  </>
+                ) 
+                  :
+                (
+                  <>
+                    <LogIn className="w-5 h-5" />
+                    <span className="font-secondary font-medium">Log In</span>
+                  </>
+                )
+                }
+                
             </button>
           </div>
         )}
