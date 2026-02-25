@@ -31,7 +31,7 @@ export default function ListingHeader({
           </span>
         )}
         <span className="inline-flex items-center gap-1 bg-base-200 text-base-content/60 px-2.5 py-1 rounded-field text-xs font-secondary capitalize">
-          {specifications.property_type}
+          {specifications?.property_type}
         </span>
       </div>
 
@@ -53,21 +53,21 @@ export default function ListingHeader({
         <div className="flex items-center gap-2 bg-base-200 px-3 py-2 rounded-field">
           <Bed size={16} className="text-primary" />
           <span className="font-secondary text-sm font-semibold text-base-content">
-            {specifications.bedroom_number}{' '}
-            {specifications.bedroom_number === 1 ? 'Bedroom' : 'Bedrooms'}
+            {specifications?.bedroom_number}{' '}
+            {specifications?.bedroom_number === 1 ? 'Bedroom' : 'Bedrooms'}
           </span>
         </div>
         <div className="flex items-center gap-2 bg-base-200 px-3 py-2 rounded-field">
           <Bath size={16} className="text-primary" />
           <span className="font-secondary text-sm font-semibold text-base-content">
-            {specifications.bathroom_number}{' '}
-            {specifications.bathroom_number === 1 ? 'Bathroom' : 'Bathrooms'}
+            {specifications?.bathroom_number}{' '}
+            {specifications?.bathroom_number === 1 ? 'Bathroom' : 'Bathrooms'}
           </span>
         </div>
         <div className="flex items-center gap-2 bg-base-200 px-3 py-2 rounded-field">
           <Users size={16} className="text-primary" />
           <span className="font-secondary text-sm font-semibold text-base-content">
-            {specifications.max_roommates} Roommates
+            {specifications?.max_roommates} Roommates
           </span>
         </div>
       </div>
