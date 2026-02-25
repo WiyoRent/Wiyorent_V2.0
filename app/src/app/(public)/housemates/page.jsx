@@ -2,7 +2,7 @@ import { auth } from '@/auth';
 import HousemateFilterSidebar from '@/components/public/housemates/HousemateFilterSidebar';
 import HousematesGrid from '@/components/public/housemates/HousemateGrid';
 import InformationModal from '@/components/public/shared/InformationModal';
-import { redirect } from 'next/navigation';
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Mock data — swap for async fetch('/api/housemates') in production
