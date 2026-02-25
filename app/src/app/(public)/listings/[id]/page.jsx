@@ -5,98 +5,136 @@ import AmenitiesSection from '@/components/public/listing/AmenitiesSection';
 import HouseRulesSection from '@/components/public/listing/HouseRulesSection';
 import ReviewsSection from '@/components/public/listing/ReviewsSection';
 import PricingSidebar from '@/components/public/listing/PricingSidebar';
+import { getBaseURL } from '@/lib/getBaseURL.js';
 
 // ---------------------------------------------------------------------------
 // Mock listing detail — replace this async fetch in production:
 //   const listing_detail = await fetch(`/api/listings/${params.id}`).then(r => r.json())
 // ---------------------------------------------------------------------------
-const listing_detail = {
-  listing_id: 'house_8826',
-  title: 'Luxury Apartment in Remera',
-  financials: {
-    price_per_month: 300000,
-    commission_fee: 30000,   // 10% of one month rent (default)
-    caution_fee: 300000,     // refundable by default
-  },
-  specifications: {
-    bedroom_number: 2,
-    bathroom_number: 2,
-    max_roommates: 3,
-    property_type: 'apartment',
-  },
-  amenities: [
-    'wifi',
-    'stove',
-    'microwave',
-    'blender',
-    'security',
-    'parking',
-    'water_tank',
-  ],
-  neighborhood: 'Remera',
-  city: 'Kigali',
-  country: 'Rwanda',
-  available_status: 'available',
-  is_furnished: true,
-  is_verified: true,
-  thumbnail_url:
-    'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&q=80',
-  description:
-    'A stunning, high-end apartment located in the heart of Remera. This property offers modern finishes, plenty of natural light, and is situated within walking distance to the Kigali Arena and top-tier restaurants. Perfect for professionals or small families seeking comfort and security.',
-  image_urls: [
-    'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200',
-    'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=1200',
-    'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=1200',
-  ],
-  house_rules: [
-    'No smoking inside the property',
-    'No pets allowed',
-    'Quiet hours from 10 PM to 7 AM',
-    'Visitors must leave by 10 PM',
-    'Keep common areas clean',
-    'Respect your roommates and neighbors',
-  ],
-  reviews: {
-    average_rating: 4.8,
-    total_count: 112,
-    entries: [
-      {
-        id: 'rev_01',
-        name: 'John Mutabazi',
-        rating: 5,
-        comment:
-          'Great place for a student! Very close to the university and the landlord is super helpful. The Wi-Fi is also very reliable.',
-        avatar: 'https://i.pravatar.cc/150?u=john',
-        date: '2024-01-15',
-      },
-      {
-        id: 'rev_02',
-        name: 'Alice Uwera',
-        rating: 4,
-        comment:
-        "The apartment is clean and modern. My only complaint is the occasional noise from the street, but it's not a major issue.",
-        avatar: 'https://i.pravatar.cc/150?u=alice',
-        date: '2024-02-01',
-      },
-    ],
-  },
-};
+// const listing_detail = {
+//   listing_id: 'house_8826',
+//   title: 'Luxury Apartment in Remera',
+//   financials: {
+//     price_per_month: 300000,
+//     commission_fee: 30000,   // 10% of one month rent (default)
+//     caution_fee: 300000,     // refundable by default
+//   },
+//   specifications: {
+//     bedroom_number: 2,
+//     bathroom_number: 2,
+//     max_roommates: 3,
+//     property_type: 'apartment',
+//   },
+//   amenities: [
+//     'wifi',
+//     'stove',
+//     'microwave',
+//     'blender',
+//     'security',
+//     'parking',
+//     'water_tank',
+//   ],
+//   neighborhood: 'Remera',
+//   city: 'Kigali',
+//   country: 'Rwanda',
+//   available_status: 'available',
+//   is_furnished: true,
+//   is_verified: true,
+//   thumbnail_url:
+//     'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&q=80',
+//   description:
+//     'A stunning, high-end apartment located in the heart of Remera. This property offers modern finishes, plenty of natural light, and is situated within walking distance to the Kigali Arena and top-tier restaurants. Perfect for professionals or small families seeking comfort and security.',
+//   image_urls: [
+//     'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200',
+//     'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=1200',
+//     'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=1200',
+//   ],
+//   house_rules: [
+//     'No smoking inside the property',
+//     'No pets allowed',
+//     'Quiet hours from 10 PM to 7 AM',
+//     'Visitors must leave by 10 PM',
+//     'Keep common areas clean',
+//     'Respect your roommates and neighbors',
+//   ],
+//   reviews: {
+//     average_rating: 4.8,
+//     total_count: 112,
+//     entries: [
+//       {
+//         id: 'rev_01',
+//         name: 'John Mutabazi',
+//         rating: 5,
+//         comment:
+//           'Great place for a student! Very close to the university and the landlord is super helpful. The Wi-Fi is also very reliable.',
+//         avatar: 'https://i.pravatar.cc/150?u=john',
+//         date: '2024-01-15',
+//       },
+//       {
+//         id: 'rev_02',
+//         name: 'Alice Uwera',
+//         rating: 4,
+//         comment:
+//         "The apartment is clean and modern. My only complaint is the occasional noise from the street, but it's not a major issue.",
+//         avatar: 'https://i.pravatar.cc/150?u=alice',
+//         date: '2024-02-01',
+//       },
+//     ],
+//   },
+// };
+
+const fetchSingleListing = async (id) => {
+  try {
+    const url = getBaseURL() + `api/v1/public/getSingleListing/${id}`
+
+    const response = await fetch(url)
+
+    if(!response.ok){
+      throw new Error("An error occured. Couldn't fetch listing")
+    }
+
+    const result = await response.json()
+
+    console.log(result, '---result form fetch single')
+
+    const listing = result.data
+
+    return listing || []
+
+  } catch (error) {
+    console.error(error.message)
+    return null
+  }
+  
+}
+
 
 export async function generateMetadata({ params }) {
+
+  const {id} = await params
+
+  const listing_detail = await fetchSingleListing(id)
+
   return {
-    title: `${listing_detail.title} | WiyoRent`,
-    description: listing_detail.description,
+    title: `${listing_detail?.title} | WiyoRent`,
+    description: listing_detail?.description,
   };
 }
 
-export default function ListingDetailPage({ params }) {
+export default async function ListingDetailPage({ params }) {
+
+  const {id} = await params
+
+  const listing_detail = await fetchSingleListing(id)
+
+
   const { financials, specifications, reviews } = listing_detail;
 
   // Total first payment calculation
   const total_first_payment =
-    financials.price_per_month +
-    financials.caution_fee +
-    financials.commission_fee;
+    financials?.price_per_month +
+    financials?.caution_fee +
+    financials?.commission_fee;
 
   return (
     <div className="min-h-screen bg-base-200">
@@ -104,8 +142,8 @@ export default function ListingDetailPage({ params }) {
 
         {/* ── Image Gallery (full width) ─────────────────────── */}
         <ImageGallery
-          image_urls={listing_detail.image_urls}
-          title={listing_detail.title}
+          image_urls={listing_detail?.image_urls}
+          title={listing_detail?.title}
         />
 
         {/* ── Two-column layout below gallery ───────────────── */}
@@ -115,21 +153,21 @@ export default function ListingDetailPage({ params }) {
           <div className="flex-1 min-w-0 flex flex-col gap-8">
 
             <ListingHeader
-              title={listing_detail.title}
-              street_address={listing_detail.street_address}
-              neighborhood={listing_detail.neighborhood}
-              city={listing_detail.city}
-              country={listing_detail.country}
+              title={listing_detail?.title}
+              street_address={listing_detail?.street_address}
+              neighborhood={listing_detail?.neighborhood}
+              city={listing_detail?.city}
+              country={listing_detail?.country}
               specifications={specifications}
-              is_verified={listing_detail.is_verified}
-              is_furnished={listing_detail.is_furnished}
+              is_verified={listing_detail?.is_verified}
+              is_furnished={listing_detail?.is_furnished}
             />
 
-            <DescriptionSection description={listing_detail.description} />
+            <DescriptionSection description={listing_detail?.description} />
 
-            <AmenitiesSection amenities={listing_detail.amenities} />
+            <AmenitiesSection amenities={listing_detail?.amenities} />
 
-            <HouseRulesSection house_rules={listing_detail.house_rules} />
+            <HouseRulesSection house_rules={listing_detail?.house_rules} />
 
             <ReviewsSection reviews={reviews} />
 
