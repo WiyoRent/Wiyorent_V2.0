@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Heart,
   MapPin,
@@ -15,6 +15,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import Link from 'next/link';
+import { toggleSaveAction } from '@/actions/saveListing';
 
 const amenity_icon_map = {
   wifi: Wifi,
@@ -60,11 +61,15 @@ export default function FavouriteCard({ listing }) {
   
   const is_available = listing.available_status === 'available';
   const formatted_price = new Intl.NumberFormat('rw-RW').format(
-    listing.financials.price_per_month
+    listing?.financials?.price_per_month
   );
 
+  useEffect(() => {
+    toggleSaveAction(listing?.listing_id, !is_removed)
+  }, [is_removed])
+
   const handle_remove = () => {
-    console.log('Removing from favourites:', listing.listing_id);
+    console.log('Removing from favourites:', listing?.listing_id);
     set_is_removed(true);
   };
 
@@ -84,10 +89,10 @@ export default function FavouriteCard({ listing }) {
       
       {/* Image Container */}
       <div className="relative overflow-hidden h-48 sm:h-52 bg-base-300">
-        <Link href={`/listings/${listing.listing_id}`}>
+        <Link href={`/listings/${listing?.listing_id}`}>
             <img
-            src={listing.thumbnail_url}
-            alt={listing.title}
+            src={listing?.thumbnail_url}
+            alt={listing?.title}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
             />
@@ -95,7 +100,7 @@ export default function FavouriteCard({ listing }) {
 
         {/* Status Badge - Top Left */}
         <div className="absolute top-3 left-3">
-          <StatusBadge available_status={listing.available_status} />
+          <StatusBadge available_status={listing?.available_status} />
         </div>
 
         {/* Remove Button - Top Right */}
@@ -142,7 +147,7 @@ export default function FavouriteCard({ listing }) {
         </div>
 
         {/* Title */}
-        <Link href={`/listings/${listing.listing_id}`} className="hover:text-primary transition-colors">
+        <Link href={`/listings/${listing?.listing_id}`} className="hover:text-primary transition-colors">
           <h2 className="font-primary text-base font-bold text-base-content leading-snug">
             {listing.title}
           </h2>
@@ -158,40 +163,26 @@ export default function FavouriteCard({ listing }) {
         <div className="flex items-center gap-3 text-sm font-secondary text-base-content/60">
           <span className="flex items-center gap-1">
             <Bed size={14} />
-            {listing.specifications.bedroom_number}
+            {listing?.specifications?.bedroom_number}
           </span>
           <span className="text-base-content/30">•</span>
           <span className="flex items-center gap-1">
             <Bath size={14} />
-            {listing.specifications.bathroom_number}
+            {listing?.specifications?.bathroom_number}
           </span>
           <span className="text-base-content/30">•</span>
           <span className="flex items-center gap-1">
             <Users size={14} />
-            {listing.specifications.max_housemates || listing.specifications.max_roommates}
+            { listing?.specifications?.max_roommates}
           </span>
         </div>
 
-        {/* Amenities Icons */}
-        {listing.amenities && listing.amenities.length > 0 && (
-          <div className="flex items-center gap-2 flex-wrap">
-            {listing.amenities.slice(0, 4).map((amenity) => (
-              <AmenityBadge key={amenity} amenity={amenity} />
-            ))}
-            {listing.is_verified && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-field bg-base-300 text-xs font-primary text-base-content/60">
-                <ShieldCheck size={12} className="text-success" />
-                Verified
-              </span>
-            )}
-          </div>
-        )}
 
         {/* Single Action Button */}
         <div className="mt-auto pt-2">
           {is_available ? (
             <Link
-              href={`/listings/${listing.listing_id}/book`}
+              href={`/listings/${listing?.listing_id}/book`}
               className="btn btn-accent w-full rounded-field font-primary font-bold text-sm uppercase tracking-wide transition-all duration-200 active:scale-95"
             >
               Book Now

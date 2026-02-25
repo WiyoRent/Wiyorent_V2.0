@@ -1,6 +1,7 @@
 import FavouriteCard from './FavouriteCard';
 import { Heart } from 'lucide-react';
 import Link from 'next/link';
+import ListingCard from '../listings/ListingCard';
 
 export default function FavouritesGrid({ listings }) {
   if (!listings || listings.length === 0) {
