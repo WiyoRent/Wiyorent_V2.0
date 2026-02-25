@@ -3,10 +3,14 @@
 import { useState } from 'react';
 import { ShieldCheck, MapPin, GraduationCap, Wallet } from 'lucide-react';
 import Link from 'next/link';
+import InformationModal from '../shared/InformationModal';
+import { useRouter } from 'next/navigation';
+import { Eye } from 'lucide-react';
 
 const format_rwf = (n) => `RWF ${new Intl.NumberFormat('rw-RW').format(n)}`;
 
-function AvatarCircle({ full_name, avatar_url, gender }) {
+function AvatarCircle({ full_name, avatar_url, gender, is_verified }) {
+
   // Deterministic gradient based on name initial
   const initials = full_name
     .split(' ')
@@ -41,8 +45,7 @@ function AvatarCircle({ full_name, avatar_url, gender }) {
   );
 }
 
-export default function HousemateCard({ profile }) {
-  const [connected, set_connected] = useState(false);
+export default function HousemateCard({ profile, verification_status }) {
 
   const {
     profile_id,
@@ -56,8 +59,35 @@ export default function HousemateCard({ profile }) {
     is_verified,
   } = profile;
 
+  const router = useRouter()
+
+  const [connected, set_connected] = useState(false);
+  const [showModal, setShowModal] = useState(false)
+
+  const handleView = () => {
+    if(verification_status == false || verification_status == 'pending'){
+      setShowModal(true)
+      return
+    }
+
+    router.push(`/housemates/${profile_id}`)
+  }
+
+  const handleContact = () => {
+    if(verification_status == false || verification_status == 'pending'){
+        setShowModal(true)
+        return
+      }
+
+      router.push(`/housemates/${profile_id}`)
+    }
+    
+
   return (
     <div className="bg-base-100 rounded-box shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 flex flex-col overflow-hidden group">
+
+    {/* Information Modal */}
+    <InformationModal message={"Your account is currently under review! We're verifying your details to keep the community safe. This usually takes 1 to 24 hours. We'll notify you as soon as you're cleared to browse! In the meantime, feel free to save profiles you like, and you can message them once you're verified."} redirectTo={null} setShowModal={setShowModal} showModal={showModal} />
 
       {/* Card top — avatar + name block */}
       <div className="p-5 pb-4 flex items-start gap-4">
@@ -119,23 +149,23 @@ export default function HousemateCard({ profile }) {
       <div className="border-t border-base-200 mx-5" />
 
       {/* CTA row */}
-      <div className="p-4 flex gap-2">
+      
+      <div className="p-4 flex gap-2 items-center">
         <button
-          onClick={() => set_connected(!connected)}
+          onClick={handleContact}
           className={`btn flex-1 rounded-field font-primary font-extrabold text-xs uppercase tracking-widest transition-all duration-200 active:scale-95 ${
             connected
               ? 'btn-outline border-success text-success hover:bg-success/10'
               : 'btn-accent'
           }`}
         >
-          {connected ? '✓ Connected' : 'Connect'}
+          Contact
         </button>
-        <Link
-          href={`/housemates/${profile_id}`}
-          className="btn btn-ghost btn-sm rounded-field font-secondary text-xs text-base-content/50 hover:text-primary px-3"
-        >
-          View
-        </Link>
+          
+        <button className="btn btn-ghost btn-outline btn-sm rounded-field font-secondary text-xs text-base-content/50 hover:text-primary px-3" onClick={handleView}>
+            <Eye />
+        </button>
+        
       </div>
     </div>
   );

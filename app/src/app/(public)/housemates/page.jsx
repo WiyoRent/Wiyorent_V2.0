@@ -1,5 +1,8 @@
+import { auth } from '@/auth';
 import HousemateFilterSidebar from '@/components/public/housemates/HousemateFilterSidebar';
 import HousematesGrid from '@/components/public/housemates/HousemateGrid';
+import InformationModal from '@/components/public/shared/InformationModal';
+import { redirect } from 'next/navigation';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Mock data — swap for async fetch('/api/housemates') in production
@@ -103,9 +106,16 @@ export const metadata = {
   description: 'Browse verified student housemate profiles across Kigali.',
 };
 
-export default function HousematesPage() {
+export default async function  HousematesPage() {
+
+  const session = await auth()
+  const user = session?.user
+  const is_onboarded = user?.is_onboarded
+  const is_verified = user?.is_verified
+
   return (
     <div className="min-h-screen bg-base-200">
+      <InformationModal showModal={!is_onboarded} message={"Let's get you set up! You'll need a profile to browse and connect with housemates. Redirecting you there now...."} redirectTo={'/profile'}/>
       {/* Page header */}
       <div className="bg-base-100 border-b border-base-300">
         <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -129,7 +139,9 @@ export default function HousematesPage() {
 
           {/* Grid */}
           <div className="flex-1 min-w-0">
-            <HousematesGrid profiles={housemate_profiles} />
+            <HousematesGrid 
+            is_verified = {is_verified}
+            profiles={housemate_profiles} />
           </div>
 
         </div>
