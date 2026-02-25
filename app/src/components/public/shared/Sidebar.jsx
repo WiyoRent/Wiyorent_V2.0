@@ -2,12 +2,23 @@
 
 import { Home, List, Users, Heart, User, FileText, LogOut, Menu, X } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { LogIn } from "lucide-react";
+import {signIn, signOut, useSession} from "next-auth/react"
+import { Lock } from "lucide-react";
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
+
+  let {data: session, status} = useSession()
+
+  const [loadingStatus, setStatus] = useState(status)
+
+  useEffect(() => {
+    setStatus(status)
+  }, [status])
 
   const pathname = usePathname()
 
@@ -18,6 +29,47 @@ export default function Sidebar() {
     { icon: Heart, label: "Favourites", href: "/favourites" },
     { icon: User, label: "My Profile", href: "/profile" },
   ];
+
+
+  const displayNav = (label) => {
+
+    const lock = ["Housemates", "My Profile"]
+
+    if(lock.includes(label) && !session?.user?.id){
+      return (
+        <span 
+          className="font-secondary font-medium flex  items-center">
+            {label} 
+            {<Lock className="h-3" color="red" />}
+        </span>
+      )
+    }else if(!session?.user?.is_onboarded && label == 'Housemates'){
+      return (
+      <span 
+        className="font-secondary font-medium flex  items-center">
+          {label} 
+          {<Lock className="h-3" color="red" />}
+      </span>
+      )
+    }else{
+        return (
+          <span 
+            className="font-secondary font-medium flex  items-center">
+              {label} 
+          </span>
+        )
+      }
+    }
+
+  const handleLogout = () => {
+    setStatus('loading')
+    signOut()
+  }
+
+  const handleSignIn = () => {
+    setStatus('loading')
+    signIn("google", {redirect : '/profile'})
+  }
 
 
   
@@ -87,18 +139,55 @@ export default function Sidebar() {
               }`}
             >
               <item.icon className="w-5 h-5" />
-              <span className="font-secondary font-medium">{item.label}</span>
+              {displayNav(item.label)}
             </Link>
           ))}
         </nav>
-
-        {/* Logout */}
-        <div className="p-4 border-t border-gray-800">
-          <button className="flex items-center gap-4 px-4 py-3 w-full text-primary hover:bg-gray-800 rounded-lg transition-colors">
-            <LogOut className="w-5 h-5" />
-            <span className="font-secondary font-medium">Log Out</span>
-          </button>
-        </div>
+        
+        
+        {/* Login */}
+        {session?.user ? (
+          <div className="p-4 border-t border-gray-800">
+            <button onClick={() => handleLogout()} className={`flex ${loadingStatus ? 'justify-center' : ''} items-center gap-4 px-4 py-3 w-full text-primary hover:bg-gray-800 rounded-lg transition-colors`}>
+              {loadingStatus == 'loading ' ? 
+                (
+                  <>
+                    <span className="text-accent loading loading-spinner loading-xl"></span> 
+                  </>
+                )
+                  :
+                (
+                  <>
+                    <LogOut  className="w-5 h-5" />
+                    <span className="font-secondary font-medium">Log Out</span>
+                  </>
+                )
+                  
+              }
+            </button>
+          </div>
+        ) : (
+          <div className="p-4 border-t border-gray-800 ">
+            <button onClick={ () =>  handleSignIn()} className={`flex ${loadingStatus ? 'justify-center' : ''} items-center gap-4 px-4 py-3 w-full text-primary hover:bg-gray-800 rounded-lg transition-colors`}>
+              {loadingStatus == 'loading' ? 
+                (
+                  <>
+                    <span className="loading text-accent loading-spinner loading-xl"></span> 
+                  </>
+                ) 
+                  :
+                (
+                  <>
+                    <LogIn className="w-5 h-5" />
+                    <span className="font-secondary font-medium">Log In</span>
+                  </>
+                )
+                }
+                
+            </button>
+          </div>
+        )}
+        
       </aside>
 
       {/* Mobile Spacer */}

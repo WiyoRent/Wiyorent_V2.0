@@ -1,8 +1,18 @@
+"use client"
+
 import { User, Upload } from 'lucide-react';
+import Image from 'next/image';
+import PhoneInputWithCountrySelect from 'react-phone-number-input';
+import 'react-phone-number-input/style.css'
+import Select from 'react-select'
+import countryList from 'react-select-country-list'
+import { useMemo } from 'react';
 
 export default function BasicProfileSection({
   full_name,
   set_full_name,
+  avatar_url,
+  set_avatar_url,
   age,
   set_age,
   gender,
@@ -18,6 +28,55 @@ export default function BasicProfileSection({
   nationality,
   set_nationality,
 }) {
+
+  const options = useMemo(() => countryList().getData(), [])
+
+  const uploadProfilePicture = (e) => {
+    const file = e.target.files[0]
+
+    if(!file){
+      return
+    }
+
+    const previewUrl = URL.createObjectURL(file)
+
+    set_avatar_url({
+      file,
+      previewUrl
+    })
+
+    return 
+  }
+
+  const displayProfilepic = (avatar) => {
+
+
+    if(!avatar){
+      return <User size={16} className="text-accent-content" />
+    }else if (typeof avatar == 'string'){
+      return (
+        <div className='object-contain border-2 border-accent relative w-24 rounded-full  h-28'>
+          <Image className='rounded-full' alt='Your profile image' fill src={avatar || null} />
+        </div> 
+      )
+    }else {
+      return (
+        <div className='object-contain border-2 border-accent relative w-24 rounded-full  h-28'>
+            <Image className='rounded-full' alt='Your profile image' fill src={avatar.previewUrl || null} />
+        </div> 
+      )
+    }
+  }
+
+  const handle_nationality = (selectedOption) => {
+    if (!selectedOption) return;
+
+    const countryCode = selectedOption.value;
+    set_nationality(countryCode);
+  }
+
+
+
   return (
     <div className="bg-base-100 rounded-box shadow-sm p-6">
       {/* Section header */}
@@ -32,16 +91,16 @@ export default function BasicProfileSection({
 
       {/* Avatar upload placeholder */}
       <div className="mb-6 flex items-center gap-4">
-        <div className="w-20 h-20 bg-base-200 rounded-full flex items-center justify-center border-2 border-dashed border-base-300">
-          <User size={28} className="text-base-content/30" />
-        </div>
-        <button
-          type="button"
+        {displayProfilepic(avatar_url)}
+        <label
+          htmlFor='uploadPfp'
           className="btn btn-sm btn-outline rounded-field font-secondary text-xs gap-2 border-base-content/20 hover:border-accent"
         >
           <Upload size={14} />
           Upload Photo
-        </button>
+        </label>
+
+        <input accept='image/*' onChange={uploadProfilePicture} type="file" className='hidden' id="uploadPfp" />
       </div>
 
       {/* Form grid */}
@@ -56,7 +115,7 @@ export default function BasicProfileSection({
           <br />
           <input
             type="text"
-            value={full_name}
+            value={full_name || ""}
             onChange={(e) => set_full_name(e.target.value)}
             placeholder="John Doe"
             className="input input-bordered rounded-field font-secondary text-sm"
@@ -74,7 +133,7 @@ export default function BasicProfileSection({
           <br />
           <input
             type="number"
-            value={age}
+            value={age || ""}
             onChange={(e) => set_age(Number(e.target.value))}
             placeholder="21"
             min="18"
@@ -93,7 +152,7 @@ export default function BasicProfileSection({
           </label>
           <br />
           <select
-            value={gender}
+            value={gender || ""}
             onChange={(e) => set_gender(e.target.value)}
             className="select select-bordered rounded-field font-secondary text-sm"
             required
@@ -101,7 +160,6 @@ export default function BasicProfileSection({
             <option value="">Select gender</option>
             <option value="Male">Male</option>
             <option value="Female">Female</option>
-            <option value="Other">Other</option>
           </select>
         </div>
 
@@ -113,13 +171,13 @@ export default function BasicProfileSection({
             </span>
           </label>
           <br />
-          <input
-            type="tel"
-            value={phone_number}
-            onChange={(e) => set_phone_number(e.target.value)}
-            placeholder="+250788888888"
-            className="input input-bordered rounded-field font-secondary text-sm"
-            required
+          <PhoneInputWithCountrySelect
+            required 
+            placeholder = "Enter phone number (+250 123 456 789)"
+            value={phone_number || ""}
+            onChange={set_phone_number}
+            className='input'
+            defaultCountry='RW'
           />
         </div>
 
@@ -133,7 +191,7 @@ export default function BasicProfileSection({
           <br />
           <input
             type="text"
-            value={university_name}
+            value={university_name || ""}
             onChange={(e) => set_university_name(e.target.value)}
             placeholder="University of Rwanda"
             className="input input-bordered rounded-field font-secondary text-sm"
@@ -151,7 +209,7 @@ export default function BasicProfileSection({
           <br />
           <input
             type="text"
-            value={program}
+            value={program || ""}
             onChange={(e) => set_program(e.target.value)}
             placeholder="B.A. in Information Technology"
             className="input input-bordered rounded-field font-secondary text-sm"
@@ -169,7 +227,7 @@ export default function BasicProfileSection({
 
           <br />
           <select
-            value={year_of_study}
+            value={year_of_study || ""}
             onChange={(e) => set_year_of_study(e.target.value)}
             className="select select-bordered rounded-field font-secondary text-sm"
             required
@@ -188,18 +246,18 @@ export default function BasicProfileSection({
         <div className="form-control">
           <label className="label">
             <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">
-              Nationality
+              Country Of Origin
             </span>
           </label>
           <br />
-          <input
-            type="text"
-            value={nationality}
-            onChange={(e) => set_nationality(e.target.value)}
-            placeholder="Rwandan"
-            className="input input-bordered rounded-field font-secondary text-sm"
+          <Select
+            className='w-1/2'
             required
+            options = {options}
+            value = {options.find(obj => obj.value === nationality)|| ""}
+            onChange = {handle_nationality}
           />
+          
         </div>
       </div>
     </div>

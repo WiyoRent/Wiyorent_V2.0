@@ -1,15 +1,13 @@
 'use client';
 
-import { FileText, ShieldCheck, Upload } from 'lucide-react';
+import Image from 'next/image';
+import { ShieldCheck, FileText } from 'lucide-react';
 
 export default function PracticalInfoSection({ 
   preferred_method, 
   set_preferred_method, 
-  languages, 
-  set_languages, 
   is_profile_public, 
   set_is_profile_public,
-  is_verified,
   admission_letter,
   set_admission_letter,
   passport_id,
@@ -29,38 +27,84 @@ export default function PracticalInfoSection({
           <div className="form-control w-full">
             <label className="label py-0 mb-2">
               <span className="label-text font-primary font-bold uppercase text-xs tracking-widest text-base-content/60">
-                Admission Letter (PDF)
+                Admission Letter
               </span>
             </label>
-            <div className="relative">
-              <input 
-                type="file" 
-                accept=".pdf"
-                onChange={(e) => set_admission_letter(e.target.files[0])}
-                className="file-input file-input-bordered file-input-accent w-full rounded-field font-secondary text-sm" 
-              />
-            </div>
-            <p className="mt-2 text-[10px] font-secondary text-base-content/40 italic">
-              Required to verify your student status at your university.
-            </p>
+            {typeof admission_letter === 'string' ? (
+              <div className="relative rounded-field overflow-hidden border border-base-300 group h-40">
+                <Image 
+                  src={admission_letter} 
+                  alt="Admission Letter" 
+                  fill
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <a 
+                    href={admission_letter} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="btn btn-xs btn-accent"
+                  >
+                    <FileText size={12} /> View
+                  </a>
+                </div>
+                <div className="absolute top-2 right-2 badge badge-success badge-sm font-secondary">Uploaded</div>
+              </div>
+            ) : (
+              <>
+                <input 
+                  type="file" 
+                  accept=".png, .jpg"
+                  onChange={(e) => set_admission_letter(e.target.files[0])}
+                  className="file-input file-input-bordered file-input-accent w-full rounded-field font-secondary text-sm" 
+                />
+                <p className="mt-2 text-[10px] font-secondary text-base-content/40 italic">
+                  Required to verify your student status at your university.
+                </p>
+              </>
+            )}
           </div>
 
           {/* Passport / ID */}
           <div className="form-control w-full">
             <label className="label py-0 mb-2">
               <span className="label-text font-primary font-bold uppercase text-xs tracking-widest text-base-content/60">
-                Passport or National ID (JPG/PNG)
+                Passport or National ID
               </span>
             </label>
-            <input 
-              type="file" 
-              accept="image/*"
-              onChange={(e) => set_passport_id(e.target.files[0])}
-              className="file-input file-input-bordered file-input-accent w-full rounded-field font-secondary text-sm" 
-            />
-            <p className="mt-2 text-[10px] font-secondary text-base-content/40 italic">
-              Clear photo of your identity document for legal compliance.
-            </p>
+            {typeof passport_id === 'string' ? (
+              <div className="relative rounded-field overflow-hidden border border-base-300 group h-40">
+                <Image 
+                  src={passport_id} 
+                  alt="Passport / ID" 
+                  fill
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <a 
+                    href={passport_id} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="btn btn-xs btn-accent"
+                  >
+                    <FileText size={12} /> View
+                  </a>
+                </div>
+                <div className="absolute top-2 right-2 badge badge-success badge-sm font-secondary">Uploaded</div>
+              </div>
+            ) : (
+              <>
+                <input 
+                  type="file" 
+                  accept=".png, .jpg"
+                  onChange={(e) => set_passport_id(e.target.files[0])}
+                  className="file-input file-input-bordered file-input-accent w-full rounded-field font-secondary text-sm" 
+                />
+                <p className="mt-2 text-[10px] font-secondary text-base-content/40 italic">
+                  Clear photo of your identity document for legal compliance.
+                </p>
+              </>
+            )}
           </div>
         </div>
 
@@ -68,7 +112,7 @@ export default function PracticalInfoSection({
 
         {/* Visibility & Contact Method */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-           <div className="flex items-center justify-between p-4 bg-base-200/50 rounded-xl">
+          <div className="flex items-center justify-between p-4 bg-base-200/50 rounded-xl">
             <div>
               <p className="font-primary font-bold uppercase text-xs tracking-widest">Public Visibility</p>
               <p className="font-secondary text-xs text-base-content/50">Allow others to find your profile</p>
@@ -93,8 +137,7 @@ export default function PracticalInfoSection({
               onChange={(e) => set_preferred_method(e.target.value)}
             >
               <option>Email</option>
-              <option>Phone</option>
-              <option>WhatsApp</option>
+              <option>Whatsapp</option>
             </select>
           </div>
         </div>

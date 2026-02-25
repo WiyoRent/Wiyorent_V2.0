@@ -7,6 +7,8 @@ export default function ImageGallery({ image_urls, title }) {
   const [active_index, set_active_index] = useState(0);
   const [lightbox_open, set_lightbox_open] = useState(false);
 
+  console.  log(image_urls, '---imageurls')
+
   const handle_prev = () =>
     set_active_index((i) => (i === 0 ? image_urls.length - 1 : i - 1));
 
@@ -21,7 +23,7 @@ export default function ImageGallery({ image_urls, title }) {
         <div className="relative flex-1 overflow-hidden group cursor-pointer bg-base-300"
           onClick={() => set_lightbox_open(true)}>
           <img
-            src={image_urls[active_index]}
+            src={image_urls[active_index] || []}
             alt={`${title} — photo ${active_index + 1}`}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />

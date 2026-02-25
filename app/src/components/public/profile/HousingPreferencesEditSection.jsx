@@ -26,12 +26,14 @@ export default function HousingPreferencesEditSection({
   set_is_smoker,
 }) {
   const toggle_location = (loc) => {
-    if (preferred_locations.includes(loc)) {
-      set_preferred_locations(preferred_locations.filter((l) => l !== loc));
+    if (preferred_locations?.includes(loc)) {
+      set_preferred_locations(prev => prev.filter((l) => l !== loc));
     } else {
-      set_preferred_locations([...preferred_locations, loc]);
+      set_preferred_locations(prev => [...prev, loc]);
     }
   };
+
+  console.log(lease_duration, '----lease duration')
 
   return (
     <div className="bg-base-100 rounded-box shadow-sm p-6">
@@ -57,8 +59,9 @@ export default function HousingPreferencesEditSection({
             </label>
             <br />
             <input
+              min={new Date().toISOString().split('T')[0]}
               type="date"
-              value={move_in_date}
+              value={new Date(move_in_date).toISOString().split('T')[0] || ""}
               onChange={(e) => set_move_in_date(e.target.value)}
               className="input input-bordered rounded-field font-secondary text-sm"
               required
@@ -73,14 +76,15 @@ export default function HousingPreferencesEditSection({
             </label>
             <br />
             <select
-              value={lease_duration}
+              value={lease_duration || ""}
               onChange={(e) => set_lease_duration(e.target.value)}
               className="select select-bordered rounded-field font-secondary text-sm"
             >
-              <option value="3 Months">3 Months</option>
-              <option value="6 Months">6 Months</option>
-              <option value="12 Months">12 Months</option>
-              <option value="Flexible">Flexible</option>
+              <option value="less than 3 months">Less than 3 Months</option>
+              <option value="3 months">3 Months</option>
+              <option value="6 months">6 Months</option>
+              <option value="12 months">12 Months</option>
+              <option value="flexible">Flexible</option>
             </select>
           </div>
         </div>
@@ -95,7 +99,8 @@ export default function HousingPreferencesEditSection({
           </label>
           <div className="flex flex-wrap gap-2 mt-2">
             {available_neighborhoods.map((loc) => {
-              const is_selected = preferred_locations.includes(loc);
+              const is_selected = preferred_locations !== null ? preferred_locations?.includes(loc) : false
+
               return (
                 <button
                   key={loc}
@@ -134,10 +139,10 @@ export default function HousingPreferencesEditSection({
               </span>
               <input
                 type="range"
-                min={50000}
+                min={100000}
                 max={300000}
                 step={5000}
-                value={budget_min}
+                value={budget_min || ""}
                 onChange={(e) => {
                   const v = Number(e.target.value);
                   if (v <= budget_max) set_budget_min(v);
@@ -154,9 +159,9 @@ export default function HousingPreferencesEditSection({
               <input
                 type="range"
                 min={50000}
-                max={300000}
+                max={500000}
                 step={5000}
-                value={budget_max}
+                value={budget_max || ""}
                 onChange={(e) => {
                   const v = Number(e.target.value);
                   if (v >= budget_min) set_budget_max(v);
@@ -174,7 +179,7 @@ export default function HousingPreferencesEditSection({
             <span className="font-secondary text-sm text-base-content">Furnished</span>
             <input
               type="checkbox"
-              checked={is_furnished_preferred}
+              checked={is_furnished_preferred || ""}
               onChange={(e) => set_is_furnished_preferred(e.target.checked)}
               className="toggle toggle-accent"
             />
@@ -185,7 +190,7 @@ export default function HousingPreferencesEditSection({
             <span className="font-secondary text-sm text-base-content">Private Room</span>
             <input
               type="checkbox"
-              checked={is_private_room_required}
+              checked={is_private_room_required || ""}
               onChange={(e) => set_is_private_room_required(e.target.checked)}
               className="toggle toggle-accent"
             />
@@ -196,7 +201,7 @@ export default function HousingPreferencesEditSection({
             <span className="font-secondary text-sm text-base-content">Allows Pets</span>
             <input
               type="checkbox"
-              checked={allows_pets}
+              checked={allows_pets || ""}
               onChange={(e) => set_allows_pets(e.target.checked)}
               className="toggle toggle-accent"
             />
@@ -207,7 +212,7 @@ export default function HousingPreferencesEditSection({
             <span className="font-secondary text-sm text-base-content">Smoker</span>
             <input
               type="checkbox"
-              checked={is_smoker}
+              checked={is_smoker || ""}
               onChange={(e) => set_is_smoker(e.target.checked)}
               className="toggle toggle-accent"
             />
@@ -223,7 +228,7 @@ export default function HousingPreferencesEditSection({
           </label>
           <br />
           <select
-            value={max_housemates}
+            value={max_housemates || ""}
             onChange={(e) => set_max_housemates(Number(e.target.value))}
             className="select select-bordered rounded-field font-secondary text-sm"
           >

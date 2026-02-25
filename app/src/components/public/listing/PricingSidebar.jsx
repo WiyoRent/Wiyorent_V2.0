@@ -171,21 +171,6 @@ export default function PricingSidebar({ financials, total_first_payment, listin
         </div>
       </div>
 
-      {/* ── CTA Buttons ────────────────────────────────────── */}
-      <div className="flex flex-col gap-3">
-        <button className="btn btn-accent w-full rounded-field font-primary font-extrabold text-sm uppercase tracking-widest shadow-md hover:shadow-lg active:scale-95 transition-all duration-150">
-          Book Now
-        </button>
-        <button className="btn btn-outline w-full rounded-field font-primary font-bold text-sm uppercase tracking-widest border-base-content/20 hover:border-primary hover:bg-primary/5 active:scale-95 transition-all duration-150 gap-2">
-          <MessageCircle size={16} />
-          Message Landlord
-        </button>
-      </div>
-
-      {/* ── Trust note ─────────────────────────────────────── */}
-      <p className="font-secondary text-xs text-base-content/35 text-center leading-snug px-2">
-        Secure booking · Payments protected by WiyoRent escrow
-      </p>
     </div>
   );
 }
