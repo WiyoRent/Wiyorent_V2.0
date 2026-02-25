@@ -115,7 +115,7 @@ export default async function  HousematesPage() {
 
   return (
     <div className="min-h-screen bg-base-200">
-      <InformationModal showModal={!is_onboarded} message={"Let's get you set up! You'll need a profile to browse and connect with housemates. Redirecting you there now...."} redirectTo={'/profile'}/>
+      <InformationModal  title = 'Almost there' showModal={!is_onboarded} message={"Let's get you set up! You'll need a profile to browse and connect with housemates. Redirecting you there now...."} redirectTo={'/profile'}/>
       {/* Page header */}
       <div className="bg-base-100 border-b border-base-300">
         <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

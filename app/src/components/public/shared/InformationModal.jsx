@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react'
 import { redirect } from 'next/navigation'
 import { useRouter } from 'next/navigation'
 
-function InformationModal({ message, showModal, setShowModal, redirectTo }) {
+function InformationModal({ title, message, showModal, setShowModal, redirectTo }) {
 
     const router = useRouter()
     const dialogRef = useRef(null)
@@ -41,7 +41,7 @@ function InformationModal({ message, showModal, setShowModal, redirectTo }) {
   return (
     <dialog ref={dialogRef} id="my_modal_1" className="modal">
     <div className="modal-box">
-        <h3 className="font-bold text-lg">Almost there!</h3>
+        <h3 className="font-bold text-lg">{title}</h3>
         <p className="py-4">{message}</p>
         {
             redirectTo && (

@@ -87,7 +87,7 @@ export default function HousemateCard({ profile, verification_status }) {
     <div className="bg-base-100 rounded-box shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 flex flex-col overflow-hidden group">
 
     {/* Information Modal */}
-    <InformationModal message={"Your account is currently under review! We're verifying your details to keep the community safe. This usually takes 1 to 24 hours. We'll notify you as soon as you're cleared to browse! In the meantime, feel free to save profiles you like, and you can message them once you're verified."} redirectTo={null} setShowModal={setShowModal} showModal={showModal} />
+    <InformationModal title={"Account Review in Progress"} message={"To ensure the safety of our community, our team manually reviews all profiles. You'll be able to view housemate details and contact housemates as soon as we approve your account (usually within 24 hours)."} redirectTo={null} setShowModal={setShowModal} showModal={showModal} />
 
       {/* Card top — avatar + name block */}
       <div className="p-5 pb-4 flex items-start gap-4">
@@ -159,7 +159,7 @@ export default function HousemateCard({ profile, verification_status }) {
               : 'btn-accent'
           }`}
         >
-          Contact
+          {verification_status == 'pending' || verification_status == false ? 'Verification pending' : 'Contact'}
         </button>
           
         <button className="btn btn-ghost btn-outline btn-sm rounded-field font-secondary text-xs text-base-content/50 hover:text-primary px-3" onClick={handleView}>
