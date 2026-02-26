@@ -15,7 +15,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import Link from 'next/link';
-import { toggleSaveAction } from '@/actions/saveListing';
+import { toggleSaveListing } from '@/actions/favorites';
 
 const amenity_icon_map = {
   wifi: Wifi,
@@ -65,7 +65,7 @@ export default function FavouriteCard({ listing }) {
   );
 
   useEffect(() => {
-    toggleSaveAction(listing?.listing_id, !is_removed)
+    toggleSaveListing(listing?.listing_id, !is_removed)
   }, [is_removed])
 
   const handle_remove = () => {

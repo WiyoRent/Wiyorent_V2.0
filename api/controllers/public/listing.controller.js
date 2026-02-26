@@ -179,7 +179,7 @@ export const saveListing = async (req,res) => {
 
     try {
         if(isLiked){
-            await pool.query(s`
+            await pool.query(`
                 INSERT INTO saved_listings(
                     user_id,
                     listing_id

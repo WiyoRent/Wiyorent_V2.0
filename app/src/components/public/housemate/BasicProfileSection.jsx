@@ -19,7 +19,7 @@ function ProfileRow({ icon: Icon, label, value }) {
 }
 
 export default function BasicProfileSection({ basic_profile }) {
-  const { gender, age, program, year_of_study } = basic_profile;
+  const { gender, age, program, year_of_study } = basic_profile || {};
 
   return (
     <section className="bg-base-100 rounded-box p-5 shadow-sm">
@@ -29,10 +29,10 @@ export default function BasicProfileSection({ basic_profile }) {
       </h2>
 
       <div>
-        <ProfileRow icon={User}          label="Gender"        value={gender} />
-        <ProfileRow icon={Calendar}      label="Age"           value={`${age} years old`} />
-        <ProfileRow icon={BookOpen}      label="Program"       value={program} />
-        <ProfileRow icon={GraduationCap} label="Year of Study" value={year_of_study} />
+        <ProfileRow icon={User}          label="Gender"        value={gender || ''} />
+        <ProfileRow icon={Calendar}      label="Age"           value={`${age || ''} years old`} />
+        <ProfileRow icon={BookOpen}      label="Program"       value={program || ""} />
+        <ProfileRow icon={GraduationCap} label="Year of Study" value={year_of_study || ''} />
       </div>
     </section>
   );

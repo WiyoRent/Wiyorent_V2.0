@@ -29,7 +29,7 @@ export default function BasicProfileSection({
   set_nationality,
 }) {
 
-  const options = useMemo(() => countryList().getData(), [])
+  const options = useMemo(() => countryList()?.getData(), [])
 
   const uploadProfilePicture = (e) => {
     const file = e.target.files[0]
@@ -55,13 +55,13 @@ export default function BasicProfileSection({
       return <User size={16} className="text-accent-content" />
     }else if (typeof avatar == 'string'){
       return (
-        <div className='object-contain border-2 border-accent relative w-24 rounded-full  h-28'>
-          <Image className='rounded-full' alt='Your profile image' fill src={avatar || null} />
+        <div className='object-contain border-2 border-accent relative w-20 h-20 rounded-full  '>
+          <Image className='rounded-full object-cover' alt='Your profile image'  fill src={avatar || null} />
         </div> 
       )
     }else {
       return (
-        <div className='object-contain border-2 border-accent relative w-24 rounded-full  h-28'>
+        <div className='object-contain border-2 border-accent relative w-20 h-20 rounded-full  '>
             <Image className='rounded-full' alt='Your profile image' fill src={avatar.previewUrl || null} />
         </div> 
       )

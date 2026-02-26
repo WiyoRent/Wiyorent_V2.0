@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { toggleSaveAction } from '@/actions/saveListing';
+import { toggleSaveListing } from '@/actions/favorites';
 import { useEffect } from 'react';
 
 import {
@@ -83,7 +83,7 @@ export default function ListingCard({ listing }) {
   }
 
   useEffect(() => {
-    toggleSaveAction(listing.listing_id, is_liked)
+    toggleSaveListing(listing.listing_id, is_liked)
   }, [is_liked])
 
   const handleLike = (e) => {

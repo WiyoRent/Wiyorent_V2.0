@@ -1,5 +1,5 @@
 import AdminUserHeader from '@/components/admin/users/AdminUserHeader';
-import ProfileHero from '@/components/public/housemate/ProfileHer';
+import ProfileHero from '@/components/public/housemate/ProfileHero';
 import AboutSection from '@/components/public/housemate/AboutSection';
 import BasicProfileSection from '@/components/public/housemate/BasicProfileSection';
 import HousingPreferencesSection from '@/components/public/housemate/HousingPreferencesSection';

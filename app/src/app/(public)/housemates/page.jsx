@@ -2,85 +2,86 @@ import { auth } from '@/auth';
 import HousemateFilterSidebar from '@/components/public/housemates/HousemateFilterSidebar';
 import HousematesGrid from '@/components/public/housemates/HousemateGrid';
 import InformationModal from '@/components/public/shared/InformationModal';
+import { fetchHousemates } from '@/services/housemate.service';
 
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Mock data — swap for async fetch('/api/housemates') in production
 // ─────────────────────────────────────────────────────────────────────────────
-const housemate_profiles = [
-  {
-    profile_id: 'hm_7721',
-    full_name: 'Keza A.',
-    nationality: 'Rwandan',
-    university_name: 'University of Rwanda',
-    bio_short: 'Loves football and clean spaces. Studying computer science and looking for a focused, chill roommate.',
-    budget: { min: 100000, max: 150000 },
-    preferred_locations: ['Kicukiro', 'Remera'],
-    avatar_url: null,
-    gender: 'female',
-    is_verified: true,
-  },
-  {
-    profile_id: 'hm_7722',
-    full_name: 'Eric M.',
-    nationality: 'Rwandan',
-    university_name: 'Rwanda Polytechnic',
-    bio_short: 'Early bird, tidy, and social. Civil engineering student who enjoys weekend hiking and cooking.',
-    budget: { min: 80000, max: 130000 },
-    preferred_locations: ['Kacyiru', 'Nyarutarama'],
-    avatar_url: null,
-    gender: 'male',
-    is_verified: true,
-  },
-  {
-    profile_id: 'hm_7723',
-    full_name: 'Amina B.',
-    nationality: 'Burundian',
-    university_name: 'INES-Ruhengeri',
-    bio_short: 'Quiet and studious. Med student seeking a peaceful, non-smoking flat. Big fan of reading and documentaries.',
-    budget: { min: 120000, max: 180000 },
-    preferred_locations: ['Gasabo', 'Kimironko'],
-    avatar_url: null,
-    gender: 'female',
-    is_verified: false,
-  },
-  {
-    profile_id: 'hm_7724',
-    full_name: 'Patrick N.',
-    nationality: 'Rwandan',
-    university_name: 'University of Kigali',
-    bio_short: 'Night owl, music lover, keeps shared spaces clean. Business student who codes on weekends.',
-    budget: { min: 90000, max: 140000 },
-    preferred_locations: ['Remera', 'Kimironko'],
-    avatar_url: null,
-    gender: 'male',
-    is_verified: true,
-  },
-  {
-    profile_id: 'hm_7725',
-    full_name: 'Diane K.',
-    nationality: 'Rwandan',
-    university_name: 'University of Rwanda',
-    bio_short: 'Friendly, tidy, and respectful. Law student who loves yoga and quiet evenings with a good book.',
-    budget: { min: 150000, max: 200000 },
-    preferred_locations: ['Nyarutarama', 'Kacyiru'],
-    avatar_url: null,
-    gender: 'female',
-    is_verified: true,
-  },
-  {
-    profile_id: 'hm_7726',
-    full_name: 'Olivier T.',
-    nationality: 'DRC',
-    university_name: 'African Leadership University',
-    bio_short: 'Social entrepreneur studying leadership. Enjoys cooking for the house and exploring Kigali on weekends.',
-    budget: { min: 200000, max: 300000 },
-    preferred_locations: ['Kicukiro', 'Gisozi'],
-    avatar_url: null,
-    gender: 'male',
-    is_verified: false,
-  },
-];
+// const housemate_profiles = [
+//   {
+//     profile_id: 'hm_7721',
+//     full_name: 'Keza A.',
+//     nationality: 'Rwandan',
+//     university_name: 'University of Rwanda',
+//     bio_short: 'Loves football and clean spaces. Studying computer science and looking for a focused, chill roommate.',
+//     budget: { min: 100000, max: 150000 },
+//     preferred_locations: ['Kicukiro', 'Remera'],
+//     avatar_url: null,
+//     gender: 'female',
+//     is_verified: true,
+//   },
+//   {
+//     profile_id: 'hm_7722',
+//     full_name: 'Eric M.',
+//     nationality: 'Rwandan',
+//     university_name: 'Rwanda Polytechnic',
+//     bio_short: 'Early bird, tidy, and social. Civil engineering student who enjoys weekend hiking and cooking.',
+//     budget: { min: 80000, max: 130000 },
+//     preferred_locations: ['Kacyiru', 'Nyarutarama'],
+//     avatar_url: null,
+//     gender: 'male',
+//     is_verified: true,
+//   },
+//   {
+//     profile_id: 'hm_7723',
+//     full_name: 'Amina B.',
+//     nationality: 'Burundian',
+//     university_name: 'INES-Ruhengeri',
+//     bio_short: 'Quiet and studious. Med student seeking a peaceful, non-smoking flat. Big fan of reading and documentaries.',
+//     budget: { min: 120000, max: 180000 },
+//     preferred_locations: ['Gasabo', 'Kimironko'],
+//     avatar_url: null,
+//     gender: 'female',
+//     is_verified: false,
+//   },
+//   {
+//     profile_id: 'hm_7724',
+//     full_name: 'Patrick N.',
+//     nationality: 'Rwandan',
+//     university_name: 'University of Kigali',
+//     bio_short: 'Night owl, music lover, keeps shared spaces clean. Business student who codes on weekends.',
+//     budget: { min: 90000, max: 140000 },
+//     preferred_locations: ['Remera', 'Kimironko'],
+//     avatar_url: null,
+//     gender: 'male',
+//     is_verified: true,
+//   },
+//   {
+//     profile_id: 'hm_7725',
+//     full_name: 'Diane K.',
+//     nationality: 'Rwandan',
+//     university_name: 'University of Rwanda',
+//     bio_short: 'Friendly, tidy, and respectful. Law student who loves yoga and quiet evenings with a good book.',
+//     budget: { min: 150000, max: 200000 },
+//     preferred_locations: ['Nyarutarama', 'Kacyiru'],
+//     avatar_url: null,
+//     gender: 'female',
+//     is_verified: true,
+//   },
+//   {
+//     profile_id: 'hm_7726',
+//     full_name: 'Olivier T.',
+//     nationality: 'DRC',
+//     university_name: 'African Leadership University',
+//     bio_short: 'Social entrepreneur studying leadership. Enjoys cooking for the house and exploring Kigali on weekends.',
+//     budget: { min: 200000, max: 300000 },
+//     preferred_locations: ['Kicukiro', 'Gisozi'],
+//     avatar_url: null,
+//     gender: 'male',
+//     is_verified: false,
+//   },
+// ];
 
 // Filter options fetched from backend in production
 const filter_options = {
@@ -112,6 +113,10 @@ export default async function  HousematesPage() {
   const user = session?.user
   const is_onboarded = user?.is_onboarded
   const is_verified = user?.is_verified
+
+  const housemate_profiles = await fetchHousemates()
+
+  console.log(housemate_profiles, 'housemate profile fetched frontend')
 
   return (
     <div className="min-h-screen bg-base-200">

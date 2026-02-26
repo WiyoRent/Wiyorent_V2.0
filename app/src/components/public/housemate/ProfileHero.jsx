@@ -1,10 +1,12 @@
 import { ShieldCheck, GraduationCap, MapPin, Wallet } from 'lucide-react';
+import countryList from 'react-select-country-list'
+import ReactCountryFlag from "react-country-flag"
 
 const format_rwf = (n) => `RWF ${new Intl.NumberFormat('rw-RW').format(n)}`;
 
 function HeroAvatar({ full_name, avatar_url, gender }) {
   const initials = full_name
-    .split(' ')
+    ?.split(' ')
     .map((w) => w[0])
     .join('')
     .slice(0, 2)
@@ -19,7 +21,7 @@ function HeroAvatar({ full_name, avatar_url, gender }) {
 
   if (avatar_url && !avatar_url.includes('api.wiyorent.com')) {
     return (
-      <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden ring-4 ring-base-100 shadow-xl flex-shrink-0">
+      <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-2 border-accent ring-base-100 shadow-xl flex-shrink-0">
         <img src={avatar_url} alt={full_name} className="w-full h-full object-cover" />
       </div>
     );
@@ -46,6 +48,7 @@ export default function ProfileHero({
   preferred_locations,
   budget,
 }) {
+
   return (
     <div className="bg-base-100 rounded-box shadow-sm overflow-hidden">
       {/* Accent band */}
@@ -70,9 +73,15 @@ export default function ProfileHero({
           </div>
 
           {/* Nationality chip */}
-          <span className="mt-2 inline-block font-secondary text-xs text-base-content/45 bg-base-200 px-2.5 py-1 rounded-field">
-            {nationality}
-          </span>
+          <div className="mt-2 flex w-fit gap-2  font-secondary text-xs text-base-content/45 bg-base-200 px-2.5 py-1 rounded-field">
+            <span>
+              <ReactCountryFlag countryCode={nationality} svg />
+            </span>
+            
+            <span>
+              {countryList()?.getLabel(nationality)}
+            </span>            
+          </div>
 
           {/* University */}
           <div className="flex items-center gap-2 mt-3">
@@ -86,14 +95,14 @@ export default function ProfileHero({
           <div className="flex items-center gap-2 mt-1.5">
             <Wallet size={15} className="text-accent flex-shrink-0" />
             <span className="font-secondary text-sm text-base-content/65">
-              {format_rwf(budget.min)} – {format_rwf(budget.max)} / month
+              {format_rwf(budget?.min)} – {format_rwf(budget?.max)} / month
             </span>
           </div>
 
           {/* Location pills */}
           <div className="flex items-center gap-2 flex-wrap mt-3">
             <MapPin size={13} className="text-base-content/30 flex-shrink-0" />
-            {preferred_locations.map((loc) => (
+            {preferred_locations?.map((loc) => (
               <span
                 key={loc}
                 className="bg-accent text-accent-content font-primary text-xs font-bold px-3 py-1 rounded-field uppercase tracking-wide shadow-sm"
