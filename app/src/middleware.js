@@ -24,15 +24,9 @@ export async function middleware (req){
         return NextResponse.redirect(new URL('/login', req.url))
     }
 
-    // Protected housemate path for non-boarded user
-    // const protectedOnboardPath = ['/housemates']
-    // const isProtectedOnBoardPath = protectedOnboardPath.some(path => pathname.startsWith(path))
-    // if(isProtectedOnBoardPath && !user?.is_onboarded){
-    //     return NextResponse.redirect(new URL('/profile', req.url))
-    // }
-
     // Protected HouseMate Path
     const isVerified = user?.is_verified
+    const completedOnboarding = user?.is_onboarded
     if(pathname.startsWith('/housemates/') && !isVerified){
         return NextResponse.redirect(new URL('/housemates', req.url))
     }

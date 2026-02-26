@@ -2,7 +2,7 @@
 import ListingsGrid from '@/components/public/listings/ListingsGrid.jsx';
 import FilterSidebar from '@/components/public/listings/FilterSidebar.jsx';
 import ListingCard from '@/components/public/listings/ListingCard';
-import { getListingsProxy } from '@/services/listingsProxy';
+import { getListingsProxy } from '@/services/listings.service';
 
 // Mock listings data matching the required data structure
 // const listings = [

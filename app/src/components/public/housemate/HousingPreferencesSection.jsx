@@ -50,7 +50,7 @@ export default function HousingPreferencesSection({ preferences }) {
     is_furnished_preferred,
     allows_pets,
     is_smoker,
-  } = preferences;
+  } = preferences || {};
 
   const formatted_date = new Date(move_in_date).toLocaleDateString('en-RW', {
     year: 'numeric',
@@ -76,35 +76,22 @@ export default function HousingPreferencesSection({ preferences }) {
         {/* Budget */}
         <PrefRow icon={Wallet} label="Budget Range">
           <span className="font-secondary text-sm font-semibold text-base-content">
-            {format_rwf(budget.min)} – {format_rwf(budget.max)} / month
+            {format_rwf(budget?.min)} – {format_rwf(budget?.max)} / month
           </span>
         </PrefRow>
 
-        {/* Room types */}
-        <PrefRow icon={Home} label="Room Types">
-          <div className="flex flex-wrap gap-1.5">
-            {room_types.map((type) => (
-              <span
-                key={type}
-                className="bg-base-200 text-base-content/65 font-secondary text-xs px-2.5 py-1 rounded-field"
-              >
-                {type}
-              </span>
-            ))}
-          </div>
-        </PrefRow>
 
         {/* Max housemates */}
-        <PrefRow icon={Users} label="Max Housemates">
+        <PrefRow icon={Users} label="Max Housemates preference">
           <span className="font-secondary text-sm font-semibold text-base-content">
-            Up to {max_housemates} people
+            Up to {max_housemates || ''} people
           </span>
         </PrefRow>
 
         {/* Preferred locations */}
         <PrefRow icon={MapPin} label="Preferred Locations">
           <div className="flex flex-wrap gap-1.5">
-            {preferred_locations.map((loc) => (
+            {preferred_locations?.map((loc) => (
               <span
                 key={loc}
                 className="bg-accent text-accent-content font-primary text-xs font-bold px-2.5 py-0.5 rounded-field uppercase tracking-wide"

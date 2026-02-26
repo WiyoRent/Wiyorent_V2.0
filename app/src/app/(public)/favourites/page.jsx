@@ -1,6 +1,6 @@
 import FavouritesTabView from '@/components/public/favourites/FavouritesTabView';
 import { Heart } from 'lucide-react';
-import { getSavedListings } from '@/services/listingsProxy';
+import { getSavedHousemates, getSavedListings } from '@/services/fetch_saves.service';
 import { auth } from '@/auth';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -55,16 +55,18 @@ export const metadata = {
 };
 
 export default async function FavouritesPage() {
-  const [session, favourited_listings] = await Promise.all([
+  const [session, favourited_listings, profiles] = await Promise.all([
     auth(),
     getSavedListings(),
+    getSavedHousemates(),
   ]);
 
+  console.log(profiles)
+
   const listings = favourited_listings || [];
-  const profiles = mock_saved_profiles; // 👈 swap with: await getSavedProfiles() || []
 
   const verification_status = session?.user?.is_verified;
-  const total_saved = listings.length + profiles.length;
+  const total_saved = listings.length + profiles?.length || 0;
 
   return (
     <div className="min-h-screen bg-base-200">
