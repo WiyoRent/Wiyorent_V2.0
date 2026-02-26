@@ -1,93 +1,70 @@
-import FavouritesGrid from '@/components/public/favourites/FavouritesGrid';
-import FavouriteCard from '@/components/public/favourites/FavouriteCard';
+import FavouritesTabView from '@/components/public/favourites/FavouritesTabView';
 import { Heart } from 'lucide-react';
 import { getSavedListings } from '@/services/listingsProxy';
+import { auth } from '@/auth';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Mock favourited listings — in production: await fetch('/api/user/favourites')
+// Mock saved profiles — replace body with: await getSavedProfiles() || []
+// Structure mirrors housemate_profiles shape from HousematesPage
 // ─────────────────────────────────────────────────────────────────────────────
-// const favourited_listings = [ 
-//   {
-//     listing_id: 'house_8821',
-//     title: 'Modern Room in Kicukiro',
-//     financials: {
-//       price_per_month: 150000,
-//       commission_fee: 15000,
-//       caution_fee: 150000,
-//     },
-//     specifications: {
-//       bedroom_number: 1,
-//       bathroom_number: 1,
-//       max_roommates: 2,
-//       property_type: 'room',
-//     },
-//     amenities: ['wifi', 'stove', 'microwave', 'blender'],
-//     neighborhood: 'Kicukiro',
-//     city: 'Kigali',
-//     available_status: 'booked',
-//     is_furnished: true,
-//     is_verified: true,
-//     thumbnail_url:
-//       'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&q=80'
-//   },
-//   {
-//     listing_id: 'house_8823',
-//     title: 'Shared Villa in Gasabo',
-//     financials: {
-//       price_per_month: 250000,
-//       commission_fee: 25000,
-//       caution_fee: 250000,
-//     },
-//     specifications: {
-//       bedroom_number: 3,
-//       bathroom_number: 2,
-//       max_roommates: 4,
-//       property_type: 'villa',
-//     },
-//     amenities: ['wifi', 'stove', 'microwave', 'blender'],
-//     neighborhood: 'Gasabo',
-//     city: 'Kigali',
-//     available_status: 'available',
-//     is_furnished: true,
-//     is_verified: false,
-//     thumbnail_url:
-//       'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=600&q=80',
-//     saved_at: '2024-02-16T14:22:00Z',
-//   },
-//   {
-//     listing_id: 'house_8824',
-//     title: '1 Bedroom House in Zindiro',
-//     financials: {
-//       price_per_month: 80000,
-//       commission_fee: 8000,
-//       caution_fee: 80000,
-//     },
-//     specifications: {
-//       bedroom_number: 1,
-//       bathroom_number: 1,
-//       max_roommates: 2,
-//       property_type: 'house',
-//     },
-//     amenities: ['wifi', 'stove'],
-//     neighborhood: 'Zindiro',
-//     city: 'Kigali',
-//     available_status: 'available',
-//     is_furnished: true,
-//     is_verified: true,
-//     thumbnail_url:
-//       'https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?w=600&q=80',
-//     saved_at: '2024-02-17T09:15:00Z',
-//   },
-// ];
+const mock_saved_profiles = [
+  {
+    profile_id: 'hm_7721',
+    full_name: 'Keza A.',
+    nationality: 'Rwandan',
+    university_name: 'University of Rwanda',
+    bio_short:
+      'Loves football and clean spaces. Studying computer science and looking for a focused, chill roommate.',
+    budget: { min: 100000, max: 150000 },
+    preferred_locations: ['Kicukiro', 'Remera'],
+    avatar_url: null,
+    gender: 'female',
+    is_verified: true,
+  },
+  {
+    profile_id: 'hm_7724',
+    full_name: 'Patrick N.',
+    nationality: 'Rwandan',
+    university_name: 'University of Kigali',
+    bio_short:
+      'Night owl, music lover, keeps shared spaces clean. Business student who codes on weekends.',
+    budget: { min: 90000, max: 140000 },
+    preferred_locations: ['Remera', 'Kimironko'],
+    avatar_url: null,
+    gender: 'male',
+    is_verified: true,
+  },
+  {
+    profile_id: 'hm_7726',
+    full_name: 'Olivier T.',
+    nationality: 'DRC',
+    university_name: 'African Leadership University',
+    bio_short:
+      'Social entrepreneur studying leadership. Enjoys cooking for the house and exploring Kigali on weekends.',
+    budget: { min: 200000, max: 300000 },
+    preferred_locations: ['Kicukiro', 'Gisozi'],
+    avatar_url: null,
+    gender: 'male',
+    is_verified: false,
+  },
+];
 
 export const metadata = {
   title: 'My Favourites | WiyoRent',
-  description: 'Your saved student housing listings in Kigali',
+  description: 'Your saved student housing listings and housemate profiles in Kigali',
 };
 
-export default  async function FavouritesPage() {
+export default async function FavouritesPage() {
+  const [session, favourited_listings] = await Promise.all([
+    auth(),
+    getSavedListings(),
+  ]);
 
-  const favourited_listings = await getSavedListings() || []
+  const listings = favourited_listings || [];
+  const profiles = mock_saved_profiles; // 👈 swap with: await getSavedProfiles() || []
+
+  const verification_status = session?.user?.is_verified;
+  const total_saved = listings.length + profiles.length;
 
   return (
     <div className="min-h-screen bg-base-200">
@@ -95,7 +72,7 @@ export default  async function FavouritesPage() {
       <div className="bg-base-100 border-b border-base-300">
         <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-error/10 rounded-full flex items-center justify-center">
+            <div className="w-12 h-12 bg-error/10 rounded-full flex items-center justify-center flex-shrink-0">
               <Heart size={22} className="text-error fill-error" />
             </div>
             <div>
@@ -103,8 +80,7 @@ export default  async function FavouritesPage() {
                 My Favourites
               </h1>
               <p className="font-secondary text-base-content/50 mt-1 text-sm">
-                {favourited_listings.length}{' '}
-                {favourited_listings.length === 1 ? 'property' : 'properties'} saved
+                {total_saved} {total_saved === 1 ? 'item' : 'items'} saved
               </p>
             </div>
           </div>
@@ -113,7 +89,11 @@ export default  async function FavouritesPage() {
 
       {/* Body */}
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <FavouritesGrid listings={favourited_listings} />
+        <FavouritesTabView
+          listings={listings}
+          profiles={profiles}
+          verification_status={verification_status}
+        />
       </div>
     </div>
   );
