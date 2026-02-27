@@ -61,8 +61,6 @@ export default async function FavouritesPage() {
     getSavedHousemates(),
   ]);
 
-  console.log(profiles)
-
   const listings = favourited_listings || [];
 
   const verification_status = session?.user?.is_verified;
