@@ -15,7 +15,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import Link from 'next/link';
-import { toggleSaveListing } from '@/actions/favorites';
+import { toggleSaveListing } from '@/actions/favorites.action';
 
 const amenity_icon_map = {
   wifi: Wifi,

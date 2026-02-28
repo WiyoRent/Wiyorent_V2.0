@@ -19,7 +19,7 @@ export default function SavedProfilesGrid({ profiles, verification_status }) {
         </p>
         <Link
           href="/housemates"
-          className="btn btn-primary btn-sm rounded-field font-primary font-bold uppercase tracking-wide mt-6"
+          className="btn btn-accent btn-sm rounded-field font-primary font-bold uppercase tracking-wide mt-6"
         >
           Browse Housemates
         </Link>

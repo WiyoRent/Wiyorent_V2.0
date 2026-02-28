@@ -7,8 +7,8 @@ import InformationModal from '../shared/InformationModal';
 import { useRouter } from 'next/navigation';
 import { Eye, Bookmark, Loader2 } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { contactHousemate } from '@/actions/contactHousemate';
-import { toggleSaveHousemate } from '@/actions/favorites';
+import { contactHousemate } from '@/actions/contact_housemate.action.js';
+import { toggleSaveHousemate } from '@/actions/favorites.action';
 
 const format_rwf = (n) => `RWF ${new Intl.NumberFormat('rw-RW').format(n)}`;
 
