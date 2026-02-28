@@ -6,6 +6,7 @@ import HouseRulesSection from '@/components/public/listing/HouseRulesSection';
 import ReviewsSection from '@/components/public/listing/ReviewsSection';
 import PricingSidebar from '@/components/public/listing/PricingSidebar';
 import { getBaseURL } from '@/lib/getBaseURL.js';
+import { auth } from '@/auth';
 
 // ---------------------------------------------------------------------------
 // Mock listing detail — replace this async fetch in production:
@@ -95,8 +96,6 @@ const fetchSingleListing = async (id) => {
 
     const result = await response.json()
 
-    console.log(result, '---result form fetch single')
-
     const listing = result.data
 
     return listing || []
@@ -127,8 +126,11 @@ export default async function ListingDetailPage({ params }) {
 
   const listing_detail = await fetchSingleListing(id)
 
+  const session = await auth()
+  const user = session?.user
 
-  const { financials, specifications, reviews } = listing_detail;
+
+  const { financials, specifications, reviews} = listing_detail;
 
   // Total first payment calculation
   const total_first_payment =
@@ -169,7 +171,7 @@ export default async function ListingDetailPage({ params }) {
 
             <HouseRulesSection house_rules={listing_detail?.house_rules} />
 
-            <ReviewsSection reviews={reviews} />
+            <ReviewsSection listing_id={listing_detail?.listing_id} current_user={user} reviews={reviews} />
 
           </div>
 
