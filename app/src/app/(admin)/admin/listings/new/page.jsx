@@ -5,8 +5,8 @@ import BasicInfoSection from '@/components/admin/create-listing/BasicInfoSection
 import LocationSection from '@/components/admin/create-listing/LocationSection';
 import FinancialsSection from '@/components/admin/create-listing/FinancialsSection';
 import SpecificationsSection from '@/components/admin/create-listing/SpecificationsSection';
-import AmenitiesRulesSection from '@/components/admin/create-listing/AmenitiesRulesSection';
-import ImagesSection from '@/components/admin/create-listing/ImagesSection';
+import AmenitiesRulesSection from '@/components/shared/AmenitiesRulesSection';
+import ImagesSection from '@/components/shared/ImagesSection';
 import LandlordSection from '@/components/admin/create-listing/LandlordSection';
 import StatusSection from '@/components/admin/create-listing/StatusSection';
 import FormHeader from '@/components/admin/create-listing/FormHeader';

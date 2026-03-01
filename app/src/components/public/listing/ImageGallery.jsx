@@ -7,8 +7,6 @@ export default function ImageGallery({ image_urls, title }) {
   const [active_index, set_active_index] = useState(0);
   const [lightbox_open, set_lightbox_open] = useState(false);
 
-  console.  log(image_urls, '---imageurls')
-
   const handle_prev = () =>
     set_active_index((i) => (i === 0 ? image_urls.length - 1 : i - 1));
 

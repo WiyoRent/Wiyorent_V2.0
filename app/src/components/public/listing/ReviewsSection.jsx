@@ -2,158 +2,160 @@
 
 import { useState } from 'react';
 import { Star } from 'lucide-react';
+import ReviewCard from '@/components/public/listing/ReviewSectionComponents/ReviewCard';
+import ReviewForm from '@/components/public/listing/ReviewSectionComponents/ReviewForm';
+import InformationModal from '../shared/InformationModal';
+import { createReview, deleteReview, editReview } from '@/services/review.service';
+import { toast } from 'react-toastify';
 
-function StarRating({ rating, max = 5, size = 14, interactive = false, on_change }) {
-  const [hovered, set_hovered] = useState(0);
-  const display_rating = interactive ? (hovered || rating) : rating;
+/**
+ * Props:
+ *   listing_id   – string
+ *   reviews      – { average_rating, total_count, entries[] }
+ *   current_user – { id, name, image, is_onboarded } | null  (Next-Auth session user)
+ */
+export default function ReviewsSection({ listing_id, reviews, current_user }) {
+  const [entries, set_entries] = useState(reviews?.entries ?? []);
+  const [editing, set_editing] = useState(null);
 
-  return (
-    <div className="flex items-center gap-0.5">
-      {Array.from({ length: max }, (_, i) => {
-        const star_value = i + 1;
-        const filled = star_value <= display_rating;
-        return (
-          <Star
-            key={i}
-            size={size}
-            className={`transition-colors duration-100 ${
-              filled ? 'fill-accent text-accent' : 'fill-base-300 text-base-300'
-            } ${interactive ? 'cursor-pointer hover:scale-110 transition-transform' : ''}`}
-            onClick={() => interactive && on_change && on_change(star_value)}
-            onMouseEnter={() => interactive && set_hovered(star_value)}
-            onMouseLeave={() => interactive && set_hovered(0)}
-          />
-        );
-      })}
-    </div>
-  );
-}
+  // ── Onboarding gate modal ────────────────────────────────────────────────────
+  const [show_onboarding_modal, set_show_onboarding_modal] = useState(false);
 
-function ReviewCard({ entry }) {
-  const formatted_date = new Date(entry.date).toLocaleDateString('en-RW', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
+  // ── Ownership helper ─────────────────────────────────────────────────────────
+  const get_reviewer_id = (e) => e.reviewer_id ?? e.user_id;
+
+  // ── Visibility logic ─────────────────────────────────────────────────────────
+  // • approved  → visible to everyone
+  // • pending / rejected → visible ONLY to the author
+  const visible_entries = entries.filter((e) => {
+    if (e.is_approved === 'approved') return true;
+    return !!current_user && get_reviewer_id(e) === current_user.id;
   });
 
-  const initials = entry.name
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
+  const has_my_review = current_user
+    ? entries.some((e) => get_reviewer_id(e) === current_user.id)
+    : false;
 
-  return (
-    <div className="flex gap-3 py-4 border-b border-base-200 last:border-0">
-      {/* Avatar */}
-      <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0 overflow-hidden">
-        {entry.avatar ? (
-          <img src={entry.avatar} alt={entry.name} className="w-full h-full object-cover" />
-        ) : (
-          <span className="font-primary text-sm font-bold text-primary-content">
-            {initials}
-          </span>
-        )}
-      </div>
+  // ── Derived aggregate (approved only so pending doesn't skew public score) ──
+  const approved_entries = entries.filter((e) => e.is_approved === 'approved');
+  const live_avg = approved_entries.length
+    ? (approved_entries.reduce((s, e) => s + e.rating, 0) / approved_entries.length).toFixed(1)
+    : reviews?.average_rating?.toFixed(1) ?? '—';
+  const live_count = (approved_entries.length || reviews?.total_count) ?? 0;
 
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between gap-2 flex-wrap">
-          <span className="font-primary text-sm font-bold text-base-content">
-            {entry.name}
-          </span>
-          <span className="font-secondary text-xs text-base-content/40">
-            {formatted_date}
-          </span>
-        </div>
-        <div className="mt-0.5 mb-2">
-          <StarRating rating={entry.rating} size={12} />
-        </div>
-        <p className="font-secondary text-sm text-base-content/65 leading-relaxed">
-          {entry.comment}
-        </p>
-      </div>
-    </div>
-  );
-}
+  // ── Create ───────────────────────────────────────────────────────────────────
+  const handle_create = async ({ rating, comment }) => {
+    // Build an optimistic entry that mirrors the real server shape so
+    // ReviewCard can render name/avatar and show edit/delete immediately.
+    const optimistic_entry = {
+      id: `optimistic_${Date.now()}`,
+      reviewer_id: current_user?.id,       // ownership — drives edit/delete gate
+      name: current_user?.full_name ?? 'You',
+      avatar: current_user?.avatar_url ?? null,
+      rating,
+      comment,
+      date: new Date().toISOString(),
+      is_approved: 'pending',             // always pending until moderated
+      _optimistic: true,
+    };
 
-function LeaveReviewForm() {
-  const [user_rating, set_user_rating] = useState(0);
-  const [experience, set_experience] = useState('');
-  const [submitted, set_submitted] = useState(false);
+    const previous = entries;
+    set_entries((prev) => [optimistic_entry, ...prev]);
 
-  const handle_submit = (e) => {
-    e.preventDefault();
-    if (!user_rating || !experience.trim()) return;
-    // In production: POST to /api/reviews
-    console.log('Submitting review:', { user_rating, experience });
-    set_submitted(true);
+    try {
+      const saved = await createReview({ listing_id, rating, comment, is_approved: 'pending' });
+
+      // Swap the temporary entry for the real server object (keeps reviewer_id, real id, etc.)
+      set_entries((prev) =>
+        prev.map((e) =>
+          e.id === optimistic_entry.id
+            ? { ...optimistic_entry, ...(saved ?? {}), _optimistic: false }
+            : e
+        )
+      );
+    } catch (error) {
+      toast.error(error.message || "Couldn't save your review. Please try again.");
+      console.error(error);
+      set_entries(previous); // roll back
+    }
   };
 
-  if (submitted) {
-    return (
-      <div className="mt-6 p-5 bg-success/10 border border-success/20 rounded-box text-center">
-        <p className="font-primary text-sm font-bold text-success uppercase tracking-wide">
-          Thank you for your review! 🎉
-        </p>
-        <p className="font-secondary text-xs text-base-content/50 mt-1">
-          Your feedback helps fellow students find great housing.
-        </p>
-      </div>
+  // ── Edit ─────────────────────────────────────────────────────────────────────
+  const handle_edit_submit = async ({ rating, comment }) => {
+    const original = editing;
+
+    // Optimistic update
+    set_entries((prev) =>
+      prev.map((e) =>
+        e.id === original.id
+          ? { ...e, rating, comment, is_approved: 'pending', _optimistic: true }
+          : e
+      )
     );
-  }
 
-  return (
-    <div className="mt-6 border-t border-base-200 pt-6">
-      <h3 className="font-primary text-sm font-extrabold text-base-content uppercase tracking-widest mb-4">
-        Leave a Review
-      </h3>
+    set_editing(null);
 
-      <div className="flex flex-col gap-4">
-        {/* Star input */}
-        <div>
-          <label className="font-secondary text-xs text-base-content/50 mb-2 block uppercase tracking-wide">
-            Your Rating
-          </label>
-          <StarRating
-            rating={user_rating}
-            size={22}
-            interactive
-            on_change={set_user_rating}
-          />
-        </div>
+    try {
+      const saved = await editReview({listing_id, rating, comment});
+      set_entries((prev) =>
+        prev.map((e) =>
+          e.id === original.id ? { avatar: current_user.avatar_url, ...saved, _optimistic: false } : e
+        )
+      );
+    } catch (error) {
+      toast.error(error.message || "Couldn't update your review.");
+      // Roll back to original state
+      set_entries((prev) =>
+        prev.map((e) => (e.id === original.id ? original : e))
+      );
+    }
+  };
 
-        {/* Text area */}
-        <div>
-          <label className="font-secondary text-xs text-base-content/50 mb-2 block uppercase tracking-wide">
-            Your Experience
-          </label>
-          <textarea
-            value={experience}
-            onChange={(e) => set_experience(e.target.value)}
-            placeholder="Tell us about your stay…"
-            rows={4}
-            className="textarea textarea-bordered w-full rounded-field font-secondary text-sm resize-y bg-base-100 focus:border-accent focus:outline-none"
-          />
-        </div>
+  // ── Delete ───────────────────────────────────────────────────────────────────
+  const handle_delete = async (id) => {
+    const snapshot = entries.find((e) => e.id === id);
+    set_entries((prev) => prev.filter((e) => e.id !== id)); // optimistic remove
 
-        <button
-          onClick={handle_submit}
-          disabled={!user_rating || !experience.trim()}
-          className="btn btn-accent rounded-field font-primary font-bold text-sm uppercase tracking-wider self-start disabled:opacity-40"
-        >
-          Submit Review
-        </button>
-      </div>
-    </div>
-  );
-}
+    try {
+      await deleteReview(id)
+    } catch (error) {
+      toast.error(error.message || "Couldn't delete your review.");
+      set_entries((prev) => [snapshot, ...prev]); // roll back
+    }
+  };
 
-export default function ReviewsSection({ reviews }) {
-  const { average_rating, total_count, entries } = reviews;
+  // ── Review form visibility logic ─────────────────────────────────────────────
+  //
+  //  can_review          → logged in + onboarded + no existing review + not editing
+  //  show_onboarding_teaser → logged in but NOT onboarded (profile incomplete)
+  //  !current_user       → not logged in at all → show sign-in prompt
+  //
+  const can_review =
+    !!current_user &&
+    current_user.is_onboarded &&
+    !has_my_review &&
+    !editing;
 
+  const show_onboarding_teaser =
+    !!current_user &&
+    !current_user.is_onboarded &&
+    !has_my_review &&
+    !editing;
+
+  // ── Render ───────────────────────────────────────────────────────────────────
   return (
     <section className="bg-base-100 rounded-box p-6 shadow-sm">
-      {/* Section heading + aggregate score */}
+
+      {/* Onboarding gate modal — fires when incomplete-profile user clicks the teaser */}
+      <InformationModal
+        title="Complete Your Profile First"
+        message="You need to finish setting up your WiyoRent profile before you can leave a review. It only takes a minute!"
+        showModal={show_onboarding_modal}
+        setShowModal={set_show_onboarding_modal}
+        redirectTo="/profile"
+      />
+
+      {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
         <h2 className="font-primary text-base font-extrabold text-base-content uppercase tracking-widest flex items-center gap-3">
           <span className="w-1 h-5 bg-accent rounded-full inline-block" />
@@ -161,24 +163,70 @@ export default function ReviewsSection({ reviews }) {
         </h2>
         <div className="flex items-center gap-2">
           <Star size={18} className="fill-accent text-accent" />
-          <span className="font-primary text-lg font-extrabold text-base-content">
-            {average_rating.toFixed(1)}
-          </span>
-          <span className="font-secondary text-sm text-base-content/40">
-            ({total_count} reviews)
-          </span>
+          <span className="font-primary text-lg font-extrabold text-base-content">{live_avg}</span>
+          <span className="font-secondary text-sm text-base-content/40">({live_count} reviews)</span>
         </div>
       </div>
 
-      {/* Review cards */}
+      {/* Review cards — filtered to what this user is allowed to see */}
       <div>
-        {entries.map((entry) => (
-          <ReviewCard key={entry.id} entry={entry} />
-        ))}
+        {visible_entries.map((entry) =>
+          editing?.id === entry.id ? (
+            <div key={entry.id} className="py-4 border-b border-base-200 last:border-0">
+              <p className="font-primary text-xs font-extrabold uppercase tracking-widest text-accent mb-3">
+                Editing your review
+              </p>
+              <ReviewForm
+                initial={editing}
+                on_submit={handle_edit_submit}
+                on_cancel={() => set_editing(null)}
+              />
+            </div>
+          ) : (
+            <ReviewCard
+              key={entry.id}
+              entry={entry}
+              current_user_id={current_user?.id}
+              on_edit={set_editing}
+              on_delete={handle_delete}
+            />
+          )
+        )}
+
+        {visible_entries.length === 0 && (
+          <p className="font-secondary text-sm text-base-content/40 py-4 text-center">
+            No reviews yet. Be the first!
+          </p>
+        )}
       </div>
 
-      {/* Leave a review form */}
-      <LeaveReviewForm />
+      {/* ── Fully gated write-review form ─────────────────────────────── */}
+      {can_review && <ReviewForm on_submit={handle_create} />}
+
+      {/* ── Logged in but profile incomplete → teaser that opens modal ── */}
+      {show_onboarding_teaser && (
+        <div className="mt-6 border-t border-base-200 pt-5 text-center">
+          <p className="font-secondary text-sm text-base-content/50">
+            <button
+              onClick={() => set_show_onboarding_modal(true)}
+              className="text-accent font-bold hover:underline bg-transparent border-none cursor-pointer p-0"
+            >
+              Complete your profile
+            </button>
+            {' '}to leave a review.
+          </p>
+        </div>
+      )}
+
+      {/* ── Not logged in → sign-in prompt ───────────────────────────── */}
+      {!current_user && (
+        <div className="mt-6 border-t border-base-200 pt-5 text-center">
+          <p className="font-secondary text-sm text-base-content/50">
+            <a href="/login" className="text-accent font-bold hover:underline">Sign in</a>
+            {' '}to leave a review.
+          </p>
+        </div>
+      )}
     </section>
   );
 }

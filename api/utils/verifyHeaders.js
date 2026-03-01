@@ -1,6 +1,9 @@
 export const verifyHeaders = (req) => {
+    
     const clientKey = req.headers['x-internal-api-key'];
     const userId = req.headers['x-user-id'];
+
+    console.log(clientKey, '---clientKey')
 
     if (clientKey !== process.env.INTERNAL_BACKEND_KEY) {
         const error = new Error('Unauthorized access');

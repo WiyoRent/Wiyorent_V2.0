@@ -30,10 +30,8 @@ const toggleSave = async (endpoint, payload) => {
 }
 
 export async function toggleSaveListing (listingId, isLiked){
-    
     const url = getBaseURL() + 'api/v1/public/saveListing'
     return await toggleSave(url,{listingId, isLiked})
-
 }
 
 export async function toggleSaveHousemate(housemateId, isSaved){

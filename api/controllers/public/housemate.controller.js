@@ -231,6 +231,7 @@ export const fetchSavedHousemates = async (req,res) => {
             avatar_url: housemate.avatar_url || null,
             gender: housemate.gender,
             is_verified: housemate.is_verified,
+            saved : housemate.saved
         }))
 
         console.log(saved_housemates, '--saved housemates from fetchHousemates')

@@ -1,11 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   /* config options here */
-
   images : {
     remotePatterns : [
       new URL('https://res.cloudinary.com/**')]
-  }
+  },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '5mb', // Increased to 5MB to be safer for mobile uploads
+    },
+  },
 };
 
 export default nextConfig;

@@ -1,12 +1,42 @@
 "use client"
 
-import { User, Upload } from 'lucide-react';
+import { User, Upload, Zap } from 'lucide-react';
 import Image from 'next/image';
 import PhoneInputWithCountrySelect from 'react-phone-number-input';
 import 'react-phone-number-input/style.css'
 import Select from 'react-select'
 import countryList from 'react-select-country-list'
 import { useMemo } from 'react';
+
+const URGENCY_OPTIONS = [
+  {
+    value: 'not_urgent',
+    label: 'Not Urgent',
+    description: 'Just browsing for now',
+    color: 'text-success',
+    bg: 'bg-success/10 border-success/30',
+    activeBg: 'bg-success text-success-content border-success',
+    dot: 'bg-success',
+  },
+  {
+    value: 'slightly_urgent',
+    label: 'Slightly Urgent',
+    description: 'Looking within a few weeks',
+    color: 'text-warning',
+    bg: 'bg-warning/10 border-warning/30',
+    activeBg: 'bg-warning text-warning-content border-warning',
+    dot: 'bg-warning',
+  },
+  {
+    value: 'extremely_urgent',
+    label: 'Extremely Urgent',
+    description: 'Need a place ASAP',
+    color: 'text-error',
+    bg: 'bg-error/10 border-error/30',
+    activeBg: 'bg-error text-error-content border-error',
+    dot: 'bg-error',
+  },
+];
 
 export default function BasicProfileSection({
   full_name,
@@ -27,55 +57,42 @@ export default function BasicProfileSection({
   set_year_of_study,
   nationality,
   set_nationality,
+  // New
+  urgency,
+  set_urgency,
 }) {
 
   const options = useMemo(() => countryList()?.getData(), [])
 
   const uploadProfilePicture = (e) => {
     const file = e.target.files[0]
-
-    if(!file){
-      return
-    }
-
+    if (!file) return
     const previewUrl = URL.createObjectURL(file)
-
-    set_avatar_url({
-      file,
-      previewUrl
-    })
-
-    return 
+    set_avatar_url({ file, previewUrl })
   }
 
   const displayProfilepic = (avatar) => {
-
-
-    if(!avatar){
+    if (!avatar) {
       return <User size={16} className="text-accent-content" />
-    }else if (typeof avatar == 'string'){
+    } else if (typeof avatar == 'string') {
       return (
-        <div className='object-contain border-2 border-accent relative w-20 h-20 rounded-full  '>
-          <Image className='rounded-full object-cover' alt='Your profile image'  fill src={avatar || null} />
-        </div> 
+        <div className='object-contain border-2 border-accent relative w-20 h-20 rounded-full'>
+          <Image className='rounded-full object-cover' alt='Your profile image' fill src={avatar || null} />
+        </div>
       )
-    }else {
+    } else {
       return (
-        <div className='object-contain border-2 border-accent relative w-20 h-20 rounded-full  '>
-            <Image className='rounded-full' alt='Your profile image' fill src={avatar.previewUrl || null} />
-        </div> 
+        <div className='object-contain border-2 border-accent relative w-20 h-20 rounded-full'>
+          <Image className='rounded-full' alt='Your profile image' fill src={avatar.previewUrl || null} />
+        </div>
       )
     }
   }
 
   const handle_nationality = (selectedOption) => {
     if (!selectedOption) return;
-
-    const countryCode = selectedOption.value;
-    set_nationality(countryCode);
+    set_nationality(selectedOption.value);
   }
-
-
 
   return (
     <div className="bg-base-100 rounded-box shadow-sm p-6">
@@ -89,7 +106,7 @@ export default function BasicProfileSection({
         </h2>
       </div>
 
-      {/* Avatar upload placeholder */}
+      {/* Avatar upload */}
       <div className="mb-6 flex items-center gap-4">
         {displayProfilepic(avatar_url)}
         <label
@@ -99,7 +116,6 @@ export default function BasicProfileSection({
           <Upload size={14} />
           Upload Photo
         </label>
-
         <input accept='image/*' onChange={uploadProfilePicture} type="file" className='hidden' id="uploadPfp" />
       </div>
 
@@ -108,9 +124,7 @@ export default function BasicProfileSection({
         {/* Full Name */}
         <div className="form-control">
           <label className="label">
-            <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">
-              Full Name
-            </span>
+            <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">Full Name</span>
           </label>
           <br />
           <input
@@ -126,9 +140,7 @@ export default function BasicProfileSection({
         {/* Age */}
         <div className="form-control">
           <label className="label">
-            <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">
-              Age
-            </span>
+            <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">Age</span>
           </label>
           <br />
           <input
@@ -146,9 +158,7 @@ export default function BasicProfileSection({
         {/* Gender */}
         <div className="form-control">
           <label className="label">
-            <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">
-              Gender
-            </span>
+            <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">Gender</span>
           </label>
           <br />
           <select
@@ -166,14 +176,12 @@ export default function BasicProfileSection({
         {/* Phone Number */}
         <div className="form-control">
           <label className="label">
-            <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">
-              Phone Number
-            </span>
+            <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">Phone Number</span>
           </label>
           <br />
           <PhoneInputWithCountrySelect
-            required 
-            placeholder = "Enter phone number (+250 123 456 789)"
+            required
+            placeholder="Enter phone number (+250 123 456 789)"
             value={phone_number || ""}
             onChange={set_phone_number}
             className='input'
@@ -184,9 +192,7 @@ export default function BasicProfileSection({
         {/* University */}
         <div className="form-control">
           <label className="label">
-            <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">
-              University
-            </span>
+            <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">University</span>
           </label>
           <br />
           <input
@@ -202,9 +208,7 @@ export default function BasicProfileSection({
         {/* Program */}
         <div className="form-control">
           <label className="label">
-            <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">
-              Program
-            </span>
+            <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">Program</span>
           </label>
           <br />
           <input
@@ -220,11 +224,8 @@ export default function BasicProfileSection({
         {/* Year of Study */}
         <div className="form-control">
           <label className="label">
-            <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">
-              Year of Study
-            </span>
+            <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">Year of Study</span>
           </label>
-
           <br />
           <select
             value={year_of_study || ""}
@@ -245,19 +246,54 @@ export default function BasicProfileSection({
         {/* Nationality */}
         <div className="form-control">
           <label className="label">
-            <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">
-              Country Of Origin
-            </span>
+            <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">Country Of Origin</span>
           </label>
           <br />
           <Select
             className='w-1/2'
             required
-            options = {options}
-            value = {options.find(obj => obj.value === nationality)|| ""}
-            onChange = {handle_nationality}
+            options={options}
+            value={options.find(obj => obj.value === nationality) || ""}
+            onChange={handle_nationality}
           />
-          
+        </div>
+      </div>
+
+      {/* ── Urgency ───────────────────────────────────────────────────────── */}
+      <div className="mt-6 pt-6 border-t border-base-200">
+        <div className="flex items-center gap-2 mb-3">
+          <Zap size={15} className="text-accent" />
+          <span className="font-secondary text-xs font-semibold uppercase tracking-wide text-base-content">
+            How urgently are you looking?
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {URGENCY_OPTIONS.map((option) => {
+            const isActive = urgency === option.value;
+            return (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => set_urgency(option.value)}
+                className={`
+                  flex items-start gap-3 p-3 rounded-field border-2 text-left transition-all duration-150
+                  ${isActive ? option.activeBg : `bg-base-100 border-base-300 hover:${option.bg}`}
+                `}
+              >
+                {/* Dot indicator */}
+                <span className={`mt-1 w-2.5 h-2.5 rounded-full flex-shrink-0 ${isActive ? 'bg-current opacity-80' : option.dot}`} />
+                <div>
+                  <p className={`font-primary text-xs font-extrabold uppercase tracking-wide leading-tight ${isActive ? '' : option.color}`}>
+                    {option.label}
+                  </p>
+                  <p className={`font-secondary text-xs mt-0.5 ${isActive ? 'opacity-80' : 'text-base-content/50'}`}>
+                    {option.description}
+                  </p>
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

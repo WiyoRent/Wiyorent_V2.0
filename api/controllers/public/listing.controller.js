@@ -70,7 +70,7 @@ export const fetchListings = async (req,res) => {
 export const fetchSingleListing = async (req,res) => {
 
     try {
-        const {id} = req.params
+        const listingId = req.params.id
 
         const result = await pool.query(`
             SELECT 
@@ -92,21 +92,47 @@ export const fetchSingleListing = async (req,res) => {
                 l.is_verified,
                 l.thumbnail_url,
                 l.description,
-                ARRAY_AGG(li.image_url) as image_urls,
-                l.house_rules
+                ARRAY_AGG(DISTINCT li.image_url) as image_urls,
+                l.house_rules,
+                COALESCE(
+                    json_build_object(
+                        'average_rating', ROUND(AVG(lr.rating)),
+                        'total_count' , COUNT(lr.id),
+                        'entries', COALESCE (
+                            json_agg(
+                                DISTINCT json_build_object(
+                                    'id', lr.id,
+                                    'reviewer_id', u.id,
+                                    'name', u.full_name,
+                                    'rating', lr.rating,
+                                    'comment', lr.comment,
+                                    'avatar', u.avatar_url,
+                                    'date', lr.created_at,
+                                    'is_approved', lr.is_approved
+                                )::jsonb
+                            ) FILTER (WHERE lr.id IS NOT NULL), '[]'
+                        )
+                    ), '{"average_rating" : 0, "total_count" : 0, "entries": [] }'
+                ) as reviews
             FROM listings l
             LEFT JOIN listing_images li
                 ON l.id = li.listing_id
+            LEFT JOIN listing_reviews lr
+                ON lr.listing_id = l.id
+            LEFT JOIN users u
+                ON u.id = lr.user_id
             WHERE 
                 l.id = $1
             GROUP BY l.id
-            `, [id])
+            `, [listingId])
 
         if(result.rowCount == 0){
             return errorMsg(res, 404, "Couldn't find listing")
         }
 
         const listing = result.rows[0]
+
+        console.log(listing, '--listing')
 
         const listingDetail = {
             listing_id: listing.id,
@@ -133,30 +159,8 @@ export const fetchSingleListing = async (req,res) => {
             description: listing.description,
             image_urls: [listing.thumbnail_url,...listing.image_urls],
             house_rules: listing.house_rules,
-            reviews: {
-                average_rating: 4.8,
-                total_count: 112,
-                entries: [
-                    {
-                        id: 'rev_01',
-                        name: 'John Mutabazi',
-                        rating: 5,
-                        comment:'Great place for a student! Very close to the university and the landlord is super helpful. The Wi-Fi is also very reliable.',
-                        avatar: 'https://i.pravatar.cc/150?u=john',
-                        date: '2024-01-15'
-                    },
-                    {
-                        id: 'rev_02',
-                        name: 'Alice Uwera',
-                        rating: 4,
-                        comment:
-                        "The apartment is clean and modern. My only complaint is the occasional noise from the street, but it's not a major issue.",
-                        avatar: 'https://i.pravatar.cc/150?u=alice',
-                        date: '2024-02-01'
-                    },
-                ],
-            },
-        };
+            reviews: listing.reviews
+        }; 
 
         console.log(listingDetail, '---listing detail')
 
@@ -266,3 +270,4 @@ export const fetchSavedListings = async (req,res) => {
     }
 
 }
+
