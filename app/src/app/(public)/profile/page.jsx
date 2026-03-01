@@ -57,8 +57,6 @@ import { redirect } from 'next/navigation';
 // };
 
 
-
-
 export const metadata = {
   title: 'Edit Housemate Profile | WiyoRent',
   description: 'Update your housemate matchmaking profile',
@@ -75,6 +73,10 @@ export default async function ProfileEditPage() {
 
   console.log(user, '-----userrr')
 
+  const listing = user.listing ?? null
+
+  console.log(listing, '-----listing')
+
   const housemate_profile_edit = {
     
 
@@ -88,6 +90,7 @@ export default async function ProfileEditPage() {
     gender: user.gender,
     program: user.program,
     year_of_study: user.year_of_study,
+    urgency : user.urgency,
 
     // Contact Information
     contact_info: {
@@ -117,6 +120,9 @@ export default async function ProfileEditPage() {
       social_habits: user.social_habits,
       languages: user.languages
     },
+
+    has_house : user.has_house,
+    
 
     // ---Practical--
     // Settings & Privacy
