@@ -9,12 +9,10 @@ import AboutMeSection from './AboutMeSection';
 import HouseListingSection from './HouseListingSection';
 import { Save } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { isValidPhoneNumber } from 'react-phone-number-input'
-import { editProfile } from '@/services/edit_profile.service';
+import { isValidPhoneNumber } from 'react-phone-number-input';
+import { editProfile } from '@/services/profile.service';
 
 export default function ProfileEditForm({ initial_data, available_neighborhoods }) {
-
-  console.log(initial_data, '-----initial data')
 
   // ───────────────────────── Basic Profile ─────────────────────────
   const [is_profile_public, set_is_profile_public] = useState(initial_data.is_profile_public);
@@ -27,24 +25,16 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods 
   const [year_of_study, set_year_of_study] = useState(initial_data.year_of_study);
   const [nationality, set_nationality] = useState(initial_data.nationality);
   const [avatar_url, set_avatar_url] = useState(initial_data.avatar_url);
-
-  // Urgency
   const [urgency, set_urgency] = useState(initial_data.urgency || 'not_urgent');
 
   // ───────────────────────── Housing Preferences ───────────────────
   const [move_in_date, set_move_in_date] = useState(initial_data.housing_preferences.move_in_date);
   const [lease_duration, set_lease_duration] = useState(initial_data.housing_preferences.lease_duration);
-  const [preferred_locations, set_preferred_locations] = useState(
-    initial_data.housing_preferences.preferred_locations || []
-  );
+  const [preferred_locations, set_preferred_locations] = useState(initial_data.housing_preferences.preferred_locations || []);
   const [budget_min, set_budget_min] = useState(initial_data.housing_preferences.budget.min);
   const [budget_max, set_budget_max] = useState(initial_data.housing_preferences.budget.max);
-  const [is_furnished_preferred, set_is_furnished_preferred] = useState(
-    initial_data.housing_preferences.is_furnished_preferred
-  );
-  const [is_private_room_required, set_is_private_room_required] = useState(
-    initial_data.housing_preferences.is_private_room_required
-  );
+  const [is_furnished_preferred, set_is_furnished_preferred] = useState(initial_data.housing_preferences.is_furnished_preferred);
+  const [is_private_room_required, set_is_private_room_required] = useState(initial_data.housing_preferences.is_private_room_required);
   const [max_housemates, set_max_housemates] = useState(initial_data.housing_preferences.max_housemates);
   const [allows_pets, set_allows_pets] = useState(initial_data.housing_preferences.allows_pets);
   const [is_smoker, set_is_smoker] = useState(initial_data.housing_preferences.is_smoker);
@@ -65,12 +55,12 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods 
 
   // ───────────────────────── House Listing ─────────────────────────
   const [has_house, set_has_house] = useState(initial_data.has_house || false);
-  const [listing_is_active, set_listing_is_active] = useState(initial_data.listing_is_active || false);
   const [listing_images, set_listing_images] = useState(initial_data.listing_images || []);
   const [listing_price, set_listing_price] = useState(initial_data.listing_price || '');
   const [listing_caution_fee, set_listing_caution_fee] = useState(initial_data.listing_caution_fee || '');
   const [listing_bedrooms, set_listing_bedrooms] = useState(initial_data.listing_bedrooms || '');
   const [listing_bathrooms, set_listing_bathrooms] = useState(initial_data.listing_bathrooms || '');
+  const [listing_is_furnished, set_listing_is_furnished] = useState(initial_data.listing_is_furnished || false);
   const [listing_landlord_name, set_listing_landlord_name] = useState(initial_data.listing_landlord_name || '');
   const [listing_landlord_number, set_listing_landlord_number] = useState(initial_data.listing_landlord_number || '');
   const [listing_description, set_listing_description] = useState(initial_data.listing_description || '');
@@ -81,121 +71,109 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods 
   const [listing_amenities, set_listing_amenities] = useState(initial_data.listing_amenities || []);
   const [listing_house_rules, set_listing_house_rules] = useState(initial_data.listing_house_rules || []);
 
-  // ───────────────────────── Tool ──────────────────────────────────
-
+  // ───────────────────────── Helpers ───────────────────────────────
   const checkPhoneNumber = (number, message = 'Please enter a valid phone number') => {
-    if(!isValidPhoneNumber(number)){
-      throw new Error(message)
-    }
-  }
+    if (!isValidPhoneNumber(number)) throw new Error(message);
+  };
 
   // ───────────────────────── Save ──────────────────────────────────
   const [is_saving, set_is_saving] = useState(false);
 
   const handle_save = async () => {
-    
-      set_is_saving(true);
+    set_is_saving(true);
 
-      const formData = new FormData();
+    const formData = new FormData();
 
-      // 1. Basic Information
-      formData.append('full_name', full_name);
-      formData.append('nationality', nationality);
-      formData.append('university_name', university_name);
-      formData.append('avatar', typeof avatar_url === 'string' ? avatar_url : avatar_url?.file);
-      formData.append('age', age);
-      formData.append('gender', gender);
-      formData.append('program', program);
-      formData.append('year_of_study', year_of_study);
+    // 1. Basic Information
+    formData.append('full_name', full_name);
+    formData.append('nationality', nationality);
+    formData.append('university_name', university_name);
+    formData.append('avatar', typeof avatar_url === 'string' ? avatar_url : avatar_url?.file);
+    formData.append('age', age);
+    formData.append('gender', gender);
+    formData.append('program', program);
+    formData.append('year_of_study', year_of_study);
 
-      // 2. Contact
-      checkPhoneNumber(phone_number)
-      formData.append('phone_number', phone_number);
-      formData.append('preferred_method', preferred_method);
+    // 2. Contact
+    checkPhoneNumber(phone_number);
+    formData.append('phone_number', phone_number);
+    formData.append('preferred_method', preferred_method);
 
-      // 3. Housing Preferences
-      formData.append('move_in_date', move_in_date);
-      formData.append('lease_duration', lease_duration);
-      formData.append('min', budget_min);
-      formData.append('max', budget_max);
-      formData.append('max_housemates', max_housemates);
-      formData.append('is_furnished_preferred', is_furnished_preferred);
-      formData.append('is_private_room_required', is_private_room_required);
-      formData.append('allows_pets', allows_pets);
-      formData.append('is_smoker', is_smoker);
-      preferred_locations.forEach((loc) => formData.append('preferred_locations', loc));
+    // 3. Housing Preferences
+    formData.append('move_in_date', move_in_date);
+    formData.append('lease_duration', lease_duration);
+    formData.append('min', budget_min);
+    formData.append('max', budget_max);
+    formData.append('max_housemates', max_housemates);
+    formData.append('is_furnished_preferred', is_furnished_preferred);
+    formData.append('is_private_room_required', is_private_room_required);
+    formData.append('allows_pets', allows_pets);
+    formData.append('is_smoker', is_smoker);
+    preferred_locations.forEach((loc) => formData.append('preferred_locations', loc));
 
-      // 4. Lifestyle
-      formData.append('sleep_schedule', sleep_schedule);
-      formData.append('cleanliness', cleanliness);
-      formData.append('social_habits', social_habits);
+    // 4. Lifestyle
+    formData.append('sleep_schedule', sleep_schedule);
+    formData.append('cleanliness', cleanliness);
+    formData.append('social_habits', social_habits);
 
-      // 5. Documents
-      formData.append('admission_letter', admission_letter);
-      formData.append('passport_id', passport_id);
+    // 5. Documents
+    formData.append('admission_letter', admission_letter);
+    formData.append('passport_id', passport_id);
 
-      // 6. About Me
-      formData.append('about_me', about_me);
+    // 6. About Me
+    formData.append('about_me', about_me);
 
-      // 7. Urgency
-      formData.append('urgency', urgency);
+    // 7. Urgency
+    formData.append('urgency', urgency);
 
-      // 8. House listing
-      formData.append('has_house', has_house);
-      formData.append('listing_is_active', listing_is_active);
+    // 8. House listing
+    formData.append('has_house', has_house);
 
-      if (has_house) {
-        formData.append('listing_price', listing_price);
-        formData.append('listing_caution_fee', listing_caution_fee);
-        formData.append('listing_bedrooms', listing_bedrooms);
-        formData.append('listing_bathrooms', listing_bathrooms);
-        formData.append('listing_landlord_name', listing_landlord_name);
+    if (has_house) {
+      formData.append('listing_price', listing_price);
+      formData.append('listing_caution_fee', listing_caution_fee);
+      formData.append('listing_bedrooms', listing_bedrooms);
+      formData.append('listing_bathrooms', listing_bathrooms);
+      formData.append('listing_is_furnished', listing_is_furnished);
+      formData.append('listing_landlord_name', listing_landlord_name);
 
-        checkPhoneNumber( listing_landlord_number, 'Please enter a valid landlord phone number')
+      checkPhoneNumber(listing_landlord_number, 'Please enter a valid landlord phone number');
+      formData.append('listing_landlord_number', listing_landlord_number);
 
-        formData.append('listing_landlord_number', listing_landlord_number);
-        formData.append('listing_description', listing_description);
-        formData.append('listing_neighborhood', listing_neighborhood);
-        formData.append('listing_city', listing_city);
-        formData.append('listing_available_from', listing_available_from);
-        formData.append('listing_housemate_gender', listing_housemate_gender);
-        listing_amenities.forEach((a) => formData.append('listing_amenities', a));
-        listing_house_rules.forEach((r) => formData.append('listing_house_rules', r));
+      formData.append('listing_description', listing_description);
+      formData.append('listing_neighborhood', listing_neighborhood);
+      formData.append('listing_city', listing_city);
+      formData.append('listing_available_from', listing_available_from);
+      formData.append('listing_housemate_gender', listing_housemate_gender);
+      listing_amenities.forEach((a) => formData.append('listing_amenities', a));
+      listing_house_rules.forEach((r) => formData.append('listing_house_rules', r));
 
-        listing_images.forEach(({ file, preview_url }) => {
-          if (file) {
-            formData.append('listing_images', file);
-          } else if (typeof preview_url === 'string') {
-            formData.append('listing_images_existing', preview_url);
-          }
-        });
-      }
+      listing_images.forEach(({ file, preview_url }) => {
+        if (file) {
+          formData.append('listing_images', file);
+        } else if (typeof preview_url === 'string') {
+          formData.append('listing_images_existing', preview_url);
+        }
+      });
+    }
 
-    const loadingToast = toast.loading('Updating Your Profile..')
+    const loadingToast = toast.loading('Updating Your Profile..');
     try {
-      
-      const result = await editProfile(formData)
-
-      toast.update(
-        loadingToast,{
-          type : 'success',
-          render : result.message || "Profile updated successfully",
-          autoClose : '1500',
-          isLoading : false
-        }
-      )
-      
-
+      const result = await editProfile(formData);
+      toast.update(loadingToast, {
+        type: 'success',
+        render: result.message || 'Profile updated successfully',
+        autoClose: 1500,
+        isLoading: false,
+      });
     } catch (error) {
-      console.error(error, '-error on profile frontend')
-      toast.update(
-        loadingToast,{
-          type : 'error',
-          render : error.message || 'An iternal server error occured',
-          autoClose : '1500',
-          isLoading : false
-        }
-      )
+      console.error(error, '-error on profile frontend');
+      toast.update(loadingToast, {
+        type: 'error',
+        render: error.message || 'An internal server error occurred',
+        autoClose: 1500,
+        isLoading: false,
+      });
     } finally {
       set_is_saving(false);
     }
@@ -274,8 +252,6 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods 
       <HouseListingSection
         has_house={has_house}
         set_has_house={set_has_house}
-        listing_is_active={listing_is_active}
-        set_listing_is_active={set_listing_is_active}
         listing_images={listing_images}
         set_listing_images={set_listing_images}
         listing_price={listing_price}
@@ -286,6 +262,8 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods 
         set_listing_bedrooms={set_listing_bedrooms}
         listing_bathrooms={listing_bathrooms}
         set_listing_bathrooms={set_listing_bathrooms}
+        listing_is_furnished={listing_is_furnished}
+        set_listing_is_furnished={set_listing_is_furnished}
         listing_landlord_name={listing_landlord_name}
         set_listing_landlord_name={set_listing_landlord_name}
         listing_landlord_number={listing_landlord_number}
@@ -317,10 +295,6 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods 
         admission_letter={admission_letter}
         set_admission_letter={set_admission_letter}
       />
-
-      
-
-      
 
       {/* Save */}
       <div className="flex flex-col sm:flex-row gap-3 pt-4">

@@ -1,6 +1,6 @@
 'use client';
 
-import { Home, User, DollarSign, BedDouble, MapPin, Info } from 'lucide-react';
+import { Home, User, DollarSign, BedDouble, MapPin, Sofa } from 'lucide-react';
 import ImagesSection from '@/components/shared/ImagesSection';
 import AmenitiesRulesSection from '@/components/shared/AmenitiesRulesSection';
 import PhoneInputWithCountrySelect from 'react-phone-number-input';
@@ -15,9 +15,6 @@ const KIGALI_NEIGHBORHOODS = [
 export default function HouseListingSection({
   has_house,
   set_has_house,
-  // Active indicator
-  listing_is_active,
-  set_listing_is_active,
   // Listing fields
   listing_images,
   set_listing_images,
@@ -29,6 +26,8 @@ export default function HouseListingSection({
   set_listing_bedrooms,
   listing_bathrooms,
   set_listing_bathrooms,
+  listing_is_furnished,
+  set_listing_is_furnished,
   listing_landlord_name,
   set_listing_landlord_name,
   listing_landlord_number,
@@ -49,15 +48,6 @@ export default function HouseListingSection({
   listing_house_rules,
   set_listing_house_rules,
 }) {
-
-  const handle_toggle_active = (checked) => {
-    set_listing_is_active(checked);
-    // Deactivating listing also turns off "I have a house"
-    if (!checked) {
-      set_has_house(false);
-    }
-  };
-
   return (
     <div className="bg-base-100 rounded-box shadow-sm p-6">
       {/* ── Section header ── */}
@@ -70,71 +60,29 @@ export default function HouseListingSection({
         </h2>
       </div>
 
-      <div className="flex flex-col gap-3">
-
-        {/* ── Toggle: I already have a house ── */}
-        <div className="flex items-center justify-between p-4 bg-base-200 rounded-field">
-          <div>
-            <p className="font-secondary text-sm font-semibold text-base-content">
-              I already have a house
-            </p>
-            <p className="font-secondary text-xs text-base-content/50 mt-0.5">
-              Turn this on if you have a place and are looking for a housemate to move in
-            </p>
-          </div>
-          <input
-            type="checkbox"
-            className="toggle toggle-accent"
-            checked={has_house || false}
-            onChange={(e) => set_has_house(e.target.checked)}
-          />
+      {/* ── Toggle: I already have a house ── */}
+      <div className="flex items-center justify-between p-4 bg-base-200 rounded-field">
+        <div>
+          <p className="font-secondary text-sm font-semibold text-base-content">
+            I already have a house
+          </p>
+          <p className="font-secondary text-xs text-base-content/50 mt-0.5">
+            Turn this on if you have a place and are looking for a housemate to move in
+          </p>
         </div>
-
-        {/* ── Active indicator — only visible once has_house is on ── */}
-        {has_house && (
-          <div className="flex items-center justify-between p-4 bg-base-200 rounded-field border border-base-300">
-            <div className="flex items-start gap-2">
-              {/* Live status dot */}
-              <span
-                className={`mt-1 w-2.5 h-2.5 rounded-full flex-shrink-0 transition-colors duration-300 ${
-                  listing_is_active ? 'bg-success' : 'bg-base-content/20'
-                }`}
-              />
-              <div>
-                <div className="flex items-center gap-1.5">
-                  <p className="font-secondary text-sm font-semibold text-base-content">
-                    Listing Active
-                  </p>
-                  {/* Tooltip */}
-                  <div
-                    className="tooltip tooltip-right"
-                    data-tip="When active, your listing is visible to anyone browsing profiles with a house. Turning this off hides your listing publicly and also disables 'I already have a house'."
-                  >
-                    <Info size={13} className="text-base-content/40 cursor-help" />
-                  </div>
-                </div>
-                <p className="font-secondary text-xs text-base-content/50 mt-0.5">
-                  {listing_is_active
-                    ? 'Your listing is publicly visible on your profile'
-                    : 'Your listing is hidden — no one can see it'}
-                </p>
-              </div>
-            </div>
-            <input
-              type="checkbox"
-              className="toggle toggle-success"
-              checked={listing_is_active || false}
-              onChange={(e) => handle_toggle_active(e.target.checked)}
-            />
-          </div>
-        )}
+        <input
+          type="checkbox"
+          className="toggle toggle-accent"
+          checked={has_house || false}
+          onChange={(e) => set_has_house(e.target.checked)}
+        />
       </div>
 
       {/* ── Expandable listing form ── */}
       {has_house && (
         <div className="mt-5 flex flex-col gap-5">
 
-          {/* Divider with label */}
+          {/* Divider */}
           <div className="flex items-center gap-3">
             <div className="flex-1 h-px bg-base-200" />
             <span className="font-secondary text-xs text-base-content/40 uppercase tracking-widest">
@@ -247,8 +195,8 @@ export default function HouseListingSection({
                 </label>
                 <br />
                 <input
-                  min={new Date().toISOString().split('T')[0]}
                   type="date"
+                  min={new Date().toISOString().split('T')[0]}
                   value={listing_available_from || ''}
                   onChange={(e) => set_listing_available_from(e.target.value)}
                   className="input input-bordered rounded-field font-secondary text-sm"
@@ -270,9 +218,29 @@ export default function HouseListingSection({
                   <option value="any">Any</option>
                   <option value="male">Male</option>
                   <option value="female">Female</option>
-                  
                 </select>
               </div>
+            </div>
+
+            {/* ── Furnished toggle ── */}
+            <div className="flex items-center justify-between mt-4 pt-4 border-t border-base-200">
+              <div className="flex items-center gap-2">
+                <Sofa size={15} className="text-accent" />
+                <div>
+                  <p className="font-secondary text-sm font-semibold text-base-content">
+                    Furnished
+                  </p>
+                  <p className="font-secondary text-xs text-base-content/50 mt-0.5">
+                    Is the house furnished?
+                  </p>
+                </div>
+              </div>
+              <input
+                type="checkbox"
+                className="toggle toggle-accent"
+                checked={listing_is_furnished || false}
+                onChange={(e) => set_listing_is_furnished(e.target.checked)}
+              />
             </div>
           </div>
 

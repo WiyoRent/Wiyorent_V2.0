@@ -21,7 +21,7 @@ const URGENCY_OPTIONS = [
   {
     value: 'slightly_urgent',
     label: 'Slightly Urgent',
-    description: 'Looking within a few months',
+    description: 'Looking within a few weeks',
     color: 'text-warning',
     bg: 'bg-warning/10 border-warning/30',
     activeBg: 'bg-warning text-warning-content border-warning',

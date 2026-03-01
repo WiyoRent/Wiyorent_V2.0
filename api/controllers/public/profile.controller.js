@@ -4,6 +4,47 @@ import pool from "../../config/db.js"
 import { verifyHeaders } from "../../utils/verifyHeaders.js"
 import { throwError } from "../../utils/throwError.js"
 
+export const getProfile = async (req, res) => {
+    try {
+        const { userId } = verifyHeaders(req)
+
+        // Fetch user profile
+        const userRes = await pool.query(
+            `SELECT * FROM users WHERE id = $1`,
+            [userId]
+        )
+
+        if (userRes.rowCount === 0) {
+            return errorMsg(res, 404, 'User not found')
+        }
+
+        const user = userRes.rows[0]
+
+        // Fetch listing + images
+        const listingRes = await pool.query(`
+            SELECT 
+                ul.*,
+                ARRAY_AGG(uli.image_url) FILTER (WHERE uli.image_url IS NOT NULL) AS listing_images
+            FROM user_listings ul
+            LEFT JOIN user_listing_images uli 
+                ON uli.user_listing_id = ul.id
+            WHERE ul.user_id = $1
+            GROUP BY ul.id
+        `, [userId])
+
+        const listing = listingRes.rows.length > 0 ? listingRes.rows[0] : null
+
+        return res.status(200).json({
+            success: true,
+            user,
+            listing
+        })
+
+    } catch (error) {
+        console.error(error)
+        return errorMsg(res, error.status || 500, error.message || 'An error occurred fetching profile')
+    }
+}
 
 export const updateProfile = async (req, res) => {
     try {
@@ -36,15 +77,12 @@ export const updateProfile = async (req, res) => {
             has_house
         } = req.body
 
-        console.log(req.body, '------body')
-        console.log(req.files, '------files')
-
         if (
             !full_name ||
             !nationality ||
             !university_name ||
             !age ||
-            !gender ||       // BUG FIX: was a comma instead of || so this was never checked
+            !gender ||
             !program ||
             !year_of_study ||
             !phone_number ||
@@ -60,7 +98,7 @@ export const updateProfile = async (req, res) => {
             !lease_duration ||
             !urgency
         ) {
-            return errorMsg(res, 400, "Please enter all fields")  // BUG FIX: was req instead of res
+            return errorMsg(res, 400, "Please enter all fields")
         }
 
         // ------ Update basic user info ------
@@ -97,31 +135,12 @@ export const updateProfile = async (req, res) => {
         `
 
         const values = [
-            full_name,
-            nationality,
-            university_name,
-            age,
-            gender,
-            program,
-            year_of_study,
-            phone_number,
-            move_in_date,
-            min,
-            max,
-            max_housemates,
-            is_furnished_preferred,
-            is_private_room_required,
-            allows_pets,
-            is_smoker,
-            sleep_schedule,
-            cleanliness,
-            social_habits,
-            preferred_locations,
-            about_me,
-            lease_duration,
-            urgency,
-            has_house,
-            userId
+            full_name, nationality, university_name, age, gender,
+            program, year_of_study, phone_number, move_in_date,
+            min, max, max_housemates, is_furnished_preferred,
+            is_private_room_required, allows_pets, is_smoker,
+            sleep_schedule, cleanliness, social_habits, preferred_locations,
+            about_me, lease_duration, urgency, has_house, userId
         ]
 
         const result = await pool.query(query, values)
@@ -134,39 +153,30 @@ export const updateProfile = async (req, res) => {
 
         // ------ Handle document/avatar uploads ------
         if (req.files?.avatar || req.files?.admission_letter || req.files?.passport_id) {
-            let avatar_url = null
-            let admission_letter_url = null
-            let passport_id_url = null
+            let avatar_url = req.body.avatar
+            let admission_letter_url = req.body.admission_letter
+            let passport_id_url = req.body.passport_id
 
             if (req.files.avatar) {
-                const avatar_upload = await uploadToCloudinary(req.files.avatar[0].buffer, `user-${full_name}/profiles/${full_name}`)
-                avatar_url = avatar_upload.secure_url
-            } else {
-                avatar_url = req.body.avatar
+                const upload = await uploadToCloudinary(req.files.avatar[0].buffer, `user-${full_name}/profiles/${full_name}`)
+                avatar_url = upload.secure_url
             }
 
             if (req.files.admission_letter) {
-                const admission_letter_upload = await uploadToCloudinary(req.files.admission_letter[0].buffer, `user-${full_name}/admission_letters/${full_name}`)
-                admission_letter_url = admission_letter_upload.secure_url
-            } else {
-                admission_letter_url = req.body.admission_letter
+                const upload = await uploadToCloudinary(req.files.admission_letter[0].buffer, `user-${full_name}/admission_letters/${full_name}`)
+                admission_letter_url = upload.secure_url
             }
 
             if (req.files.passport_id) {
-                const passport_id_upload = await uploadToCloudinary(req.files.passport_id[0].buffer, `legal_documents/${full_name}`)
-                passport_id_url = passport_id_upload.secure_url
-            } else {
-                passport_id_url = req.body.passport_id
+                const upload = await uploadToCloudinary(req.files.passport_id[0].buffer, `legal_documents/${full_name}`)
+                passport_id_url = upload.secure_url
             }
 
             const uploadResult = await pool.query(`
                 UPDATE users
-                SET 
-                    avatar_url = $1,
-                    admission_letter = $2,
-                    passport_id = $3
+                SET avatar_url = $1, admission_letter = $2, passport_id = $3
                 WHERE id = $4
-            `, [avatar_url, admission_letter_url, passport_id_url, userId])  // BUG FIX: was `id` (undefined), now `userId`
+            `, [avatar_url, admission_letter_url, passport_id_url, userId])
 
             if (uploadResult.rowCount == 0) {
                 return errorMsg(res, 404, "Couldn't update your documents")
@@ -189,19 +199,12 @@ export const updateProfile = async (req, res) => {
         // ------ Onboarding flag ------
         if (!user.is_onboarded) {
             await pool.query(`
-                UPDATE users
-                SET 
-                    is_onboarded = true,
-                    updated_at = NOW()
-                WHERE id = $1
+                UPDATE users SET is_onboarded = true, updated_at = NOW() WHERE id = $1
             `, [user.id])
         }
 
-        // ------ Update flag ------
         await pool.query(`
-            UPDATE users
-            SET has_performed_an_update = true
-            WHERE id = $1
+            UPDATE users SET has_performed_an_update = true WHERE id = $1
         `, [user.id])
 
         if (!user.is_verified) {
@@ -219,11 +222,11 @@ export const updateProfile = async (req, res) => {
 
 const create_user_listing = async (body, listing_images, full_name, userId) => {
     const {
-        listing_is_active,
         listing_price,
         listing_caution_fee,
         listing_bedrooms,
         listing_bathrooms,
+        listing_is_furnished,
         listing_landlord_name,
         listing_landlord_number,
         listing_description,
@@ -268,44 +271,42 @@ const create_user_listing = async (body, listing_images, full_name, userId) => {
     try {
         // ------ Upload new images to Cloudinary ------
         const imageUrls = []
-
         for (const image of listing_images) {
             if (typeof image === 'string') {
                 imageUrls.push(image)
             } else {
-                const image_upload = await uploadToCloudinary(image.buffer, `user_listings/${full_name}`)
-                imageUrls.push(image_upload.secure_url)
+                const upload = await uploadToCloudinary(image.buffer, `user_listings/${full_name}`)
+                imageUrls.push(upload.secure_url)
             }
         }
 
-        // ------ Upsert listing row (insert or update if already exists) ------
-        // BUG FIX: was always INSERT — caused duplicate listings on every profile save
+        // ------ Upsert listing row ------
         const listingResult = await pool.query(`
             INSERT INTO user_listings (
-                user_id,
-                is_active,
-                price,
-                caution_fee,
-                bedrooms,
-                bathrooms,
-                landlord_name,
-                landlord_number,
-                description,
+                user_id, 
+                price, 
+                caution_fee, 
+                bedrooms, 
+                bathrooms, 
+                is_furnished,
+                landlord_name, 
+                landlord_number, 
+                description, 
                 neighborhood,
-                city,
-                available_from,
-                housemate_gender,
-                amenities,
+                city, 
+                available_from, 
+                housemate_gender, 
+                amenities, 
                 house_rules
             ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
             RETURNING *
         `, [
             userId,
-            listing_is_active,
             listing_price,
             listing_caution_fee,
             listing_bedrooms,
             listing_bathrooms,
+            listing_is_furnished === 'true',   // FormData sends booleans as strings
             listing_landlord_name,
             listing_landlord_number,
             listing_description,
@@ -321,22 +322,17 @@ const create_user_listing = async (body, listing_images, full_name, userId) => {
             throwError(400, "Couldn't save user listing")
         }
 
-        const userListing = listingResult.rows[0]
-        const userListingId = userListing.id  // ← the actual listing UUID
-
-        console.log(userListing, '---- Listing upserted')
+        const userListingId = listingResult.rows[0].id
 
         // ------ Sync images ------
-        // Get currently stored image URLs for this listing
         const existingRes = await pool.query(`
-            SELECT image_url FROM user_listing_images
-            WHERE user_listing_id = $1
+            SELECT image_url FROM user_listing_images WHERE user_listing_id = $1
         `, [userListingId])
 
         const existingUrls = existingRes.rows.map(row => row.image_url)
-
-        // Delete images that are no longer in the new set
         const urlsToRemove = existingUrls.filter(url => !imageUrls.includes(url))
+        const urlsToAdd = imageUrls.filter(url => !existingUrls.includes(url))
+
         if (urlsToRemove.length > 0) {
             await pool.query(`
                 DELETE FROM user_listing_images
@@ -344,16 +340,14 @@ const create_user_listing = async (body, listing_images, full_name, userId) => {
             `, [userListingId, urlsToRemove])
         }
 
-        // Insert only new images
-        const urlsToAdd = imageUrls.filter(url => !existingUrls.includes(url))
         for (const url of urlsToAdd) {
             await pool.query(`
                 INSERT INTO user_listing_images (user_id, user_listing_id, image_url)
                 VALUES ($1, $2, $3)
-            `, [userId, userListingId, url])  // BUG FIX: now correctly sets user_listing_id
+            `, [userId, userListingId, url])
         }
 
-        console.log(`Synced ${urlsToAdd.length} new images, removed ${urlsToRemove.length} old images`)
+        console.log(`Listing synced — ${urlsToAdd.length} images added, ${urlsToRemove.length} removed`)
 
     } catch (error) {
         console.error(error, 'Error in create_user_listing')

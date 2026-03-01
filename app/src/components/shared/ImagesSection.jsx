@@ -97,7 +97,7 @@ export default function ImagesSection({ image_urls, set_image_urls }) {
             >
               <img
                 src={preview_url}
-                alt={file.name}
+                alt={file?.name || `image${index}`}
                 className="w-full h-full object-cover"
               />
 
@@ -111,7 +111,7 @@ export default function ImagesSection({ image_urls, set_image_urls }) {
                 type="button"
                 onClick={() => handle_remove(index)}
                 className="absolute top-2 right-2 w-6 h-6 bg-error text-error-content rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                aria-label={`Remove ${file.name}`}
+                aria-label={`Remove ${file?.name}`}
               >
                 <X size={12} />
               </button>
@@ -119,7 +119,7 @@ export default function ImagesSection({ image_urls, set_image_urls }) {
               {/* File name on hover */}
               <div className="absolute bottom-0 left-0 right-0 bg-secondary/70 px-2 py-1 translate-y-full group-hover:translate-y-0 transition-transform">
                 <p className="font-secondary text-xs text-secondary-content truncate">
-                  {file.name}
+                  {file?.name}
                 </p>
               </div>
             </div>

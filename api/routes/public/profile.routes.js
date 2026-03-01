@@ -1,6 +1,6 @@
 import express from 'express'
 import upload from '../../middleware/multer.js'
-import { updateProfile } from '../../controllers/public/profile.controller.js'
+import { getProfile, updateProfile } from '../../controllers/public/profile.controller.js'
 
 const profileRouter = express.Router()
 
@@ -14,6 +14,11 @@ profileRouter.patch(
         {name : 'listing_images', maxCount: 10}
     ]),
     updateProfile
+)
+
+profileRouter.get(
+    '/profile/:id',
+    getProfile
 )
 
 export default profileRouter
