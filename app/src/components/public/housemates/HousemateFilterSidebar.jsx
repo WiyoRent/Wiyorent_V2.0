@@ -132,6 +132,7 @@ export default function HousemateFilterSidebar({ filter_options }) {
         </label>
         <div className="relative">
           <input 
+            min={new Date().toISOString().split('T')[0]}
             type="date"
             value={move_in_date}
             onChange={(e) => set_move_in_date(e.target.value)}
