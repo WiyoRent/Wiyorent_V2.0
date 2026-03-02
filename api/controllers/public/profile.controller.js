@@ -299,6 +299,22 @@ const create_user_listing = async (body, listing_images, full_name, userId) => {
                 amenities, 
                 house_rules
             ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+            ON CONFLICT (user_id) DO UPDATE SET
+            price = EXCLUDED.price,
+            caution_fee = EXCLUDED.caution_fee,
+            bedrooms = EXCLUDED.bedrooms,
+            bathrooms = EXCLUDED.bathrooms,
+            is_furnished = EXCLUDED.is_furnished,
+            landlord_name = EXCLUDED.landlord_name,
+            landlord_number = EXCLUDED.landlord_number,
+            description = EXCLUDED.description,
+            neighborhood = EXCLUDED.neighborhood,
+            city = EXCLUDED.city,
+            available_from = EXCLUDED.available_from,
+            housemate_gender = EXCLUDED.housemate_gender,
+            amenities = EXCLUDED.amenities,
+            house_rules = EXCLUDED.house_rules,
+            updated_at = NOW()
             RETURNING *
         `, [
             userId,
@@ -324,14 +340,26 @@ const create_user_listing = async (body, listing_images, full_name, userId) => {
 
         const userListingId = listingResult.rows[0].id
 
+        console.log(userListingId, '--userListingId')
+
         // ------ Sync images ------
         const existingRes = await pool.query(`
             SELECT image_url FROM user_listing_images WHERE user_listing_id = $1
         `, [userListingId])
 
+        console.log(existingRes, '---fetched user images')
+
         const existingUrls = existingRes.rows.map(row => row.image_url)
+
+        console.log(existingRes, 'existing images')
+
         const urlsToRemove = existingUrls.filter(url => !imageUrls.includes(url))
+
+        console.log(urlsToRemove, '--urls to remove')
+
         const urlsToAdd = imageUrls.filter(url => !existingUrls.includes(url))
+
+        console.log(urlsToAdd, '---urls to add')
 
         if (urlsToRemove.length > 0) {
             await pool.query(`
