@@ -55,6 +55,8 @@ export const metadata = {
 };
 
 export default async function FavouritesPage() {
+
+
   const [session, favourited_listings, profiles] = await Promise.all([
     auth(),
     getSavedListings(),
@@ -65,6 +67,8 @@ export default async function FavouritesPage() {
 
   const verification_status = session?.user?.is_verified;
   const total_saved = listings.length + profiles?.length || 0;
+
+  
 
   return (
     <div className="min-h-screen bg-base-200">
