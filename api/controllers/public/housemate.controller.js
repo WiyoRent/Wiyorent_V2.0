@@ -90,14 +90,35 @@ export const fetchHousemate = async (req,res) => {
         const housemateId = req.params.id
         const {clientKey,userId} = verifyHeaders(req,res)
 
-        const result = await pool.query(`
+        const result = await pool.query(
+            `
                 SELECT 
-                    u.* ,
-                    (sh.id is not null) as saved
-                FROM users u
-                LEFT JOIN saved_housemates sh
-                    ON u.id = sh.housemate_id
-                WHERE u.id = $1 and u.is_profile_public = true
+                u.* ,
+                (sh.id is not null) as saved,
+                ul.price,
+                ul.caution_fee, 
+                ul.bedrooms, 
+                ul.bathrooms, 
+                ul.is_furnished,
+                ul.landlord_name, 
+                ul.landlord_number, 
+                ul.description, 
+                ul.neighborhood,
+                ul.city, 
+                ul.available_from, 
+                ul.housemate_gender, 
+                ul.amenities, 
+                ul.house_rules,
+                ARRAY_AGG(uli.image_url) as  image_urls
+            FROM users u
+            LEFT JOIN saved_housemates sh
+                ON u.id = sh.housemate_id
+            LEFT JOIN user_listings ul
+            ON u.id = ul.user_id
+            LEFT JOIN user_listing_images uli
+            ON u.id = uli.user_id
+            WHERE u.id = $1 and u.is_profile_public = true
+            GROUP BY u.id, sh.id, ul.id
             `, [housemateId])
         
         if(result.rowCount == 0){
