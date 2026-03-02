@@ -33,13 +33,13 @@ export const fetchHousemateDetail = async (housemateId) => {
     const session = await auth();
     const userId = session?.user?.id || null;
 
-    const url = `${getBaseURL()}api/v1/public/fetchHousemate/${housemateId}`;
+    const url = getBaseURL() + `api/v1/public/fetchHousemate/${housemateId}`;
 
     try {
         const response = await fetch(url, {
             headers: {
                 'X-Internal-API-Key': process.env.INTERNAL_BACKEND_KEY,
-                'X-User-ID': String(userId)
+                'X-User-ID': userId
             }
         });
 
@@ -51,6 +51,8 @@ export const fetchHousemateDetail = async (housemateId) => {
         const rawData = result.data;
 
         if (!rawData) return null;
+
+        console.log(rawData, '--rawdata fetch housemate')
 
 
         // --- Mapping logic to match your frontend expectation ---
@@ -64,6 +66,7 @@ export const fetchHousemateDetail = async (housemateId) => {
             gender: rawData.gender?.toLowerCase(),
             about_me: rawData.about_me,
             preferred_method : rawData.preferred_method,
+            urgency : rawData.urgency,
             
             basic_profile: {
                 gender: rawData.gender,
@@ -91,7 +94,25 @@ export const fetchHousemateDetail = async (housemateId) => {
                 social_habits: rawData.social_habits,
             },
 
-            saved : rawData.saved
+            saved : rawData.saved, 
+
+            user_listing_data : {
+                price: rawData.price,
+                caution_fee : rawData.caution_fee,
+                bedrooms : rawData.bedrooms,
+                bathrooms : rawData.bathrooms,
+                is_furnished : rawData.is_furnished,
+                landlord_name : rawData.landlord_name,
+                landlord_number : rawData.landlord_number,
+                description : rawData.description,
+                neighborhood : rawData.neighborhood,
+                city: rawData.city,
+                available_from : rawData.available_from,
+                housemate_gender : rawData.gender,
+                amenities : rawData.amenities,
+                house_rules : rawData.house_rules,
+                image_urls : rawData.image_urls
+            }
         };
 
         console.log(mappedData, '--maped data ftch housemate')
