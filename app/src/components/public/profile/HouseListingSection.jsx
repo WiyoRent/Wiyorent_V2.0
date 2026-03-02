@@ -66,8 +66,8 @@ export default function HouseListingSection({
           <p className="font-secondary text-sm font-semibold text-base-content">
             I already have a house
           </p>
-          <p className="font-secondary text-xs text-base-content/50 mt-0.5">
-            Turn this on if you have a place and are looking for a housemate to move in
+          <p className="font-secondary text-xs text-base-content/50 mt-0.5 w-3/4">
+            Enable this if you have a room available and are looking for a housemate. You’ll be asked to provide house details, which will be visible to others on your public profile page.
           </p>
         </div>
         <input
@@ -357,7 +357,7 @@ export default function HouseListingSection({
               onChange={(e) => set_listing_description(e.target.value)}
               placeholder="Describe your house — size, layout, neighbourhood vibe, what you're looking for in a housemate..."
               rows={4}
-              className="textarea textarea-bordered rounded-field font-secondary text-sm resize-none"
+              className="textarea w-full textarea-bordered rounded-field font-secondary text-sm resize-none"
             />
           </div>
 
