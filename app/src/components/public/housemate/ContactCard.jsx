@@ -54,7 +54,6 @@ export default function ContactCard({ full_name, profile_id, is_verified, prefer
   }
 
   useEffect(() => {
-    alert(saved)
     toggleSaveHousemate(profile_id,saved)
   }, [saved])
 

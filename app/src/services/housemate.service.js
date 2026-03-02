@@ -96,23 +96,21 @@ export const fetchHousemateDetail = async (housemateId) => {
 
             saved : rawData.saved, 
 
-            user_listing_data : {
-                price: rawData.price,
-                caution_fee : rawData.caution_fee,
-                bedrooms : rawData.bedrooms,
-                bathrooms : rawData.bathrooms,
-                is_furnished : rawData.is_furnished,
-                landlord_name : rawData.landlord_name,
-                landlord_number : rawData.landlord_number,
-                description : rawData.description,
-                neighborhood : rawData.neighborhood,
-                city: rawData.city,
-                available_from : rawData.available_from,
-                housemate_gender : rawData.gender,
-                amenities : rawData.amenities,
-                house_rules : rawData.house_rules,
-                image_urls : rawData.image_urls
-            }
+            user_listing_data : rawData.price ? {
+                price: rawData?.price,
+                caution_fee : rawData?.caution_fee,
+                bedrooms : rawData?.bedrooms,
+                bathrooms : rawData?.bathrooms,
+                is_furnished : rawData?.is_furnished,
+                description : rawData?.description,
+                neighborhood : rawData?.neighborhood,
+                city: rawData?.city,
+                available_from : rawData?.available_from,
+                housemate_gender : rawData?.gender,
+                amenities : rawData?.amenities,
+                house_rules : rawData?.house_rules,
+                image_urls : rawData?.image_urls
+            } : null
         };
 
         console.log(mappedData, '--maped data ftch housemate')

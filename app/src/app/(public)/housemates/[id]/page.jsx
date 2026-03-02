@@ -5,8 +5,7 @@ import HousingPreferencesSection from '@/components/public/housemate/HousingPref
 import LifestyleSection from '@/components/public/housemate/LifestyleSection';
 import ContactCard from '@/components/public/housemate/ContactCard';
 import { fetchHousemateDetail } from '@/services/housemate.service';
-import { auth } from '@/auth';
-import { redirect } from 'next/navigation';
+import UserListingSection from '@/components/public/housemate/UserListingSection';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Mock detail — replace with: await fetch(`/api/housemates/${params.id}`)
@@ -75,8 +74,13 @@ export default async function HousemateDetailPage({params}) {
           gender={housemate_detail?.gender}
           preferred_locations={housemate_detail?.housing_preferences?.preferred_locations}
           budget={housemate_detail?.housing_preferences?.budget}
+          urgency={housemate_detail?.urgency} 
         />
 
+        {/* ── User's available listing ─────────────────── */}
+        <UserListingSection listing={housemate_detail?.user_listing_data} />
+
+        {/* ... 3-column grid ... */}
         {/* ── Three-column body ───────────────────────────── */}
         <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
 
@@ -108,6 +112,8 @@ export default async function HousemateDetailPage({params}) {
           </div>
 
         </div>
+
+        
       </div>
     </div>
   );
