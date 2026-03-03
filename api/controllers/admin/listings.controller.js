@@ -1,6 +1,8 @@
 import { errorMsg, successMsg } from "../../utils/returnMsg.js"
 import { uploadToCloudinary } from "../../utils/uploadToCloudinary.js"
 import pool from "../../config/db.js"
+import { v2 as cloudinary } from "cloudinary"
+import {extractPublicId} from 'cloudinary-build-url'
 
 export const createListing = async (req,res) => {
 
@@ -227,16 +229,14 @@ export const editListing = async (req,res) => {
         const allImages = [...existingImages, ...newImages];
 
         
-
-
         // Checking if all input text fields are valid
         if(!title || !description  || !available_status || !available_from  || !price_per_month || !commission_fee || !caution_fee || !full_name || !phone_number || !neighborhood || !city || !country ||!bedroom_number || !bathroom_number || !max_roommates || !property_type ){
             return errorMsg(res,400, 'Please Enter All Fields')
         }
 
         // Checking if there are atleast 2 images
-        if (allImages.length < 2 ){
-            return errorMsg(res , 403 , 'Please upload atleast 2 images')
+        if (allImages.length < 4 ){
+            return errorMsg(res , 403 , 'Please upload atleast 4 images for this property')
         }
 
         // Pre-processing amenities and house arrays
@@ -250,7 +250,7 @@ export const editListing = async (req,res) => {
             if(typeof image == 'string'){
                 imageUrls.push(image)
             }else{
-                const imageUpload = await uploadToCloudinary(image.buffer, `house_images/${title}`)
+                const imageUpload = await uploadToCloudinary(image.buffer, `house_images/${id}`)
                 const imageUrl = imageUpload.secure_url
                 imageUrls.push(imageUrl)
             }
@@ -322,11 +322,36 @@ export const editListing = async (req,res) => {
 
         // --------Editing Product Images---------
 
-        // We first delete existing images for this listing
-        await pool.query(`DELETE FROM listing_images WHERE listing_id =$1`,[id])
+        // We get existing images for this listing
+        const existingRes = await pool.query(
+            `
+                SELECT image_url FROM listing_images
+                WHERE listing_id = $1
+            `
+        , [id])
+
+        if(existingRes.rowCount == 0){
+            return errorMsg(res, 404, "Couldn't get images for this listing. So couldn't complete listing editing process")
+        }
+
+
+        const existingUrls = existingRes.rows
+
+        const urlToRemove = existingUrls.filter(url => !imageUrls.includes(url))
+        const urlToAdd = imageUrls.filter(url => !existingUrls.includes(url))
+
+        if(urlToRemove.length > 0){
+            await pool.query(`
+                DELETE FROM listing_images WHERE listing_id = $1 AND image_url = ANY($2)
+            `, [id, urlToRemove])
+
+            const publicIds = urlToRemove.map(url => extractPublicId(url))
+            await cloudinary.api.delete_all_resources(publicIds)
+        }
+
 
         // We upload new images
-        for(const img of imageUrls.slice(1)){
+        for(const img of urlToAdd){
             await pool.query(`
                 INSERT INTO listing_images(
                     listing_id,

@@ -5,6 +5,8 @@ import { verifyHeaders } from "../../utils/verifyHeaders.js";
 
 export const fetchHousemates = async  (req,res) => {
 
+    console.log('called fetched housemate')
+
     //  {
     //     profile_id: 'hm_7721',
     //     full_name: 'Keza A.',
@@ -22,6 +24,7 @@ export const fetchHousemates = async  (req,res) => {
     const {clientKey,userId} = verifyHeaders(req)
 
     if(!clientKey || clientKey !== process.env.INTERNAL_BACKEND_KEY){
+        console.error('No client')
         return errorMsg(res, 403, 'Unauthorized access')
     }
 
@@ -30,6 +33,7 @@ export const fetchHousemates = async  (req,res) => {
     }
 
     try {
+        
         const result = await pool.query(`
             SELECT 
                 u.id as profile_id,
@@ -51,9 +55,13 @@ export const fetchHousemates = async  (req,res) => {
             WHERE u.id != $1 AND u.is_profile_public = true
         `, [userId])
 
-        if(result.rowCount == 0){
+        console.log(result, 'result from fetch')
+
+        if(result.rowCount === 0){
             return successMsg(res , 200, 'No housemates found', [])
         }
+
+        console.log('Called')
 
         const users = result.rows
 

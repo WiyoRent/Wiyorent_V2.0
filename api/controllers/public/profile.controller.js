@@ -3,6 +3,9 @@ import { uploadToCloudinary } from "../../utils/uploadToCloudinary.js"
 import pool from "../../config/db.js"
 import { verifyHeaders } from "../../utils/verifyHeaders.js"
 import { throwError } from "../../utils/throwError.js"
+import { v2 as cloudinary } from "cloudinary"
+import {extractPublicId} from 'cloudinary-build-url'
+
 
 export const getProfile = async (req, res) => {
     try {
@@ -50,6 +53,8 @@ export const updateProfile = async (req, res) => {
     try {
         const { userId } = verifyHeaders(req)
 
+        console.log(req.body, '-------req_body')
+
         const {
             full_name,
             nationality,
@@ -67,6 +72,7 @@ export const updateProfile = async (req, res) => {
             is_private_room_required,
             allows_pets,
             is_smoker,
+            is_profile_public,
             sleep_schedule,
             cleanliness,
             social_habits,
@@ -101,6 +107,12 @@ export const updateProfile = async (req, res) => {
             return errorMsg(res, 400, "Please enter all fields")
         }
 
+        if(!req.body.avatar && req.files.avatar){
+            return errorMsg(res, 400, "Please enter a valid profile picture")
+        }
+
+        console.log(req.body, '----req.body')
+
         // ------ Update basic user info ------
         const query = `
             UPDATE users
@@ -121,26 +133,47 @@ export const updateProfile = async (req, res) => {
                 is_private_room_required = $14,
                 allows_pets = $15,
                 is_smoker = $16,
-                sleep_schedule = $17,
-                cleanliness = $18,
-                social_habits = $19,
-                preferred_locations = $20,
-                about_me = $21,
-                lease_duration = $22,
-                urgency = $23,
-                has_house = $24,
+                is_profile_public = $17,
+                sleep_schedule = $18,
+                cleanliness = $19,
+                social_habits = $20,
+                preferred_locations = $21,
+                about_me = $22,
+                lease_duration = $23,
+                urgency = $24,
+                has_house = $25,
                 updated_at = NOW()
-            WHERE id = $25
+            WHERE id = $26
             RETURNING *
         `
 
         const values = [
-            full_name, nationality, university_name, age, gender,
-            program, year_of_study, phone_number, move_in_date,
-            min, max, max_housemates, is_furnished_preferred,
-            is_private_room_required, allows_pets, is_smoker,
-            sleep_schedule, cleanliness, social_habits, preferred_locations,
-            about_me, lease_duration, urgency, has_house, userId
+            full_name, 
+            nationality, 
+            university_name, 
+            age, 
+            gender,
+            program, 
+            year_of_study, 
+            phone_number, 
+            move_in_date,
+            min, 
+            max, 
+            max_housemates, 
+            is_furnished_preferred,
+            is_private_room_required, 
+            allows_pets, 
+            is_smoker === "true",
+            is_profile_public === 'true',
+            sleep_schedule, 
+            cleanliness, 
+            social_habits, 
+            preferred_locations,
+            about_me, 
+            lease_duration, 
+            urgency, 
+            has_house, 
+            userId
         ]
 
         const result = await pool.query(query, values)
@@ -151,6 +184,9 @@ export const updateProfile = async (req, res) => {
 
         const user = result.rows[0]
 
+        const existingAvatar = user?.avatar_url
+
+
         // ------ Handle document/avatar uploads ------
         if (req.files?.avatar || req.files?.admission_letter || req.files?.passport_id) {
             let avatar_url = req.body.avatar
@@ -158,18 +194,23 @@ export const updateProfile = async (req, res) => {
             let passport_id_url = req.body.passport_id
 
             if (req.files.avatar) {
-                const upload = await uploadToCloudinary(req.files.avatar[0].buffer, `user-${full_name}/profiles/${full_name}`)
+                const upload = await uploadToCloudinary(req.files.avatar[0].buffer, `users/${userId}/profile`)
                 avatar_url = upload.secure_url
             }
 
             if (req.files.admission_letter) {
-                const upload = await uploadToCloudinary(req.files.admission_letter[0].buffer, `user-${full_name}/admission_letters/${full_name}`)
+                const upload = await uploadToCloudinary(req.files.admission_letter[0].buffer, `users/${userId}/documents`)
                 admission_letter_url = upload.secure_url
             }
 
             if (req.files.passport_id) {
-                const upload = await uploadToCloudinary(req.files.passport_id[0].buffer, `legal_documents/${full_name}`)
+                const upload = await uploadToCloudinary(req.files.passport_id[0].buffer, `users/${userId}/documents`)
                 passport_id_url = upload.secure_url
+            }
+
+            if(existingAvatar !== avatar_url){
+                const publicId = extractPublicId(existingAvatar)
+                await cloudinary.api.delete_resources([publicId])
             }
 
             const uploadResult = await pool.query(`
@@ -269,16 +310,7 @@ const create_user_listing = async (body, listing_images, full_name, userId) => {
     }
 
     try {
-        // ------ Upload new images to Cloudinary ------
-        const imageUrls = []
-        for (const image of listing_images) {
-            if (typeof image === 'string') {
-                imageUrls.push(image)
-            } else {
-                const upload = await uploadToCloudinary(image.buffer, `user_listings/${full_name}`)
-                imageUrls.push(upload.secure_url)
-            }
-        }
+        
 
         // ------ Upsert listing row ------
         const listingResult = await pool.query(`
@@ -340,32 +372,39 @@ const create_user_listing = async (body, listing_images, full_name, userId) => {
 
         const userListingId = listingResult.rows[0].id
 
-        console.log(userListingId, '--userListingId')
+        // ------ Upload new images to Cloudinary ------
+        const imageUrls = []
+        for (const image of listing_images) {
+            if (typeof image === 'string') {
+                imageUrls.push(image)
+            } else {
+                const upload = await uploadToCloudinary(image.buffer, `users/${userId}/user_listings`)
+                imageUrls.push(upload.secure_url)
+            }
+        }
 
         // ------ Sync images ------
         const existingRes = await pool.query(`
             SELECT image_url FROM user_listing_images WHERE user_listing_id = $1
         `, [userListingId])
 
-        console.log(existingRes, '---fetched user images')
-
         const existingUrls = existingRes.rows.map(row => row.image_url)
-
-        console.log(existingRes, 'existing images')
-
         const urlsToRemove = existingUrls.filter(url => !imageUrls.includes(url))
-
-        console.log(urlsToRemove, '--urls to remove')
-
         const urlsToAdd = imageUrls.filter(url => !existingUrls.includes(url))
-
-        console.log(urlsToAdd, '---urls to add')
 
         if (urlsToRemove.length > 0) {
             await pool.query(`
                 DELETE FROM user_listing_images
                 WHERE user_listing_id = $1 AND image_url = ANY($2)
             `, [userListingId, urlsToRemove])
+
+            const publicIds = urlsToRemove.map(url => {
+                return extractPublicId(url)
+            })
+
+            console.log(publicIds, '---publicIds to delete')
+
+            await cloudinary.api.delete_resources(publicIds)
         }
 
         for (const url of urlsToAdd) {
