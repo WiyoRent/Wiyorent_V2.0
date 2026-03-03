@@ -46,7 +46,7 @@ function AvatarCircle({ full_name, avatar_url, gender }) {
   );
 }
 
-export default function HousemateCard({ profile, verification_status }) {
+export default function HousemateCard({ profile, my_verification_status }) {
   const {
     profile_id,
     full_name,
@@ -56,7 +56,7 @@ export default function HousemateCard({ profile, verification_status }) {
     preferred_locations,
     avatar_url,
     gender,
-    is_verified,
+    verification_status,
   } = profile;
 
   const router = useRouter();
@@ -71,7 +71,7 @@ export default function HousemateCard({ profile, verification_status }) {
       "To ensure the safety of our community, our team manually reviews all profiles. You'll be able to view housemate details and contact housemates as soon as we approve your account (usually within 24 hours).",
   });
 
-  const is_blocked = verification_status == null || verification_status == 'pending';
+  const is_blocked = my_verification_status == null || my_verification_status == 'pending';
 
   const showVerificationModal = () => {
     setModalData({
@@ -185,7 +185,7 @@ export default function HousemateCard({ profile, verification_status }) {
             >
               {full_name}
             </Link>
-            {is_verified && (
+            {verification_status === 'approved' && (
               <ShieldCheck size={15} className="text-success flex-shrink-0" aria-label="Verified" />
             )}
           </div>

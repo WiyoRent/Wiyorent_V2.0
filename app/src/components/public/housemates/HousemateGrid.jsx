@@ -2,7 +2,7 @@ import HousemateCard from './HousemateCard';
 import { Users } from 'lucide-react';
 import InformationModal from '../shared/InformationModal';
 
-export default function HousematesGrid({ profiles, is_verified }) {
+export default function HousematesGrid({ profiles, verification_status }) {
 
   if (!profiles || profiles.length === 0) {
     return (
@@ -24,7 +24,7 @@ export default function HousematesGrid({ profiles, is_verified }) {
     
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
       {profiles.map((profile) => (
-        <HousemateCard verification_status={is_verified} key={profile.profile_id} profile={profile} />
+        <HousemateCard my_verification_status={verification_status} key={profile.profile_id} profile={profile} />
       ))}
     </div>
   );

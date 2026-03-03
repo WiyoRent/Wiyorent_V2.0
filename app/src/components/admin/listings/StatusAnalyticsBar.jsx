@@ -45,7 +45,7 @@ export default function StatusAnalyticsBar({ is_active, set_is_active, analytics
         </div>
 
         {/* Visibility Toggle */}
-        <div className="flex items-center justify-between bg-base-200 rounded-field px-4 py-3 min-w-[200px]">
+        <div className="flex items-center justify-between bg-base-200 rounded-field px-4 py-3 min-w-50">
           <div className="flex items-center gap-2">
             {is_active ? (
               <Eye size={16} className="text-success" />

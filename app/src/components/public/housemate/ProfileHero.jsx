@@ -67,7 +67,7 @@ export default function ProfileHero({
   avatar_url,
   nationality,
   university_name,
-  is_verified,
+  verification_status,
   gender,
   preferred_locations,
   budget,
@@ -92,7 +92,7 @@ export default function ProfileHero({
               {full_name}
             </h1>
 
-            {is_verified && (
+            {verification_status === 'approved' && (
               <span className="inline-flex items-center gap-1.5 bg-success/10 text-success border border-success/25 px-2.5 py-1 rounded-field text-xs font-primary font-bold uppercase tracking-wide flex-shrink-0">
                 <ShieldCheck size={12} />
                 Verified

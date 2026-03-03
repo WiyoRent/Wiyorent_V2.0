@@ -41,7 +41,7 @@ const VERIFICATION_CONFIG = {
   pending: {
     icon: Clock,
     label: 'Verification Pending',
-    description: 'Our team is currently reviewing your profile. This usually takes 1–2 business days.',
+    description: 'Our team is currently reviewing your profile. This usually takes 24 hours business days.',
     containerClass: 'bg-warning/10 border-warning/30',
     iconClass: 'text-warning',
     labelClass: 'text-warning',
@@ -67,10 +67,10 @@ const VERIFICATION_CONFIG = {
   },
 };
 
-function VerificationStatusBanner({ is_verified, admin_note }) {
-  if (!is_verified) return null;
+function VerificationStatusBanner({ verification_status, admin_note }) {
+  if (!verification_status) return null;
 
-  const config = VERIFICATION_CONFIG[is_verified];
+  const config = VERIFICATION_CONFIG[verification_status];
   if (!config) return null;
 
   const Icon = config.icon;
@@ -101,7 +101,7 @@ function VerificationStatusBanner({ is_verified, admin_note }) {
           </p>
 
           {/* Admin note — only shown on rejection */}
-          {is_verified === 'rejected' && admin_note && (
+          {verification_status === 'rejected' && admin_note && (
             <div className="mt-3 pt-3 border-t border-error/20">
               <p className="font-secondary text-xs font-semibold uppercase tracking-wide text-error/70 mb-1">
                 Note from WiyoRent Team
@@ -139,7 +139,7 @@ export default function BasicProfileSection({
   urgency,
   set_urgency,
   // Verification
-  is_verified,
+  verification_status,
   admin_note,
   is_onboarded
 }) {
@@ -198,7 +198,7 @@ export default function BasicProfileSection({
       </div>
 
       {/* ── Verification Status Banner ────────────────────────────────────── */}
-      {is_onboarded ? <VerificationStatusBanner is_verified={is_verified} admin_note={admin_note}/> : '' }
+      {is_onboarded ? <VerificationStatusBanner verification_status={verification_status} admin_note={admin_note}/> : '' }
 
       {/* Avatar upload */}
       <div className="mb-6 flex items-center gap-4">

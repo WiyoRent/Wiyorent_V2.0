@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 import InformationModal from '../shared/InformationModal';
 import { toggleSaveHousemate } from '@/actions/favorites.action';
 
-export default function ContactCard({ full_name, profile_id, is_verified, preferred_contact_method, is_saved }) {
+export default function ContactCard({ full_name, profile_id, verification_status, is_saved }) {
   const [saved, setSaved] = useState(is_saved);
   const [isLoading, setIsLoading] = useState(false);
   
@@ -82,7 +82,7 @@ export default function ContactCard({ full_name, profile_id, is_verified, prefer
         </div>
 
         {/* Verified note */}
-        {is_verified && (
+        {verification_status === 'approved' && (
           <div className="flex items-center gap-2 bg-success/8 border border-success/20 rounded-field px-3 py-2">
             <ShieldCheck size={14} className="text-success shrink-0" />
             <span className="font-secondary text-xs text-success font-semibold">

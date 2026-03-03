@@ -207,7 +207,7 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods 
         set_nationality={set_nationality}
         urgency={urgency}
         set_urgency={set_urgency}
-        is_verified={initial_data.is_verified}
+        verification_status={initial_data.verification_status}
         is_onboarded={initial_data.is_onboarded}
         admin_note={initial_data.admin_note}
       />

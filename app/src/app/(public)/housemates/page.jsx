@@ -112,7 +112,7 @@ export default async function  HousematesPage() {
   const session = await auth()
   const user = session?.user
   const is_onboarded = user?.is_onboarded
-  const is_verified = user?.is_verified
+  const verification_status = user?.verification_status
 
   const housemate_profiles = await fetchHousemates()
 
@@ -145,7 +145,7 @@ export default async function  HousematesPage() {
           {/* Grid */}
           <div className="flex-1 min-w-0">
             <HousematesGrid 
-            is_verified = {is_verified}
+            verification_status = {verification_status}
             profiles={housemate_profiles} />
           </div>
 

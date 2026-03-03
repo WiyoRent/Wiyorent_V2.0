@@ -70,7 +70,7 @@ export default async function HousemateDetailPage({params}) {
           avatar_url={housemate_detail?.avatar_url}
           nationality={housemate_detail?.nationality}
           university_name={housemate_detail?.university_name}
-          is_verified={housemate_detail?.is_verified}
+          verification_status={housemate_detail?.verification_status}
           gender={housemate_detail?.gender}
           preferred_locations={housemate_detail?.housing_preferences?.preferred_locations}
           budget={housemate_detail?.housing_preferences?.budget}
@@ -103,7 +103,7 @@ export default async function HousemateDetailPage({params}) {
             <div className="lg:sticky lg:top-24">
               <ContactCard
                 full_name={housemate_detail?.full_name}
-                is_verified={housemate_detail?.is_verified}
+                verification_status={housemate_detail?.verification_status}
                 profile_id={housemate_detail?.profile_id}
                 preferred_contact_method = {housemate_detail?.preferred_method}
                 is_saved = {housemate_detail.saved}

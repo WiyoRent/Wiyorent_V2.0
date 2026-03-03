@@ -30,7 +30,7 @@ export default async function ProfileEditPage() {
     program: user.program,
     year_of_study: user.year_of_study,
     urgency: user.urgency,
-    is_verified: user.is_verified,
+    verification_status: user.verification_status,
     is_onboarded : user.is_onboarded,
     admin_note : user.admin_note,
 

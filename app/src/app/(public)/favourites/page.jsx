@@ -7,47 +7,47 @@ import { auth } from '@/auth';
 // Mock saved profiles — replace body with: await getSavedProfiles() || []
 // Structure mirrors housemate_profiles shape from HousematesPage
 // ─────────────────────────────────────────────────────────────────────────────
-const mock_saved_profiles = [
-  {
-    profile_id: 'hm_7721',
-    full_name: 'Keza A.',
-    nationality: 'Rwandan',
-    university_name: 'University of Rwanda',
-    bio_short:
-      'Loves football and clean spaces. Studying computer science and looking for a focused, chill roommate.',
-    budget: { min: 100000, max: 150000 },
-    preferred_locations: ['Kicukiro', 'Remera'],
-    avatar_url: null,
-    gender: 'female',
-    is_verified: true,
-  },
-  {
-    profile_id: 'hm_7724',
-    full_name: 'Patrick N.',
-    nationality: 'Rwandan',
-    university_name: 'University of Kigali',
-    bio_short:
-      'Night owl, music lover, keeps shared spaces clean. Business student who codes on weekends.',
-    budget: { min: 90000, max: 140000 },
-    preferred_locations: ['Remera', 'Kimironko'],
-    avatar_url: null,
-    gender: 'male',
-    is_verified: true,
-  },
-  {
-    profile_id: 'hm_7726',
-    full_name: 'Olivier T.',
-    nationality: 'DRC',
-    university_name: 'African Leadership University',
-    bio_short:
-      'Social entrepreneur studying leadership. Enjoys cooking for the house and exploring Kigali on weekends.',
-    budget: { min: 200000, max: 300000 },
-    preferred_locations: ['Kicukiro', 'Gisozi'],
-    avatar_url: null,
-    gender: 'male',
-    is_verified: false,
-  },
-];
+// const mock_saved_profiles = [
+//   {
+//     profile_id: 'hm_7721',
+//     full_name: 'Keza A.',
+//     nationality: 'Rwandan',
+//     university_name: 'University of Rwanda',
+//     bio_short:
+//       'Loves football and clean spaces. Studying computer science and looking for a focused, chill roommate.',
+//     budget: { min: 100000, max: 150000 },
+//     preferred_locations: ['Kicukiro', 'Remera'],
+//     avatar_url: null,
+//     gender: 'female',
+//     is_verified: true,
+//   },
+//   {
+//     profile_id: 'hm_7724',
+//     full_name: 'Patrick N.',
+//     nationality: 'Rwandan',
+//     university_name: 'University of Kigali',
+//     bio_short:
+//       'Night owl, music lover, keeps shared spaces clean. Business student who codes on weekends.',
+//     budget: { min: 90000, max: 140000 },
+//     preferred_locations: ['Remera', 'Kimironko'],
+//     avatar_url: null,
+//     gender: 'male',
+//     is_verified: true,
+//   },
+//   {
+//     profile_id: 'hm_7726',
+//     full_name: 'Olivier T.',
+//     nationality: 'DRC',
+//     university_name: 'African Leadership University',
+//     bio_short:
+//       'Social entrepreneur studying leadership. Enjoys cooking for the house and exploring Kigali on weekends.',
+//     budget: { min: 200000, max: 300000 },
+//     preferred_locations: ['Kicukiro', 'Gisozi'],
+//     avatar_url: null,
+//     gender: 'male',
+//     is_verified: false,
+//   },
+// ];
 
 export const metadata = {
   title: 'My Favourites | WiyoRent',
@@ -65,7 +65,7 @@ export default async function FavouritesPage() {
 
   const listings = favourited_listings || [];
 
-  const verification_status = session?.user?.is_verified;
+  const verification_status = session?.user?.verification_status;
   const total_saved = listings.length + profiles?.length || 0;
 
   
