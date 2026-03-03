@@ -97,7 +97,6 @@ export default async function ProfileEditPage() {
     passport_id: user.passport_id,
   };
 
-  console.log(user_profile_data, '----user profile data')
 
   const available_neighborhoods = [
     'Kicukiro', 'Remera', 'Nyarutarama', 'Kimironko', 'Kacyiru',
