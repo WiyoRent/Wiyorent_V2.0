@@ -1,9 +1,9 @@
 'use client';
-
 import { useState } from 'react';
-import { Eye, Ban, Trash2 } from 'lucide-react';
+import { Eye, Ban, Trash2, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 
+// ─── Avatar ───────────────────────────────────────────────────────────────────
 function UserAvatar({ full_name, avatar_url }) {
   const initials = full_name
     .split(' ')
@@ -19,43 +19,61 @@ function UserAvatar({ full_name, avatar_url }) {
       </div>
     );
   }
-
   return (
     <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
-      <span className="font-primary text-sm font-extrabold text-accent-content">
-        {initials}
-      </span>
+      <span className="font-primary text-sm font-extrabold text-accent-content">{initials}</span>
     </div>
   );
 }
 
-function StatusBadge({ status }) {
-  const variants = {
-    Pending: 'badge-warning',
-    Active: 'badge-success',
-    Inactive: 'badge-neutral',
-    Blocked: 'badge-error',
-  };
-
+// ─── Account status badge ─────────────────────────────────────────────────────
+function AccountStatusBadge({ status, is_blocked }) {
+  if (is_blocked) {
+    return (
+      <span className="badge badge-error badge-sm font-primary font-bold uppercase tracking-wide">
+        Blocked
+      </span>
+    );
+  }
+  const variants = { Pending: 'badge-warning', Active: 'badge-success', Inactive: 'badge-neutral' };
   return (
-    <span className={`badge ${variants[status]} badge-sm font-primary font-bold uppercase tracking-wide`}>
+    <span className={`badge ${variants[status] ?? 'badge-neutral'} badge-sm font-primary font-bold uppercase tracking-wide`}>
       {status}
     </span>
   );
 }
 
+// ─── Verification badge ───────────────────────────────────────────────────────
+function VerificationBadge({ status }) {
+  const variants = { pending: 'badge-warning', approved: 'badge-success', rejected: 'badge-error' };
+  const labels   = { pending: 'Pending',        approved: 'Approved',      rejected: 'Rejected'  };
+  return (
+    <span className={`badge ${variants[status] ?? 'badge-neutral'} badge-sm font-primary font-bold uppercase tracking-wide`}>
+      {labels[status] ?? status}
+    </span>
+  );
+}
+
+// ─── Updated badge ────────────────────────────────────────────────────────────
+// Shown when has_performed_an_update === true — flags admin to re-review.
+function UpdatedBadge() {
+  return (
+    <div className="flex items-center gap-1.5">
+      <RefreshCw size={11} className="text-warning flex-shrink-0" />
+      <span className="badge badge-warning badge-sm font-primary font-bold uppercase tracking-wide">
+        Updated
+      </span>
+    </div>
+  );
+}
+
+// ─── Row ──────────────────────────────────────────────────────────────────────
 function UserRow({ user, on_block, on_delete }) {
   const [show_delete_confirm, set_show_delete_confirm] = useState(false);
 
   const formatted_date = new Date(user.registration_date).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
+    year: 'numeric', month: '2-digit', day: '2-digit',
   });
-
-  const handle_block = () => {
-    on_block(user.user_id);
-  };
 
   const handle_delete = () => {
     on_delete(user.user_id);
@@ -69,32 +87,38 @@ function UserRow({ user, on_block, on_delete }) {
         <div className="flex items-center gap-3">
           <UserAvatar full_name={user.full_name} avatar_url={user.avatar_url} />
           <div className="flex flex-col">
-            <span className="font-primary text-sm font-bold text-base-content">
-              {user.full_name}
-            </span>
-            <span className="font-secondary text-xs text-base-content/50">
-              {user.email}
-            </span>
+            <span className="font-primary text-sm font-bold text-base-content">{user.full_name}</span>
+            <span className="font-secondary text-xs text-base-content/50">{user.email}</span>
           </div>
         </div>
       </td>
 
-      {/* Status */}
+      {/* Account Status */}
       <td>
-        <StatusBadge status={user.account_status} />
+        <AccountStatusBadge status={user.account_status} is_blocked={user.is_blocked} />
+      </td>
+
+      {/* Verification */}
+      <td>
+        <VerificationBadge status={user.verification_status} />
+      </td>
+
+      {/* Profile Updated — new column */}
+      <td>
+        {user.has_performed_an_update
+          ? <UpdatedBadge />
+          : <span className="font-secondary text-xs text-base-content/30">—</span>
+        }
       </td>
 
       {/* Registration Date */}
       <td>
-        <span className="font-secondary text-sm text-base-content/70">
-          {formatted_date}
-        </span>
+        <span className="font-secondary text-sm text-base-content/70">{formatted_date}</span>
       </td>
 
       {/* Actions */}
       <td>
         <div className="flex items-center gap-2">
-          {/* View Profile */}
           <Link
             href={`/admin/users/${user.user_id}`}
             className="btn btn-ghost btn-xs rounded-field"
@@ -103,10 +127,9 @@ function UserRow({ user, on_block, on_delete }) {
             <Eye size={14} className="text-primary" />
           </Link>
 
-          {/* Block User */}
-          {user.account_status !== 'Blocked' && (
+          {!user.is_blocked && (
             <button
-              onClick={handle_block}
+              onClick={() => on_block(user.user_id)}
               className="btn btn-ghost btn-xs rounded-field"
               aria-label="Block user"
             >
@@ -114,13 +137,9 @@ function UserRow({ user, on_block, on_delete }) {
             </button>
           )}
 
-          {/* Delete User */}
           {show_delete_confirm ? (
             <div className="flex gap-1">
-              <button
-                onClick={handle_delete}
-                className="btn btn-error btn-xs rounded-field"
-              >
+              <button onClick={handle_delete} className="btn btn-error btn-xs rounded-field">
                 Confirm
               </button>
               <button
@@ -145,10 +164,12 @@ function UserRow({ user, on_block, on_delete }) {
   );
 }
 
+// ─── Table ────────────────────────────────────────────────────────────────────
 export default function UsersTable({ users }) {
   const handle_block = (user_id) => {
     console.log(`Block user ${user_id}`);
-    // PUT /api/admin/users/${user_id} { account_status: 'Blocked' }
+    // PUT /api/admin/users/${user_id} { is_blocked: true, is_blocked_reason: '...' }
+    // Full block flow with required reason lives in AdminUserHeader on the detail page
   };
 
   const handle_delete = (user_id) => {
@@ -159,9 +180,7 @@ export default function UsersTable({ users }) {
   if (!users || users.length === 0) {
     return (
       <div className="bg-base-100 rounded-box shadow-sm p-12 text-center">
-        <p className="font-secondary text-base-content/40">
-          No users found. Try adjusting your filters.
-        </p>
+        <p className="font-secondary text-base-content/40">No users found. Try adjusting your filters.</p>
       </div>
     );
   }
@@ -173,6 +192,9 @@ export default function UsersTable({ users }) {
           <tr className="bg-base-200">
             <th className="font-primary text-xs uppercase tracking-wider">User</th>
             <th className="font-primary text-xs uppercase tracking-wider">Status</th>
+            <th className="font-primary text-xs uppercase tracking-wider">Verification</th>
+            {/* New column */}
+            <th className="font-primary text-xs uppercase tracking-wider">Profile</th>
             <th className="font-primary text-xs uppercase tracking-wider">Registration Date</th>
             <th className="font-primary text-xs uppercase tracking-wider">Actions</th>
           </tr>
