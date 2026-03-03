@@ -3,7 +3,7 @@ import 'dotenv/config'
 import { connectCloudinary } from './config/cloudinary.js'
 
 import cors from "cors"
-import adminRouter from './routes/admin/admin.routes.js'
+import adminRouter from './routes/admin/index.js'
 import publicRouter from './routes/public/index.js'
 
 // app config
