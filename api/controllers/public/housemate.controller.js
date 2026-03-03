@@ -96,7 +96,7 @@ export const fetchHousemate = async (req,res) => {
 
     try { 
         const housemateId = req.params.id
-        const {clientKey,userId} = verifyHeaders(req,res)
+        verifyHeaders(req,res)
 
         const result = await pool.query(
             `
