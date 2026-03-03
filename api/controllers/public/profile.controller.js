@@ -5,6 +5,9 @@ import { verifyHeaders } from "../../utils/verifyHeaders.js"
 import { throwError } from "../../utils/throwError.js"
 import { v2 as cloudinary } from "cloudinary"
 import {extractPublicId} from 'cloudinary-build-url'
+import {Resend} from 'resend'
+
+
 
 
 export const getProfile = async (req, res) => {
@@ -48,6 +51,8 @@ export const getProfile = async (req, res) => {
         return errorMsg(res, error.status || 500, error.message || 'An error occurred fetching profile')
     }
 }
+
+const resend = new Resend(process.env.Wiyorent_Resend_API_KEY)
 
 export const updateProfile = async (req, res) => {
     try {
@@ -160,9 +165,9 @@ export const updateProfile = async (req, res) => {
             min, 
             max, 
             max_housemates, 
-            is_furnished_preferred,
-            is_private_room_required, 
-            allows_pets, 
+            is_furnished_preferred === "true",
+            is_private_room_required === "true", 
+            allows_pets === "true", 
             is_smoker === "true",
             is_profile_public === 'true',
             sleep_schedule, 
@@ -234,21 +239,49 @@ export const updateProfile = async (req, res) => {
             const newUploads = req.files?.listing_images || []
             const listingImages = [...alreadyExistingImages, ...newUploads]
 
-            await create_user_listing(req.body, listingImages, full_name, userId)
+            await create_user_listing(req.body, listingImages, userId)
         }
 
         // ------ Onboarding flag ------
         if (!user.is_onboarded) {
             await pool.query(`
-                UPDATE users SET is_onboarded = true, updated_at = NOW() WHERE id = $1
+                UPDATE users SET 
+                    is_onboarded = true, 
+                    updated_at = NOW(),
+                    verification_status = 'pending'
+                WHERE id = $1
             `, [user.id])
         }
 
         await pool.query(`
             UPDATE users SET has_performed_an_update = true WHERE id = $1
-        `, [user.id])
+        `, [user.id]);
 
-        if (!user.is_verified) {
+        (async function () {
+            const { data, error } = await resend.emails.send({
+                from: `Wiyorent <onboarding@resend.dev>`,
+                to: ['wiyorent@gmail.com'],
+                subject: 'Hello World',
+                html: `
+                    <div style="font-family: sans-serif; padding: 20px;">
+                        <h2>Hello Admin,</h2>
+                        <p>A new user has requested verification on the Housemates platform.</p>
+                        <a href="http://localhost:3000/admin/dashboard" 
+                        style="background: #000; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+                        Review Request
+                        </a>
+                    </div>
+                `,
+            });
+
+            if (error) {
+                return console.error({ error });
+            }
+
+            console.log({ data });
+        })();
+
+        if (!user.verification_status || user.verification_status == 'pending') {
             return successMsg(res, 200, 'Onboarding details saved. We are currently verifying your account.')
         }
 
@@ -261,7 +294,7 @@ export const updateProfile = async (req, res) => {
 }
 
 
-const create_user_listing = async (body, listing_images, full_name, userId) => {
+const create_user_listing = async (body, listing_images, userId) => {
     const {
         listing_price,
         listing_caution_fee,

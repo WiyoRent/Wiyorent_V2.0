@@ -25,9 +25,9 @@ export async function middleware (req){
     }
 
     // Protected HouseMate Path
-    const isVerified = user?.is_verified
+    const isVerified = user?.verification_status
     const completedOnboarding = user?.is_onboarded
-    if(pathname.startsWith('/housemates/') && !isVerified){
+    if(pathname.startsWith('/housemates/') && (!isVerified || isVerified === 'pending')){
         return NextResponse.redirect(new URL('/housemates', req.url))
     }
 

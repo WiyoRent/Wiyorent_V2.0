@@ -63,7 +63,7 @@ export const fetchHousemateDetail = async (housemateId) => {
             nationality: rawData.nationality,
             university_name: rawData.university_name,
             avatar_url: rawData.avatar_url,
-            is_verified: rawData.is_verified,
+            verification_status: rawData.verification_status,
             gender: rawData.gender?.toLowerCase(),
             about_me: rawData.about_me,
             preferred_method : rawData.preferred_method,

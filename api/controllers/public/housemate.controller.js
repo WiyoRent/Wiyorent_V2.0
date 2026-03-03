@@ -46,7 +46,7 @@ export const fetchHousemates = async  (req,res) => {
                 u.preferred_locations,
                 u.avatar_url,
                 u.gender,
-                u.is_verified,
+                u.verification_status,
                 (sh.id is not null) as saved
             FROM users u
             LEFT JOIN saved_housemates sh
@@ -78,7 +78,7 @@ export const fetchHousemates = async  (req,res) => {
             preferred_locations: user.preferred_locations || [],
             avatar_url: user.avatar_url || null,
             gender: user.gender,
-            is_verified: user.is_verified,
+            verification_status: user.verificatoin_status,
             saved : user.saved
         }))
 
@@ -235,7 +235,7 @@ export const fetchSavedHousemates = async (req,res) => {
                 u.preferred_locations,
                 u.avatar_url,
                 u.gender,
-                u.is_verified,
+                u.verification_status,
                 true as saved
             FROM users u
             iNNER JOIN saved_housemates sh
@@ -259,7 +259,7 @@ export const fetchSavedHousemates = async (req,res) => {
             preferred_locations: housemate.preferred_locations || [],
             avatar_url: housemate.avatar_url || null,
             gender: housemate.gender,
-            is_verified: housemate.is_verified,
+            verification_status: housemate.verification_status,
             saved : housemate.saved
         }))
 
