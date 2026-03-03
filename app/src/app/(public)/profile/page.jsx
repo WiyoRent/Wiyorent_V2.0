@@ -17,7 +17,7 @@ export default async function ProfileEditPage() {
 
   const { user, listing } = await getProfile();
 
-  const housemate_profile_edit = {
+  const user_profile_data = {
 
     // Basic Profile Information
     profile_id: user.id,
@@ -30,12 +30,26 @@ export default async function ProfileEditPage() {
     program: user.program,
     year_of_study: user.year_of_study,
     urgency: user.urgency,
+    is_verified: user.is_verified,
+    is_onboarded : user.is_onboarded,
+    admin_note : user.admin_note,
 
     // Contact Information
     contact_info: {
       phone_number: user.phone_number,
       email: user.email,
       preferred_method: user.preferred_method,
+    },
+
+     // About Me
+    about_me: user.about_me,
+
+    // Lifestyle & Personality
+    lifestyle_personality: {
+      sleep_schedule: user.sleep_schedule,
+      cleanliness: user.cleanliness,
+      social_habits: user.social_habits,
+      languages: user.languages ?? [],
     },
 
     // Housing Preferences
@@ -52,14 +66,7 @@ export default async function ProfileEditPage() {
       lease_duration: user.lease_duration,
     },
 
-    // Lifestyle & Personality
-    lifestyle_personality: {
-      sleep_schedule: user.sleep_schedule,
-      cleanliness: user.cleanliness,
-      social_habits: user.social_habits,
-      languages: user.languages ?? [],
-    },
-
+    
     // House availability
     has_house: user.has_house,
 
@@ -88,13 +95,9 @@ export default async function ProfileEditPage() {
     // Documents
     admission_letter: user.admission_letter,
     passport_id: user.passport_id,
-
-    // About Me
-    about_me: user.about_me,
-
-    // System controlled
-    is_verified: user.is_verified,
   };
+
+  console.log(user_profile_data, '----user profile data')
 
   const available_neighborhoods = [
     'Kicukiro', 'Remera', 'Nyarutarama', 'Kimironko', 'Kacyiru',
@@ -115,7 +118,7 @@ export default async function ProfileEditPage() {
         </div>
 
         <ProfileEditForm
-          initial_data={housemate_profile_edit}
+          initial_data={user_profile_data}
           available_neighborhoods={available_neighborhoods}
         />
       </div>

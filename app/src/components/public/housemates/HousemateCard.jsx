@@ -71,9 +71,7 @@ export default function HousemateCard({ profile, verification_status }) {
       "To ensure the safety of our community, our team manually reviews all profiles. You'll be able to view housemate details and contact housemates as soon as we approve your account (usually within 24 hours).",
   });
 
-  console.log(saved, '---saved')
-
-  const is_blocked = verification_status == false || verification_status == 'pending';
+  const is_blocked = verification_status == null || verification_status == 'pending';
 
   const showVerificationModal = () => {
     setModalData({
@@ -255,7 +253,7 @@ export default function HousemateCard({ profile, verification_status }) {
               Connecting...
             </span>
           ) : is_blocked ? (
-            'Pending'
+            'Contact'
           ) : (
             'Contact'
           )}

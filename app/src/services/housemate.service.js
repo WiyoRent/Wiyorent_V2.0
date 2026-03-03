@@ -40,7 +40,8 @@ export const fetchHousemateDetail = async (housemateId) => {
             headers: {
                 'X-Internal-API-Key': process.env.INTERNAL_BACKEND_KEY,
                 'X-User-ID': userId
-            }
+            },
+            cache: 'no-cache'
         });
 
         if (!response.ok) {

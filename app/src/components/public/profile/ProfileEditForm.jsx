@@ -26,7 +26,7 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods 
   const [nationality, set_nationality] = useState(initial_data.nationality);
   const [avatar_url, set_avatar_url] = useState(initial_data.avatar_url);
   const [urgency, set_urgency] = useState(initial_data.urgency || 'not_urgent');
-
+  
   // ───────────────────────── Housing Preferences ───────────────────
   const [move_in_date, set_move_in_date] = useState(initial_data.housing_preferences.move_in_date);
   const [lease_duration, set_lease_duration] = useState(initial_data.housing_preferences.lease_duration);
@@ -93,6 +93,7 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods 
     formData.append('gender', gender);
     formData.append('program', program);
     formData.append('year_of_study', year_of_study);
+    formData.append('urgency', urgency);
 
     // 2. Contact
     checkPhoneNumber(phone_number);
@@ -116,17 +117,17 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods 
     formData.append('cleanliness', cleanliness);
     formData.append('social_habits', social_habits);
 
-    // 5. Documents
+    // 5. Documents and Privacy
     formData.append('admission_letter', admission_letter);
     formData.append('passport_id', passport_id);
+    formData.append('is_profile_public', is_profile_public)
 
     // 6. About Me
     formData.append('about_me', about_me);
 
-    // 7. Urgency
-    formData.append('urgency', urgency);
+    
 
-    // 8. House listing
+    // 7. House listing
     formData.append('has_house', has_house);
 
     if (has_house) {
@@ -163,7 +164,7 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods 
       toast.update(loadingToast, {
         type: 'success',
         render: result.message || 'Profile updated successfully',
-        autoClose: 1500,
+        autoClose: 4000,
         isLoading: false,
       });
     } catch (error) {
@@ -171,7 +172,7 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods 
       toast.update(loadingToast, {
         type: 'error',
         render: error.message || 'An internal server error occurred',
-        autoClose: 1500,
+        autoClose: 4000,
         isLoading: false,
       });
     } finally {
@@ -206,6 +207,9 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods 
         set_nationality={set_nationality}
         urgency={urgency}
         set_urgency={set_urgency}
+        is_verified={initial_data.is_verified}
+        is_onboarded={initial_data.is_onboarded}
+        admin_note={initial_data.admin_note}
       />
 
       {/* About Me */}

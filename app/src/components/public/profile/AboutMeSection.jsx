@@ -29,7 +29,7 @@ export default function AboutMeSection({ about_me, set_about_me }) {
               is_over_limit ? 'text-error font-bold' : 'text-base-content/40'
             }`}
           >
-            {remaining} / {MAX_CHARS}
+            {remaining || 0} / {MAX_CHARS}
           </span>
         </label>
         <br />

@@ -17,7 +17,7 @@ export const getProfile = async () => {
 
         const res = await fetch(endPoint, {
             method: 'GET',
-            cache: 'no-store', // always fresh — never serve stale profile data
+            cache: 'no-cache', // always fresh — never serve stale profile data
             headers: {
                 'X-Internal-API-Key': process.env.INTERNAL_BACKEND_KEY,
                 'X-User-Id': userId

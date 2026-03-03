@@ -197,7 +197,9 @@ export default function HouseListingSection({
                 <input
                   type="date"
                   min={new Date().toISOString().split('T')[0]}
-                  value={new Date(listing_available_from).toISOString().split('T')[0] || ''}
+                  value ={
+                    listing_available_from ? new Date(listing_available_from).toISOString().split('T')[0] : ''
+                  }
                   onChange={(e) => set_listing_available_from(e.target.value)}
                   className="input input-bordered rounded-field font-secondary text-sm"
                 />

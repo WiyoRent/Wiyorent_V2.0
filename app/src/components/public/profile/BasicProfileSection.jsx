@@ -1,6 +1,5 @@
 "use client"
-
-import { User, Upload, Zap } from 'lucide-react';
+import { User, Upload, Zap, Clock, CheckCircle2, XCircle, ShieldCheck } from 'lucide-react';
 import Image from 'next/image';
 import PhoneInputWithCountrySelect from 'react-phone-number-input';
 import 'react-phone-number-input/style.css'
@@ -38,6 +37,86 @@ const URGENCY_OPTIONS = [
   },
 ];
 
+const VERIFICATION_CONFIG = {
+  pending: {
+    icon: Clock,
+    label: 'Verification Pending',
+    description: 'Our team is currently reviewing your profile. This usually takes 1–2 business days.',
+    containerClass: 'bg-warning/10 border-warning/30',
+    iconClass: 'text-warning',
+    labelClass: 'text-warning',
+    dotClass: 'bg-warning animate-pulse',
+  },
+  approved: {
+    icon: CheckCircle2,
+    label: 'Profile Verified',
+    description: 'Your profile has been verified. You now have full access to the platform.',
+    containerClass: 'bg-success/10 border-success/30',
+    iconClass: 'text-success',
+    labelClass: 'text-success',
+    dotClass: 'bg-success',
+  },
+  rejected: {
+    icon: XCircle,
+    label: 'Verification Rejected',
+    description: 'Your profile could not be verified. Please review the note below and update your information.',
+    containerClass: 'bg-error/10 border-error/30',
+    iconClass: 'text-error',
+    labelClass: 'text-error',
+    dotClass: 'bg-error',
+  },
+};
+
+function VerificationStatusBanner({ is_verified, admin_note }) {
+  if (!is_verified) return null;
+
+  const config = VERIFICATION_CONFIG[is_verified];
+  if (!config) return null;
+
+  const Icon = config.icon;
+
+  return (
+    <div className={`mb-6 rounded-field border-2 p-4 ${config.containerClass}`}>
+      <div className="flex items-start gap-3">
+        {/* Icon + pulsing dot */}
+        <div className="relative flex-shrink-0 mt-0.5">
+          <Icon size={18} className={config.iconClass} />
+          <span className={`absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full ${config.dotClass}`} />
+        </div>
+
+        <div className="flex-1 min-w-0">
+          {/* Status header row */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <ShieldCheck size={12} className="text-base-content/40" />
+            <span className="font-secondary text-xs font-semibold uppercase tracking-widest text-base-content/50">
+              Account Status
+            </span>
+          </div>
+
+          <p className={`font-primary text-sm font-extrabold uppercase tracking-wide mt-0.5 ${config.labelClass}`}>
+            {config.label}
+          </p>
+          <p className="font-secondary text-xs text-base-content/60 mt-1 leading-relaxed">
+            {config.description}
+          </p>
+
+          {/* Admin note — only shown on rejection */}
+          {is_verified === 'rejected' && admin_note && (
+            <div className="mt-3 pt-3 border-t border-error/20">
+              <p className="font-secondary text-xs font-semibold uppercase tracking-wide text-error/70 mb-1">
+                Note from WiyoRent Team
+              </p>
+              <p className="font-secondary text-xs text-base-content/70 leading-relaxed italic">
+                "{admin_note}"
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function BasicProfileSection({
   full_name,
   set_full_name,
@@ -57,15 +136,17 @@ export default function BasicProfileSection({
   set_year_of_study,
   nationality,
   set_nationality,
-  // New
   urgency,
   set_urgency,
+  // Verification
+  is_verified,
+  admin_note,
+  is_onboarded
 }) {
-
   const options = useMemo(() => countryList()?.getData(), [])
 
   const uploadProfilePicture = (e) => {
-    const file = e.target.files[0]
+    const file = e.target.files?.[0]
     if (!file) return
     const previewUrl = URL.createObjectURL(file)
     set_avatar_url({ file, previewUrl })
@@ -74,16 +155,26 @@ export default function BasicProfileSection({
   const displayProfilepic = (avatar) => {
     if (!avatar) {
       return <User size={16} className="text-accent-content" />
-    } else if (typeof avatar == 'string') {
+    } else if (typeof avatar === 'string') {
       return (
         <div className='object-contain border-2 border-accent relative w-20 h-20 rounded-full'>
-          <Image className='rounded-full object-cover' alt='Your profile image' fill src={avatar || null} />
+          <Image
+            className='rounded-full object-cover'
+            alt='Your profile image'
+            fill
+            src={avatar || 'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-social-media-user-vector-image-icon-default-avatar-profile-icon-social-media-user-vector-image-209162840.jpg'}
+          />
         </div>
       )
     } else {
       return (
         <div className='object-contain border-2 border-accent relative w-20 h-20 rounded-full'>
-          <Image className='rounded-full' alt='Your profile image' fill src={avatar.previewUrl || null} />
+          <Image
+            className='rounded-full'
+            alt='Your profile image'
+            fill
+            src={avatar?.previewUrl || 'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-social-media-user-vector-image-icon-default-avatar-profile-icon-social-media-user-vector-image-209162840.jpg'}
+          />
         </div>
       )
     }
@@ -105,6 +196,9 @@ export default function BasicProfileSection({
           Basic Profile Information
         </h2>
       </div>
+
+      {/* ── Verification Status Banner ────────────────────────────────────── */}
+      {is_onboarded ? <VerificationStatusBanner is_verified={is_verified} admin_note={admin_note}/> : '' }
 
       {/* Avatar upload */}
       <div className="mb-6 flex items-center gap-4">
@@ -136,7 +230,6 @@ export default function BasicProfileSection({
             required
           />
         </div>
-
         {/* Age */}
         <div className="form-control">
           <label className="label">
@@ -154,7 +247,6 @@ export default function BasicProfileSection({
             required
           />
         </div>
-
         {/* Gender */}
         <div className="form-control">
           <label className="label">
@@ -172,7 +264,6 @@ export default function BasicProfileSection({
             <option value="Female">Female</option>
           </select>
         </div>
-
         {/* Phone Number */}
         <div className="form-control">
           <label className="label">
@@ -188,7 +279,6 @@ export default function BasicProfileSection({
             defaultCountry='RW'
           />
         </div>
-
         {/* University */}
         <div className="form-control">
           <label className="label">
@@ -204,7 +294,6 @@ export default function BasicProfileSection({
             required
           />
         </div>
-
         {/* Program */}
         <div className="form-control">
           <label className="label">
@@ -220,7 +309,6 @@ export default function BasicProfileSection({
             required
           />
         </div>
-
         {/* Year of Study */}
         <div className="form-control">
           <label className="label">
@@ -242,7 +330,6 @@ export default function BasicProfileSection({
             <option value="Graduate">Graduate</option>
           </select>
         </div>
-
         {/* Nationality */}
         <div className="form-control">
           <label className="label">
@@ -253,7 +340,7 @@ export default function BasicProfileSection({
             className='w-1/2'
             required
             options={options}
-            value={options.find(obj => obj.value === nationality) || ""}
+            value={options?.find(obj => obj.value === nationality) || ""}
             onChange={handle_nationality}
           />
         </div>
@@ -267,7 +354,6 @@ export default function BasicProfileSection({
             How urgently are you looking?
           </span>
         </div>
-
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {URGENCY_OPTIONS.map((option) => {
             const isActive = urgency === option.value;
@@ -281,7 +367,6 @@ export default function BasicProfileSection({
                   ${isActive ? option.activeBg : `bg-base-100 border-base-300 hover:${option.bg}`}
                 `}
               >
-                {/* Dot indicator */}
                 <span className={`mt-1 w-2.5 h-2.5 rounded-full flex-shrink-0 ${isActive ? 'bg-current opacity-80' : option.dot}`} />
                 <div>
                   <p className={`font-primary text-xs font-extrabold uppercase tracking-wide leading-tight ${isActive ? '' : option.color}`}>
