@@ -2,6 +2,9 @@
 import { useState } from 'react';
 import { Eye, Ban, Trash2, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
+import { deleteUser } from '@/actions/admin/update_user.action';
+import { toast } from 'react-toastify';
+import { useRouter } from 'next/navigation';
 
 // ─── Avatar ───────────────────────────────────────────────────────────────────
 function UserAvatar({ full_name, avatar_url }) {
@@ -127,16 +130,6 @@ function UserRow({ user, on_block, on_delete }) {
             <Eye size={14} className="text-primary" />
           </Link>
 
-          {!user.is_blocked && (
-            <button
-              onClick={() => on_block(user.user_id)}
-              className="btn btn-ghost btn-xs rounded-field"
-              aria-label="Block user"
-            >
-              <Ban size={14} className="text-warning" />
-            </button>
-          )}
-
           {show_delete_confirm ? (
             <div className="flex gap-1">
               <button onClick={handle_delete} className="btn btn-error btn-xs rounded-field">
@@ -166,15 +159,47 @@ function UserRow({ user, on_block, on_delete }) {
 
 // ─── Table ────────────────────────────────────────────────────────────────────
 export default function UsersTable({ users }) {
+
+  const router = useRouter()
+
   const handle_block = (user_id) => {
     console.log(`Block user ${user_id}`);
     // PUT /api/admin/users/${user_id} { is_blocked: true, is_blocked_reason: '...' }
     // Full block flow with required reason lives in AdminUserHeader on the detail page
   };
 
-  const handle_delete = (user_id) => {
-    console.log(`Delete user ${user_id}`);
-    // DELETE /api/admin/users/${user_id}
+  const handle_delete = async (user_id) => {
+
+    
+
+    const loadingToast = toast.loading('Deleting User...', {autoClose : false})
+    try {
+      await deleteUser(user_id)
+
+      toast.update(
+        loadingToast,
+        {
+          type : 'success',
+          autoClose: 4000,
+          render : "User deleted successfully. Reloading the page..",
+          isLoading : false
+        }
+      )
+
+      router.refresh()
+    } catch (error) {
+      console.error(error)
+      toast.update(
+        loadingToast,
+        {
+          type : 'error',
+          autoClose: 3000,
+          render : error.message || "An error occured on delete user action",
+          isLoading : false
+        }
+      )
+    }
+    
   };
 
   if (!users || users.length === 0) {

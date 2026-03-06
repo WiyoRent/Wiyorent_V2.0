@@ -2,6 +2,10 @@
 import { useState } from 'react';
 import { ShieldCheck, ShieldX, ShieldOff, Ban, Trash2, ArrowLeft, AlertTriangle, X } from 'lucide-react';
 import Link from 'next/link';
+import { updateUserStatus } from '@/actions/admin/update_user.action';
+import { toast } from 'react-toastify';
+import { deleteUser } from '@/actions/admin/update_user.action';
+import { useRouter } from 'next/navigation';
 
 // ─── Verification status badge ────────────────────────────────────────────────
 function VerificationStatusBadge({ status }) {
@@ -41,13 +45,23 @@ export default function AdminUserHeader({
   has_performed_an_update: initial_has_update,
   registration_date,
 }) {
+
+  const router = useRouter()
+
   // ── Update alert ────────────────────────────────────────────────────────────
   const [show_update_banner, set_show_update_banner] = useState(initial_has_update ?? false);
+  const [update_approved,    set_update_approved]    = useState(false);
 
+  // Both dismiss and approve update stage the same intent —
+  // has_performed_an_update: false will be sent on Save Changes
   const handle_dismiss_update = () => {
     set_show_update_banner(false);
-    console.log(`Dismiss update flag for ${user_id}`);
-    // PUT /api/admin/users/${user_id} { has_performed_an_update: false }
+    set_update_approved(true);
+  };
+
+  const handle_approve_update = () => {
+    set_show_update_banner(false);
+    set_update_approved(true);
   };
 
   // ── Verification state ──────────────────────────────────────────────────────
@@ -73,7 +87,7 @@ export default function AdminUserHeader({
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Verification logic
-  //   • Already-approved + has update → Reject only (no re-approve needed)
+  //   • Already-approved + has update → Approve Update + Reject only
   //   • Set Pending removed — it's automatic on account creation
   //   • Blocked user → no verification actions
   // ─────────────────────────────────────────────────────────────────────────────
@@ -85,6 +99,10 @@ export default function AdminUserHeader({
     !is_already_approved_with_update &&
     verification_status !== 'approved';
 
+  const show_approve_update_btn =
+    !is_blocked &&
+    is_already_approved_with_update;
+
   const show_reject_btn = !is_blocked;
 
   // ── Handlers ─────────────────────────────────────────────────────────────────
@@ -94,8 +112,6 @@ export default function AdminUserHeader({
     set_reject_note_draft('');
     set_reject_note_error(false);
     if (account_status === 'Pending') set_account_status('Active');
-    console.log(`Approve verification for ${user_id}`);
-    // PUT /api/admin/users/${user_id} { verification_status: 'approved', account_status: 'Active' }
   };
 
   const handle_reject_open = () => {
@@ -110,8 +126,6 @@ export default function AdminUserHeader({
     set_admin_note(reject_note_draft.trim());
     set_show_reject_form(false);
     set_reject_note_error(false);
-    console.log(`Reject verification for ${user_id}:`, { admin_note: reject_note_draft.trim() });
-    // PUT /api/admin/users/${user_id} { verification_status: 'rejected', admin_note: '...' }
   };
 
   const handle_reject_cancel = () => {
@@ -132,8 +146,6 @@ export default function AdminUserHeader({
     set_is_blocked_reason(block_reason_draft.trim());
     set_show_block_form(false);
     set_block_reason_error(false);
-    console.log(`Block user ${user_id}:`, { is_blocked_reason: block_reason_draft.trim() });
-    // PUT /api/admin/users/${user_id} { is_blocked: true, is_blocked_reason: '...' }
   };
 
   const handle_block_cancel = () => {
@@ -145,20 +157,69 @@ export default function AdminUserHeader({
   const handle_unblock = () => {
     set_is_blocked(false);
     set_is_blocked_reason('');
-    console.log(`Unblock user ${user_id}`);
-    // PUT /api/admin/users/${user_id} { is_blocked: false, is_blocked_reason: null }
   };
 
-  const handle_delete = () => {
-    console.log(`Delete user ${user_id}`);
-    // DELETE /api/admin/users/${user_id} then redirect to /admin/users
+  const handle_delete = async (user_id) => {
+    const loadingToast = toast.loading('Deleting User...', {autoClose : false})
+    try {
+      await deleteUser(user_id)
+
+      toast.update(
+        loadingToast,
+        {
+          type : 'success',
+          autoClose: 3000,
+          render : "User Deleted successfully",
+          isLoading : false
+        }
+      )
+
+      router.push('/admin/users')
+    } catch (error) {
+      console.error(error)
+      toast.update(
+        loadingToast,
+        {
+          type : 'error',
+          autoClose: 3000,
+          render : error.message || "An error occured on delete user action",
+          isLoading : false
+        }
+      )
+    }
+    
   };
 
-  const handle_save = () => {
+  const handle_save = async () => {
     set_is_saving(true);
-    console.log('Saving changes:', { user_id, verification_status, admin_note, is_blocked, is_blocked_reason, account_status });
-    setTimeout(() => set_is_saving(false), 1000);
-    // PUT /api/admin/users/${user_id}
+    const loading_toast = toast.loading('Updating user status...', { autoClose: false });
+    try {
+      const payload = {
+        user_id,
+        verification_status,
+        admin_note,
+        is_blocked,
+        is_blocked_reason,
+        account_status,
+        ...(update_approved && { has_performed_an_update: false }),
+      };
+      await updateUserStatus(payload);
+      toast.update(loading_toast, {
+        render: 'Successfully updated user status',
+        isLoading: false,
+        type: 'success',
+        autoClose: 3000,
+      });
+    } catch (error) {
+      toast.update(loading_toast, {
+        render: error.message || 'An internal server error occurred',
+        isLoading: false,
+        type: 'error',
+        autoClose: 4000,
+      });
+    } finally {
+      set_is_saving(false);
+    }
   };
 
   return (
@@ -172,7 +233,7 @@ export default function AdminUserHeader({
             <p className="font-secondary text-xs font-semibold text-base-content">
               Profile updated since last verification —
               <span className="font-normal text-base-content/60 ml-1">
-                review changes and reject if needed.
+                review changes and approve or reject.
               </span>
             </p>
           </div>
@@ -240,10 +301,14 @@ export default function AdminUserHeader({
         <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-base-200">
 
           {/* Verification */}
-          {is_already_approved_with_update && (
-            <span className="font-secondary text-[11px] text-base-content/40 italic mr-1">
-              Reject if update raises concerns:
-            </span>
+          {show_approve_update_btn && (
+            <button
+              onClick={handle_approve_update}
+              className="btn btn-xs rounded-field gap-1.5 font-primary font-bold uppercase tracking-wide btn-outline border-success text-success hover:bg-success/10"
+            >
+              <ShieldCheck size={12} />
+              Approve Update
+            </button>
           )}
           {show_approve_btn && (
             <button
@@ -301,7 +366,7 @@ export default function AdminUserHeader({
           <div className="ml-auto">
             {show_delete_confirm ? (
               <div className="flex gap-1.5">
-                <button onClick={handle_delete} className="btn btn-error btn-xs rounded-field font-primary font-bold uppercase tracking-wide">
+                <button onClick={() => handle_delete(user_id)} className="btn btn-error btn-xs rounded-field font-primary font-bold uppercase tracking-wide">
                   Confirm Delete
                 </button>
                 <button onClick={() => set_show_delete_confirm(false)} className="btn btn-ghost btn-xs rounded-field">
