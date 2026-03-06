@@ -1,6 +1,8 @@
 import pool from "../../config/db.js"
 import { errorMsg, successMsg } from "../../utils/returnMsg.js"
 import formatDate from "../../utils/formatDate.js"
+import {v2 as cloudinary} from 'cloudinary'
+import { sendApprovalEmail, sendRejectionEmail, sendBlockedEmail, sendUnblockedEmail } from "../../utils/mail.js"
 
 export const fetchUsers = async  (req,res) => {
 
@@ -73,7 +75,8 @@ export const fetchSingleUser = async (req,res) => {
 
         const result = await pool.query(
             `
-                SELECT 
+                SELECT
+                    u.id AS user_real_id,
                     u.*,
                     ul.* ,
                     ARRAY_AGG(uli.image_url) as image_urls
@@ -94,7 +97,7 @@ export const fetchSingleUser = async (req,res) => {
 
         const user_account_detail = {
           // ── users table ─────────────────────────────────────────────────────────────
-            user_id:                 user.id,
+            user_id:                 user.user_real_id,
             email:                   user.email,
             full_name:               user.full_name,
             phone_number:            user.phone_number,
@@ -119,6 +122,7 @@ export const fetchSingleUser = async (req,res) => {
                 gender:        user.gender,
                 age:           user.age,
                 year_of_study: user.year_of_study,
+                program : user.program
             },
 
             housing_preferences: {
@@ -165,5 +169,78 @@ export const fetchSingleUser = async (req,res) => {
 
     } catch (error) {
         console.error(error, '---An error occured on fetch user')
+    }
+}
+
+export const updatedUser = async (req, res) => {
+    try {
+        const { user_id, admin_note, has_performed_an_update, is_blocked, is_blocked_reason, verification_status } = req.body;
+
+        // 1. Fetch current status before update
+        const currentData = await pool.query(
+            'SELECT verification_status, is_blocked, email, full_name FROM users WHERE id = $1',
+            [user_id]
+        );
+
+        if (currentData.rowCount === 0) return errorMsg(res, 404, "User Not Found");
+
+        const { verification_status: oldStatus, is_blocked: wasBlocked, email, full_name } = currentData.rows[0];
+
+        // 2. Perform the update
+        await pool.query(`
+            UPDATE users
+            SET 
+                admin_note = $1,
+                has_performed_an_update = $2,
+                is_blocked = $3,
+                is_blocked_reason = $4,
+                verification_status = $5,
+                updated_at = NOW()
+            WHERE id = $6
+        `, [admin_note, has_performed_an_update || false, is_blocked, is_blocked_reason, verification_status, user_id]);
+
+        // 3. Send appropriate email based on what changed
+        const isNewlyApproved  = ['pending', 'rejected', null].includes(oldStatus) && verification_status === 'approved';
+        const isNewlyRejected  = oldStatus !== 'rejected' && verification_status === 'rejected';
+        const isNewlyBlocked   = !wasBlocked && is_blocked;
+        const isNewlyUnblocked = wasBlocked && !is_blocked;
+
+        if      (isNewlyApproved)   await sendApprovalEmail(email, full_name);
+        else if (isNewlyRejected)   await sendRejectionEmail(email, full_name, admin_note);
+        else if (isNewlyBlocked)    await sendBlockedEmail(email, full_name, is_blocked_reason);
+        else if (isNewlyUnblocked)  await sendUnblockedEmail(email, full_name);
+
+        return successMsg(res, 200, 'User successfully updated');
+    } catch (error) {
+        console.error(error);
+        return errorMsg(res, 500, error.message || 'An internal server error occurred');
+    }
+};
+
+export const deleteUser = async (req, res) => {
+    try {
+        const userId = req.params.id
+
+        const folderPath = `users/${userId}`
+
+        await cloudinary.api.delete_resources_by_prefix(`${folderPath}`)
+        await cloudinary.api.delete_folder(folderPath)
+
+        const result = await pool.query(
+            `
+                DELETE FROM users
+                WHERE id = $1
+                RETURNING *
+            `
+        , [userId])
+
+        if(result.rowCount === 0){
+            return errorMsg(res ,404,"Couldn't find user")
+        }
+
+        return successMsg(res, 200, 'User Deleted Successfully')
+    } catch (error) {
+        console.error('error on delete user')
+        return errorMsg(res, error.status || 500, error.message || "Internal Server Error")
     }
 }

@@ -5,7 +5,7 @@ import { verifyHeaders } from "../../utils/verifyHeaders.js"
 import { throwError } from "../../utils/throwError.js"
 import { v2 as cloudinary } from "cloudinary"
 import {extractPublicId} from 'cloudinary-build-url'
-import {Resend} from 'resend'
+import { sendAdminUpdateAlert, sendVerificationRequestEmail } from "../../utils/mail.js"
 
 
 
@@ -52,13 +52,13 @@ export const getProfile = async (req, res) => {
     }
 }
 
-const resend = new Resend(process.env.Wiyorent_Resend_API_KEY)
 
 export const updateProfile = async (req, res) => {
     try {
         const { userId } = verifyHeaders(req)
 
         console.log(req.body, '-------req_body')
+        console.log(req.files, '-------req_files')
 
         const {
             full_name,
@@ -112,11 +112,11 @@ export const updateProfile = async (req, res) => {
             return errorMsg(res, 400, "Please enter all fields")
         }
 
-        if(!req.body.avatar && req.files.avatar){
+        if(!req.body.avatar && !req.files.avatar){
             return errorMsg(res, 400, "Please enter a valid profile picture")
         }
 
-        console.log(req.body, '----req.body')
+        
 
         // ------ Update basic user info ------
         const query = `
@@ -191,7 +191,6 @@ export const updateProfile = async (req, res) => {
 
         const existingAvatar = user?.avatar_url
 
-
         // ------ Handle document/avatar uploads ------
         if (req.files?.avatar || req.files?.admission_letter || req.files?.passport_id) {
             let avatar_url = req.body.avatar
@@ -251,39 +250,15 @@ export const updateProfile = async (req, res) => {
                     verification_status = 'pending'
                 WHERE id = $1
             `, [user.id])
+            await sendVerificationRequestEmail(user.full_name, user.id, user.email)
+            return successMsg(res, 200, 'Onboarding details saved. We are currently verifying your account.');
         }
 
         await pool.query(`
             UPDATE users SET has_performed_an_update = true WHERE id = $1
         `, [user.id]);
 
-        (async function () {
-            const { data, error } = await resend.emails.send({
-                from: `Wiyorent <onboarding@resend.dev>`,
-                to: ['wiyorent@gmail.com'],
-                subject: 'Hello World',
-                html: `
-                    <div style="font-family: sans-serif; padding: 20px;">
-                        <h2>Hello Admin,</h2>
-                        <p>A new user has requested verification on the Housemates platform.</p>
-                        <a href="http://localhost:3000/admin/dashboard" 
-                        style="background: #000; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-                        Review Request
-                        </a>
-                    </div>
-                `,
-            });
-
-            if (error) {
-                return console.error({ error });
-            }
-
-            console.log({ data });
-        })();
-
-        if (!user.verification_status || user.verification_status == 'pending') {
-            return successMsg(res, 200, 'Onboarding details saved. We are currently verifying your account.')
-        }
+        await sendAdminUpdateAlert(user.full_name, user.id)
 
         return successMsg(res, 200, 'Your profile has been successfully updated.')
 
