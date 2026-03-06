@@ -1,7 +1,7 @@
 'use client';
-
 import Image from 'next/image';
-import { ShieldCheck, FileText } from 'lucide-react';
+import { ShieldCheck, FileText, RefreshCw } from 'lucide-react';
+import { useState } from 'react';
 
 export default function PracticalInfoSection({ 
   preferred_method, 
@@ -11,8 +11,18 @@ export default function PracticalInfoSection({
   admission_letter,
   set_admission_letter,
   passport_id,
-  set_passport_id
+  set_passport_id,
+  verification_status,
 }) {
+  const is_rejected = verification_status === 'rejected';
+
+  // Per-document replace toggles — only relevant when is_rejected and doc is an existing URL
+  const [replace_admission, set_replace_admission] = useState(false);
+  const [replace_passport,  set_replace_passport]  = useState(false);
+
+  const show_admission_upload = typeof admission_letter !== 'string' || (is_rejected && replace_admission);
+  const show_passport_upload  = typeof passport_id     !== 'string' || (is_rejected && replace_passport);
+
   return (
     <div className="bg-base-100 rounded-box p-6 shadow-sm border border-base-200">
       <h2 className="font-primary text-xl font-extrabold uppercase tracking-tight mb-6 flex items-center gap-2">
@@ -20,17 +30,55 @@ export default function PracticalInfoSection({
         Verification & Privacy
       </h2>
 
+      {is_rejected && (
+        <div className="mb-6 flex items-start gap-2 bg-error/10 border border-error/20 rounded-field px-4 py-3">
+          <ShieldCheck size={14} className="text-error mt-0.5 flex-shrink-0" />
+          <p className="font-secondary text-xs text-error/80">
+            Your verification was not approved. Please review your profile details, make any necessary updates, and resubmit for review.
+          </p>
+        </div>
+      )}
+
       <div className="space-y-8">
         {/* Document Upload Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
           {/* Admission Letter */}
           <div className="form-control w-full">
-            <label className="label py-0 mb-2">
+            <div className="flex items-center justify-between py-0 mb-2">
               <span className="label-text font-primary font-bold uppercase text-xs tracking-widest text-base-content/60">
                 Admission Letter
               </span>
-            </label>
-            {typeof admission_letter === 'string' ? (
+              {is_rejected && typeof admission_letter === 'string' && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    set_replace_admission((v) => !v);
+                    if (replace_admission) set_admission_letter(admission_letter); // revert to existing URL if cancelling
+                  }}
+                  className="btn btn-ghost btn-xs gap-1 font-primary font-bold uppercase tracking-wide text-error"
+                >
+                  <RefreshCw size={11} />
+                  {replace_admission ? 'Cancel' : 'Replace'}
+                </button>
+              )}
+            </div>
+
+            {show_admission_upload ? (
+              <>
+                <input 
+                  type="file" 
+                  accept=".png, .jpg"
+                  onChange={(e) => set_admission_letter(e.target.files[0])}
+                  className="file-input file-input-bordered file-input-accent w-full rounded-field font-secondary text-sm" 
+                />
+                <p className="mt-2 text-[10px] font-secondary text-base-content/40 italic">
+                  {is_rejected
+                    ? 'Upload a new copy of your admission letter.'
+                    : 'Required to verify your student status at your university.'}
+                </p>
+              </>
+            ) : (
               <div className="relative rounded-field overflow-hidden border border-base-300 group h-40">
                 <Image 
                   src={admission_letter} 
@@ -50,29 +98,45 @@ export default function PracticalInfoSection({
                 </div>
                 <div className="absolute top-2 right-2 badge badge-success badge-sm font-secondary">Uploaded</div>
               </div>
-            ) : (
-              <>
-                <input 
-                  type="file" 
-                  accept=".png, .jpg"
-                  onChange={(e) => set_admission_letter(e.target.files[0])}
-                  className="file-input file-input-bordered file-input-accent w-full rounded-field font-secondary text-sm" 
-                />
-                <p className="mt-2 text-[10px] font-secondary text-base-content/40 italic">
-                  Required to verify your student status at your university.
-                </p>
-              </>
             )}
           </div>
 
           {/* Passport / ID */}
           <div className="form-control w-full">
-            <label className="label py-0 mb-2">
+            <div className="flex items-center justify-between py-0 mb-2">
               <span className="label-text font-primary font-bold uppercase text-xs tracking-widest text-base-content/60">
                 Passport or National ID
               </span>
-            </label>
-            {typeof passport_id === 'string' ? (
+              {is_rejected && typeof passport_id === 'string' && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    set_replace_passport((v) => !v);
+                    if (replace_passport) set_passport_id(passport_id); // revert to existing URL if cancelling
+                  }}
+                  className="btn btn-ghost btn-xs gap-1 font-primary font-bold uppercase tracking-wide text-error"
+                >
+                  <RefreshCw size={11} />
+                  {replace_passport ? 'Cancel' : 'Replace'}
+                </button>
+              )}
+            </div>
+
+            {show_passport_upload ? (
+              <>
+                <input 
+                  type="file" 
+                  accept=".png, .jpg"
+                  onChange={(e) => set_passport_id(e.target.files[0])}
+                  className="file-input file-input-bordered file-input-accent w-full rounded-field font-secondary text-sm" 
+                />
+                <p className="mt-2 text-[10px] font-secondary text-base-content/40 italic">
+                  {is_rejected
+                    ? 'Upload a new copy of your passport or ID.'
+                    : 'Clear photo of your identity document for legal compliance.'}
+                </p>
+              </>
+            ) : (
               <div className="relative rounded-field overflow-hidden border border-base-300 group h-40">
                 <Image 
                   src={passport_id} 
@@ -92,20 +156,9 @@ export default function PracticalInfoSection({
                 </div>
                 <div className="absolute top-2 right-2 badge badge-success badge-sm font-secondary">Uploaded</div>
               </div>
-            ) : (
-              <>
-                <input 
-                  type="file" 
-                  accept=".png, .jpg"
-                  onChange={(e) => set_passport_id(e.target.files[0])}
-                  className="file-input file-input-bordered file-input-accent w-full rounded-field font-secondary text-sm" 
-                />
-                <p className="mt-2 text-[10px] font-secondary text-base-content/40 italic">
-                  Clear photo of your identity document for legal compliance.
-                </p>
-              </>
             )}
           </div>
+
         </div>
 
         <div className="divider opacity-50"></div>
@@ -124,7 +177,6 @@ export default function PracticalInfoSection({
               onChange={(e) => set_is_profile_public(e.target.checked)}
             />
           </div>
-
           <div className="form-control">
             <label className="label py-0 mb-2">
               <span className="label-text font-primary font-bold uppercase text-xs tracking-widest text-base-content/60">
@@ -141,6 +193,7 @@ export default function PracticalInfoSection({
             </select>
           </div>
         </div>
+
       </div>
     </div>
   );

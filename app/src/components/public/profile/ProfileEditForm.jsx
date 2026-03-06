@@ -10,7 +10,7 @@ import HouseListingSection from './HouseListingSection';
 import { Save } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { isValidPhoneNumber } from 'react-phone-number-input';
-import { editProfile } from '@/services/profile.service';
+import { editProfile } from '@/services/public/profile.service';
 
 export default function ProfileEditForm({ initial_data, available_neighborhoods }) {
 
@@ -298,6 +298,7 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods 
         set_passport_id={set_passport_id}
         admission_letter={admission_letter}
         set_admission_letter={set_admission_letter}
+        verification_status={initial_data.verification_status}
       />
 
       {/* Save */}
