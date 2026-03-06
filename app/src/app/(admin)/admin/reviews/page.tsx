@@ -1,82 +1,86 @@
 import ReviewsTable from '@/components/admin/reviews/ReviewsTable';
+import { getReviews } from '@/services/admin/review.service';
 import { Filter } from 'lucide-react';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Mock reviews data — in production: await fetch('/api/admin/reviews')
 // ─────────────────────────────────────────────────────────────────────────────
-const admin_manage_reviews = [
-  {
-    review_id: 'rev_01',
-    reviewer: {
-      user_id: 'usr_882',
-      name: 'Keza Mutesi',
-      avatar: null,
-    },
-    property: {
-      property_id: 'house_8826',
-      title: 'Kacyiru Heights',
-    },
-    rating: 4.0,
-    comment: 'Great location and very clean apartment. The landlord was responsive and helpful throughout my stay.',
-    date: '2023-10-25',
-    status: 'pending',
-  },
-  {
-    review_id: 'rev_02',
-    reviewer: {
-      user_id: 'usr_441',
-      name: 'Jean Habimana',
-      avatar: null,
-    },
-    property: {
-      property_id: 'house_9901',
-      title: 'Gisozi Modern Studio',
-    },
-    rating: 5.0,
-    comment: 'Absolutely perfect! The studio had everything I needed, and the neighborhood is safe and convenient.',
-    date: '2023-10-24',
-    status: 'approved',
-  },
-  {
-    review_id: 'rev_03',
-    reviewer: {
-      user_id: 'usr_553',
-      name: 'Teta Umwiza',
-      avatar: null,
-    },
-    property: {
-      property_id: 'house_7721',
-      title: 'Remera Shared Villa',
-    },
-    rating: 3.0,
-    comment: 'The room was fine, but the shared kitchen was often messy. Management could be better.',
-    date: '2023-10-22',
-    status: 'approved',
-  },
-  {
-    review_id: 'rev_04',
-    reviewer: {
-      user_id: 'usr_667',
-      name: 'Innocent Gisa',
-      avatar: null,
-    },
-    property: {
-      property_id: 'house_5512',
-      title: 'Nyarutarama Single Room',
-    },
-    rating: 4.5,
-    comment: 'Very nice and secure neighborhood. The room is spacious and well-maintained.',
-    date: '2023-10-21',
-    status: 'pending',
-  },
-];
+// const admin_manage_reviews = [
+//   {
+//     review_id: 'rev_01',
+//     reviewer: {
+//       user_id: 'usr_882',
+//       name: 'Keza Mutesi',
+//       avatar: null,
+//     },
+//     property: {
+//       property_id: 'house_8826',
+//       title: 'Kacyiru Heights',
+//     },
+//     rating: 4.0,
+//     comment: 'Great location and very clean apartment. The landlord was responsive and helpful throughout my stay.',
+//     date: '2023-10-25',
+//     status: 'pending',
+//   },
+//   {
+//     review_id: 'rev_02',
+//     reviewer: {
+//       user_id: 'usr_441',
+//       name: 'Jean Habimana',
+//       avatar: null,
+//     },
+//     property: {
+//       property_id: 'house_9901',
+//       title: 'Gisozi Modern Studio',
+//     },
+//     rating: 5.0,
+//     comment: 'Absolutely perfect! The studio had everything I needed, and the neighborhood is safe and convenient.',
+//     date: '2023-10-24',
+//     status: 'approved',
+//   },
+//   {
+//     review_id: 'rev_03',
+//     reviewer: {
+//       user_id: 'usr_553',
+//       name: 'Teta Umwiza',
+//       avatar: null,
+//     },
+//     property: {
+//       property_id: 'house_7721',
+//       title: 'Remera Shared Villa',
+//     },
+//     rating: 3.0,
+//     comment: 'The room was fine, but the shared kitchen was often messy. Management could be better.',
+//     date: '2023-10-22',
+//     status: 'approved',
+//   },
+//   {
+//     review_id: 'rev_04',
+//     reviewer: {
+//       user_id: 'usr_667',
+//       name: 'Innocent Gisa',
+//       avatar: null,
+//     },
+//     property: {
+//       property_id: 'house_5512',
+//       title: 'Nyarutarama Single Room',
+//     },
+//     rating: 4.5,
+//     comment: 'Very nice and secure neighborhood. The room is spacious and well-maintained.',
+//     date: '2023-10-21',
+//     status: 'pending',
+//   },
+// ];
 
 export const metadata = {
   title: 'Manage Reviews | WiyoRent Admin',
   description: 'Approve, edit, or remove user-submitted reviews',
 };
 
-export default function ManageReviewsPage() {
+export default async function ManageReviewsPage() {
+
+  const admin_manage_reviews = await getReviews()
+
   return (
     <div className="min-h-screen bg-base-200">
       {/* Page header */}
