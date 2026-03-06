@@ -39,7 +39,6 @@ export const getProfile = async () => {
 }
 
 
-
 export const editProfile = async (formData) => {
     try {
         const session = await auth()
