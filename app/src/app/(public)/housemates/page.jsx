@@ -2,7 +2,7 @@ import { auth } from '@/auth';
 import HousemateFilterSidebar from '@/components/public/housemates/HousemateFilterSidebar';
 import HousematesGrid from '@/components/public/housemates/HousemateGrid';
 import InformationModal from '@/components/public/shared/InformationModal';
-import { fetchHousemates } from '@/services/housemate.service';
+import { fetchHousemates } from '@/services/public/housemate.service';
 
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -145,8 +145,8 @@ export default async function  HousematesPage() {
           {/* Grid */}
           <div className="flex-1 min-w-0">
             <HousematesGrid 
-            verification_status = {verification_status}
-            profiles={housemate_profiles} />
+              verification_status = {verification_status}
+              profiles={housemate_profiles} />
           </div>
 
         </div>

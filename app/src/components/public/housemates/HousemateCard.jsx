@@ -1,5 +1,4 @@
 'use client';
-
 import { useEffect, useState } from 'react';
 import { ShieldCheck, MapPin, GraduationCap, Wallet } from 'lucide-react';
 import Link from 'next/link';
@@ -7,11 +6,9 @@ import InformationModal from '../shared/InformationModal';
 import { useRouter } from 'next/navigation';
 import { Eye, Bookmark, Loader2 } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { contactHousemate } from '@/actions/contact_housemate.action.js';
-import { toggleSaveHousemate } from '@/actions/favorites.action';
-
+import { contactHousemate } from '@/actions/public/contact_housemate.action.js.js';
+import { toggleSaveHousemate } from '@/actions/public/favorites.action';
 const format_rwf = (n) => `RWF ${new Intl.NumberFormat('rw-RW').format(n)}`;
-
 function AvatarCircle({ full_name, avatar_url, gender }) {
   const initials = full_name
     .split(' ')
@@ -19,14 +16,12 @@ function AvatarCircle({ full_name, avatar_url, gender }) {
     .join('')
     .slice(0, 2)
     .toUpperCase();
-
   const gender_color =
     gender === 'female'
       ? 'from-rose-300 to-pink-400'
       : gender === 'male'
       ? 'from-sky-300 to-blue-400'
       : 'from-violet-300 to-indigo-400';
-
   if (avatar_url && !avatar_url.includes('api.wiyorent.com')) {
     return (
       <div className="w-20 h-20 rounded-full overflow-hidden border border-accent shadow-md flex-shrink-0">
@@ -34,7 +29,6 @@ function AvatarCircle({ full_name, avatar_url, gender }) {
       </div>
     );
   }
-
   return (
     <div
       className={`w-20 h-20 rounded-full bg-gradient-to-br ${gender_color} ring-4 ring-base-100 shadow-md flex items-center justify-center flex-shrink-0`}
@@ -45,7 +39,6 @@ function AvatarCircle({ full_name, avatar_url, gender }) {
     </div>
   );
 }
-
 export default function HousemateCard({ profile, my_verification_status }) {
   const {
     profile_id,
@@ -58,9 +51,7 @@ export default function HousemateCard({ profile, my_verification_status }) {
     gender,
     verification_status,
   } = profile;
-
   const router = useRouter();
-
   const [connected, set_connected] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [saved, setSaved] = useState(profile?.saved);
@@ -70,45 +61,46 @@ export default function HousemateCard({ profile, my_verification_status }) {
     message:
       "To ensure the safety of our community, our team manually reviews all profiles. You'll be able to view housemate details and contact housemates as soon as we approve your account (usually within 24 hours).",
   });
-
-  const is_blocked = my_verification_status == null || my_verification_status == 'pending';
-
-  const showVerificationModal = () => {
-    setModalData({
-      title: 'Account Review in Progress',
-      message:
-        "To ensure the safety of our community, our team manually reviews all profiles. You'll be able to view housemate details and contact housemates as soon as we approve your account (usually within 24 hours).",
-    });
+  const is_blocked = my_verification_status == null || my_verification_status == 'pending' || my_verification_status === 'rejected';
+  const showVerificationModal = (status) => {
+    if (status === 'rejected') {
+      setModalData({
+        title: 'Account was rejected',
+        message:
+          "Your profile verification was not approved during our manual review. To access housemate details and messaging, please review your profile information, ensure all details are accurate, and resubmit for approval."
+      });
+    } else {
+      setModalData({
+        title: 'Account Review in Progress',
+        message:
+          "To ensure the safety of our community, our team manually reviews all profiles. You'll be able to view housemate details and contact housemates as soon as we approve your account (usually within 24 hours).",
+      });
+    }
+    // Now trigger the modal to actually open!
     setShowModal(true);
   };
 
   const handleView = async () => {
     if (is_blocked) {
-      showVerificationModal();
+      showVerificationModal(my_verification_status); 
       return;
     }
     router.push(`/housemates/${profile_id}`);
   };
-
   const handleContact = async (e) => {
     e.stopPropagation();
-
     if (is_blocked) {
-      showVerificationModal();
+      showVerificationModal(my_verification_status);
       return;
     }
-
     try {
       setIsLoading(true);
       const { url, preferred_contact_method } = await contactHousemate(profile_id);
-
       if (!url) throw new Error('Could not retrieve contact link.');
-
       if (preferred_contact_method === 'email') {
         window.location.href = url;
       } else {
         const newWindow = window.open(url, '_blank');
-
         if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
           setModalData({
             title: 'Pop-up Blocked',
@@ -125,43 +117,32 @@ export default function HousemateCard({ profile, my_verification_status }) {
       setIsLoading(false);
     }
   };
-
   const handleSave = async (e) => {
     e.stopPropagation();
-
     const previousSavedState = saved;
     const newSavedStatus = !saved;
-
     setSaved(newSavedStatus);
-
     try {
       const success = await toggleSaveHousemate(profile_id, newSavedStatus);
-
       if (!success) {
         throw new Error("Server rejected the toggle");
       }
-
       // Subtle feedback
       toast.success(newSavedStatus ? "Added to favorites" : "Removed from favorites", {
         position: "bottom-right",
         autoClose: 1000, // Short duration so it's not annoying
       });
-
     } catch (error) {
       console.error("Save failed:", error);
       setSaved(previousSavedState);
       toast.error("Connection error. Could not save housemate.");
     }
   };
-
   useEffect(() => {
     setSaved(profile?.saved);
   }, [profile?.saved]);
-
-
   return (
     <div className="bg-base-100 rounded-box shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 flex flex-col overflow-hidden group w-full">
-
       {/* Dynamic modal — handles both verification and pop-up blocked cases */}
       <InformationModal
         title={modalData.title}
@@ -170,11 +151,9 @@ export default function HousemateCard({ profile, my_verification_status }) {
         setShowModal={setShowModal}
         showModal={showModal}
       />
-
       {/* Card top — avatar + name block */}
       <div className="p-6 pb-4 flex items-center gap-5">
         <AvatarCircle full_name={full_name} avatar_url={avatar_url} gender={gender} />
-
         {/* Right column — constrained so it never overflows */}
         <div className="flex-1 min-w-0">
           {/* Name + verified badge */}
@@ -189,7 +168,6 @@ export default function HousemateCard({ profile, my_verification_status }) {
               <ShieldCheck size={15} className="text-success flex-shrink-0" aria-label="Verified" />
             )}
           </div>
-
           {/* University */}
           <div className="flex items-center gap-1.5 mt-1.5 min-w-0">
             <GraduationCap size={13} className="text-base-content/35 flex-shrink-0" />
@@ -197,7 +175,6 @@ export default function HousemateCard({ profile, my_verification_status }) {
               {university_name}
             </span>
           </div>
-
           {/* Budget — nowrap so min–max stays on one line */}
           <div className="flex items-center gap-1.5 mt-1.5 min-w-0">
             <Wallet size={13} className="text-base-content/35 flex-shrink-0" />
@@ -207,14 +184,12 @@ export default function HousemateCard({ profile, my_verification_status }) {
           </div>
         </div>
       </div>
-
       {/* Bio */}
       <div className="px-6 pb-4">
         <p className="font-secondary text-sm text-base-content/60 leading-relaxed line-clamp-2">
           {bio_short}
         </p>
       </div>
-
       {/* Location pills — single row, max 2 visible */}
       <div className="px-6 pb-4 flex items-center gap-2 flex-nowrap overflow-hidden">
         <MapPin size={13} className="text-base-content/30 flex-shrink-0" />
@@ -232,10 +207,8 @@ export default function HousemateCard({ profile, my_verification_status }) {
           </span>
         )}
       </div>
-
       {/* Divider */}
       <div className="border-t border-base-200 mx-6" />
-
       {/* CTA row */}
       <div className="p-5 flex gap-2 items-center">
         <button
@@ -258,7 +231,6 @@ export default function HousemateCard({ profile, my_verification_status }) {
             'Contact'
           )}
         </button>
-
         {/* Save */}
         <button
           onClick={handleSave}
@@ -271,7 +243,6 @@ export default function HousemateCard({ profile, my_verification_status }) {
         >
           <Bookmark size={15} className={saved ? 'fill-accent' : ''} />
         </button>
-
         {/* View */}
         <button
           onClick={handleView}

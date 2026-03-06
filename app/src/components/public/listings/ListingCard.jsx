@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { toggleSaveListing } from '@/actions/favorites.action';
+import { toggleSaveListing } from '@/actions/public/favorites.action';
 import { useEffect } from 'react';
 
 import {

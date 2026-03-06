@@ -1,8 +1,8 @@
 "use server"
 
 import { headers } from "next/headers"
-import { auth } from "../auth"
-import { getBaseURL } from "../lib/getBaseURL"
+import { auth } from "../../auth"
+import { getBaseURL } from "../../lib/getBaseURL"
 
 const toggleSave = async (endpoint, payload) => {
     try {

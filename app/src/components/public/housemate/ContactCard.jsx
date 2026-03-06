@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { ShieldCheck, Bookmark, Contact as ContactIcon } from 'lucide-react';
-import { contactHousemate } from '@/actions/contact_housemate.action.js';
+import { contactHousemate } from '@/actions/public/contact_housemate.action.js.js';
 import { toast } from 'react-toastify';
 import InformationModal from '../shared/InformationModal';
-import { toggleSaveHousemate } from '@/actions/favorites.action';
+import { toggleSaveHousemate } from '@/actions/public/favorites.action';
 
 export default function ContactCard({ full_name, profile_id, verification_status, is_saved }) {
   const [saved, setSaved] = useState(is_saved);
