@@ -4,7 +4,7 @@ import BasicProfileSection from '@/components/public/housemate/BasicProfileSecti
 import HousingPreferencesSection from '@/components/public/housemate/HousingPreferencesSection';
 import LifestyleSection from '@/components/public/housemate/LifestyleSection';
 import ContactCard from '@/components/public/housemate/ContactCard';
-import { fetchHousemateDetail } from '@/services/housemate.service';
+import { fetchHousemateDetail } from '@/services/public/housemate.service';
 import UserListingSection from '@/components/public/housemate/UserListingSection';
 
 // ─────────────────────────────────────────────────────────────────────────────

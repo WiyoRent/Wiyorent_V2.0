@@ -1,7 +1,7 @@
 import ProfileEditForm from '@/components/public/profile/ProfileEditForm';
 import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
-import { getProfile } from '@/services/profile.service';
+import { getProfile } from '@/services/public/profile.service';
 
 export const metadata = {
   title: 'Edit Housemate Profile | WiyoRent',

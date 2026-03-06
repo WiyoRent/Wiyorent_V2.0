@@ -1,6 +1,6 @@
 import FavouritesTabView from '@/components/public/favourites/FavouritesTabView';
 import { Heart } from 'lucide-react';
-import { getSavedHousemates, getSavedListings } from '@/services/fetch_saves.service';
+import { getSavedHousemates, getSavedListings } from '@/services/public/fetch_saves.service';
 import { auth } from '@/auth';
 
 // ─────────────────────────────────────────────────────────────────────────────

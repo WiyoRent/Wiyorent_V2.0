@@ -5,7 +5,7 @@ import { Star } from 'lucide-react';
 import ReviewCard from '@/components/public/listing/ReviewSectionComponents/ReviewCard';
 import ReviewForm from '@/components/public/listing/ReviewSectionComponents/ReviewForm';
 import InformationModal from '../shared/InformationModal';
-import { createReview, deleteReview, editReview } from '@/services/review.service';
+import { createReview, deleteReview, editReview } from '@/actions/public/review.action';
 import { toast } from 'react-toastify';
 
 /**
