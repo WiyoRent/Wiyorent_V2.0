@@ -200,3 +200,39 @@ export const sendReviewRejectedEmail = async (email, name, property_title, reaso
     `),
   });
 };
+
+/**
+ * 9. Admin Alert: New Review Submitted
+ */
+export const sendReviewSubmittedAlert = async (userName, listingTitle, listingId) => {
+  return await resend.emails.send({
+    from: FROM_EMAIL,
+    to: [ADMIN_GMAIL],
+    subject: `⭐ New Review Awaiting Approval — ${listingTitle}`,
+    html: emailWrapper(`
+      <h3 style="color: ${C_BLACK};">New Review Submitted</h3>
+      <p><strong>Reviewer:</strong> ${userName}</p>
+      <p><strong>Listing:</strong> ${listingTitle}</p>
+      <p>This review is pending moderation and requires your approval before it goes live.</p>
+      ${ctaButton(`${FRONTEND_URL}/admin/reviews`, 'Review Now')}
+    `),
+  });
+};
+
+/**
+ * 10. Admin Alert: Review Edited
+ */
+export const sendReviewEditedAlert = async (userName, listingTitle) => {
+  return await resend.emails.send({
+    from: FROM_EMAIL,
+    to: [ADMIN_GMAIL],
+    subject: `✏️ Review Edited — Re-approval Required`,
+    html: emailWrapper(`
+      <h3 style="color: ${C_BLACK};">A Review Has Been Edited</h3>
+      <p><strong>Reviewer:</strong> ${userName}</p>
+      <p><strong>Listing:</strong> ${listingTitle}</p>
+      <p>This review has been updated by the author and its status has been reset to <strong>pending</strong>. Please review the updated content before it goes live again.</p>
+      ${ctaButton(`${FRONTEND_URL}/admin/reviews`, 'Review Now')}
+    `),
+  });
+};
