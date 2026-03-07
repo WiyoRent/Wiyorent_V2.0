@@ -108,7 +108,8 @@ export const fetchSingleListing = async (req,res) => {
                                     'comment', lr.comment,
                                     'avatar', u.avatar_url,
                                     'date', lr.created_at,
-                                    'is_approved', lr.is_approved
+                                    'is_approved', lr.is_approved,
+                                    'review_rejection_note' , lr.review_rejection_note
                                 )::jsonb
                             ) FILTER (WHERE lr.id IS NOT NULL), '[]'
                         )

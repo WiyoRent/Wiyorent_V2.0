@@ -25,7 +25,7 @@ export const getUserReviews = async (req,res) => {
                 ON lr.listing_id = l.id
             ORDER BY 
                 (lr.is_approved = 'pending') DESC,
-                l.created_at DESC 
+                lr.edited_at DESC 
         `)
 
         if(result.rowCount == 0){

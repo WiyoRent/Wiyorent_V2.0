@@ -1,6 +1,8 @@
 import pool from "../../config/db.js";
+import { sendReviewSubmittedAlert, sendReviewEditedAlert } from "../../utils/mail.js";
 import { errorMsg, successMsg } from "../../utils/returnMsg.js";
 import { verifyHeaders } from "../../utils/verifyHeaders.js";
+
 
 
 export const createReview = async (req,res) => {
@@ -10,7 +12,7 @@ export const createReview = async (req,res) => {
 
         console.log(req.body, 'received bodyyy backedn')
 
-        const {listing_id,rating,comment} = req.body
+        const {listing_id,rating,comment, user_full_name, listing_title} = req.body
 
         if(!listing_id  || !rating || !comment){
             return errorMsg(res, 400, "Incomplete fields")
@@ -31,6 +33,8 @@ export const createReview = async (req,res) => {
         
         const review = result.rows[0]
 
+        await sendReviewSubmittedAlert(user_full_name, listing_title, listing_id)
+
         return successMsg(res, 200, "Review created", review);
 
 
@@ -47,7 +51,7 @@ export const editReview = async (req,res) => {
     try {
         const {userId} = verifyHeaders(req)
 
-        const {listing_id, rating, comment} = req.body
+        const {listing_id, rating, comment, user_full_name, listing_title} = req.body
 
         if(!listing_id  || !rating || !comment){
             return errorMsg(res, 400, "Incomplete fields")
@@ -73,7 +77,10 @@ export const editReview = async (req,res) => {
             return errorMsg(res, 404, "Review not found or unauthorized");
         }
 
+        await sendReviewEditedAlert(user_full_name, listing_title)
+
         return successMsg(res,200,"Review Edited", review)
+
 
     } catch (error) {
         console.error('error on update listing review: ',error)
