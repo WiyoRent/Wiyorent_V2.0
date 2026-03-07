@@ -115,6 +115,18 @@ export default function ReviewCard({ entry, current_user_id, on_edit, on_delete 
           {entry.comment}
         </p>
 
+        {/* ── Rejection reason ───────────────────────────────────────────────── */}
+        {is_mine && entry.is_approved === 'rejected' && entry.review_rejection_note && (
+          <div className="mt-2 px-3 py-2 bg-error/10 border-l-2 border-error rounded-r-md">
+            <p className="font-secondary text-xs font-semibold text-error uppercase tracking-wide mb-0.5">
+              Rejection Reason
+            </p>
+            <p className="font-secondary text-xs text-base-content/70 leading-relaxed">
+              {entry.review_rejection_note}
+            </p>
+          </div>
+        )}
+
         {/* ── Optimistic saving indicator ───────────────────────────────────── */}
         {entry._optimistic && (
           <p className="mt-1 font-secondary text-[10px] text-base-content/35 italic flex items-center gap-1">

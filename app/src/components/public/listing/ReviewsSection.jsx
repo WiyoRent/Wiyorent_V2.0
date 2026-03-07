@@ -5,7 +5,7 @@ import { Star } from 'lucide-react';
 import ReviewCard from '@/components/public/listing/ReviewSectionComponents/ReviewCard';
 import ReviewForm from '@/components/public/listing/ReviewSectionComponents/ReviewForm';
 import InformationModal from '../shared/InformationModal';
-import { createReview, deleteReview, editReview } from '@/actions/public/review.action';
+import { createReview, deleteReview, editReview } from '@/services/public/review.service';
 import { toast } from 'react-toastify';
 
 /**
@@ -14,7 +14,7 @@ import { toast } from 'react-toastify';
  *   reviews      – { average_rating, total_count, entries[] }
  *   current_user – { id, name, image, is_onboarded } | null  (Next-Auth session user)
  */
-export default function ReviewsSection({ listing_id, reviews, current_user }) {
+export default function ReviewsSection({ listing_id, reviews, current_user, user_full_name, listing_title }) {
   const [entries, set_entries] = useState(reviews?.entries ?? []);
   const [editing, set_editing] = useState(null);
 
@@ -63,7 +63,7 @@ export default function ReviewsSection({ listing_id, reviews, current_user }) {
     set_entries((prev) => [optimistic_entry, ...prev]);
 
     try {
-      const saved = await createReview({ listing_id, rating, comment, is_approved: 'pending' });
+      const saved = await createReview({ listing_id, rating, comment, is_approved: 'pending', user_full_name, listing_title });
 
       // Swap the temporary entry for the real server object (keeps reviewer_id, real id, etc.)
       set_entries((prev) =>
@@ -96,7 +96,7 @@ export default function ReviewsSection({ listing_id, reviews, current_user }) {
     set_editing(null);
 
     try {
-      const saved = await editReview({listing_id, rating, comment});
+      const saved = await editReview({listing_id, rating, comment, user_full_name, listing_title});
       set_entries((prev) =>
         prev.map((e) =>
           e.id === original.id ? { avatar: current_user.avatar_url, ...saved, _optimistic: false } : e

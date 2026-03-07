@@ -128,6 +128,7 @@ export default async function ListingDetailPage({ params }) {
 
   const session = await auth()
   const user = session?.user
+  const full_name = user?.full_name
 
 
   const { financials, specifications, reviews} = listing_detail;
@@ -171,7 +172,7 @@ export default async function ListingDetailPage({ params }) {
 
             <HouseRulesSection house_rules={listing_detail?.house_rules} />
 
-            <ReviewsSection listing_id={listing_detail?.listing_id} current_user={user} reviews={reviews} />
+            <ReviewsSection listing_title={listing_detail?.title} listing_id={listing_detail?.listing_id} user_full_name={full_name} current_user={user} reviews={reviews} />
 
           </div>
 
