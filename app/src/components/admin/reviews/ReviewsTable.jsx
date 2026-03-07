@@ -23,7 +23,8 @@ export default function ReviewsTable({ reviews }) {
         loadingToast, {
           type: 'success',
           render : "Review approved successfully",
-          isLoading : false
+          isLoading : false,
+          autoClose : 3000
         }
       )
 
@@ -34,7 +35,8 @@ export default function ReviewsTable({ reviews }) {
         loadingToast, {
           type: 'error',
           render : error.message || "An error occured performing this action",
-          isLoading : false
+          isLoading : false,
+          autoClose : 3000
         }
       )
     }
