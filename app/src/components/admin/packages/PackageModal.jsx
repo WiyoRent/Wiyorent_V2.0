@@ -11,6 +11,7 @@ export default function PackageModal({
   on_close,
 }) {
   const [inclusion_input, set_inclusion_input] = useState('');
+  const [inclusions_error, set_inclusions_error] = useState(false);
 
   if (!is_open || !active_package) return null;
 
@@ -33,6 +34,7 @@ export default function PackageModal({
         inclusions: [...prev.inclusions, trimmed],
       }));
       set_inclusion_input('');
+      set_inclusions_error(false);
     }
   };
 
@@ -53,15 +55,23 @@ export default function PackageModal({
   // ── Submit ──────────────────────────────────────────────────────────────────
   const handle_submit = (e) => {
     e.preventDefault();
+
+    if (active_package.inclusions.length === 0) {
+      set_inclusions_error(true);
+      return;
+    }
+
     on_save({
       ...active_package,
       price: Number(active_package.price),
     });
     set_inclusion_input('');
+    set_inclusions_error(false);
   };
 
   const handle_close = () => {
     set_inclusion_input('');
+    set_inclusions_error(false);
     on_close();
   };
 
@@ -140,6 +150,7 @@ export default function PackageModal({
                 placeholder="Briefly describe what this package offers..."
                 value={active_package.description}
                 onChange={(e) => handle_field('description', e.target.value)}
+                required
               />
             </div>
 
@@ -152,10 +163,10 @@ export default function PackageModal({
               </label>
 
               {/* Existing inclusions list */}
-              <div className="mb-3 flex flex-col gap-1.5 min-h-[36px]">
+              <div className={`mb-3 flex flex-col gap-1.5 min-h-9 ${inclusions_error ? 'rounded-field outline-2 outline-error p-2' : ''}`}>
                 {active_package.inclusions.length === 0 ? (
-                  <p className="font-secondary text-xs text-base-content/30 italic py-1">
-                    No inclusions added yet.
+                  <p className={`font-secondary text-xs italic py-1 ${inclusions_error ? 'text-error' : 'text-base-content/30'}`}>
+                    {inclusions_error ? 'At least one inclusion is required.' : 'No inclusions added yet.'}
                   </p>
                 ) : (
                   active_package.inclusions.map((item, index) => (

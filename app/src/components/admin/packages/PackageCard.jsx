@@ -1,6 +1,8 @@
-import { Pencil, Check } from 'lucide-react';
+import { useState } from 'react';
+import { Pencil, Check, Trash2 } from 'lucide-react';
 
-export default function PackageCard({ pkg, on_edit }) {
+export default function PackageCard({ pkg, on_edit, on_delete }) {
+  const [confirming_delete, set_confirming_delete] = useState(false);
   const { name, description, price, is_popular, inclusions } = pkg;
 
   return (
@@ -80,7 +82,7 @@ export default function PackageCard({ pkg, on_edit }) {
       </div>
 
       {/* Card Footer */}
-      <div className="px-8 pb-8">
+      <div className="px-8 pb-8 flex flex-col gap-2">
         <button
           type="button"
           onClick={on_edit}
@@ -95,6 +97,35 @@ export default function PackageCard({ pkg, on_edit }) {
           <Pencil size={14} />
           Edit Package Details
         </button>
+
+        {!confirming_delete ? (
+          <button
+            type="button"
+            onClick={() => set_confirming_delete(true)}
+            className="btn btn-block btn-ghost rounded-md font-primary font-bold text-xs uppercase tracking-widest gap-2 text-base-content/30 hover:text-error hover:bg-error/10 transition-all"
+          >
+            <Trash2 size={14} />
+            Delete
+          </button>
+        ) : (
+          <div className="flex items-center justify-center gap-2 animate-in fade-in duration-150">
+            <span className="font-secondary text-xs text-error">Delete this package?</span>
+            <button
+              type="button"
+              onClick={() => { on_delete(pkg.package_id); set_confirming_delete(false); }}
+              className="btn btn-error btn-sm h-7 min-h-0 font-primary text-[11px] uppercase tracking-wide"
+            >
+              Yes
+            </button>
+            <button
+              type="button"
+              onClick={() => set_confirming_delete(false)}
+              className="btn btn-ghost btn-sm h-7 min-h-0 font-primary text-[11px] uppercase tracking-wide"
+            >
+              No
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
