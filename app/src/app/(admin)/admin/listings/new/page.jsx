@@ -31,6 +31,7 @@ const default_listing = {
     price_per_month: '',
     commission_fee: '',
     caution_fee: '',
+    upfront_months: 1,
   },
   specifications: {
     bedroom_number: 1,

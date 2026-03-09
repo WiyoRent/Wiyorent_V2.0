@@ -1,4 +1,4 @@
-import { Banknote, Percent, ShieldAlert } from 'lucide-react';
+import { Banknote, Percent, ShieldAlert, CalendarDays } from 'lucide-react';
 
 const FIELDS = [
   {
@@ -7,6 +7,7 @@ const FIELDS = [
     icon: Banknote,
     placeholder: 'e.g., 300000',
     hint: 'Monthly rent in Rwandan Francs',
+    min: 0,
   },
   {
     key: 'commission_fee',
@@ -14,6 +15,7 @@ const FIELDS = [
     icon: Percent,
     placeholder: 'e.g., 30000',
     hint: 'Typically 10% of one month rent',
+    min: 0,
   },
   {
     key: 'caution_fee',
@@ -21,6 +23,15 @@ const FIELDS = [
     icon: ShieldAlert,
     placeholder: 'e.g., 300000',
     hint: 'Refundable deposit (default = 1 month rent)',
+    min: 0,
+  },
+  {
+    key: 'upfront_months',
+    label: 'Upfront Months',
+    icon: CalendarDays,
+    placeholder: 'e.g., 1',
+    hint: 'Min. months tenant must pay upfront',
+    min: 1,
   },
 ];
 
@@ -40,8 +51,8 @@ export default function FinancialsSection({ financials, set_financials }) {
         </h2>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-        {FIELDS.map(({ key, label, icon: Icon, placeholder, hint }) => (
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
+        {FIELDS.map(({ key, label, icon: Icon, placeholder, hint, min }) => (
           <div key={key}>
             <label className="label">
               <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide flex items-center gap-1.5">
@@ -51,7 +62,7 @@ export default function FinancialsSection({ financials, set_financials }) {
             </label>
             <input
               type="number"
-              min="0"
+              min={min}
               className="input input-bordered rounded-field font-secondary text-sm w-full"
               placeholder={placeholder}
               value={financials[key]}

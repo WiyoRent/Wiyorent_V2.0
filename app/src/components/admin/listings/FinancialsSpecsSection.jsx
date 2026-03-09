@@ -1,4 +1,4 @@
-import { DollarSign, Home } from 'lucide-react';
+import { DollarSign, CalendarDays } from 'lucide-react';
 
 const format_rwf = (n) => `RWF ${new Intl.NumberFormat('rw-RW').format(n)}`;
 
@@ -9,6 +9,8 @@ export default function FinancialsSpecsSection({
   set_commission_fee,
   caution_fee,
   set_caution_fee,
+  upfront_months,
+  set_upfront_months,
   bedroom_number,
   set_bedroom_number,
   bathroom_number,
@@ -37,7 +39,7 @@ export default function FinancialsSpecsSection({
           <h3 className="font-secondary text-xs font-semibold uppercase tracking-wide text-base-content/50 mb-3">
             Pricing
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="form-control">
               <label className="label">
                 <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">
@@ -95,6 +97,28 @@ export default function FinancialsSpecsSection({
               <label className="label">
                 <span className="label-text-alt font-secondary text-xs text-base-content/40">
                   {format_rwf(caution_fee)}
+                </span>
+              </label>
+            </div>
+
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide flex items-center gap-1.5">
+                  <CalendarDays size={12} className="text-accent" />
+                  Upfront Months
+                </span>
+              </label>
+              <input
+                type="number"
+                value={upfront_months}
+                onChange={(e) => set_upfront_months(Number(e.target.value))}
+                min="1"
+                placeholder="e.g., 1"
+                className="input input-bordered rounded-field font-secondary text-sm"
+              />
+              <label className="label">
+                <span className="label-text-alt font-secondary text-xs text-base-content/40">
+                  Min. months tenant must pay upfront
                 </span>
               </label>
             </div>

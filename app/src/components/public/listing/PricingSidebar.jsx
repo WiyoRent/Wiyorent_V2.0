@@ -59,8 +59,9 @@ function Tooltip({ text }) {
 }
 
 export default function PricingSidebar({ financials, total_first_payment, listing_id }) {
-  const { price_per_month, commission_fee, caution_fee } = financials;
+  const { price_per_month, commission_fee, caution_fee, upfront_months = 1 } = financials;
   const commission_percent = Math.round((commission_fee / price_per_month) * 100);
+  const upfront_rent_total = price_per_month * upfront_months;
 
   return (
     <div className="flex flex-col gap-4">
@@ -125,7 +126,7 @@ export default function PricingSidebar({ financials, total_first_payment, listin
         {/* Note banner */}
         <div className="mt-4 bg-base-200 rounded-field px-3 py-2.5">
           <p className="font-secondary text-xs text-base-content/50 leading-snug text-center">
-            First payment must cover 1 month rent, deposit, and service fee.
+            First payment must cover {upfront_months} month{upfront_months > 1 ? 's' : ''} rent, deposit, and service fee.
           </p>
         </div>
       </div>
@@ -138,9 +139,9 @@ export default function PricingSidebar({ financials, total_first_payment, listin
 
         <div className="flex flex-col gap-2.5">
           <div className="flex items-center justify-between">
-            <span className="font-secondary text-sm text-base-content/60">Monthly Rent × 1</span>
+            <span className="font-secondary text-sm text-base-content/60">Monthly Rent × {upfront_months}</span>
             <span className="font-secondary text-sm font-semibold text-base-content/80">
-              {format_rwf(price_per_month)}
+              {format_rwf(upfront_rent_total)}
             </span>
           </div>
           <div className="flex items-center justify-between">

@@ -79,6 +79,7 @@ export const fetchSingleListing = async (req,res) => {
                 l.price_per_month,
                 l.commission_fee,
                 l.caution_fee,
+                l.upfront_months,
                 l.bedroom_number,
                 l.bathroom_number,
                 l.max_roommates,
@@ -142,6 +143,7 @@ export const fetchSingleListing = async (req,res) => {
                 price_per_month: listing.price_per_month,
                 commission_fee: listing.commission_fee,   // 10% of one month rent (default)
                 caution_fee: listing.caution_fee,     // refundable by default
+                upfront_months: listing.upfront_months,
             },
             specifications: {
                 bedroom_number: listing.bedroom_number,

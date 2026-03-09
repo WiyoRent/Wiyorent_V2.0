@@ -7,7 +7,7 @@ import {extractPublicId} from 'cloudinary-build-url'
 export const createListing = async (req,res) => {
 
     try {
-        const {title, is_active, is_verified, description,available_status, available_from, amenities, house_rules, price_per_month, commission_fee, caution_fee, full_name,phone_number, neighborhood,city,country,bedroom_number,bathroom_number,max_roommates,property_type,is_furnished} = req.body
+        const {title, is_active, is_verified, description,available_status, available_from, amenities, house_rules, price_per_month, commission_fee, caution_fee, upfront_months, full_name,phone_number, neighborhood,city,country,bedroom_number,bathroom_number,max_roommates,property_type,is_furnished} = req.body
 
         console.log(req.body, '----frontend response----')
 
@@ -44,6 +44,7 @@ export const createListing = async (req,res) => {
                 price_per_month,
                 commission_fee,
                 caution_fee,
+                upfront_months,
                 full_name,
                 phone_number,
                 neighborhood,
@@ -56,14 +57,14 @@ export const createListing = async (req,res) => {
                 is_furnished,
                 thumbnail_url
             )VALUES(
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24
             )
                 RETURNING *
         `
 
         const amenities_array = amenities.split(',').map(item => item.trim())
         const house_rules_array = house_rules.split(',').map(item => item.trim())
-        
+
         const values = [
             title,
             is_active,
@@ -76,6 +77,7 @@ export const createListing = async (req,res) => {
             price_per_month,
             commission_fee,
             caution_fee,
+            upfront_months,
             full_name,
             phone_number,
             neighborhood,
@@ -169,7 +171,8 @@ export const fetchSingleListing = async (req,res) => {
         financials: {
             price_per_month : listing.price_per_month,
             commission_fee : listing.commission_fee,
-            caution_fee : listing.caution_fee
+            caution_fee : listing.caution_fee,
+            upfront_months : listing.upfront_months
         },
         specifications : {
             bedroom_number : listing.bedroom_number,
@@ -204,7 +207,7 @@ export const editListing = async (req,res) => {
         }
 
         // Extracting Fields
-        const {title, is_active, is_verified, description,available_status, available_from, amenities, house_rules, price_per_month, commission_fee, caution_fee, full_name,phone_number, neighborhood,city,country,bedroom_number,bathroom_number,max_roommates,property_type,is_furnished, images} = req.body
+        const {title, is_active, is_verified, description,available_status, available_from, amenities, house_rules, price_per_month, commission_fee, caution_fee, upfront_months, full_name,phone_number, neighborhood,city,country,bedroom_number,bathroom_number,max_roommates,property_type,is_furnished, images} = req.body
 
         console.log(req.body.images, '---images')
 
@@ -273,18 +276,19 @@ export const editListing = async (req,res) => {
                 price_per_month = $9,
                 commission_fee = $10,
                 caution_fee = $11,
-                full_name = $12,
-                phone_number = $13,
-                neighborhood = $14,
-                city = $15,
-                country = $16,
-                bedroom_number = $17,
-                bathroom_number = $18,
-                max_roommates = $19,
-                property_type = $20,
-                is_furnished = $21,
-                thumbnail_url = $22
-            WHERE id = $23
+                upfront_months = $12,
+                full_name = $13,
+                phone_number = $14,
+                neighborhood = $15,
+                city = $16,
+                country = $17,
+                bedroom_number = $18,
+                bathroom_number = $19,
+                max_roommates = $20,
+                property_type = $21,
+                is_furnished = $22,
+                thumbnail_url = $23
+            WHERE id = $24
             RETURNING *
             `
 
@@ -300,6 +304,7 @@ export const editListing = async (req,res) => {
             price_per_month,
             commission_fee,
             caution_fee,
+            upfront_months,
             full_name,
             phone_number,
             neighborhood,

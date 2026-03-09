@@ -134,8 +134,9 @@ export default async function ListingDetailPage({ params }) {
   const { financials, specifications, reviews} = listing_detail;
 
   // Total first payment calculation
+  const upfront_months = financials?.upfront_months ?? 1;
   const total_first_payment =
-    financials?.price_per_month +
+    financials?.price_per_month * upfront_months +
     financials?.caution_fee +
     financials?.commission_fee;
 

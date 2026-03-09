@@ -29,6 +29,7 @@ export default function EditListingForm({ initial_data, listingId }) {
   const [price_per_month, set_price_per_month] = useState(initial_data.financials.price_per_month);
   const [commission_fee, set_commission_fee] = useState(initial_data.financials.commission_fee);
   const [caution_fee, set_caution_fee] = useState(initial_data.financials.caution_fee);
+  const [upfront_months, set_upfront_months] = useState(initial_data.financials.upfront_months ?? 1);
   
   // Specifications
   const [bedroom_number, set_bedroom_number] = useState(initial_data.specifications.bedroom_number);
@@ -65,7 +66,7 @@ export default function EditListingForm({ initial_data, listingId }) {
         available_status,
         available_from,
         landlord: { full_name: landlord_name, phone_number: landlord_phone },
-        financials: { price_per_month, commission_fee, caution_fee },
+        financials: { price_per_month, commission_fee, caution_fee, upfront_months },
         specifications: { bedroom_number, bathroom_number, max_roommates, property_type, is_furnished },
         location: { neighborhood, city, country },
         image_urls,
@@ -202,6 +203,8 @@ export default function EditListingForm({ initial_data, listingId }) {
         set_commission_fee={set_commission_fee}
         caution_fee={caution_fee}
         set_caution_fee={set_caution_fee}
+        upfront_months={upfront_months}
+        set_upfront_months={set_upfront_months}
         bedroom_number={bedroom_number}
         set_bedroom_number={set_bedroom_number}
         bathroom_number={bathroom_number}
