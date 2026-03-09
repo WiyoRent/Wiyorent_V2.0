@@ -17,6 +17,8 @@ import {
   Bath,
   Users,
   Home,
+  Building2,
+  Info,
 } from 'lucide-react';
 
 import Link from 'next/link';
@@ -101,8 +103,8 @@ export default function ListingCard({ listing }) {
   return (
     <>
       <Link href={`/listings/${listing.listing_id}`}>
-        <div className="bg-base-100 rounded-box shadow-md overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-xl group">
-          <div className="relative overflow-hidden h-48 sm:h-52 bg-base-300">
+        <div className="bg-base-100 rounded-box shadow-md flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-xl group">
+          <div className="relative overflow-hidden h-48 sm:h-52 bg-base-300 rounded-t-2xl">
             <img
               src={listing.thumbnail_url}
               alt={listing.title}
@@ -129,6 +131,21 @@ export default function ListingCard({ listing }) {
               />
             </button>
           </div>
+
+          {listing.is_a_wiyorent_house && (
+            <div
+              className="tooltip tooltip-bottom relative z-50 w-full"
+              data-tip="Owned & managed by WiyoRent · No agency fee charged"
+            >
+              <div className="bg-accent/15 border-b border-accent/25 px-3 py-1.5 flex items-center justify-center gap-1.5 w-full">
+                <Building2 size={12} className="text-accent" />
+                <span className="font-primary text-xs font-bold text-accent uppercase tracking-wide">
+                  WiyoRent House
+                </span>
+                <Info size={11} className="text-accent" />
+              </div>
+            </div>
+          )}
 
           <div className="p-4 flex flex-col flex-1 gap-3">
             <div className="flex items-baseline gap-1">

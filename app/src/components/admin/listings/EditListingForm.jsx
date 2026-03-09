@@ -16,6 +16,7 @@ import { toast } from 'react-toastify';
 export default function EditListingForm({ initial_data, listingId }) {
   // --- State Initialization ---
   const [is_active, set_is_active] = useState(initial_data.is_active);
+  const [is_a_wiyorent_house, set_is_a_wiyorent_house] = useState(initial_data.is_a_wiyorent_house ?? false);
   const [title, set_title] = useState(initial_data.title);
   const [description, set_description] = useState(initial_data.description);
   const [available_status, set_available_status] = useState(initial_data.available_status);
@@ -61,6 +62,7 @@ export default function EditListingForm({ initial_data, listingId }) {
     try {
       const payload = {
         is_active,
+        is_a_wiyorent_house,
         title,
         description,
         available_status,
@@ -167,6 +169,8 @@ export default function EditListingForm({ initial_data, listingId }) {
         set_is_active={set_is_active}
         analytics={initial_data.analytics}
         is_verified={initial_data.is_verified}
+        is_a_wiyorent_house={is_a_wiyorent_house}
+        set_is_a_wiyorent_house={set_is_a_wiyorent_house}
       />
 
       {/* Basic Info */}

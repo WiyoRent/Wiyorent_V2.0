@@ -21,6 +21,7 @@ const default_listing = {
   description: '',
   is_active: true,
   is_verified: false,
+  is_a_wiyorent_house: false,
   available_status: 'available', // available | booked | maintenance
   available_from: '',
   landlord: {
@@ -59,6 +60,7 @@ export default function CreateListingPage() {
 
   const set_is_active = (val) => set_listing((prev) => ({ ...prev, is_active: val }));
   const set_is_verified = (val) => set_listing((prev) => ({ ...prev, is_verified: val }));
+  const set_is_a_wiyorent_house = (val) => set_listing((prev) => ({ ...prev, is_a_wiyorent_house: val }));
   const set_available_status = (val) => set_listing((prev) => ({ ...prev, available_status: val }));
   const set_available_from = (val) => set_listing((prev) => ({ ...prev, available_from: val }));
 
@@ -89,6 +91,7 @@ export default function CreateListingPage() {
     formData.append('title', listing.title)
     formData.append('is_active', listing.is_active)
     formData.append('is_verified', listing.is_verified)
+    formData.append('is_a_wiyorent_house', listing.is_a_wiyorent_house)
     formData.append('description', listing.description)
     formData.append('available_status', listing.available_status)
     formData.append('available_from', listing.available_from)
@@ -206,6 +209,8 @@ formData.append('house_rules', listing.house_rules)
             set_is_active={set_is_active}
             is_verified={listing.is_verified}
             set_is_verified={set_is_verified}
+            is_a_wiyorent_house={listing.is_a_wiyorent_house}
+            set_is_a_wiyorent_house={set_is_a_wiyorent_house}
             available_status={listing.available_status}
             set_available_status={set_available_status}
             available_from={listing.available_from}

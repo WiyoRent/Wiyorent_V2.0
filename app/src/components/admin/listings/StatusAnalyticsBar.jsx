@@ -1,6 +1,6 @@
-import { Eye, Heart, ShieldCheck, EyeOff } from 'lucide-react';
+import { Eye, Heart, ShieldCheck, EyeOff, Building2, Info } from 'lucide-react';
 
-export default function StatusAnalyticsBar({ is_active, set_is_active, analytics, is_verified }) {
+export default function StatusAnalyticsBar({ is_active, set_is_active, analytics, is_verified, is_a_wiyorent_house, set_is_a_wiyorent_house }) {
   return (
     <div className="bg-base-100 rounded-box shadow-sm p-5">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -42,6 +42,25 @@ export default function StatusAnalyticsBar({ is_active, set_is_active, analytics
               </span>
             </div>
           )}
+        </div>
+
+        {/* WiyoRent House Toggle */}
+        <div className="flex items-center justify-between bg-base-200 rounded-field px-4 py-3 min-w-50 gap-4">
+          <div className="flex items-center gap-2">
+            <Building2 size={16} className={is_a_wiyorent_house ? 'text-accent' : 'text-base-content/40'} />
+            <span className="font-secondary text-sm font-semibold text-base-content">
+              {is_a_wiyorent_house ? 'WiyoRent House' : 'Standard Listing'}
+            </span>
+            <div className="tooltip tooltip-bottom" data-tip="When enabled, tenants will see the service fee as waived on this listing.">
+              <Info size={13} className="text-base-content/30 hover:text-base-content/60 transition-colors cursor-default" />
+            </div>
+          </div>
+          <input
+            type="checkbox"
+            checked={is_a_wiyorent_house}
+            onChange={(e) => set_is_a_wiyorent_house(e.target.checked)}
+            className="toggle toggle-accent"
+          />
         </div>
 
         {/* Visibility Toggle */}

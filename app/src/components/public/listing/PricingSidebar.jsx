@@ -58,7 +58,7 @@ function Tooltip({ text }) {
   );
 }
 
-export default function PricingSidebar({ financials, total_first_payment, listing_id }) {
+export default function PricingSidebar({ financials, total_first_payment, listing_id, is_a_wiyorent_house = false }) {
   const { price_per_month, commission_fee, caution_fee, upfront_months = 1 } = financials;
   const commission_percent = Math.round((commission_fee / price_per_month) * 100);
   const upfront_rent_total = price_per_month * upfront_months;
@@ -109,15 +109,23 @@ export default function PricingSidebar({ financials, total_first_payment, listin
             <div className="flex flex-col gap-0.5">
               <div className="flex items-center gap-1.5">
                 <span className="font-secondary text-sm text-base-content/70">
-                  Service Fee ({commission_percent}%)
+                  Service Fee {!is_a_wiyorent_house && `(${commission_percent}%)`}
                 </span>
-                <Tooltip text={`One-time platform service fee of ${commission_percent}% of one month's rent.`} />
+                {!is_a_wiyorent_house && (
+                  <Tooltip text={`One-time platform service fee of ${commission_percent}% of one month's rent.`} />
+                )}
               </div>
-              <span className="font-secondary text-xs text-base-content/40">
-                One-time payment · {commission_percent}% of monthly rent
-              </span>
+              {is_a_wiyorent_house ? (
+                <span className="font-secondary text-xs text-accent font-semibold">
+                  Waived · WiyoRent House
+                </span>
+              ) : (
+                <span className="font-secondary text-xs text-base-content/40">
+                  One-time payment · {commission_percent}% of monthly rent
+                </span>
+              )}
             </div>
-            <span className="font-primary text-sm font-extrabold text-base-content/80 flex-shrink-0">
+            <span className={`font-primary text-sm font-extrabold flex-shrink-0 ${is_a_wiyorent_house ? 'line-through text-base-content/30' : 'text-base-content/80'}`}>
               {format_rwf(commission_fee)}
             </span>
           </div>
@@ -126,7 +134,9 @@ export default function PricingSidebar({ financials, total_first_payment, listin
         {/* Note banner */}
         <div className="mt-4 bg-base-200 rounded-field px-3 py-2.5">
           <p className="font-secondary text-xs text-base-content/50 leading-snug text-center">
-            First payment must cover {upfront_months} month{upfront_months > 1 ? 's' : ''} rent, deposit, and service fee.
+            {is_a_wiyorent_house
+              ? `First payment must cover ${upfront_months} month${upfront_months > 1 ? 's' : ''} rent and deposit. No service fee.`
+              : `First payment must cover ${upfront_months} month${upfront_months > 1 ? 's' : ''} rent, deposit, and service fee.`}
           </p>
         </div>
       </div>
@@ -152,11 +162,15 @@ export default function PricingSidebar({ financials, total_first_payment, listin
           </div>
           <div className="flex items-center justify-between">
             <span className="font-secondary text-sm text-base-content/60">
-              Service Fee ({commission_percent}%)
+              Service Fee {!is_a_wiyorent_house && `(${commission_percent}%)`}
             </span>
-            <span className="font-secondary text-sm font-semibold text-base-content/80">
-              {format_rwf(commission_fee)}
-            </span>
+            {is_a_wiyorent_house ? (
+              <span className="font-secondary text-sm font-semibold text-accent">Waived</span>
+            ) : (
+              <span className="font-secondary text-sm font-semibold text-base-content/80">
+                {format_rwf(commission_fee)}
+              </span>
+            )}
           </div>
 
           <div className="border-t border-base-200 pt-3 mt-1">

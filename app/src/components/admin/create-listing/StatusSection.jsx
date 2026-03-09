@@ -1,4 +1,4 @@
-import { ToggleLeft, ShieldCheck, CalendarDays, Activity } from 'lucide-react';
+import { ToggleLeft, ShieldCheck, CalendarDays, Activity, Building2, Info } from 'lucide-react';
 
 const STATUS_OPTIONS = [
   { value: 'available', label: 'Available' },
@@ -11,6 +11,8 @@ export default function StatusSection({
   set_is_active,
   is_verified,
   set_is_verified,
+  is_a_wiyorent_house,
+  set_is_a_wiyorent_house,
   available_status,
   set_available_status,
   available_from,
@@ -57,6 +59,25 @@ export default function StatusSection({
             className="toggle toggle-accent"
             checked={is_verified}
             onChange={(e) => set_is_verified(e.target.checked)}
+          />
+        </div>
+
+        {/* is_a_wiyorent_house toggle */}
+        <div className="flex items-center justify-between p-3 bg-base-200 rounded-field">
+          <div className="flex items-center gap-2">
+            <Building2 size={14} className={is_a_wiyorent_house ? 'text-accent' : 'text-base-content/40'} />
+            <span className="font-secondary text-xs font-semibold uppercase tracking-wide text-base-content/70">
+              WiyoRent House
+            </span>
+            <div className="tooltip tooltip-right" data-tip="When enabled, tenants will see the service fee as waived on this listing.">
+              <Info size={12} className="text-base-content/30 hover:text-base-content/60 transition-colors cursor-default" />
+            </div>
+          </div>
+          <input
+            type="checkbox"
+            className="toggle toggle-accent"
+            checked={is_a_wiyorent_house}
+            onChange={(e) => set_is_a_wiyorent_house(e.target.checked)}
           />
         </div>
 

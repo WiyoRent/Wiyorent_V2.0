@@ -7,7 +7,7 @@ import {extractPublicId} from 'cloudinary-build-url'
 export const createListing = async (req,res) => {
 
     try {
-        const {title, is_active, is_verified, description,available_status, available_from, amenities, house_rules, price_per_month, commission_fee, caution_fee, upfront_months, full_name,phone_number, neighborhood,city,country,bedroom_number,bathroom_number,max_roommates,property_type,is_furnished} = req.body
+        const {title, is_active, is_verified, description,available_status, available_from, amenities, house_rules, price_per_month, commission_fee, caution_fee, upfront_months, is_a_wiyorent_house, full_name,phone_number, neighborhood,city,country,bedroom_number,bathroom_number,max_roommates,property_type,is_furnished} = req.body
 
         console.log(req.body, '----frontend response----')
 
@@ -45,6 +45,7 @@ export const createListing = async (req,res) => {
                 commission_fee,
                 caution_fee,
                 upfront_months,
+                is_a_wiyorent_house,
                 full_name,
                 phone_number,
                 neighborhood,
@@ -78,6 +79,7 @@ export const createListing = async (req,res) => {
             commission_fee,
             caution_fee,
             upfront_months,
+            is_a_wiyorent_house,
             full_name,
             phone_number,
             neighborhood,
@@ -155,6 +157,7 @@ export const fetchSingleListing = async (req,res) => {
     listing = listing.map(listing => ({
         listing_id : id,
         title : listing.title,
+        is_a_wiyorent_house : listing.is_a_wiyorent_house,
         description : listing.description,
         available_status : listing.available_status,
         is_active : listing.is_active,
@@ -207,7 +210,7 @@ export const editListing = async (req,res) => {
         }
 
         // Extracting Fields
-        const {title, is_active, is_verified, description,available_status, available_from, amenities, house_rules, price_per_month, commission_fee, caution_fee, upfront_months, full_name,phone_number, neighborhood,city,country,bedroom_number,bathroom_number,max_roommates,property_type,is_furnished, images} = req.body
+        const {title, is_active, is_verified, description,available_status, available_from, amenities, house_rules, price_per_month, commission_fee, caution_fee, upfront_months, is_a_wiyorent_house, full_name,phone_number, neighborhood,city,country,bedroom_number,bathroom_number,max_roommates,property_type,is_furnished, images} = req.body
 
         console.log(req.body.images, '---images')
 
@@ -277,18 +280,19 @@ export const editListing = async (req,res) => {
                 commission_fee = $10,
                 caution_fee = $11,
                 upfront_months = $12,
-                full_name = $13,
-                phone_number = $14,
-                neighborhood = $15,
-                city = $16,
-                country = $17,
-                bedroom_number = $18,
-                bathroom_number = $19,
-                max_roommates = $20,
-                property_type = $21,
-                is_furnished = $22,
-                thumbnail_url = $23
-            WHERE id = $24
+                is_a_wiyorent_house = $13,
+                full_name = $14,
+                phone_number = $15,
+                neighborhood = $16,
+                city = $17,
+                country = $18,
+                bedroom_number = $19,
+                bathroom_number = $20,
+                max_roommates = $21,
+                property_type = $22,
+                is_furnished = $23,
+                thumbnail_url = $24
+            WHERE id = $25
             RETURNING *
             `
 
@@ -305,6 +309,7 @@ export const editListing = async (req,res) => {
             commission_fee,
             caution_fee,
             upfront_months,
+            is_a_wiyorent_house,
             full_name,
             phone_number,
             neighborhood,

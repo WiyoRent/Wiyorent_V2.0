@@ -1,4 +1,5 @@
 import { MapPin, Bed, Bath, Users, ShieldCheck, Sofa } from 'lucide-react';
+import WiyorentHouseBadge from './WiyorentHouseBadge';
 
 export default function ListingHeader({
   title,
@@ -9,6 +10,7 @@ export default function ListingHeader({
   specifications,
   is_verified,
   is_furnished,
+  is_a_wiyorent_house,
 }) {
   const full_address = [street_address, neighborhood, city, country]
     .filter(Boolean)
@@ -18,6 +20,7 @@ export default function ListingHeader({
     <div className="bg-base-100 rounded-box p-6 shadow-sm">
       {/* Badges row */}
       <div className="flex items-center gap-2 flex-wrap mb-3">
+        {is_a_wiyorent_house && <WiyorentHouseBadge />}
         {is_verified && (
           <span className="inline-flex items-center gap-1.5 bg-success/10 text-success border border-success/20 px-2.5 py-1 rounded-field text-xs font-primary font-bold uppercase tracking-wide">
             <ShieldCheck size={12} />

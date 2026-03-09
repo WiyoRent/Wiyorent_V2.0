@@ -24,6 +24,7 @@ export const fetchListings = async (req,res) => {
                 l.neighborhood,
                 l.city,
                 l.thumbnail_url,
+                l.is_a_wiyorent_house,
                 (sl.id is not null) as is_saved
             FROM 
                 listings l
@@ -40,6 +41,7 @@ export const fetchListings = async (req,res) => {
             {
                 listing_id : listing.id,
                 title : listing.title,
+                is_a_wiyorent_house: listing.is_a_wiyorent_house,
                 financials : {
                     price_per_month : listing.price_per_month
                 },
@@ -80,6 +82,7 @@ export const fetchSingleListing = async (req,res) => {
                 l.commission_fee,
                 l.caution_fee,
                 l.upfront_months,
+                l.is_a_wiyorent_house,
                 l.bedroom_number,
                 l.bathroom_number,
                 l.max_roommates,
@@ -139,6 +142,7 @@ export const fetchSingleListing = async (req,res) => {
         const listingDetail = {
             listing_id: listing.id,
             title: listing.title,
+            is_a_wiyorent_house: listing.is_a_wiyorent_house,
             financials: {
                 price_per_month: listing.price_per_month,
                 commission_fee: listing.commission_fee,   // 10% of one month rent (default)

@@ -135,10 +135,11 @@ export default async function ListingDetailPage({ params }) {
 
   // Total first payment calculation
   const upfront_months = financials?.upfront_months ?? 1;
+  const is_a_wiyorent_house = listing_detail?.is_a_wiyorent_house;
   const total_first_payment =
     financials?.price_per_month * upfront_months +
     financials?.caution_fee +
-    financials?.commission_fee;
+    (is_a_wiyorent_house ? 0 : financials?.commission_fee);
 
   return (
     <div className="min-h-screen bg-base-200">
@@ -165,6 +166,7 @@ export default async function ListingDetailPage({ params }) {
               specifications={specifications}
               is_verified={listing_detail?.is_verified}
               is_furnished={listing_detail?.is_furnished}
+              is_a_wiyorent_house={listing_detail?.is_a_wiyorent_house}
             />
 
             <DescriptionSection description={listing_detail?.description} />
@@ -184,6 +186,7 @@ export default async function ListingDetailPage({ params }) {
                 financials={financials}
                 total_first_payment={total_first_payment}
                 listing_id={listing_detail.listing_id}
+                is_a_wiyorent_house={is_a_wiyorent_house}
               />
             </div>
           </aside>
