@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 // ─── Avatar ───────────────────────────────────────────────────────────────────
 function UserAvatar({ full_name, avatar_url }) {
   const initials = full_name
-    .split(' ')
+    ?.split(' ')
     .map((n) => n[0])
     .join('')
     .slice(0, 2)
