@@ -4,127 +4,83 @@ import pool from "../../config/db.js"
 import { v2 as cloudinary } from "cloudinary"
 import {extractPublicId} from 'cloudinary-build-url'
 
-export const createListing = async (req,res) => {
-
+export const createListing = async (req, res) => {
     try {
-        const {title, is_active, is_verified, description,available_status, available_from, amenities, house_rules, price_per_month, commission_fee, caution_fee, upfront_months, is_a_wiyorent_house, full_name,phone_number, neighborhood,city,country,bedroom_number,bathroom_number,max_roommates,property_type,is_furnished} = req.body
-
-        console.log(req.body, '----frontend response----')
+        const { title, is_active, is_verified, description, available_status, available_from, amenities, house_rules, price_per_month, commission_fee, caution_fee, upfront_months, is_a_wiyorent_house, full_name, phone_number, neighborhood, city, country, bedroom_number, bathroom_number, max_roommates, property_type, is_furnished } = req.body
 
         const images = req.files.images
 
-        // Checking if all input text fields are valid
-        if(!title || !description  || !available_status || !available_from  || !price_per_month || !commission_fee || !caution_fee || !full_name || !phone_number || !neighborhood || !city || !country ||!bedroom_number || !bathroom_number || !max_roommates || !property_type ){
-            return errorMsg(res,400, 'Please Enter All Fields')
+        if (!title || !description || !available_status || !available_from || !price_per_month || !commission_fee || !caution_fee || !full_name || !phone_number || !neighborhood || !city || !country || !bedroom_number || !bathroom_number || !max_roommates || !property_type) {
+            return errorMsg(res, 400, 'Please Enter All Fields')
         }
 
-        // Checking if there are images
-        if (images.length <= 0 ){
-            return errorMsg(res , 403 , 'Please add listing images')
+        if (images.length <= 0) {
+            return errorMsg(res, 403, 'Please add listing images')
         }
-        
-        // Uploading the image to cloudinary
-        const imageUrls = []
-        for (const image of images){
-            const imageUpload = await uploadToCloudinary(image.buffer, `house_images/${title}`)
-            const imageUrl = imageUpload.secure_url
-            imageUrls.push(imageUrl)
-        }
-
-        const query = `
-            INSERT INTO listings (
-                title,
-                is_active,
-                is_verified,
-                description,
-                available_status,
-                available_from,
-                amenities,
-                house_rules,
-                price_per_month,
-                commission_fee,
-                caution_fee,
-                upfront_months,
-                is_a_wiyorent_house,
-                full_name,
-                phone_number,
-                neighborhood,
-                city,
-                country,
-                bedroom_number,
-                bathroom_number,
-                max_roommates,
-                property_type,
-                is_furnished,
-                thumbnail_url
-            )VALUES(
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24
-            )
-                RETURNING *
-        `
 
         const amenities_array = amenities.split(',').map(item => item.trim())
         const house_rules_array = house_rules.split(',').map(item => item.trim())
 
+        //  Create listing first 
+        const query = `
+            INSERT INTO listings (
+                title, is_active, is_verified, description, available_status,
+                available_from, amenities, house_rules, price_per_month,
+                commission_fee, caution_fee, upfront_months, is_a_wiyorent_house,
+                full_name, phone_number, neighborhood, city, country,
+                bedroom_number, bathroom_number, max_roommates, property_type,
+                is_furnished
+            ) VALUES (
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13,
+                $14, $15, $16, $17, $18, $19, $20, $21, $22, $23
+            ) RETURNING *
+        `
+
         const values = [
-            title,
-            is_active,
-            is_verified,
-            description,
-            available_status,
-            available_from,
-            amenities_array,
-            house_rules_array,
-            price_per_month,
-            commission_fee,
-            caution_fee,
-            upfront_months,
-            is_a_wiyorent_house,
-            full_name,
-            phone_number,
-            neighborhood,
-            city,
-            country,
-            bedroom_number,
-            bathroom_number,
-            max_roommates,
-            property_type,
-            is_furnished,
-            imageUrls[0]
+            title, is_active, is_verified, description, available_status,
+            available_from, amenities_array, house_rules_array, price_per_month,
+            commission_fee, caution_fee, upfront_months, is_a_wiyorent_house,
+            full_name, phone_number, neighborhood, city, country,
+            bedroom_number, bathroom_number, max_roommates, property_type,
+            is_furnished
         ]
 
-        // Creating listing (images excluded)
-        const result = await pool.query(query,values)
+        const result = await pool.query(query, values)
         const listing = result.rows
-        if(listing.length == 0){
+        if (listing.length === 0) {
             return errorMsg(res, 400, "Couldn't create new listing")
         }
 
+        const listingId = listing[0].id
 
-        // Adding gallery images to the database
-        for (const url of imageUrls.slice(1)){
+        // Upload images using the real listing ID
+        const imageUrls = []
+        for (const image of images) {
+            const imageUpload = await uploadToCloudinary(image.buffer, `house_images/${listingId}`)
+            imageUrls.push(imageUpload.secure_url)
+        }
 
-            const result = await pool.query(`
-                    INSERT INTO listing_images(
-                        listing_id,
-                        image_url
-                    )VALUES($1,$2)
-                    RETURNING *
-                `, [listing[0].id, url])
+        //  Update listing with thumbnail 
+        await pool.query(
+            `UPDATE listings SET thumbnail_url = $1 WHERE id = $2`,
+            [imageUrls[0], listingId]
+        )
 
-            const images = result.rows;
-            console.log(images, '-----image')
+        //  Insert remaining images into gallery
+        for (const url of imageUrls.slice(1)) {
+            await pool.query(
+                `INSERT INTO listing_images (listing_id, image_url) VALUES ($1, $2)`,
+                [listingId, url]
+            )
         }
 
         return successMsg(res, 201, 'Listing successfully created')
 
     } catch (error) {
         console.error(error, '---ERROR')
-
-        return errorMsg(res, 500, 'A server error occured')
+        return errorMsg(res, 500, 'A server error occurred')
     }
-
-} 
+}
 
 export const fetchSingleListing = async (req,res) => {
     const id = req.params.id
@@ -199,185 +155,107 @@ export const fetchSingleListing = async (req,res) => {
     return successMsg(res, 200, 'Product Fetched Successfully', listing)
 }
 
-export const editListing = async (req,res) => {
-
+export const editListing = async (req, res) => {
     try {
-        // Get Listing id
-        const {id} = req.params
+        const { id } = req.params
 
-        if(!id){
-            return errorMsg(res,404, "Couldn't find listing to edit")
+        if (!id) {
+            return errorMsg(res, 404, "Couldn't find listing to edit")
         }
 
-        // Extracting Fields
-        const {title, is_active, is_verified, description,available_status, available_from, amenities, house_rules, price_per_month, commission_fee, caution_fee, upfront_months, is_a_wiyorent_house, full_name,phone_number, neighborhood,city,country,bedroom_number,bathroom_number,max_roommates,property_type,is_furnished, images} = req.body
+        const { title, is_active, is_verified, description, available_status, available_from, amenities, house_rules, price_per_month, commission_fee, caution_fee, upfront_months, is_a_wiyorent_house, full_name, phone_number, neighborhood, city, country, bedroom_number, bathroom_number, max_roommates, property_type, is_furnished } = req.body
 
-        console.log(req.body.images, '---images')
-
-        // Extracting Images
-        const uploadedImages = req.files
-
-        console.log(uploadedImages, '-----uploaded Images')
-
-        // Grouping all images
-
-        // 1. Normalize existing images (from req.body.images)
-        // It could be undefined, a string, or an array.
-        const existingImages = req.body.images 
-            ? (Array.isArray(req.body.images) ? req.body.images : [req.body.images]) 
-            : [];
-
-        // 2. Normalize uploaded images (from req.files or req.files.images)
-
-        const newImages = uploadedImages || [];
-
-        // 3. Combine them
-        const allImages = [...existingImages, ...newImages];
-
-        
-        // Checking if all input text fields are valid
-        if(!title || !description  || !available_status || !available_from  || !price_per_month || !commission_fee || !caution_fee || !full_name || !phone_number || !neighborhood || !city || !country ||!bedroom_number || !bathroom_number || !max_roommates || !property_type ){
-            return errorMsg(res,400, 'Please Enter All Fields')
+        if (!title || !description || !available_status || !available_from || !price_per_month || !commission_fee || !caution_fee || !full_name || !phone_number || !neighborhood || !city || !country || !bedroom_number || !bathroom_number || !max_roommates || !property_type) {
+            return errorMsg(res, 400, 'Please Enter All Fields')
         }
 
-        // Checking if there are atleast 2 images
-        if (allImages.length < 4 ){
-            return errorMsg(res , 403 , 'Please upload atleast 4 images for this property')
+        const uploadedImages = req.files || []
+
+        // Normalize and strip the first image (thumbnail) — frontend sends all
+        // image_urls including the thumbnail, but we only want the gallery ones
+        const rawExisting = req.body.images
+            ? (Array.isArray(req.body.images) ? req.body.images : [req.body.images])
+            : []
+
+        const [thumbnail, ...existingGallery] = rawExisting
+        const allImages = [...existingGallery, ...uploadedImages]
+
+        if (allImages.length < 3) {
+            return errorMsg(res, 403, 'Please upload at least 4 images for this property')
         }
 
-        // Pre-processing amenities and house arrays
-        const amenities_array = amenities.split(',')
-        const house_rules_array = house_rules.split(',')
+        const amenities_array = amenities.split(',').map(item => item.trim())
+        const house_rules_array = house_rules.split(',').map(item => item.trim())
 
-        // Image handling
-        // Uploading the image to cloudinary
-        const imageUrls = []
-        for (const image of allImages){
-            if(typeof image == 'string'){
-                imageUrls.push(image)
-            }else{
-                const imageUpload = await uploadToCloudinary(image.buffer, `house_images/${id}`)
-                const imageUrl = imageUpload.secure_url
-                imageUrls.push(imageUrl)
+        // Upload new files, keep existing URLs as-is
+        const galleryUrls = []
+        for (const image of allImages) {
+            if (typeof image === 'string') {
+                galleryUrls.push(image)
+            } else {
+                const upload = await uploadToCloudinary(image.buffer, `house_images/${id}`)
+                galleryUrls.push(upload.secure_url)
             }
         }
 
-        console.log(imageUrls, '----alllll images url----')
-        
-
-        const query = `
+        // Update listing
+        const result = await pool.query(`
             UPDATE listings
             SET
-                title =$1,
-                is_active = $2,
-                is_verified = COALESCE ($3, true),
-                description = $4,
-                available_status = $5,
-                available_from = $6,
-                amenities = $7,
-                house_rules = $8,
-                price_per_month = $9,
-                commission_fee = $10,
-                caution_fee = $11,
-                upfront_months = $12,
-                is_a_wiyorent_house = $13,
-                full_name = $14,
-                phone_number = $15,
-                neighborhood = $16,
-                city = $17,
-                country = $18,
-                bedroom_number = $19,
-                bathroom_number = $20,
-                max_roommates = $21,
-                property_type = $22,
-                is_furnished = $23,
-                thumbnail_url = $24
+                title = $1, is_active = $2, is_verified = COALESCE($3, true),
+                description = $4, available_status = $5, available_from = $6,
+                amenities = $7, house_rules = $8, price_per_month = $9,
+                commission_fee = $10, caution_fee = $11, upfront_months = $12,
+                is_a_wiyorent_house = $13, full_name = $14, phone_number = $15,
+                neighborhood = $16, city = $17, country = $18,
+                bedroom_number = $19, bathroom_number = $20, max_roommates = $21,
+                property_type = $22, is_furnished = $23, thumbnail_url = $24
             WHERE id = $25
             RETURNING *
-            `
+        `, [
+            title, is_active, is_verified, description, available_status,
+            available_from, amenities_array, house_rules_array, price_per_month,
+            commission_fee, caution_fee, upfront_months, is_a_wiyorent_house,
+            full_name, phone_number, neighborhood, city, country,
+            bedroom_number, bathroom_number, max_roommates, property_type,
+            is_furnished, thumbnail, id
+        ])
 
-        const values = [
-            title,
-            is_active,
-            is_verified,
-            description,
-            available_status,
-            available_from,
-            amenities_array,
-            house_rules_array,
-            price_per_month,
-            commission_fee,
-            caution_fee,
-            upfront_months,
-            is_a_wiyorent_house,
-            full_name,
-            phone_number,
-            neighborhood,
-            city,
-            country,
-            bedroom_number,
-            bathroom_number,
-            max_roommates,
-            property_type,
-            is_furnished,
-            imageUrls[0],
-            id
-        ]
-
-        const result = await pool.query(query,values)
-
-        if(result.rowCount === 0){
-            return errorMsg(res, 404, "Couldn't edit product")
+        if (result.rowCount === 0) {
+            return errorMsg(res, 404, "Couldn't edit listing")
         }
 
-        // --------Editing Product Images---------
-
-        // We get existing images for this listing
+        // Sync gallery
         const existingRes = await pool.query(
-            `
-                SELECT image_url FROM listing_images
-                WHERE listing_id = $1
-            `
-        , [id])
+            `SELECT image_url FROM listing_images WHERE listing_id = $1`, [id]
+        )
+        const existingUrls = existingRes.rows.map(row => row.image_url)
 
-        if(existingRes.rowCount == 0){
-            return errorMsg(res, 404, "Couldn't get images for this listing. So couldn't complete listing editing process")
-        }
+        const urlToRemove = existingUrls.filter(url => !galleryUrls.includes(url))
+        const urlToAdd    = galleryUrls.filter(url => !existingUrls.includes(url))
 
-
-        const existingUrls = existingRes.rows
-
-        const urlToRemove = existingUrls.filter(url => !imageUrls.includes(url))
-        const urlToAdd = imageUrls.filter(url => !existingUrls.includes(url))
-
-        if(urlToRemove.length > 0){
-            await pool.query(`
-                DELETE FROM listing_images WHERE listing_id = $1 AND image_url = ANY($2)
-            `, [id, urlToRemove])
-
+        if (urlToRemove.length > 0) {
+            await pool.query(
+                `DELETE FROM listing_images WHERE listing_id = $1 AND image_url = ANY($2)`,
+                [id, urlToRemove]
+            )
             const publicIds = urlToRemove.map(url => extractPublicId(url))
-            await cloudinary.api.delete_all_resources(publicIds)
+            await cloudinary.uploader.destroy(publicIds)
         }
 
-
-        // We upload new images
-        for(const img of urlToAdd){
-            await pool.query(`
-                INSERT INTO listing_images(
-                    listing_id,
-                    image_url
-                )VALUES($1, $2)
-                RETURNING *
-            `,[id,img])
-            
+        for (const url of urlToAdd) {
+            await pool.query(
+                `INSERT INTO listing_images (listing_id, image_url) VALUES ($1, $2)`,
+                [id, url]
+            )
         }
 
         return successMsg(res, 200, 'Listing updated successfully')
+
     } catch (error) {
-        console.error(error, '---ERRROORRR---')
-        return errorMsg(res,500,error.message || 'Sorry an enexpected server error occured')
+        console.error(error, '---ERROR---')
+        return errorMsg(res, 500, error.message || 'Sorry an unexpected server error occurred')
     }
-    
 }
 
 export const fetchAllListings = async (req,res) => {
