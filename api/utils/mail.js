@@ -7,20 +7,27 @@ const ADMIN_GMAIL   = 'wiyorent@gmail.com';
 const SUPPORT_EMAIL = 'support@wiyorent.com';
 const FRONTEND_URL  = process.env.FRONTEND_URL;
 
-// Brand colours (email-safe hex equivalents)
-const C_BLACK       = '#010101'; // --color-secondary
-const C_YELLOW      = '#F1C528'; // --color-accent
-const C_YELLOW_TEXT = '#3a2e05'; // --color-accent-content (dark text on yellow)
-const C_LIGHT       = '#fafafa'; // --color-primary-content
+const C_BLACK       = '#010101';
+const C_YELLOW      = '#F1C528';
+const C_YELLOW_TEXT = '#3a2e05';
+const C_LIGHT       = '#fafafa';
 const C_GREY        = '#555555';
 
-// Reusable button snippet
+// ── Dev guard ─────────────────────────────────────────────────
+const sendEmail = async (label, fn) => {
+  if (process.env.SEND_EMAILS !== 'true') {
+    console.log(`📧 [EMAIL SKIPPED] ${label}`)
+    return
+  }
+  return await fn()
+}
+
+// ── Reusable snippets ─────────────────────────────────────────
 const ctaButton = (href, label) =>
   `<div style="margin: 30px 0;">
     <a href="${href}" style="background: ${C_YELLOW}; color: ${C_YELLOW_TEXT}; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">${label}</a>
   </div>`;
 
-// Reusable footer snippet
 const emailFooter = `
   <footer style="margin-top: 40px; font-size: 11px; color: #999; text-align: center; border-top: 1px solid #eee; padding-top: 20px;">
     <p style="font-weight: bold; color: ${C_BLACK};">Wiyorent</p>
@@ -32,7 +39,6 @@ const emailFooter = `
     <p style="margin-top: 10px;">This is an automated notification. For assistance, contact <a href="mailto:${SUPPORT_EMAIL}" style="color: #999;">${SUPPORT_EMAIL}</a>.</p>
   </footer>`;
 
-// Reusable wrapper
 const emailWrapper = (content) =>
   `<div style="font-family: sans-serif; color: #333; max-width: 600px; line-height: 1.6;">
     <div style="background: ${C_BLACK}; padding: 16px 24px; border-radius: 8px 8px 0 0; text-align: center;">
@@ -47,8 +53,8 @@ const emailWrapper = (content) =>
 /**
  * 1. Approval Email
  */
-export const sendApprovalEmail = async (email, name) => {
-  return await resend.emails.send({
+export const sendApprovalEmail = (email, name) =>
+  sendEmail('sendApprovalEmail', () => resend.emails.send({
     from: FROM_EMAIL,
     to: [email],
     subject: 'Your Wiyorent Account is Approved! 🎉',
@@ -67,14 +73,13 @@ export const sendApprovalEmail = async (email, name) => {
       ${ctaButton(`${FRONTEND_URL}/housemates`, 'Browse Housemates')}
       <p style="font-size: 13px; color: ${C_GREY};">Welcome to the community!<br/><strong>The Wiyorent Team</strong></p>
     `),
-  });
-};
+  }));
 
 /**
  * 2. Rejection Email
  */
-export const sendRejectionEmail = async (email, name, reason) => {
-  return await resend.emails.send({
+export const sendRejectionEmail = (email, name, reason) =>
+  sendEmail('sendRejectionEmail', () => resend.emails.send({
     from: FROM_EMAIL,
     to: [email],
     reply_to: SUPPORT_EMAIL,
@@ -90,14 +95,13 @@ export const sendRejectionEmail = async (email, name, reason) => {
       ${ctaButton(`${FRONTEND_URL}/profile`, 'Update & Resubmit Profile')}
       <p style="font-size: 13px; color: ${C_GREY};">Need help? Reply to this email or visit our Help Center.<br/>Best regards,<br/><strong>Wiyorent Support</strong></p>
     `),
-  });
-};
+  }));
 
 /**
  * 3. Account Blocked Email
  */
-export const sendBlockedEmail = async (email, name, reason) => {
-  return await resend.emails.send({
+export const sendBlockedEmail = (email, name, reason) =>
+  sendEmail('sendBlockedEmail', () => resend.emails.send({
     from: FROM_EMAIL,
     to: [email],
     subject: 'Important: Your Wiyorent Account has been Restricted',
@@ -107,14 +111,13 @@ export const sendBlockedEmail = async (email, name, reason) => {
       ${reason ? `<div style="padding: 14px 18px; background: #f5f5f5; border-left: 4px solid ${C_BLACK}; border-radius: 4px; margin: 20px 0;"><strong>Reason:</strong> ${reason}</div>` : ''}
       <p>If you believe this is a mistake, please reach out at <strong>${SUPPORT_EMAIL}</strong>.</p>
     `),
-  });
-};
+  }));
 
 /**
  * 4. Account Unblocked Email
  */
-export const sendUnblockedEmail = async (email, name) => {
-  return await resend.emails.send({
+export const sendUnblockedEmail = (email, name) =>
+  sendEmail('sendUnblockedEmail', () => resend.emails.send({
     from: FROM_EMAIL,
     to: [email],
     subject: 'Your Wiyorent Account has been Reinstated ✅',
@@ -124,14 +127,13 @@ export const sendUnblockedEmail = async (email, name) => {
       ${ctaButton(`${FRONTEND_URL}/housemates`, 'Return to Wiyorent')}
       <p style="font-size: 13px; color: ${C_GREY};">Questions? Reach us at <strong>${SUPPORT_EMAIL}</strong>.<br/><strong>The Wiyorent Team</strong></p>
     `),
-  });
-};
+  }));
 
 /**
  * 5. Admin Alert: User Update
  */
-export const sendAdminUpdateAlert = async (userName, userId) => {
-  return await resend.emails.send({
+export const sendAdminUpdateAlert = (userName, userId) =>
+  sendEmail('sendAdminUpdateAlert', () => resend.emails.send({
     from: FROM_EMAIL,
     to: [ADMIN_GMAIL],
     subject: `🔔 Update Received: Review ${userName}`,
@@ -141,14 +143,13 @@ export const sendAdminUpdateAlert = async (userName, userId) => {
       <p>This user was previously rejected/onboarded and has submitted new changes for review.</p>
       ${ctaButton(`${FRONTEND_URL}/admin/users/${userId}`, 'Review Now')}
     `),
-  });
-};
+  }));
 
 /**
  * 6. Verification Request (New User)
  */
-export const sendVerificationRequestEmail = async (userName, userId) => {
-  return await resend.emails.send({
+export const sendVerificationRequestEmail = (userName, userId) =>
+  sendEmail('sendVerificationRequestEmail', () => resend.emails.send({
     from: FROM_EMAIL,
     to: [ADMIN_GMAIL],
     subject: `🚀 New Verification Request: ${userName}`,
@@ -158,14 +159,13 @@ export const sendVerificationRequestEmail = async (userName, userId) => {
       <p><strong>ID:</strong> ${userId}</p>
       ${ctaButton(`${FRONTEND_URL}/admin/users/${userId}`, 'APPROVE USER')}
     `),
-  });
-};
+  }));
 
 /**
  * 7. Review Approved Email
  */
-export const sendReviewApprovedEmail = async (email, name, property_title) => {
-  return await resend.emails.send({
+export const sendReviewApprovedEmail = (email, name, property_title) =>
+  sendEmail('sendReviewApprovedEmail', () => resend.emails.send({
     from: FROM_EMAIL,
     to: [email],
     subject: 'Your Review has been Published ✅',
@@ -176,14 +176,13 @@ export const sendReviewApprovedEmail = async (email, name, property_title) => {
       ${ctaButton(`${FRONTEND_URL}/housemates`, 'Back to Wiyorent')}
       <p style="font-size: 13px; color: ${C_GREY};">Thanks for being part of the community!<br/><strong>The Wiyorent Team</strong></p>
     `),
-  });
-};
+  }));
 
 /**
  * 8. Review Rejected Email
  */
-export const sendReviewRejectedEmail = async (email, name, property_title, reason) => {
-  return await resend.emails.send({
+export const sendReviewRejectedEmail = (email, name, property_title, reason) =>
+  sendEmail('sendReviewRejectedEmail', () => resend.emails.send({
     from: FROM_EMAIL,
     to: [email],
     reply_to: SUPPORT_EMAIL,
@@ -198,14 +197,13 @@ export const sendReviewRejectedEmail = async (email, name, property_title, reaso
       <p>If you believe this decision was made in error, please reach out to us at <strong>${SUPPORT_EMAIL}</strong>.</p>
       <p style="font-size: 13px; color: ${C_GREY};">Best regards,<br/><strong>Wiyorent Support</strong></p>
     `),
-  });
-};
+  }));
 
 /**
  * 9. Admin Alert: New Review Submitted
  */
-export const sendReviewSubmittedAlert = async (userName, listingTitle, listingId) => {
-  return await resend.emails.send({
+export const sendReviewSubmittedAlert = (userName, listingTitle, listingId) =>
+  sendEmail('sendReviewSubmittedAlert', () => resend.emails.send({
     from: FROM_EMAIL,
     to: [ADMIN_GMAIL],
     subject: `⭐ New Review Awaiting Approval — ${listingTitle}`,
@@ -216,14 +214,13 @@ export const sendReviewSubmittedAlert = async (userName, listingTitle, listingId
       <p>This review is pending moderation and requires your approval before it goes live.</p>
       ${ctaButton(`${FRONTEND_URL}/admin/reviews`, 'Review Now')}
     `),
-  });
-};
+  }));
 
 /**
  * 10. Admin Alert: Review Edited
  */
-export const sendReviewEditedAlert = async (userName, listingTitle) => {
-  return await resend.emails.send({
+export const sendReviewEditedAlert = (userName, listingTitle) =>
+  sendEmail('sendReviewEditedAlert', () => resend.emails.send({
     from: FROM_EMAIL,
     to: [ADMIN_GMAIL],
     subject: `✏️ Review Edited — Re-approval Required`,
@@ -234,5 +231,4 @@ export const sendReviewEditedAlert = async (userName, listingTitle) => {
       <p>This review has been updated by the author and its status has been reset to <strong>pending</strong>. Please review the updated content before it goes live again.</p>
       ${ctaButton(`${FRONTEND_URL}/admin/reviews`, 'Review Now')}
     `),
-  });
-};
+  }));

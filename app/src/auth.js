@@ -6,7 +6,6 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.Wiyorent_Resend_API_KEY);
 
-// ── Brand colours ────────────────────────────────────────────
 const C_BLACK       = '#010101';
 const C_YELLOW      = '#F1C528';
 const C_YELLOW_TEXT = '#3a2e05';
@@ -15,7 +14,15 @@ const FRONTEND_URL  = process.env.FRONTEND_URL;
 const SUPPORT_EMAIL = 'support@wiyorent.com';
 const FROM_EMAIL    = 'Wiyorent <no-reply@wiyorent.com>';
 
-// ── Reusable snippets ────────────────────────────────────────
+// ── Dev guard ─────────────────────────────────────────────────
+const sendEmail = async (label, fn) => {
+  if (process.env.SEND_EMAILS !== 'true') {
+    console.log(`📧 [EMAIL SKIPPED] ${label}`)
+    return
+  }
+  return await fn()
+}
+
 const ctaButton = (href, label) =>
   `<div style="margin: 30px 0;">
     <a href="${href}" style="background: ${C_YELLOW}; color: ${C_YELLOW_TEXT}; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">${label}</a>
@@ -43,9 +50,9 @@ const emailWrapper = (content) =>
     </div>
   </div>`;
 
-// ── Welcome email ────────────────────────────────────────────
+// ── Welcome email ─────────────────────────────────────────────
 const sendWelcomeEmail = (email, name) =>
-  resend.emails.send({
+  sendEmail('sendWelcomeEmail', () => resend.emails.send({
     from: FROM_EMAIL,
     to: [email],
     subject: 'Welcome to Wiyorent 🏠',
@@ -65,9 +72,9 @@ const sendWelcomeEmail = (email, name) =>
       ${ctaButton(`${FRONTEND_URL}/profile`, 'Complete Your Profile')}
       <p style="font-size: 13px; color: ${C_GREY};">Questions? We're always at <strong>${SUPPORT_EMAIL}</strong>.<br/><strong>The Wiyorent Team</strong></p>
     `),
-  });
+  }));
 
-// ── Auth config ──────────────────────────────────────────────
+// ── Auth config ───────────────────────────────────────────────
 export const { handlers, signIn, signOut, auth } = NextAuth(() => {
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
   return {
@@ -84,9 +91,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth(() => {
     callbacks: {
       async jwt({ token, user }) {
         if (user) {
-          token.role        = user.role;
+          token.role         = user.role;
           token.is_onboarded = user.is_onboarded;
-          token.id          = user.id;
+          token.id           = user.id;
         }
         return token;
       },
