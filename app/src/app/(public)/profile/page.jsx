@@ -3,10 +3,18 @@ import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import { getProfile } from '@/services/public/profile.service';
 
-export const metadata = {
-  title: 'Edit Housemate Profile | WiyoRent',
-  description: 'Update your housemate matchmaking profile',
-};
+export async function generateMetadata() {
+  const session = await auth();
+  
+  const isOnboarded = session?.user?.is_onboarded;
+
+  return {
+    title: isOnboarded ? 'My Profile | WiyoRent' : 'Complete Your Profile | WiyoRent',
+    description: isOnboarded
+      ? 'Manage your housemate profile and housing preferences'
+      : 'Set up your profile to start finding compatible housemates in Kigali',
+  };
+}
 
 export default async function ProfileEditPage() {
 
