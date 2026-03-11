@@ -232,3 +232,23 @@ export const sendReviewEditedAlert = (userName, listingTitle) =>
       ${ctaButton(`${FRONTEND_URL}/admin/reviews`, 'Review Now')}
     `),
   }));
+
+/**
+ * 11. Waitlist Availability Notification
+ */
+export const sendWaitlistAvailabilityEmail = (email, name, listingTitle, listingId) =>
+  sendEmail('sendWaitlistAvailabilityEmail', () => resend.emails.send({
+    from: FROM_EMAIL,
+    to: [email],
+    subject: `Good news — ${listingTitle} is now available!`,
+    html: emailWrapper(`
+      <h2 style="color: ${C_BLACK};">Hi ${name},</h2>
+      <p>A listing you've been waiting on just became available.</p>
+      <div style="background: #fff8e1; padding: 14px 18px; border-left: 4px solid ${C_YELLOW}; border-radius: 4px; margin: 20px 0;">
+        <strong style="color: ${C_YELLOW_TEXT};">${listingTitle}</strong> is now <strong>available</strong>.
+      </div>
+      <p>Act quickly — availability can change. View the full listing details and get in touch with the landlord before someone else does.</p>
+      ${ctaButton(`${FRONTEND_URL}/listings/${listingId}`, 'View Listing')}
+      <p style="font-size: 13px; color: ${C_GREY};">Good luck!<br/><strong>The Wiyorent Team</strong></p>
+    `),
+  }));

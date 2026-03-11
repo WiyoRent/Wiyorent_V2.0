@@ -3,6 +3,7 @@ import { uploadToCloudinary } from "../../utils/uploadToCloudinary.js"
 import pool from "../../config/db.js"
 import { v2 as cloudinary } from "cloudinary"
 import {extractPublicId} from 'cloudinary-build-url'
+import { sendWaitlistAvailabilityEmail } from "../../utils/mail.js"
 
 export const createListing = async (req, res) => {
     try {
@@ -198,6 +199,12 @@ export const editListing = async (req, res) => {
             }
         }
 
+        // Fetch current status before update (needed for waitlist notification)
+        const current = await pool.query(
+            `SELECT available_status FROM listings WHERE id = $1`, [id]
+        )
+        const previous_status = current.rows[0]?.available_status
+
         // Update listing
         const result = await pool.query(`
             UPDATE listings
@@ -247,6 +254,26 @@ export const editListing = async (req, res) => {
             await pool.query(
                 `INSERT INTO listing_images (listing_id, image_url) VALUES ($1, $2)`,
                 [id, url]
+            )
+        }
+
+        // Notify waitlisted users if listing just became available
+        const became_available =
+            available_status === 'available' &&
+            (previous_status === 'booked' || previous_status === 'maintenance')
+
+        if (became_available) {
+            const waitlistRes = await pool.query(`
+                SELECT u.email, u.full_name
+                FROM waitlists w
+                JOIN users u ON w.user_id = u.id
+                WHERE w.listing_id = $1
+            `, [id])
+
+            await Promise.all(
+                waitlistRes.rows.map(u =>
+                    sendWaitlistAvailabilityEmail(u.email, u.full_name, title, id)
+                )
             )
         }
 
