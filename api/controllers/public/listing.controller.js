@@ -2,6 +2,7 @@ import pool from "../../config/db.js"
 import { errorMsg, successMsg } from "../../utils/returnMsg.js"
 
 export const fetchListings = async (req,res) => {
+
     const clientKey = req.headers['x-internal-api-key']
     const rawUserId = req.headers['x-user-id']
 
@@ -11,8 +12,13 @@ export const fetchListings = async (req,res) => {
         return errorMsg(res, 403, 'Unauthorized')
     }
 
+    const {min, max, wiyorent_only, bedrooms, max_roommates, furnished_status, neighborhood} = req.query
+    const neighborhoodList = neighborhood ? neighborhood.split(',') : []
+    
+
     try {
-        const result = await pool.query(`
+
+        let query = `
             SELECT
                 l.id,
                 l.title,
@@ -36,8 +42,64 @@ export const fetchListings = async (req,res) => {
                 ON l.id = w.listing_id
                 AND w.user_id = $1
             WHERE is_active = true
+        `
+        const values = [userId]
+        let paramIndex = 2
+
+        if(min){
+            query += `
+                AND l.price_per_month >= $${paramIndex++}
+            `
+            values.push(Number(min))
+        }
+
+        if(max){
+            query += `
+                AND l.price_per_month <= $${paramIndex++}
+            `
+            values.push(Number(max))
+        }
+
+        if (wiyorent_only === 'true') {
+            query += ` AND l.is_a_wiyorent_house = true`
+        }
+
+        if (bedrooms) {
+            if (bedrooms === '4+') {
+                query += ` AND l.bedroom_number >= 4`
+            } else {
+                query += ` AND l.bedroom_number = $${paramIndex++}`
+                values.push(Number(bedrooms))
+            }
+        }
+
+        if (max_roommates) {
+            if (max_roommates === '4+') {
+                query += ` AND l.max_roommates >= 4`
+            } else {
+                query += ` AND l.max_roommates <= $${paramIndex++}`
+                values.push(Number(max_roommates))
+            }
+        }
+
+        if (furnished_status) {
+            furnished_status === 'furnished' ?
+                query += ` AND l.is_furnished = true ` : 
+                query += ` AND l.is_furnished = false`
+        }
+
+        if(neighborhoodList.length !== 0){
+            query += ` AND l.neighborhood = ANY($${paramIndex++})`
+            values.push(neighborhoodList)
+        }
+
+        query += `
             GROUP BY l.id, sl.id, w.id
-            `, [userId])
+        `
+
+        console.log(query, '---query')
+
+        const result = await pool.query(query, values)
 
         const listings = result.rows 
 

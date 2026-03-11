@@ -177,10 +177,12 @@ const filter_options = {
   availability_options: ["available", "booked"],
 };
 
-export default async function ListingsPage() {
+export default async function ListingsPage({searchParams}) {
 
-  const listings = await getListingsProxy()
-  console.log(listings)
+  const params = await searchParams
+  const queryString = new URLSearchParams(params).toString()
+  const listings = await getListingsProxy(queryString)
+
 
   return (
     <main className="min-h-screen bg-base-200">

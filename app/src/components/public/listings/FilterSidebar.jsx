@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { SlidersHorizontal, X, ChevronDown, Bed, Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { SlidersHorizontal, X, Bed, Users, Info } from 'lucide-react';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
 const format_price = (value) =>
   `RWF ${new Intl.NumberFormat('rw-RW').format(value)}`;
@@ -10,50 +11,83 @@ export default function FilterSidebar({ filter_options }) {
   const { price_range, neighborhoods, furnishing_options, availability_options } =
     filter_options;
 
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const pathname = usePathname()
+
   // Existing State
   const [price_min, set_price_min] = useState(price_range.min);
   const [price_max, set_price_max] = useState(price_range.max);
-  const [selected_neighborhood, set_selected_neighborhood] = useState('');
-  const [selected_furnishing, set_selected_furnishing] = useState('');
+  const [selected_neighborhoods, set_selected_neighborhoods] = useState([]);
+  const [selected_furnishing, set_selected_furnishing] = useState('furnished');
   const [selected_availability, set_selected_availability] = useState('');
-  
-  // New State for Bedrooms and Roommates
   const [bedrooms, set_bedrooms] = useState(null); // null, 1, 2, 3, 4+
   const [max_roommates, set_max_roommates] = useState(null); // null, 1, 2, 3, 4+
-
+  const [wiyorent_only, set_wiyorent_only] = useState(false);
   const [is_mobile_open, set_is_mobile_open] = useState(false);
+
+  const parse_pill = (val) => val ? (val === '4+' ? '4+' : Number(val)) : null
+
+  useEffect(() => {
+    set_price_min(Number(searchParams.get('min')) || price_range.min)
+    set_price_max(Number(searchParams.get('max')) || price_range.max)
+    set_wiyorent_only(searchParams.get('wiyorent_only') === 'true')
+    set_selected_furnishing(searchParams.get('furnished_status') || '')
+    set_bedrooms(parse_pill(searchParams.get('bedrooms')))
+    set_max_roommates(parse_pill(searchParams.get('max_roommates')))
+    set_selected_neighborhoods(searchParams.getAll('neighborhood') || [])
+  }, [searchParams])
 
   const has_active_filters =
     price_min !== price_range.min ||
     price_max !== price_range.max ||
-    selected_neighborhood !== '' ||
+    selected_neighborhoods.length > 0 ||
     selected_furnishing !== '' ||
     selected_availability !== '' ||
     bedrooms !== null ||
-    max_roommates !== null;
+    max_roommates !== null ||
+    wiyorent_only;
 
   const handle_reset = () => {
     set_price_min(price_range.min);
     set_price_max(price_range.max);
-    set_selected_neighborhood('');
+    set_selected_neighborhoods([]);
     set_selected_furnishing('');
     set_selected_availability('');
     set_bedrooms(null);
     set_max_roommates(null);
+    set_wiyorent_only(false);
+
+    router.replace(pathname, {scroll: false})
   };
 
-  const handle_apply = () => {
-    console.log('Applying filters:', {
-      price_min,
-      price_max,
-      neighborhood: selected_neighborhood,
-      furnishing: selected_furnishing,
-      availability: selected_availability,
-      bedrooms,
-      max_roommates,
-    });
-    set_is_mobile_open(false);
-  };
+    const handle_apply = () => {
+      const param = new URLSearchParams() 
+
+      if (price_min !== price_range.min) param.set('min', price_min)
+      if (price_max !== price_range.max) param.set('max', price_max)
+      if (wiyorent_only) param.set('wiyorent_only', true)
+      if (bedrooms !== null) param.set('bedrooms', bedrooms)
+      if (max_roommates !== null) param.set('max_roommates', max_roommates)
+      if (selected_furnishing) param.set('furnished_status', selected_furnishing)
+      if (selected_neighborhoods.length > 0) {
+        selected_neighborhoods.forEach(n => param.append('neighborhood', n))
+      }
+
+      console.log('Applying filters:', {
+        price_min,
+        price_max,
+        neighborhoods: selected_neighborhoods,
+        furnishing: selected_furnishing,
+        availability: selected_availability,
+        bedrooms,
+        max_roommates,
+        wiyorent_only,
+      });
+
+      set_is_mobile_open(false)
+      router.push(`?${param.toString()}`)
+    }
 
   const filter_content = (
     <div className="flex flex-col gap-6">
@@ -74,6 +108,42 @@ export default function FilterSidebar({ filter_options }) {
             Reset
           </button>
         )}
+      </div>
+
+      <div className="border-t border-base-300" />
+
+      {/* WiyoRent Houses Only */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <span className="font-primary text-sm font-bold text-base-content uppercase tracking-wide">
+            WiyoRent Houses
+          </span>
+          <div className="z-50 tooltip tooltip-left lg:tooltip-bottom" data-tip="WiyoRent Houses are properties managed directly by WiyoRent — no agency or commission fee. You pay rent only, with no hidden charges. Non-WiyoRent listings are privately managed and may include a commission fee on top of the rent.">
+            <Info size={14} className="text-base-content/40 hover:text-accent cursor-help transition-colors" />
+          </div>
+        </div>
+        <input
+          type="checkbox"
+          checked={wiyorent_only}
+          onChange={(e) => set_wiyorent_only(e.target.checked)}
+          className="toggle toggle-accent toggle-sm"
+        />
+      </div>
+
+      {/* Furnishing */}
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center justify-between gap-3">
+          <span className="font-primary text-sm font-bold text-base-content uppercase tracking-wide">
+            {selected_furnishing === 'furnished' ? 'Furnished' : selected_furnishing === 'unfurnished' ? 'Unfurnished' : 'Furnishing'}
+          </span>
+          <input
+            type="checkbox"
+            checked={selected_furnishing === 'furnished'}
+            onChange={(e) => set_selected_furnishing(e.target.checked ? 'furnished' : 'unfurnished')}
+            className="toggle toggle-accent toggle-sm"
+          />
+        </div>
+
       </div>
 
       <div className="border-t border-base-300" />
@@ -174,51 +244,35 @@ export default function FilterSidebar({ filter_options }) {
         <label className="font-primary text-sm font-bold text-base-content uppercase tracking-wide">
           Location
         </label>
-        <div className="relative">
-          <select
-            value={selected_neighborhood}
-            onChange={(e) => set_selected_neighborhood(e.target.value)}
-            className="select select-bordered w-full rounded-field font-secondary text-sm appearance-none pr-8 bg-base-100 focus:border-accent"
-          >
-            <option value="">Select a neighborhood</option>
-            {neighborhoods.map((neighborhood) => (
-              <option key={neighborhood} value={neighborhood}>
+        <div className="flex flex-wrap gap-2">
+          {neighborhoods.map((neighborhood) => {
+            const is_selected = selected_neighborhoods?.includes(neighborhood);
+            return (
+              <button
+                key={neighborhood}
+                onClick={() =>
+                  set_selected_neighborhoods((prev) =>
+                    is_selected
+                      ? prev.filter((n) => n !== neighborhood)
+                      : [...prev, neighborhood]
+                  )
+                }
+                className={`px-3 py-1.5 rounded-field font-secondary text-xs font-bold transition-all border ${
+                  is_selected
+                    ? 'bg-accent border-accent text-accent-content shadow-md'
+                    : 'bg-base-100 border-base-300 text-base-content/60 hover:border-accent hover:text-accent'
+                }`}
+              >
                 {neighborhood}
-              </option>
-            ))}
-          </select>
-          <ChevronDown
-            size={14}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/40 pointer-events-none"
-          />
+              </button>
+            );
+          })}
         </div>
       </div>
 
       <div className="border-t border-base-300" />
 
-      {/* Furnishing */}
-      <div className="flex flex-col gap-3">
-        <label className="font-primary text-sm font-bold text-base-content uppercase tracking-wide">
-          Furnishing
-        </label>
-        <div className="flex flex-col gap-2">
-          {furnishing_options.map((option) => (
-            <label key={option} className="flex items-center gap-3 cursor-pointer group">
-              <input
-                type="radio"
-                name="furnishing"
-                value={option}
-                checked={selected_furnishing === option}
-                onChange={(e) => set_selected_furnishing(e.target.value)}
-                className="radio radio-accent radio-sm"
-              />
-              <span className="font-secondary text-sm text-base-content capitalize group-hover:text-accent font-medium transition-colors">
-                {option === 'furnished' ? 'Furnished' : 'Unfurnished'}
-              </span>
-            </label>
-          ))}
-        </div>
-      </div>
+      
 
       <button
         onClick={handle_apply}

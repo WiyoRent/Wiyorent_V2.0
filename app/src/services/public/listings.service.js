@@ -5,13 +5,15 @@ import { getBaseURL } from "@/lib/getBaseURL";
 
 
 
-export const getListingsProxy = async () => {
+export const getListingsProxy = async (query) => {
+
+    console.log(query, '---query')
 
     try {
         const session = await auth()
         const user = session?.user?.id || null
 
-        const url = getBaseURL() + 'api/v1/public/getListings'
+        const url = getBaseURL() + `api/v1/public/getListings${query ? `?${query}` : ''}`
 
         const response = await fetch(url, {
             headers : {
