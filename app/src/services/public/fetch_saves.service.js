@@ -39,6 +39,15 @@ export const getSavedListings = async () => {
 }
 
 
+export const getWaitlistedListings = async () => {
+    try {
+        const url = getBaseURL() + 'api/v1/public/fetchWaitlistedListings'
+        return await getSaved(url)
+    } catch (error) {
+        console.error(error.message || 'An error occurred on get waitlisted listings')
+    }
+}
+
 export const getSavedHousemates = async () => {
     try {
         const url = getBaseURL() + 'api/v1/public/fetchSavedHousemates'

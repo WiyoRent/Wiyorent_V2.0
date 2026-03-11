@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, List, Users, Heart, User, LogOut, Menu, X, UserPlus, LogIn, Lock } from "lucide-react";
+import { Home, List, Users, Heart, User, LogOut, Menu, X, UserPlus, LogIn, Lock, ClipboardList } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import Image from "next/image";
@@ -21,6 +21,7 @@ export default function Sidebar() {
     { icon: List, label: "Listings", href: "/listings" },
     { icon: Users, label: "Housemates", href: "/housemates" },
     { icon: Heart, label: "Favourites", href: "/favourites" },
+    { icon: ClipboardList, label: "Waitlist", href: "/waitlist" },
     { icon: User, label: "My Profile", href: "/profile" },
   ];
 

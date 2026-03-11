@@ -13,7 +13,7 @@ export const fetchListings = async (req,res) => {
 
     try {
         const result = await pool.query(`
-            SELECT 
+            SELECT
                 l.id,
                 l.title,
                 l.price_per_month,
@@ -25,14 +25,18 @@ export const fetchListings = async (req,res) => {
                 l.city,
                 l.thumbnail_url,
                 l.is_a_wiyorent_house,
-                (sl.id is not null) as is_saved
-            FROM 
+                (sl.id is not null) as is_saved,
+                (w.id is not null) as is_on_waitlist
+            FROM
                 listings l
             LEFT JOIN saved_listings sl
                 ON l.id = sl.listing_id
                 AND sl.user_id = $1
+            LEFT JOIN waitlists w
+                ON l.id = w.listing_id
+                AND w.user_id = $1
             WHERE is_active = true
-            GROUP BY l.id, sl.id
+            GROUP BY l.id, sl.id, w.id
             `, [userId])
 
         const listings = result.rows 
@@ -54,7 +58,8 @@ export const fetchListings = async (req,res) => {
                 city: listing.city,
                 available_status: listing.available_status,
                 thumbnail_url: listing.thumbnail_url,
-                 is_saved: listing.is_saved
+                is_saved: listing.is_saved,
+                is_on_waitlist: listing.is_on_waitlist
             }
         ))
 
@@ -213,6 +218,34 @@ export const saveListing = async (req,res) => {
     
 }
 
+export const toggleWaitlist = async (req, res) => {
+    const { userId, listingId, isOnWaitlist } = req.body
+    const clientKey = req.headers['x-internal-api-key']
+
+    if (clientKey !== process.env.INTERNAL_BACKEND_KEY) {
+        return errorMsg(res, 403, 'Unauthorized Access')
+    }
+
+    try {
+        if (isOnWaitlist) {
+            await pool.query(`
+                INSERT INTO waitlists (user_id, listing_id)
+                VALUES ($1, $2)
+                ON CONFLICT DO NOTHING
+            `, [userId, listingId])
+        } else {
+            await pool.query(`
+                DELETE FROM waitlists WHERE user_id = $1 AND listing_id = $2
+            `, [userId, listingId])
+        }
+
+        console.log(userId, listingId, isOnWaitlist, '---toggleWaitlist')
+        return successMsg(res, 200, 'Waitlist updated', [])
+    } catch (error) {
+        console.error(error.message)
+        return errorMsg(res, 500, 'Internal DB Error')
+    }
+}
 
 export const fetchSavedListings = async (req,res) => {
 
@@ -227,7 +260,7 @@ export const fetchSavedListings = async (req,res) => {
         const userId = rawUserId && rawUserId !== 'null' ? rawUserId : null
 
         const result = await pool.query(`
-            SELECT 
+            SELECT
                 l.id,
                 l.title,
                 l.price_per_month,
@@ -238,11 +271,16 @@ export const fetchSavedListings = async (req,res) => {
                 l.city,
                 l.available_status,
                 l.thumbnail_url,
-                l.is_verified
+                l.is_verified,
+                l.is_a_wiyorent_house,
+                (w.id IS NOT NULL) AS is_on_waitlist
             FROM listings l
             JOIN saved_listings sl
                 ON l.id = sl.listing_id
                 AND sl.user_id = $1
+            LEFT JOIN waitlists w
+                ON l.id = w.listing_id
+                AND w.user_id = $1
         `, [userId])
 
         const listings = result.rows
@@ -251,6 +289,7 @@ export const fetchSavedListings = async (req,res) => {
             {
                 listing_id : listing.id,
                 title : listing.title,
+                is_a_wiyorent_house: listing.is_a_wiyorent_house,
                 financials : {
                     price_per_month : listing.price_per_month
                 },
@@ -263,6 +302,8 @@ export const fetchSavedListings = async (req,res) => {
                 city: listing.city,
                 available_status: listing.available_status,
                 thumbnail_url: listing.thumbnail_url,
+                is_saved: true,
+                is_on_waitlist: listing.is_on_waitlist,
             }
         )) 
 
@@ -276,5 +317,56 @@ export const fetchSavedListings = async (req,res) => {
         console.error(error, 'error on favourite listing page listings')
     }
 
+}
+
+export const fetchWaitlistedListings = async (req, res) => {
+    const rawUserId = req.headers['x-user-id']
+    const clientKey = req.headers['x-internal-api-key']
+
+    if (clientKey !== process.env.INTERNAL_BACKEND_KEY) {
+        return errorMsg(res, 403, 'Not authorized')
+    }
+
+    const userId = rawUserId && rawUserId !== 'null' ? rawUserId : null
+
+    try {
+        const result = await pool.query(`
+            SELECT
+                l.id, l.title, l.price_per_month,
+                l.bedroom_number, l.bathroom_number, l.max_roommates,
+                l.neighborhood, l.city, l.available_status,
+                l.thumbnail_url, l.is_verified,
+                l.is_a_wiyorent_house,
+                (sl.id IS NOT NULL) AS is_saved
+            FROM listings l
+            JOIN waitlists w ON l.id = w.listing_id AND w.user_id = $1
+            LEFT JOIN saved_listings sl ON l.id = sl.listing_id AND sl.user_id = $1
+            ORDER BY w.created_at DESC
+        `, [userId])
+
+        const listings = result.rows.map(l => ({
+            listing_id: l.id,
+            title: l.title,
+            is_a_wiyorent_house: l.is_a_wiyorent_house,
+            financials: { price_per_month: l.price_per_month },
+            specifications: {
+                bedroom_number: l.bedroom_number,
+                bathroom_number: l.bathroom_number,
+                max_roommates: l.max_roommates,
+            },
+            neighborhood: l.neighborhood,
+            city: l.city,
+            available_status: l.available_status,
+            thumbnail_url: l.thumbnail_url,
+            is_saved: l.is_saved,
+            is_on_waitlist: true,
+        }))
+
+        console.log(listings, '---waitlistedListings')
+        return successMsg(res, 200, '', listings)
+    } catch (error) {
+        console.error(error.message)
+        return errorMsg(res, 500, 'Internal DB Error')
+    }
 }
 

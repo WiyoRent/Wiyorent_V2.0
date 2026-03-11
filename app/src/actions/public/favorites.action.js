@@ -38,3 +38,8 @@ export async function toggleSaveHousemate(housemateId, isSaved){
     const url = getBaseURL() + 'api/v1/public/saveHousemate'
     return toggleSave(url, {housemateId,isSaved})
 }
+
+export async function toggleWaitlistListing(listingId, isOnWaitlist){
+    const url = getBaseURL() + 'api/v1/public/toggleWaitlist'
+    return await toggleSave(url, {listingId, isOnWaitlist})
+}

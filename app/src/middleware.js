@@ -36,7 +36,7 @@ export async function middleware (req){
 }
 
 export const config = {
-    match : ['/', '/housemates/:path*', '/profile', '/admin/:path*']
+    match : ['/housemates/:path*', '/profile', '/admin/:path*']
 }
 
 

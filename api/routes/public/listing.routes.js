@@ -1,5 +1,5 @@
 import express from 'express'
-import { fetchListings, fetchSavedListings, fetchSingleListing, saveListing } from '../../controllers/public/listing.controller.js'
+import { fetchListings, fetchSavedListings, fetchSingleListing, fetchWaitlistedListings, saveListing, toggleWaitlist } from '../../controllers/public/listing.controller.js'
 
 const listingRouter = express.Router()
 
@@ -14,5 +14,11 @@ listingRouter.post('/saveListing', saveListing)
 
 // Matches: /api/v1/public/fetchSavedListings
 listingRouter.get('/fetchSavedListings', fetchSavedListings)
+
+// Matches: /api/v1/public/toggleWaitlist
+listingRouter.post('/toggleWaitlist', toggleWaitlist)
+
+// Matches: /api/v1/public/fetchWaitlistedListings
+listingRouter.get('/fetchWaitlistedListings', fetchWaitlistedListings)
 
 export default listingRouter

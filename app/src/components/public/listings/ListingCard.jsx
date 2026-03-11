@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { toggleSaveListing } from '@/actions/public/favorites.action';
+import { toggleSaveListing, toggleWaitlistListing } from '@/actions/public/favorites.action';
 import { useEffect } from 'react';
 
 import {
@@ -19,6 +19,7 @@ import {
   Home,
   Building2,
   Info,
+  ClipboardList,
 } from 'lucide-react';
 
 import Link from 'next/link';
@@ -71,6 +72,7 @@ function StatusBadge({ available_status }) {
 export default function ListingCard({ listing }) {
   console.log(listing.is_saved, '----is_SAVED')
   const [is_liked, set_is_liked] = useState(listing.is_saved || false);
+  const [on_waitlist, set_on_waitlist] = useState(listing.is_on_waitlist || false);
   const is_available = listing.available_status === 'available';
 
   const price = listing.financials?.price_per_month || 0;
@@ -87,6 +89,20 @@ export default function ListingCard({ listing }) {
   useEffect(() => {
     toggleSaveListing(listing.listing_id, is_liked)
   }, [is_liked])
+
+  const handleWaitlist = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (!session?.data) {
+      router.push('/login')
+      return
+    }
+
+    const next = !on_waitlist
+    set_on_waitlist(next)
+    toggleWaitlistListing(listing.listing_id, next)
+  }
 
   const handleLike = (e) => {
     e.preventDefault()
@@ -197,19 +213,32 @@ export default function ListingCard({ listing }) {
               </div>
             )}
 
-            <div className="mt-auto pt-1">
+            <div className="mt-auto pt-1 flex items-center gap-2">
               {is_available ? (
-                <button className="w-full btn btn-accent rounded-field font-primary font-bold text-sm uppercase tracking-wide transition-all duration-200 active:scale-95">
+                <button className="flex-1 btn btn-accent rounded-field font-primary font-bold text-sm uppercase tracking-wide transition-all duration-200 active:scale-95">
                   Book Now
                 </button>
               ) : (
                 <button
                   disabled
-                  className="w-full btn btn-disabled rounded-field font-primary font-bold text-sm uppercase tracking-wide cursor-not-allowed opacity-60"
+                  className="flex-1 btn btn-disabled rounded-field font-primary font-bold text-sm uppercase tracking-wide cursor-not-allowed opacity-60"
                 >
                   Booked
                 </button>
               )}
+
+              <button
+                onClick={handleWaitlist}
+                className={`tooltip tooltip-top btn btn-square rounded-field border-2 transition-all duration-200 active:scale-95 ${
+                  on_waitlist
+                    ? 'bg-accent border-accent text-accent-content shadow-md scale-105'
+                    : 'bg-base-100 border-base-300 text-base-content/40 hover:border-accent hover:text-accent-content hover:bg-accent/10'
+                }`}
+                data-tip={on_waitlist ? 'Leave waitlist' : 'Join waitlist'}
+                aria-label="Join waitlist"
+              >
+                <ClipboardList size={16} />
+              </button>
             </div>
           </div>
         </div>
