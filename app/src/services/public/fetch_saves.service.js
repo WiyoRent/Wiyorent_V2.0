@@ -8,8 +8,6 @@ export const getSaved = async (endpoint) => {
     try {
         const session = await auth()
         const userId = session?.user?.id || null
-
-        if(!session) throw new Error('Unauthorized')
         
         const response = await fetch(endpoint, {
             headers : {

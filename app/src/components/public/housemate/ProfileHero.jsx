@@ -119,7 +119,7 @@ export default function ProfileHero({
             <span>
               <ReactCountryFlag countryCode={nationality} svg />
             </span>
-            <span>{countryList()?.getLabel(nationality)}</span>
+            {nationality && <span>{countryList()?.getLabel(nationality)}</span> }
           </div>
 
           {/* University */}

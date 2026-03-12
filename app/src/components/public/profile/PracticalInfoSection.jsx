@@ -183,8 +183,8 @@ export default function PracticalInfoSection({
                 Preferred Contact Method
               </span>
             </label>
-            <select 
-              className="select select-bordered rounded-field font-secondary text-sm"
+            <select
+              className="select select-bordered rounded-field font-secondary text-sm w-full"
               value={preferred_method}
               onChange={(e) => set_preferred_method(e.target.value)}
             >

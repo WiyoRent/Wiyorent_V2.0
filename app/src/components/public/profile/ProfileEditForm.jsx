@@ -16,7 +16,8 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods 
 
   // ───────────────────────── Basic Profile ─────────────────────────
   const [is_profile_public, set_is_profile_public] = useState(initial_data.is_profile_public);
-  const [full_name, set_full_name] = useState(initial_data.full_name);
+  const [first_name, set_first_name] = useState(() => initial_data.full_name?.split(' ')[0] || '');
+  const [last_name, set_last_name] = useState(() => initial_data.full_name?.split(' ').slice(1).join(' ') || '');
   const [age, set_age] = useState(initial_data.age);
   const [gender, set_gender] = useState(initial_data.gender);
   const [phone_number, set_phone_number] = useState(initial_data.contact_info.phone_number);
@@ -85,7 +86,7 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods 
     const formData = new FormData();
 
     // 1. Basic Information
-    formData.append('full_name', full_name);
+    formData.append('full_name', `${first_name} ${last_name}`.trim());
     formData.append('nationality', nationality);
     formData.append('university_name', university_name);
     formData.append('avatar', typeof avatar_url === 'string' ? avatar_url : avatar_url?.file);
@@ -187,10 +188,12 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods 
     >
       {/* Basic Profile (includes Urgency) */}
       <BasicProfileSection
-        full_name={full_name}
+        first_name={first_name}
+        set_first_name={set_first_name}
+        last_name={last_name}
+        set_last_name={set_last_name}
         avatar_url={avatar_url}
         set_avatar_url={set_avatar_url}
-        set_full_name={set_full_name}
         age={age}
         set_age={set_age}
         gender={gender}

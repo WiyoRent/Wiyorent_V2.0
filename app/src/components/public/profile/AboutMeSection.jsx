@@ -32,7 +32,6 @@ export default function AboutMeSection({ about_me, set_about_me }) {
             {remaining || 0} / {MAX_CHARS}
           </span>
         </label>
-        <br />
         <textarea
           value={about_me || ""}
           onChange={(e) => set_about_me(e.target.value)}
@@ -44,11 +43,9 @@ export default function AboutMeSection({ about_me, set_about_me }) {
           }`}
           required
         />
-        <label className="label">
-          <span className="label-text-alt font-secondary text-xs text-base-content/40">
-            Share your hobbies, study habits, what you're looking for in a housemate, and what makes you a great flatmate
-          </span>
-        </label>
+        <p className="font-secondary text-xs text-base-content/40 mt-2 break-words leading-relaxed">
+          Share your hobbies, study habits, what you're looking for in a housemate, and what makes you a great flatmate
+        </p>
       </div>
     </div>
   );

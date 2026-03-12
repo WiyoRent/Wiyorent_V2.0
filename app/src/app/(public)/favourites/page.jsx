@@ -1,7 +1,8 @@
 import FavouritesTabView from '@/components/public/favourites/FavouritesTabView';
-import { Heart } from 'lucide-react';
+import { Heart, LogIn } from 'lucide-react';
 import { getSavedHousemates, getSavedListings } from '@/services/public/fetch_saves.service';
 import { auth } from '@/auth';
+import Link from 'next/link';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Mock saved profiles — replace body with: await getSavedProfiles() || []
@@ -57,18 +58,15 @@ export const metadata = {
 export default async function FavouritesPage() {
 
 
-  const [session, favourited_listings, profiles] = await Promise.all([
-    auth(),
-    getSavedListings(),
-    getSavedHousemates(),
-  ]);
+  const session = await auth()
+
+  const [favourited_listings, profiles] = session
+    ? await Promise.all([getSavedListings(), getSavedHousemates()])
+    : [[], []]
 
   const listings = favourited_listings || [];
-
   const verification_status = session?.user?.verification_status;
-  const total_saved = listings.length + profiles?.length || 0;
-
-  
+  const total_saved = listings.length + (profiles?.length || 0);
 
   return (
     <div className="min-h-screen bg-base-200">
@@ -83,9 +81,11 @@ export default async function FavouritesPage() {
               <h1 className="font-primary text-3xl sm:text-4xl font-extrabold text-base-content uppercase tracking-tight">
                 My Favourites
               </h1>
-              <p className="font-secondary text-base-content/50 mt-1 text-sm">
-                {total_saved} {total_saved === 1 ? 'item' : 'items'} saved
-              </p>
+              {session && (
+                <p className="font-secondary text-base-content/50 mt-1 text-sm">
+                  {total_saved} {total_saved === 1 ? 'item' : 'items'} saved
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -93,11 +93,33 @@ export default async function FavouritesPage() {
 
       {/* Body */}
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <FavouritesTabView
-          listings={listings}
-          profiles={profiles}
-          verification_status={verification_status}
-        />
+        {!session ? (
+          // ── Login prompt ─────────────────────────────────────────────
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <div className="w-20 h-20 bg-base-300 rounded-full flex items-center justify-center mb-5">
+              <Heart size={32} className="text-base-content/20" />
+            </div>
+            <h3 className="font-primary text-2xl font-bold text-base-content uppercase tracking-tight">
+              Sign in to view your favourites
+            </h3>
+            <p className="font-secondary text-base-content/45 mt-2 text-sm max-w-md leading-relaxed">
+              Save listings and housemate profiles you love so you can easily find them later.
+            </p>
+            <Link
+              href="/login"
+              className="btn btn-accent rounded-field font-primary font-bold text-sm uppercase tracking-wide mt-6 gap-2"
+            >
+              <LogIn size={16} />
+              Log In
+            </Link>
+          </div>
+        ) : (
+          <FavouritesTabView
+            listings={listings}
+            profiles={profiles}
+            verification_status={verification_status}
+          />
+        )}
       </div>
     </div>
   );
