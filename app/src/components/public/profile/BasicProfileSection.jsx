@@ -7,6 +7,23 @@ import Select from 'react-select'
 import countryList from 'react-select-country-list'
 import { useMemo } from 'react';
 
+const UNIVERSITIES = [
+  { value: 'University of Rwanda (UR)',                              label: 'University of Rwanda (UR)' },
+  { value: 'African Leadership University (ALU)',                    label: 'African Leadership University (ALU)' },
+  { value: 'Carnegie Mellon University Africa (CMU-Africa)',         label: 'Carnegie Mellon University Africa (CMU-Africa)' },
+  { value: 'INES Ruhengeri',                                        label: 'INES Ruhengeri' },
+  { value: 'KIM University',                                        label: 'KIM University' },
+  { value: 'Adventist University of Central Africa (AUCA)',          label: 'Adventist University of Central Africa (AUCA)' },
+  { value: 'Institut Catholique de Kabgayi (ICK)',                  label: 'Institut Catholique de Kabgayi (ICK)' },
+  { value: 'Kepler College',                                        label: 'Kepler College' },
+  { value: 'Rwanda Polytechnic',                                    label: 'Rwanda Polytechnic' },
+  { value: 'Protestant Institute of Arts and Social Sciences (PIASS)', label: 'Protestant Institute of Arts and Social Sciences (PIASS)' },
+  { value: 'University of Kigali (UoK)',                            label: 'University of Kigali (UoK)' },
+  { value: 'Athena University',                                     label: 'Athena University' },
+  { value: 'International University of East Africa (IUEA) - Kigali Campus', label: 'International University of East Africa (IUEA) - Kigali Campus' },
+  { value: 'Jomo Kenyatta University - Kigali Campus',              label: 'Jomo Kenyatta University - Kigali Campus' },
+];
+
 const URGENCY_OPTIONS = [
   {
     value: 'not_urgent',
@@ -315,13 +332,18 @@ export default function BasicProfileSection({
           <label className="text-[11px] font-secondary font-semibold uppercase tracking-wide text-base-content/50">
             University
           </label>
-          <input
-            type="text"
-            value={university_name || ""}
-            onChange={(e) => set_university_name(e.target.value)}
-            placeholder="University of Rwanda"
-            className="input input-bordered rounded-field font-secondary text-sm w-full"
+          <Select
+            className="w-full"
             required
+            options={UNIVERSITIES}
+            value={
+              university_name
+                ? (UNIVERSITIES.find(u => u.value === university_name) || { value: university_name, label: university_name })
+                : null
+            }
+            onChange={(selected) => set_university_name(selected ? selected.value : '')}
+            placeholder="Search university..."
+            isClearable
           />
         </div>
 
