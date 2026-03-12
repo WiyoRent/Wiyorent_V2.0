@@ -107,14 +107,17 @@ export const metadata = {
   description: 'Browse verified student housemate profiles across Kigali.',
 };
 
-export default async function  HousematesPage() {
+export default async function  HousematesPage({searchParams}) {
+
+  const params = await searchParams
+  const query = new URLSearchParams(params).toString()
 
   const session = await auth()
   const user = session?.user
   const is_onboarded = user?.is_onboarded
   const verification_status = user?.verification_status
 
-  const housemate_profiles = await fetchHousemates()
+  const housemate_profiles = await fetchHousemates(query)
 
   console.log(housemate_profiles, 'housemate profile fetched frontend')
 

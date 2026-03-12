@@ -3,13 +3,13 @@ import { getBaseURL } from "@/lib/getBaseURL"
 
 
 
-export const fetchHousemates = async () => { 
+export const fetchHousemates = async (query) => { 
 
     const session = await auth()
     const userId = session?.user?.id || null
 
     try {
-        const url = getBaseURL() + 'api/v1/public/fetchHousemates'
+        const url = getBaseURL() + `api/v1/public/fetchHousemates${query ? `?${query}` : ''}`
 
         const response = await fetch(url, {
             headers : {

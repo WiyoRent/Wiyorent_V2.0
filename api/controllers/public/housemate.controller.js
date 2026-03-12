@@ -5,8 +5,6 @@ import { verifyHeaders } from "../../utils/verifyHeaders.js";
 
 export const fetchHousemates = async  (req,res) => {
 
-    console.log('called fetched housemate')
-
     //  {
     //     profile_id: 'hm_7721',
     //     full_name: 'Keza A.',
@@ -32,9 +30,14 @@ export const fetchHousemates = async  (req,res) => {
         return errorMsg(res,401, 'Unauthentificated access. Login required')
     }
 
+    const {allow_pets, max,min, cleanliness, gender, has_a_house, smoker, max_housemates, move_in_date, preferred_locations, sleep_schedule,social_habit,university} = req.query
+
+
+    console.log(req.query, '---fetchhousemare query')
+
     try {
-        
-        const result = await pool.query(`
+
+        let query = `
             SELECT 
                 u.id as profile_id,
                 u.full_name,
@@ -52,16 +55,90 @@ export const fetchHousemates = async  (req,res) => {
             LEFT JOIN saved_housemates sh
                 ON u.id = sh.housemate_id
                 AND sh.user_id = $1
-            WHERE u.id != $1 AND u.is_profile_public = true
-        `, [userId])
+            WHERE u.id != $1 
+                AND u.is_profile_public = true 
+                AND u.is_onboarded = true
+                AND u.is_blocked = false
+                AND u.verification_status != 'rejected'
+        `
 
-        console.log(result, 'result from fetch')
+        const values = [userId]
+        let paramIndex = 2
+        
+        if(allow_pets){
+            allow_pets === 'true' ? query += ` AND allows_pets = true` : query += ` AND allows_pets = false `
+        }
+
+        if(max){
+            query += ` AND max <= $${paramIndex++}`
+            values.push(max)
+        }
+
+        if(min){
+            query += ` AND min >= $${paramIndex++}`
+            values.push(min)
+        }
+
+        if(cleanliness){
+            query += ` AND cleanliness =$${paramIndex++}`
+            values.push(cleanliness)
+        }
+
+        if(gender){
+            query += ` AND gender =$${paramIndex++}`
+            values.push(gender)
+        }
+
+        if(has_a_house){
+            has_a_house === 'true' ? query += ` AND has_house = true` : query += ` AND has_a_house = false `
+        }
+
+        if(smoker){
+            smoker === 'true' ? query += ` AND is_smoker = true` : query += ` AND is_smoker = false `
+        }
+
+        if(max_housemates){
+            if(max_housemates === '4+') {
+                query += ` AND max_housemates >= 4`
+            } else {
+                query += ` AND max_housemates = $${paramIndex++}`
+                values.push(max_housemates) 
+            }
+        }
+
+        if(move_in_date){
+            query += ` AND move_in_date::date >= $${paramIndex++}`
+            values.push(move_in_date)
+        }
+
+        if(preferred_locations){
+            const location_list = preferred_locations.split(',')
+
+            query += ` AND preferred_locations && $${paramIndex++}::text[]`
+            values.push(location_list)
+        }
+
+        if(sleep_schedule){
+            query += ` AND sleep_schedule = $${paramIndex++}`
+            values.push(sleep_schedule)
+        }
+
+        if(social_habit){
+            query += ` AND social_habits = $${paramIndex++}`
+            values.push(social_habit)
+        }
+
+        if(university){
+            query += ` AND university_name = $${paramIndex++}`
+            values.push(university)
+        }
+
+        const result = await pool.query(query, values)
 
         if(result.rowCount === 0){
             return successMsg(res , 200, 'No housemates found', [])
         }
 
-        console.log('Called')
 
         const users = result.rows
 
