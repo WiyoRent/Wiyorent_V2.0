@@ -169,9 +169,6 @@ export default function UsersTable({ users }) {
   };
 
   const handle_delete = async (user_id) => {
-
-    
-
     const loadingToast = toast.loading('Deleting User...', {autoClose : false})
     try {
       await deleteUser(user_id)
@@ -181,7 +178,7 @@ export default function UsersTable({ users }) {
         {
           type : 'success',
           autoClose: 4000,
-          render : "User deleted successfully. Reloading the page..",
+          render : "User deleted successfully.",
           isLoading : false
         }
       )
@@ -199,10 +196,10 @@ export default function UsersTable({ users }) {
         }
       )
     }
-    
+
   };
 
-  if (!users || users.length === 0) {
+  if (!Array.isArray(users) || users.length === 0) {
     return (
       <div className="bg-base-100 rounded-box shadow-sm p-12 text-center">
         <p className="font-secondary text-base-content/40">No users found. Try adjusting your filters.</p>

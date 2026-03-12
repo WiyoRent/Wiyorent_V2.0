@@ -285,10 +285,12 @@ export const editListing = async (req, res) => {
     }
 }
 
-export const fetchAllListings = async (req,res) => {
+export const fetchAllListings = async (req, res) => {
+    try {
+        const { is_active, neighborhood, is_furnished, min_price, max_price, sort } = req.query
 
-    const data = await pool.query(`
-            SELECT 
+        let query = `
+            SELECT
                 id,
                 title,
                 thumbnail_url,
@@ -299,41 +301,70 @@ export const fetchAllListings = async (req,res) => {
                 phone_number,
                 neighborhood,
                 city,
-                country
+                country,
+                price_per_month,
+                is_furnished,
+                created_at,
+                (SELECT COUNT(*) FROM saved_listings WHERE listing_id = listings.id) AS number_of_saves
             FROM listings
-            
-        `)
+            WHERE 1=1
+        `
+        const values = []
+        let i = 1
 
-    let listings =  data.rows
+        if (is_active !== undefined && is_active !== '') {
+            query += ` AND is_active = $${i++}`
+            values.push(is_active === 'true')
+        }
+        if (neighborhood) {
+            query += ` AND neighborhood = $${i++}`
+            values.push(neighborhood)
+        }
+        if (is_furnished !== undefined && is_furnished !== '') {
+            query += ` AND is_furnished = $${i++}`
+            values.push(is_furnished === 'true')
+        }
+        if (min_price) {
+            query += ` AND price_per_month >= $${i++}`
+            values.push(Number(min_price))
+        }
+        if (max_price) {
+            query += ` AND price_per_month <= $${i++}`
+            values.push(Number(max_price))
+        }
 
-    listings = listings.map(listing => (
-        {
-            listing_id : listing.id,
-            title : listing.title,
-            thumbnail_url: listing.thumbnail_url, 
+        query += sort === 'oldest' ? ` ORDER BY created_at ASC` : ` ORDER BY created_at DESC`
+
+        const data = await pool.query(query, values)
+
+        const listings = data.rows.map(listing => ({
+            listing_id: listing.id,
+            title: listing.title,
+            thumbnail_url: listing.thumbnail_url,
             is_active: listing.is_active,
             is_verified: listing.is_verified,
             available_status: listing.available_status,
             analytics: {
-                number_of_saves: listing.number_of_saves || 0,
-                number_of_views: listing.number_of_views || 0
+                number_of_saves: parseInt(listing.number_of_saves) || 0,
+                number_of_views: 0,
             },
             landlord: {
                 full_name: listing.full_name,
-                phone_number: listing.phone_number
+                phone_number: listing.phone_number,
             },
             location: {
                 neighborhood: listing.neighborhood,
                 city: listing.city,
-                country: listing.country
-            }
-        }
-     ))
+                country: listing.country,
+            },
+        }))
 
-     console.log(listings)
+        return successMsg(res, 200, '', { listings })
 
-    return successMsg(res, 200, 'Data Fetched Successfull', listings)
-
+    } catch (error) {
+        console.error(error, '---fetchAllListings error')
+        return errorMsg(res, 500, 'Could not fetch listings')
+    }
 }
 
 export const deleteListing = async (req,res) => {

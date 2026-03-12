@@ -4,27 +4,12 @@ import formatDate from "../../utils/formatDate.js"
 import {v2 as cloudinary} from 'cloudinary'
 import { sendApprovalEmail, sendRejectionEmail, sendBlockedEmail, sendUnblockedEmail } from "../../utils/mail.js"
 
-export const fetchUsers = async  (req,res) => {
-
+export const fetchUsers = async (req, res) => {
     try {
+        const { verification_status, is_blocked, gender, university_name, has_house, is_onboarded, sort } = req.query
 
-        // {
-        //     user_id: 'usr_5503',
-        //     full_name: 'Aline Uwera',
-        //     email: 'aline.u@student.ac.rw',
-        //     avatar_url: null,
-        //     role: 'Student',
-        //     account_status: 'Active',
-        //     verification_status: 'approved',
-        //     is_blocked: false,
-        //     is_blocked_reason: null,
-        //     admin_note: null,
-        //     has_performed_an_update: true,   // updated profile after approval
-        //     registration_date: '2023-09-15',
-        //   },
-        
-        const result = await pool.query(`
-            SELECT 
+        let query = `
+            SELECT
                 u.id,
                 u.full_name,
                 u.email,
@@ -35,19 +20,41 @@ export const fetchUsers = async  (req,res) => {
                 u.has_performed_an_update,
                 u.created_at
             FROM users u
-            ORDER BY has_performed_an_update DESC, u.updated_at DESC
-        `)
+            WHERE 1=1
+        `
+        const values = []
+        let i = 1
 
-
-        if(result.rowCount === 0){
-            return successMsg(res , 200, 'No users found', [])
+        if (verification_status) {
+            query += ` AND u.verification_status = $${i++}`
+            values.push(verification_status)
+        }
+        if (is_blocked !== undefined && is_blocked !== '') {
+            query += ` AND u.is_blocked = $${i++}`
+            values.push(is_blocked === 'true')
+        }
+        if (gender) {
+            query += ` AND u.gender = $${i++}`
+            values.push(gender)
+        }
+        if (university_name) {
+            query += ` AND u.university_name ILIKE $${i++}`
+            values.push(`%${university_name}%`)
+        }
+        if (has_house !== undefined && has_house !== '') {
+            query += ` AND u.has_house = $${i++}`
+            values.push(has_house === 'true')
+        }
+        if (is_onboarded !== undefined && is_onboarded !== '') {
+            query += ` AND u.is_onboarded = $${i++}`
+            values.push(is_onboarded === 'true')
         }
 
-        const users = result.rows
+        query += sort === 'oldest' ? ` ORDER BY u.created_at ASC` : ` ORDER BY u.created_at DESC`
 
-        
+        const result = await pool.query(query, values)
 
-        const allUsers = users.map(user => ({
+        const users = result.rows.map(user => ({
             user_id: user.id,
             full_name: user.full_name,
             email: user.email,
@@ -55,17 +62,15 @@ export const fetchUsers = async  (req,res) => {
             account_status: 'Active',
             verification_status: user.verification_status || 'pending',
             is_blocked: user.is_blocked,
-            has_performed_an_update: user.has_performed_an_update,   // updated profile after approval
+            has_performed_an_update: user.has_performed_an_update,
             registration_date: formatDate(user.created_at),
         }))
 
-        console.log(users, '-----users')
-
-        return successMsg(res,200,'',allUsers)
+        return successMsg(res, 200, '', { users })
 
     } catch (error) {
         console.error(error, 'error on fetch users')
-        return errorMsg(res,500, 'A server error occured, Could not fetch users')
+        return errorMsg(res, 500, 'A server error occurred, Could not fetch users')
     }
 }
 

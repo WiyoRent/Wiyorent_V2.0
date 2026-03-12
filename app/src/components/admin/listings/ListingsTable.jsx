@@ -28,7 +28,7 @@ function StatusBadge({ status }) {
   );
 }
 
-function ListingRow({ listing, on_toggle_active, optimistic_delete }) {
+function ListingRow({ listing, on_toggle_active }) {
 
   const router = useRouter()
 
@@ -41,9 +41,7 @@ function ListingRow({ listing, on_toggle_active, optimistic_delete }) {
   };
 
   const handle_delete = async () => {
-
-    optimistic_delete(listing.listing_id)
-
+    const loadingToast = toast.loading('Deleting listing...');
     try {
       const url = getBaseURL() + `api/v1/admin/deleteListing/${listing.listing_id}`
       const response = await fetch(url, {
@@ -56,23 +54,22 @@ function ListingRow({ listing, on_toggle_active, optimistic_delete }) {
         throw new Error( result.message || 'An error occured while deleting')
       }
 
-      if(!result.success){
-        toast.update(
-          loadingToast,
-          {
-            render : result.message,
-            type: 'error',
-            autoClose: 3000,
-            isLoading: false
-          }
-        )
-        return 
-      }
+      toast.update(loadingToast, {
+        render: 'Listing deleted successfully',
+        type: 'success',
+        autoClose: 3000,
+        isLoading: false,
+      });
+
+      router.refresh();
 
     } catch (error) {
-      toast.error(
-        error.message
-      )
+      toast.update(loadingToast, {
+        render: error.message,
+        type: 'error',
+        autoClose: 3000,
+        isLoading: false,
+      });
     }
   };
 
@@ -197,21 +194,14 @@ function ListingRow({ listing, on_toggle_active, optimistic_delete }) {
   );
 }
 
-export default function ListingsTable({ optimistic_delete, listings }) {
-
-  const [isDeleting, setIsDeleting] = useState(false)
+export default function ListingsTable({ listings }) {
 
   const handle_toggle_active = (listing_id, new_state) => {
     console.log(`Toggle listing ${listing_id} to ${new_state}`);
     // PUT /api/admin/listings/${listing_id} { is_active: new_state }
   };
 
-  const handle_delete = (listing_id) => {
-    console.log(`Delete listing ${listing_id}`);
-    // DELETE /api/admin/listings/${listing_id}
-  };
-
-  if (!listings || listings.length === 0) {
+  if (!Array.isArray(listings) || listings.length === 0) {
     return (
       <div className="bg-base-100 rounded-box shadow-sm p-12 text-center">
         <p className="font-secondary text-base-content/40">
@@ -241,8 +231,6 @@ export default function ListingsTable({ optimistic_delete, listings }) {
               key={listing.listing_id}
               listing={listing}
               on_toggle_active={handle_toggle_active}
-              on_delete={handle_delete}
-              optimistic_delete = {optimistic_delete}
             />
           ))}
         </tbody>
