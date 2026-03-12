@@ -30,7 +30,7 @@ export const fetchHousemates = async  (req,res) => {
         return errorMsg(res,401, 'Unauthentificated access. Login required')
     }
 
-    const {allow_pets, max,min, cleanliness, gender, has_a_house, smoker, max_housemates, move_in_date, preferred_locations, sleep_schedule,social_habit,university} = req.query
+    const {allow_pets, max,min, cleanliness, gender, has_a_house, smoker, max_housemates, move_in_date, preferred_locations, sleep_schedule,social_habit,university, dont_mind_pets, dont_mind_smoker, has_pet, private_room} = req.query
 
 
     console.log(req.query, '---fetchhousemare query')
@@ -66,7 +66,7 @@ export const fetchHousemates = async  (req,res) => {
         let paramIndex = 2
         
         if(allow_pets){
-            allow_pets === 'true' ? query += ` AND allows_pets = true` : query += ` AND allows_pets = false `
+            allow_pets === 'true' ? query += ` AND has_pet = true` : query += ` AND has_pet = false `
         }
 
         if(max){
@@ -131,6 +131,22 @@ export const fetchHousemates = async  (req,res) => {
         if(university){
             query += ` AND university_name = $${paramIndex++}`
             values.push(university)
+        }
+
+        if(dont_mind_pets){
+            dont_mind_pets === 'true' ? query += ` AND dont_mind_pets = true` : query += ` AND dont_mind_pets = false`
+        }
+
+        if(dont_mind_smoker){
+            dont_mind_smoker === 'true' ? query += ` AND dont_mind_smoker = true` : query += ` AND dont_mind_smoker = false`
+        }
+
+        if(has_pet){
+            has_pet === 'true' ? query += ` AND has_pet = true` : query += ` AND has_pet = false`
+        }
+
+        if(private_room){
+            private_room === 'either' ? null : private_room === 'true' ? query += ` AND is_private_room_required = true` : query += ` AND is_private_room_required = false`
         }
 
         const result = await pool.query(query, values)

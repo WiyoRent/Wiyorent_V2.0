@@ -73,10 +73,12 @@ export const updateProfile = async (req, res) => {
             min,
             max,
             max_housemates,
-            is_furnished_preferred,
-            is_private_room_required,
-            allows_pets,
             is_smoker,
+            dont_mind_smoker,
+            has_pet,
+            dont_mind_pets,
+            private_room,
+            furnished,
             is_profile_public,
             sleep_schedule,
             cleanliness,
@@ -87,6 +89,13 @@ export const updateProfile = async (req, res) => {
             urgency,
             has_house
         } = req.body
+
+        // Helper: FormData sends null as the string 'null' — convert back to real null
+        const parseBoolOrNull = (val) => {
+            if (val === 'true') return true
+            if (val === 'false') return false
+            return null
+        }
 
         if (
             !full_name ||
@@ -134,50 +143,54 @@ export const updateProfile = async (req, res) => {
                 min = $10,
                 max = $11,
                 max_housemates = $12,
-                is_furnished_preferred = $13,
-                is_private_room_required = $14,
-                allows_pets = $15,
-                is_smoker = $16,
-                is_profile_public = $17,
-                sleep_schedule = $18,
-                cleanliness = $19,
-                social_habits = $20,
-                preferred_locations = $21,
-                about_me = $22,
-                lease_duration = $23,
-                urgency = $24,
-                has_house = $25,
+                is_smoker = $13,
+                dont_mind_smoker = $14,
+                has_pet = $15,
+                dont_mind_pets = $16,
+                is_private_room_required = $17,
+                is_furnished_preferred = $18,
+                is_profile_public = $19,
+                sleep_schedule = $20,
+                cleanliness = $21,
+                social_habits = $22,
+                preferred_locations = $23,
+                about_me = $24,
+                lease_duration = $25,
+                urgency = $26,
+                has_house = $27,
                 updated_at = NOW()
-            WHERE id = $26
+            WHERE id = $28
             RETURNING *
         `
 
         const values = [
-            full_name, 
-            nationality, 
-            university_name, 
-            age, 
+            full_name,
+            nationality,
+            university_name,
+            age,
             gender,
-            program, 
-            year_of_study, 
-            phone_number, 
+            program,
+            year_of_study,
+            phone_number,
             move_in_date,
-            min, 
-            max, 
-            max_housemates, 
-            is_furnished_preferred === "true",
-            is_private_room_required === "true", 
-            allows_pets === "true", 
-            is_smoker === "true",
+            min,
+            max,
+            max_housemates,
+            parseBoolOrNull(is_smoker),
+            parseBoolOrNull(dont_mind_smoker),
+            parseBoolOrNull(has_pet),
+            parseBoolOrNull(dont_mind_pets),
+            parseBoolOrNull(private_room),
+            parseBoolOrNull(furnished),
             is_profile_public === 'true',
-            sleep_schedule, 
-            cleanliness, 
-            social_habits, 
+            sleep_schedule,
+            cleanliness,
+            social_habits,
             preferred_locations,
-            about_me, 
-            lease_duration, 
-            urgency, 
-            has_house, 
+            about_me,
+            lease_duration,
+            urgency,
+            has_house,
             userId
         ]
 

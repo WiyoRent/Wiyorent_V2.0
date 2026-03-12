@@ -131,13 +131,16 @@ export const fetchSingleUser = async (req,res) => {
             },
 
             housing_preferences: {
-                move_in_date:           formatDate(user.move_in_date),
-                budget:                 { min: user.min, max: user.max },
-                max_housemates:         user.max_housemates,
-                preferred_locations:    user.preferred_locations,
-                is_furnished_preferred: user.is_furnished_preferred,
-                allows_pets:            user.allows_pets,
-                is_smoker:              user.is_smoker,
+                move_in_date:        formatDate(user.move_in_date),
+                budget:              { min: user.min, max: user.max },
+                max_housemates:      user.max_housemates,
+                preferred_locations: user.preferred_locations,
+                is_smoker:           user.is_smoker,
+                dont_mind_smoker:    user.dont_mind_smoker,
+                has_pet:             user.has_pet,
+                dont_mind_pets:      user.dont_mind_pets,
+                private_room:        user.is_private_room_required,
+                furnished:           user.is_furnished_preferred,
             },
 
             lifestyle_personality: {
