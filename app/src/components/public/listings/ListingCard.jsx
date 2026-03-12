@@ -149,7 +149,7 @@ export default function ListingCard({ listing }) {
           </div>
 
           <div
-            className={`tooltip tooltip-bottom relative z-50 w-full ${listing.is_a_wiyorent_house ? '' : 'invisible'}`}
+            className={`tooltip tooltip-bottom relative z-[1] w-full ${listing.is_a_wiyorent_house ? '' : 'invisible'}`}
             data-tip="Owned & managed by WiyoRent · No agency fee charged"
           >
             <div className="bg-accent/15 border-b border-accent/25 px-3 py-1.5 flex items-center justify-center gap-1.5 w-full">
