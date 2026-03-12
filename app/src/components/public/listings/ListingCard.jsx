@@ -148,20 +148,17 @@ export default function ListingCard({ listing }) {
             </button>
           </div>
 
-          {listing.is_a_wiyorent_house && (
-            <div
-              className="tooltip tooltip-bottom relative z-50 w-full"
-              data-tip="Owned & managed by WiyoRent · No agency fee charged"
-            >
-              <div className="bg-accent/15 border-b border-accent/25 px-3 py-1.5 flex items-center justify-center gap-1.5 w-full">
-                <Building2 size={12} className="text-accent" />
-                <span className="font-primary text-xs font-bold text-accent uppercase tracking-wide">
-                  WiyoRent House
-                </span>
-                <Info size={11} className="text-accent" />
-              </div>
+          <div
+            className={`tooltip tooltip-bottom relative z-50 w-full ${listing.is_a_wiyorent_house ? '' : 'invisible'}`}
+            data-tip="Owned & managed by WiyoRent · No agency fee charged"
+          >
+            <div className="bg-accent/15 border-b border-accent/25 px-3 py-1.5 flex items-center justify-center gap-1.5 w-full">
+              <span className="font-primary text-xs font-bold text-accent uppercase tracking-wide">
+                WiyoRent House
+              </span>
+              <Info size={11} className="text-accent" />
             </div>
-          )}
+          </div>
 
           <div className="p-4 flex flex-col flex-1 gap-3">
             <div className="flex items-baseline gap-1">

@@ -20,10 +20,11 @@ export default function FilterSidebar({ filter_options }) {
   const [price_max, set_price_max] = useState(price_range.max);
   const [selected_neighborhoods, set_selected_neighborhoods] = useState([]);
   const [selected_furnishing, set_selected_furnishing] = useState('furnished');
-  const [selected_availability, set_selected_availability] = useState('');
+  const [selected_availability, set_selected_availability] = useState(false);
   const [bedrooms, set_bedrooms] = useState(null); // null, 1, 2, 3, 4+
   const [max_roommates, set_max_roommates] = useState(null); // null, 1, 2, 3, 4+
   const [wiyorent_only, set_wiyorent_only] = useState(false);
+  const [available_from, set_available_from] = useState('');
   const [is_mobile_open, set_is_mobile_open] = useState(false);
 
   const parse_pill = (val) => val ? (val === '4+' ? '4+' : Number(val)) : null
@@ -32,7 +33,9 @@ export default function FilterSidebar({ filter_options }) {
     set_price_min(Number(searchParams.get('min')) || price_range.min)
     set_price_max(Number(searchParams.get('max')) || price_range.max)
     set_wiyorent_only(searchParams.get('wiyorent_only') === 'true')
-    set_selected_furnishing(searchParams.get('furnished_status') || '')
+    set_selected_availability(searchParams.get('available_only') === 'true')
+    set_available_from(searchParams.get('available_from') || '')
+    set_selected_furnishing(searchParams.get('furnished_status') || 'furnished')
     set_bedrooms(parse_pill(searchParams.get('bedrooms')))
     set_max_roommates(parse_pill(searchParams.get('max_roommates')))
     set_selected_neighborhoods(searchParams.getAll('neighborhood') || [])
@@ -43,20 +46,22 @@ export default function FilterSidebar({ filter_options }) {
     price_max !== price_range.max ||
     selected_neighborhoods.length > 0 ||
     selected_furnishing !== '' ||
-    selected_availability !== '' ||
+    selected_availability ||
     bedrooms !== null ||
     max_roommates !== null ||
-    wiyorent_only;
+    wiyorent_only ||
+    available_from !== '';
 
   const handle_reset = () => {
     set_price_min(price_range.min);
     set_price_max(price_range.max);
     set_selected_neighborhoods([]);
-    set_selected_furnishing('');
-    set_selected_availability('');
+    set_selected_furnishing('furnished');
+    set_selected_availability(false);
     set_bedrooms(null);
     set_max_roommates(null);
     set_wiyorent_only(false);
+    set_available_from('');
 
     router.replace(pathname, {scroll: false})
   };
@@ -67,12 +72,14 @@ export default function FilterSidebar({ filter_options }) {
       if (price_min !== price_range.min) param.set('min', price_min)
       if (price_max !== price_range.max) param.set('max', price_max)
       if (wiyorent_only) param.set('wiyorent_only', true)
+      if (selected_availability) param.set('available_only', true)
       if (bedrooms !== null) param.set('bedrooms', bedrooms)
       if (max_roommates !== null) param.set('max_roommates', max_roommates)
       if (selected_furnishing) param.set('furnished_status', selected_furnishing)
       if (selected_neighborhoods.length > 0) {
         selected_neighborhoods.forEach(n => param.append('neighborhood', n))
       }
+      if (available_from) param.set('available_from', available_from)
 
       console.log('Applying filters:', {
         price_min,
@@ -126,6 +133,19 @@ export default function FilterSidebar({ filter_options }) {
           type="checkbox"
           checked={wiyorent_only}
           onChange={(e) => set_wiyorent_only(e.target.checked)}
+          className="toggle toggle-accent toggle-sm"
+        />
+      </div>
+
+      {/* Available Only */}
+      <div className="flex items-center justify-between gap-3">
+        <span className="font-primary text-sm font-bold text-base-content uppercase tracking-wide">
+          Available Now
+        </span>
+        <input
+          type="checkbox"
+          checked={selected_availability}
+          onChange={(e) => set_selected_availability(e.target.checked)}
           className="toggle toggle-accent toggle-sm"
         />
       </div>
@@ -272,7 +292,27 @@ export default function FilterSidebar({ filter_options }) {
 
       <div className="border-t border-base-300" />
 
-      
+      {/* Available From */}
+      <div className="flex flex-col gap-3">
+        <label className="font-primary text-sm font-bold text-base-content uppercase tracking-wide">
+          Available From
+        </label>
+        <input
+          type="date"
+          value={available_from}
+          min={new Date().toISOString()?.split('T')[0]}
+          onChange={(e) => set_available_from(e.target.value)}
+          className="input input-bordered w-full rounded-field font-secondary text-sm bg-base-100 focus:border-accent"
+        />
+        {available_from && (
+          <button
+            onClick={() => set_available_from('')}
+            className="flex items-center gap-1 text-xs font-secondary text-base-content/40 hover:text-error transition-colors self-start"
+          >
+            <X size={11} /> Clear date
+          </button>
+        )}
+      </div>
 
       <button
         onClick={handle_apply}
@@ -316,7 +356,7 @@ export default function FilterSidebar({ filter_options }) {
         </div>
       )}
 
-      <div className="hidden lg:block sticky top-6">
+      <div className="hidden lg:block sticky top-6 max-h-[calc(100vh-3rem)] overflow-y-auto sidebar-scroll">
         <div className="bg-base-100 rounded-box shadow-md p-6 border-t-4 border-accent">
           {filter_content}
         </div>

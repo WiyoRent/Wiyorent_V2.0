@@ -12,7 +12,7 @@ export const fetchListings = async (req,res) => {
         return errorMsg(res, 403, 'Unauthorized')
     }
 
-    const {min, max, wiyorent_only, bedrooms, max_roommates, furnished_status, neighborhood} = req.query
+    const {min, max, wiyorent_only, available_only, bedrooms, max_roommates, furnished_status, neighborhood, available_from} = req.query
     const neighborhoodList = neighborhood ? neighborhood.split(',') : []
     
 
@@ -64,6 +64,10 @@ export const fetchListings = async (req,res) => {
             query += ` AND l.is_a_wiyorent_house = true`
         }
 
+        if (available_only === 'true') {
+            query += ` AND l.available_status = 'available'`
+        }
+
         if (bedrooms) {
             if (bedrooms === '4+') {
                 query += ` AND l.bedroom_number >= 4`
@@ -91,6 +95,11 @@ export const fetchListings = async (req,res) => {
         if(neighborhoodList.length !== 0){
             query += ` AND l.neighborhood = ANY($${paramIndex++})`
             values.push(neighborhoodList)
+        }
+
+        if (available_from) {
+            query += ` AND l.available_from >= $${paramIndex++}`
+            values.push(available_from)
         }
 
         query += `
