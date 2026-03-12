@@ -1,7 +1,51 @@
 'use client';
 
 import { useState, useRef, useLayoutEffect } from 'react';
-import { Home, Calendar, MapPin, Wallet } from 'lucide-react';
+import { Home, Calendar, MapPin, Wallet, Info } from 'lucide-react';
+
+// ── Pill chip group ────────────────────────────────────────────────────────────
+function PillChipGroup({ options, value, onChange }) {
+  return (
+    <div className="flex items-center gap-1.5 flex-shrink-0">
+      {options.map(({ label, val }) => (
+        <button
+          key={label}
+          type="button"
+          onClick={() => onChange(val)}
+          className={`px-3 py-1.5 rounded-field font-primary text-xs font-bold uppercase tracking-wide border transition-all duration-150 ${
+            value === val
+              ? 'bg-accent text-accent-content border-accent shadow-sm'
+              : 'bg-base-100 text-base-content/50 border-base-300 hover:border-accent/40'
+          }`}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// ── Tooltip icon (uses DaisyUI tooltip, same as existing tooltips in the app) ──
+function TooltipIcon({ text }) {
+  return (
+    <span className="tooltip tooltip-right" data-tip={text}>
+      <Info size={12} className="text-base-content/30 cursor-help" />
+    </span>
+  );
+}
+
+// ── Single preference row ──────────────────────────────────────────────────────
+function PrefRow({ label, tooltip, options, value, onChange, full_width = false }) {
+  return (
+    <div className={`flex flex-wrap items-center justify-between gap-3 bg-base-200 rounded-field px-4 py-3${full_width ? ' sm:col-span-2' : ''}`}>
+      <span className="flex items-center gap-1.5 font-secondary text-sm text-base-content">
+        {label}
+        {tooltip && <TooltipIcon text={tooltip} />}
+      </span>
+      <PillChipGroup options={options} value={value} onChange={onChange} />
+    </div>
+  );
+}
 
 const format_rwf = (n) => `RWF ${new Intl.NumberFormat('rw-RW').format(n)}`;
 
@@ -20,16 +64,21 @@ export default function HousingPreferencesEditSection({
   set_budget_min,
   budget_max,
   set_budget_max,
-  is_furnished_preferred,
-  set_is_furnished_preferred,
-  is_private_room_required,
-  set_is_private_room_required,
   max_housemates,
   set_max_housemates,
-  allows_pets,
-  set_allows_pets,
+  // ── New preference fields ──
   is_smoker,
   set_is_smoker,
+  dont_mind_smoker,
+  set_dont_mind_smoker,
+  has_pet,
+  set_has_pet,
+  dont_mind_pets,
+  set_dont_mind_pets,
+  private_room,
+  set_private_room,
+  furnished,
+  set_furnished,
 }) {
   const [pills_expanded, set_pills_expanded] = useState(false);
   const [show_toggle, set_show_toggle] = useState(false);
@@ -217,51 +266,53 @@ export default function HousingPreferencesEditSection({
 
         <div className="border-t border-base-200" />
 
-        {/* ── Toggles Grid ──────────────────────────────────────────── */}
+        {/* ── Preferences Grid ──────────────────────────────────────── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* Furnished */}
-          <div className="flex items-center justify-between bg-base-200 rounded-field px-4 py-3">
-            <span className="font-secondary text-sm text-base-content">Furnished</span>
-            <input
-              type="checkbox"
-              checked={is_furnished_preferred || ""}
-              onChange={(e) => set_is_furnished_preferred(e.target.checked)}
-              className="toggle toggle-accent"
-            />
-          </div>
 
-          {/* Private Room */}
-          <div className="flex items-center justify-between bg-base-200 rounded-field px-4 py-3">
-            <span className="font-secondary text-sm text-base-content">Private Room</span>
-            <input
-              type="checkbox"
-              checked={is_private_room_required || ""}
-              onChange={(e) => set_is_private_room_required(e.target.checked)}
-              className="toggle toggle-accent"
-            />
-          </div>
+          {/* Smoking */}
+          <PrefRow
+            label="Do you smoke?"
+            options={[{ label: 'Yes', val: true }, { label: 'No', val: false }]}
+            value={is_smoker}
+            onChange={set_is_smoker}
+          />
+          <PrefRow
+            label="Do you have a pet?"
+            options={[{ label: 'Yes', val: true }, { label: 'No', val: false }]}
+            value={has_pet}
+            onChange={set_has_pet}
+          />
+          <PrefRow
+            label="Do you mind living with a smoker?"
+            options={[{ label: 'Yes', val: true }, { label: 'No', val: false }, { label: "Don't Mind", val: null }]}
+            value={dont_mind_smoker}
+            onChange={set_dont_mind_smoker}
+            full_width
+          />
+          <PrefRow
+            label="Do you mind living with a pet owner?"
+            options={[{ label: 'Yes', val: true }, { label: 'No', val: false }, { label: "Don't Mind", val: null }]}
+            value={dont_mind_pets}
+            onChange={set_dont_mind_pets}
+            full_width
+          />
 
-          {/* Allows Pets */}
-          <div className="flex items-center justify-between bg-base-200 rounded-field px-4 py-3">
-            <span className="font-secondary text-sm text-base-content">Allows Pets</span>
-            <input
-              type="checkbox"
-              checked={allows_pets || ""}
-              onChange={(e) => set_allows_pets(e.target.checked)}
-              className="toggle toggle-accent"
-            />
-          </div>
+          {/* Room + Furnished */}
+          <PrefRow
+            label="Private Room"
+            tooltip="Indicates whether you're looking for your own private room or are open to sharing a room with another person."
+            options={[{ label: 'Yes', val: true }, { label: 'No', val: false }, { label: 'Either', val: null }]}
+            value={private_room}
+            onChange={set_private_room}
+          />
+          <PrefRow
+            label="Furnished"
+            tooltip="Indicates whether you prefer your living space to come with furniture included."
+            options={[{ label: 'Yes', val: true }, { label: 'No', val: false }, { label: 'Either', val: null }]}
+            value={furnished}
+            onChange={set_furnished}
+          />
 
-          {/* Smoker */}
-          <div className="flex items-center justify-between bg-base-200 rounded-field px-4 py-3">
-            <span className="font-secondary text-sm text-base-content">Smoker</span>
-            <input
-              type="checkbox"
-              checked={is_smoker || ""}
-              onChange={(e) => set_is_smoker(e.target.checked)}
-              className="toggle toggle-accent"
-            />
-          </div>
         </div>
 
         {/* ── Number of Housemates ──────────────────────────────────── */}

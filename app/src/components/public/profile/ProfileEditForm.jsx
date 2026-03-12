@@ -34,11 +34,13 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods 
   const [preferred_locations, set_preferred_locations] = useState(initial_data.housing_preferences.preferred_locations || []);
   const [budget_min, set_budget_min] = useState(initial_data.housing_preferences.budget.min);
   const [budget_max, set_budget_max] = useState(initial_data.housing_preferences.budget.max);
-  const [is_furnished_preferred, set_is_furnished_preferred] = useState(initial_data.housing_preferences.is_furnished_preferred);
-  const [is_private_room_required, set_is_private_room_required] = useState(initial_data.housing_preferences.is_private_room_required);
   const [max_housemates, set_max_housemates] = useState(initial_data.housing_preferences.max_housemates);
-  const [allows_pets, set_allows_pets] = useState(initial_data.housing_preferences.allows_pets);
-  const [is_smoker, set_is_smoker] = useState(initial_data.housing_preferences.is_smoker);
+  const [is_smoker, set_is_smoker] = useState(initial_data.housing_preferences.is_smoker ?? null);
+  const [dont_mind_smoker, set_dont_mind_smoker] = useState(initial_data.housing_preferences.dont_mind_smoker ?? null);
+  const [has_pet, set_has_pet] = useState(initial_data.housing_preferences.has_pet ?? null);
+  const [dont_mind_pets, set_dont_mind_pets] = useState(initial_data.housing_preferences.dont_mind_pets ?? null);
+  const [private_room, set_private_room] = useState(initial_data.housing_preferences.private_room ?? null);
+  const [furnished, set_furnished] = useState(initial_data.housing_preferences.furnished ?? null);
 
   // ───────────────────────── Lifestyle ─────────────────────────────
   const [sleep_schedule, set_sleep_schedule] = useState(initial_data.lifestyle_personality.sleep_schedule);
@@ -107,10 +109,12 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods 
     formData.append('min', budget_min);
     formData.append('max', budget_max);
     formData.append('max_housemates', max_housemates);
-    formData.append('is_furnished_preferred', is_furnished_preferred);
-    formData.append('is_private_room_required', is_private_room_required);
-    formData.append('allows_pets', allows_pets);
     formData.append('is_smoker', is_smoker);
+    formData.append('dont_mind_smoker', dont_mind_smoker);
+    formData.append('has_pet', has_pet);
+    formData.append('dont_mind_pets', dont_mind_pets);
+    formData.append('private_room', private_room);
+    formData.append('furnished', furnished);
     preferred_locations.forEach((loc) => formData.append('preferred_locations', loc));
 
     // 4. Lifestyle
@@ -243,16 +247,20 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods 
         set_budget_min={set_budget_min}
         budget_max={budget_max}
         set_budget_max={set_budget_max}
-        is_furnished_preferred={is_furnished_preferred}
-        set_is_furnished_preferred={set_is_furnished_preferred}
-        is_private_room_required={is_private_room_required}
-        set_is_private_room_required={set_is_private_room_required}
         max_housemates={max_housemates}
         set_max_housemates={set_max_housemates}
-        allows_pets={allows_pets}
-        set_allows_pets={set_allows_pets}
         is_smoker={is_smoker}
         set_is_smoker={set_is_smoker}
+        dont_mind_smoker={dont_mind_smoker}
+        set_dont_mind_smoker={set_dont_mind_smoker}
+        has_pet={has_pet}
+        set_has_pet={set_has_pet}
+        dont_mind_pets={dont_mind_pets}
+        set_dont_mind_pets={set_dont_mind_pets}
+        private_room={private_room}
+        set_private_room={set_private_room}
+        furnished={furnished}
+        set_furnished={set_furnished}
       />
 
       {/* House Availability + Listing */}
