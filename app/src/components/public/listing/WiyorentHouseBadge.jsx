@@ -24,7 +24,6 @@ export default function WiyorentHouseBadge() {
       onMouseLeave={() => set_visible(false)}
     >
       <span className="inline-flex items-center gap-1.5 bg-accent/10 text-accent border border-accent/20 px-2.5 py-1 rounded-field text-xs font-primary font-bold uppercase tracking-wide cursor-default">
-        <Building2 size={12} />
         WiyoRent House
         <Info size={11} className="text-accent" />
       </span>

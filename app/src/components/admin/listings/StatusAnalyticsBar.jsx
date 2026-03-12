@@ -47,7 +47,6 @@ export default function StatusAnalyticsBar({ is_active, set_is_active, analytics
         {/* WiyoRent House Toggle */}
         <div className="flex items-center justify-between bg-base-200 rounded-field px-4 py-3 min-w-50 gap-4">
           <div className="flex items-center gap-2">
-            <Building2 size={16} className={is_a_wiyorent_house ? 'text-accent' : 'text-base-content/40'} />
             <span className="font-secondary text-sm font-semibold text-base-content">
               {is_a_wiyorent_house ? 'WiyoRent House' : 'Standard Listing'}
             </span>

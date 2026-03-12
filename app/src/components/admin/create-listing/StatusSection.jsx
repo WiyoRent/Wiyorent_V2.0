@@ -65,7 +65,6 @@ export default function StatusSection({
         {/* is_a_wiyorent_house toggle */}
         <div className="flex items-center justify-between p-3 bg-base-200 rounded-field">
           <div className="flex items-center gap-2">
-            <Building2 size={14} className={is_a_wiyorent_house ? 'text-accent' : 'text-base-content/40'} />
             <span className="font-secondary text-xs font-semibold uppercase tracking-wide text-base-content/70">
               WiyoRent House
             </span>
