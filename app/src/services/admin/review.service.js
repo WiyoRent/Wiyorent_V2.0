@@ -2,7 +2,7 @@
 import { auth } from "@/auth"
 import { getBaseURL } from "@/lib/getBaseURL"
 
-export const getReviews = async () => {
+export const getReviews = async (queryString = '') => {
     try {
         const session = await auth()
 
@@ -10,9 +10,10 @@ export const getReviews = async () => {
             throw new Error ("Unauthentificated acccess")
         }
 
-        const endPoint = getBaseURL() + 'api/v1/admin/get/user/reviews'
+        const endPoint = getBaseURL() + `api/v1/admin/get/user/reviews?${queryString}`
 
         const res = await fetch(endPoint, {
+            cache: 'no-store',
             headers : {
                 'X-INTERNAL-API-KEY' : process.env.INTERNAL_BACKEND_KEY,
                 'X-USER-ROLE' : session?.user?.role
@@ -31,6 +32,6 @@ export const getReviews = async () => {
         return result.data
     } catch (error) {
         console.error(error.message)
-        throw new Error(error.message || "An internal server error occured while fetchin reviews")
+        return { reviews: [] }
     }
 }

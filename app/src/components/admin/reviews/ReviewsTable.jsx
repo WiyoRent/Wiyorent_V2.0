@@ -10,6 +10,10 @@ export default function ReviewsTable({ reviews }) {
 
   const router = useRouter()
 
+  const after_action = () => {
+    router.refresh()
+  }
+
   // Tracks which review is pending rejection (awaiting note in modal)
   const [pending_rejection, set_pending_rejection] = useState(null);
 
@@ -28,7 +32,7 @@ export default function ReviewsTable({ reviews }) {
         }
       )
 
-      router.refresh()
+      after_action()
     } catch (error) {
       console.error(error.message)
       toast.update(
@@ -68,7 +72,7 @@ export default function ReviewsTable({ reviews }) {
           autoClose : 3000
         }
       )
-      router.refresh()
+      after_action()
 
     } catch (error) {
       console.error(error.message)
@@ -94,7 +98,7 @@ export default function ReviewsTable({ reviews }) {
               isLoading: false,
               autoClose: 3000
           })
-          router.refresh()
+          after_action()
       } catch (error) {
           toast.update(loadingToast, {
               type: 'error',
@@ -106,7 +110,7 @@ export default function ReviewsTable({ reviews }) {
   }
 
 
-  if (!reviews || reviews.length === 0) {
+  if (!Array.isArray(reviews) || reviews.length === 0) {
     return (
       <div className="bg-base-100 rounded-box shadow-sm p-12 text-center">
         <p className="font-secondary text-base-content/40">
@@ -147,7 +151,7 @@ export default function ReviewsTable({ reviews }) {
             </tr>
           </thead>
           <tbody>
-            {reviews.map((review) => (
+            {reviews?.map((review) => (
               <ReviewRow
                 key={review.review_id}
                 review={review}

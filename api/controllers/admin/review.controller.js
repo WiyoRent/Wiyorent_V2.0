@@ -3,14 +3,16 @@ import { errorMsg, successMsg } from "../../utils/returnMsg.js"
 import formatDate from "../../utils/formatDate.js"
 import { sendReviewApprovedEmail, sendReviewRejectedEmail } from "../../utils/mail.js"
 
-export const getUserReviews = async (req,res) => {
+export const getUserReviews = async (req, res) => {
     try {
-        const result = await pool.query(`
-            SELECT 
-                lr.id as review_id,
-                u.id as user_id,
-                u.email as user_email,
-                l.id as property_id,
+        const { status, rating } = req.query
+
+        let query = `
+            SELECT
+                lr.id AS review_id,
+                u.id AS user_id,
+                u.email AS user_email,
+                l.id AS property_id,
                 u.full_name,
                 u.avatar_url,
                 l.title,
@@ -19,49 +21,49 @@ export const getUserReviews = async (req,res) => {
                 lr.created_at,
                 lr.is_approved
             FROM listing_reviews lr
-            LEFT JOIN users u
-                ON lr.user_id = u.id
-            LEFT JOIN listings l
-                ON lr.listing_id = l.id
-            ORDER BY 
-                (lr.is_approved = 'pending') DESC,
-                lr.edited_at DESC 
-        `)
+            LEFT JOIN users u ON lr.user_id = u.id
+            LEFT JOIN listings l ON lr.listing_id = l.id
+            WHERE 1=1
+        `
+        const values = []
+        let i = 1
 
-        if(result.rowCount == 0){
-            return successMsg(res, 200, 'No reviews yet', [])
+        if (status) {
+            query += ` AND lr.is_approved = $${i++}`
+            values.push(status)
+        }
+        if (rating) {
+            query += ` AND lr.rating = $${i++}`
+            values.push(Number(rating))
         }
 
-        const reviews =  result.rows
+        query += ` ORDER BY (lr.is_approved = 'pending') DESC, lr.edited_at DESC`
 
+        const result = await pool.query(query, values)
 
-        const userReviews = reviews.map(review => (
-            {
-                review_id: review.review_id,
-                reviewer: {
-                    user_id: review.user_id,
-                    name: review.full_name,
-                    email : review.user_email,
-                    avatar: review.avatar_url,
-                },
-                property: {
-                    property_id: review.property_id,
-                    title: review.title,
-                },
-                rating: review.rating,
-                comment: review.comment,
-                date: formatDate(review.created_at),
-                status: review.is_approved,
-            }
-        ))
+        const reviews = result.rows.map(review => ({
+            review_id: review.review_id,
+            reviewer: {
+                user_id: review.user_id,
+                name: review.full_name,
+                email: review.user_email,
+                avatar: review.avatar_url,
+            },
+            property: {
+                property_id: review.property_id,
+                title: review.title,
+            },
+            rating: review.rating,
+            comment: review.comment,
+            date: formatDate(review.created_at),
+            status: review.is_approved,
+        }))
 
-        console.log(userReviews, '---userReviews')
-
-        return successMsg(res, 200, '', userReviews) 
+        return successMsg(res, 200, '', { reviews })
 
     } catch (error) {
         console.error(error.message)
-        return errorMsg(res, error.status, error.message || 'An internal server error occured')
+        return errorMsg(res, 500, error.message || 'An internal server error occurred')
     }
 }
 
