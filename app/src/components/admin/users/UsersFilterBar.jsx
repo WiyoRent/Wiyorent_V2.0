@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
-import { X, SlidersHorizontal, ShieldCheck, Users, GraduationCap, CalendarClock, Home } from 'lucide-react';
+import { X, SlidersHorizontal, ShieldCheck, Users, GraduationCap, CalendarClock, Home, Zap } from 'lucide-react';
 
 // ── Shared sub-components ──────────────────────────────────────────────────────
 
@@ -48,6 +48,7 @@ export default function UsersFilterBar() {
   const [is_onboarded, set_is_onboarded] = useState('');
   const [sort, set_sort] = useState('');
   const [is_blocked, set_is_blocked] = useState('');
+  const [urgency, set_urgency] = useState('');
 
   // Sync from URL on mount/change
   useEffect(() => {
@@ -58,6 +59,7 @@ export default function UsersFilterBar() {
     set_is_onboarded(searchParams.get('is_onboarded') || '');
     set_sort(searchParams.get('sort') || '');
     set_is_blocked(searchParams.get('is_blocked') || '');
+    set_urgency(searchParams.get('urgency') || '');
   }, [searchParams]);
 
   const push_filter = (key, value) => {
@@ -86,7 +88,7 @@ export default function UsersFilterBar() {
 
   const handle_reset = () => router.replace(pathname);
 
-  const active_count = [verification_status, gender, university, has_house, is_onboarded, sort, is_blocked].filter(Boolean).length;
+  const active_count = [verification_status, gender, university, has_house, is_onboarded, sort, is_blocked, urgency].filter(Boolean).length;
   const has_active_filters = active_count > 0;
 
   const select_cls = "select select-bordered select-sm rounded-field font-secondary text-xs focus:border-accent focus:outline-none";
@@ -220,6 +222,25 @@ export default function UsersFilterBar() {
                 { label: 'Any', value: '' },
                 { label: 'Yes', value: 'true' },
                 { label: 'No', value: 'false' },
+              ]}
+            />
+          </div>
+        </div>
+
+        {/* Urgency */}
+        <div>
+          <FilterLabel>Urgency</FilterLabel>
+          <div className="flex items-center gap-1.5">
+            <Zap size={13} className="text-base-content/30 flex-shrink-0 mb-0.5" />
+            <PillGroup
+              value={urgency}
+              onChange={(v) => { set_urgency(v); push_filter('urgency', v); }}
+              options={[
+                { label: 'All', value: '' },
+                { label: 'Not Urgent', value: 'not_urgent' },
+                { label: 'Slightly Urgent', value: 'slightly_urgent' },
+                { label: 'Extremely Urgent', value: 'extremely_urgent' },
+                { label: 'Flexible', value: 'flexible' },
               ]}
             />
           </div>

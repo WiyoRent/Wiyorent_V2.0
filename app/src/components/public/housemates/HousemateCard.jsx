@@ -63,13 +63,14 @@ export default function HousemateCard({ profile, my_verification_status }) {
   });
   const is_blocked = my_verification_status == null || my_verification_status == 'pending' || my_verification_status === 'rejected';
   const showVerificationModal = (status) => {
+
     if (status === 'rejected') {
       setModalData({
         title: 'Account was rejected',
         message:
           "Your profile verification was not approved during our manual review. To access housemate details and messaging, please review your profile information, ensure all details are accurate, and resubmit for approval."
       });
-    } else {
+    }else{
       setModalData({
         title: 'Account Review in Progress',
         message:

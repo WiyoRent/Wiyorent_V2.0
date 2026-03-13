@@ -59,6 +59,8 @@ export default function HousemateFilterSidebar({ filter_options }) {
   // ── Filter state ────────────────────────────────────────────────────────────
   const [budget_min, set_budget_min] = useState(budget_range.min);
   const [budget_max, set_budget_max] = useState(budget_range.max);
+  const [original_max] = useState(budget_range.max);
+  const [original_min] = useState(budget_range.min);
   const [university, set_university] = useState('');
   const [gender, set_gender] = useState('');
   const [has_a_house, set_has_a_house] = useState(false);
@@ -75,6 +77,7 @@ export default function HousemateFilterSidebar({ filter_options }) {
   const [dont_mind_smoker, set_dont_mind_smoker] = useState(null);
   const [has_pet, set_has_pet] = useState(null);
   const [private_room, set_private_room] = useState(null);
+  const [urgency, set_urgency] = useState('');
 
   // ── Section open state ──────────────────────────────────────────────────────
   const [basic_open, set_basic_open] = useState(true);
@@ -103,6 +106,7 @@ export default function HousemateFilterSidebar({ filter_options }) {
     const hp = searchParams.get('has_pet')
     set_has_pet(hp === 'true' ? true : hp === 'false' ? false : null)
     set_private_room(searchParams.get('private_room') || null)
+    set_urgency(searchParams.get('urgency') || '')
   }, [searchParams])
 
   // ── Active filter counts per group (for dot indicators) ────────────────────
@@ -124,7 +128,8 @@ export default function HousemateFilterSidebar({ filter_options }) {
 
   const availability_active =
     (move_in_date !== '' ? 1 : 0) +
-    (max_housemates !== '' ? 1 : 0);
+    (max_housemates !== '' ? 1 : 0) +
+    (urgency !== '' ? 1 : 0);
 
   const has_filters =
     basic_active > 0 ||
@@ -150,6 +155,7 @@ export default function HousemateFilterSidebar({ filter_options }) {
     set_dont_mind_smoker(null);
     set_has_pet(null);
     set_private_room(null);
+    set_urgency('');
     router.replace(`${pathname}`, {scroll: false})
   };
 
@@ -161,8 +167,8 @@ export default function HousemateFilterSidebar({ filter_options }) {
   const handle_apply = () => {
     const param = new URLSearchParams()
     if(allow_pets === true || allow_pets === false) param.append('allow_pets', allow_pets)
-    if(budget_max) param.append('max', budget_max)
-    if(budget_min) param.append('min', budget_min)
+    if(budget_max !== original_max) param.append('max', budget_max)
+    if(budget_min !== original_min) param.append('min', budget_min)
     if(cleanliness) param.append('cleanliness', cleanliness)
     if(gender) param.append('gender', gender)
     if(has_a_house) param.append('has_a_house', has_a_house)
@@ -177,6 +183,7 @@ export default function HousemateFilterSidebar({ filter_options }) {
     if(sleep_schedule) param.append('sleep_schedule', sleep_schedule)
     if(social_habits) param.append('social_habit', social_habits)
     if(university !== '') param.append('university', university)
+    if(urgency) param.append('urgency', urgency)
     router.push(`?${param.toString()}`)
     console.log('Housemate filters:', {
       budget_min, budget_max, university, gender, has_a_house, selected_locs,
@@ -428,6 +435,34 @@ export default function HousemateFilterSidebar({ filter_options }) {
 
         {/* Max Housemates */}
         {select_row('Max Housemates', max_housemates, set_max_housemates, housemate_counts)}
+
+        {/* Urgency */}
+        <div className="flex flex-col gap-2">
+          <label className="font-secondary text-[11px] font-medium text-base-content/50 uppercase tracking-widest">
+            Urgency
+          </label>
+          <div className="flex gap-2 flex-wrap">
+            {[
+              { label: 'Any', value: '' },
+              { label: 'Not Urgent', value: 'not_urgent' },
+              { label: 'Slightly Urgent', value: 'slightly_urgent' },
+              { label: 'Extremely Urgent', value: 'extremely_urgent' },
+              { label: 'Flexible', value: 'flexible' },
+            ].map(({ label, value }) => (
+              <button
+                key={value}
+                onClick={() => set_urgency(urgency === value ? '' : value)}
+                className={`px-3 py-1.5 rounded-field font-secondary text-xs font-bold transition-all border ${
+                  urgency === value
+                    ? 'bg-accent border-accent text-accent-content shadow-md'
+                    : 'bg-base-100 border-base-300 text-base-content/60 hover:border-accent hover:text-accent'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
       </FilterSection>
 
     </div>

@@ -158,6 +158,9 @@ export default async function UserDetailPage({ params }) {
             gender={u?.gender}
             preferred_locations={u?.housing_preferences?.preferred_locations}
             budget={u?.housing_preferences?.budget}
+            urgency={u?.urgency}
+            move_in_date={u?.housing_preferences?.move_in_date}
+            urgency_as_status_line
           />
         </div>
 

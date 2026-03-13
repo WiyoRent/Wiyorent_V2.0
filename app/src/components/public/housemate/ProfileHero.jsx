@@ -1,4 +1,4 @@
-import { ShieldCheck, GraduationCap, MapPin, Wallet } from 'lucide-react';
+import { ShieldCheck, GraduationCap, MapPin, Wallet, UserPlus } from 'lucide-react';
 import countryList from 'react-select-country-list';
 import ReactCountryFlag from 'react-country-flag';
 
@@ -11,6 +11,7 @@ const URGENCY_MAP = {
     color: 'text-success',
     bg: 'bg-success/10 border border-success/30',
     dot: 'bg-success',
+    sublabel_cls: 'text-success/75',
   },
   slightly_urgent: {
     label: 'Looking Soon',
@@ -18,13 +19,23 @@ const URGENCY_MAP = {
     color: 'text-warning',
     bg: 'bg-warning/10 border border-warning/30',
     dot: 'bg-warning',
+    sublabel_cls: 'text-warning/75',
   },
   extremely_urgent: {
-    label: 'Needs a housemate ASAP',
-    sublabel: 'Looking for a housemate urgently',
+    label: 'Seeking Housemate',
     color: 'text-error',
     bg: 'bg-error/10 border border-error/30',
     dot: 'bg-error',
+    use_icon: true,
+    sublabel_cls: 'text-error/75',
+  },
+  flexible: {
+    label: 'Flexible',
+    sublabel: 'Open to any timeline',
+    color: 'text-info',
+    bg: 'bg-info/10 border border-info/30',
+    dot: 'bg-info',
+    sublabel_cls: 'text-info/75',
   },
 };
 
@@ -62,6 +73,13 @@ function HeroAvatar({ full_name, avatar_url, gender }) {
   );
 }
 
+const URGENCY_STATUS_LINE = {
+  not_urgent:       { dot: 'bg-success',             text: 'No immediate urgency' },
+  slightly_urgent:  { dot: 'bg-warning',             text: 'Looking for a place within weeks' },
+  extremely_urgent: { dot: 'bg-error animate-pulse', text: 'Looking for a place urgently' },
+  flexible:         { dot: 'bg-base-content/30',     text: 'Flexible \u2014 Open to any timeline' },
+};
+
 export default function ProfileHero({
   full_name,
   avatar_url,
@@ -72,8 +90,17 @@ export default function ProfileHero({
   preferred_locations,
   budget,
   urgency,
+  move_in_date,
+  urgency_as_status_line = true,
 }) {
   const urgencyMeta = URGENCY_MAP[urgency];
+  const urgencyStatus = URGENCY_STATUS_LINE[urgency];
+
+  const badge_sublabel = urgency === 'extremely_urgent'
+    ? (move_in_date
+        ? `Available from ${new Date(move_in_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`
+        : 'Open to new housemates')
+    : urgencyMeta?.sublabel;
 
   return (
     <div className="bg-base-100 rounded-box shadow-sm overflow-hidden">
@@ -99,20 +126,33 @@ export default function ProfileHero({
               </span>
             )}
 
-            {urgencyMeta && (
+            {!urgency_as_status_line && urgencyMeta && (
               <div className={`inline-flex items-center gap-2 ${urgencyMeta.bg} ${urgencyMeta.color} px-2.5 py-1.5 rounded-field flex-shrink-0`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${urgencyMeta.dot} flex-shrink-0 animate-pulse`} />
+                {urgencyMeta.use_icon
+                  ? <UserPlus size={14} className="flex-shrink-0" />
+                  : <span className={`w-1.5 h-1.5 rounded-full ${urgencyMeta.dot} flex-shrink-0 animate-pulse`} />
+                }
                 <div className="flex flex-col leading-tight">
                   <span className="text-xs font-primary font-bold uppercase tracking-wide">
                     {urgencyMeta.label}
                   </span>
-                  <span className="text-[10px] font-secondary opacity-70 normal-case tracking-normal">
-                    {urgencyMeta.sublabel}
+                  <span className={`text-[10px] font-secondary normal-case tracking-normal ${urgencyMeta.sublabel_cls}`}>
+                    {badge_sublabel}
                   </span>
                 </div>
               </div>
             )}
           </div>
+
+          {/* Urgency status line (admin view only) — sits directly below name row */}
+          {urgency_as_status_line && urgencyStatus && (
+            <div className="flex items-center gap-1.5 mt-1">
+              <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${urgencyStatus.dot}`} />
+              <span className={`font-secondary textarea-md leading-none text-${urgencyStatus.dot}`}>
+                {urgencyStatus.text}
+              </span>
+            </div>
+          )}
 
           {/* Nationality chip */}
           <div className="mt-2 flex w-fit gap-2 font-secondary text-xs text-base-content/45 bg-base-200 px-2.5 py-1 rounded-field">

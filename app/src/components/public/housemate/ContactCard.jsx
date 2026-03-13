@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ShieldCheck, Bookmark, Contact as ContactIcon } from 'lucide-react';
 import { contactHousemate } from '@/actions/public/contact_housemate.action.js.js';
 import { toast } from 'react-toastify';
@@ -49,13 +49,11 @@ export default function ContactCard({ full_name, profile_id, verification_status
     }
   };
 
-  const handleSave  = async () => {
-    setSaved(!is_saved)
-  }
-
-  useEffect(() => {
-    toggleSaveHousemate(profile_id,saved)
-  }, [saved])
+  const handleSave = async () => {
+    const next = !saved;
+    setSaved(next);
+    await toggleSaveHousemate(profile_id, next);
+  };
 
   return (
     <div className="bg-base-100 rounded-box shadow-sm overflow-hidden">

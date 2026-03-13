@@ -33,7 +33,7 @@ export default function SavedProfilesGrid({ profiles, verification_status }) {
         <HousemateCard
           key={profile.profile_id}
           profile={profile}
-          verification_status={verification_status}
+          my_verification_status={verification_status}
         />
       ))}
     </div>

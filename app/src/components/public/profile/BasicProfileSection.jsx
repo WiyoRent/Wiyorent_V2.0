@@ -52,6 +52,15 @@ const URGENCY_OPTIONS = [
     activeBg: 'bg-error text-error-content border-error',
     dot: 'bg-error',
   },
+  {
+    value: 'flexible',
+    label: 'Flexible',
+    description: 'Open to any timeline',
+    color: 'text-info',
+    bg: 'bg-info/10 border-info/30',
+    activeBg: 'bg-info text-info-content border-info',
+    dot: 'bg-info',
+  },
 ];
 
 const VERIFICATION_CONFIG = {

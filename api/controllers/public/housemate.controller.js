@@ -30,7 +30,7 @@ export const fetchHousemates = async  (req,res) => {
         return errorMsg(res,401, 'Unauthentificated access. Login required')
     }
 
-    const {allow_pets, max,min, cleanliness, gender, has_a_house, smoker, max_housemates, move_in_date, preferred_locations, sleep_schedule,social_habit,university, dont_mind_pets, dont_mind_smoker, has_pet, private_room} = req.query
+    const {allow_pets, max,min, cleanliness, gender, has_a_house, smoker, max_housemates, move_in_date, preferred_locations, sleep_schedule,social_habit,university, dont_mind_pets, dont_mind_smoker, has_pet, private_room, urgency} = req.query
 
 
     console.log(req.query, '---fetchhousemare query')
@@ -147,6 +147,11 @@ export const fetchHousemates = async  (req,res) => {
 
         if(private_room){
             private_room === 'either' ? null : private_room === 'true' ? query += ` AND is_private_room_required = true` : query += ` AND is_private_room_required = false`
+        }
+
+        if(urgency){
+            query += ` AND u.urgency = $${paramIndex++}`
+            values.push(urgency)
         }
 
         const result = await pool.query(query, values)
