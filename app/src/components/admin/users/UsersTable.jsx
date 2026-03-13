@@ -114,6 +114,16 @@ function UserRow({ user, on_block, on_delete }) {
         }
       </td>
 
+      {/* Views */}
+      <td>
+        <span className="font-secondary text-sm text-base-content/70">{user.view_count ?? 0}</span>
+      </td>
+
+      {/* Saves */}
+      <td>
+        <span className="font-secondary text-sm text-base-content/70">{user.number_of_saves ?? 0}</span>
+      </td>
+
       {/* Registration Date */}
       <td>
         <span className="font-secondary text-sm text-base-content/70">{formatted_date}</span>
@@ -217,6 +227,8 @@ export default function UsersTable({ users }) {
             <th className="font-primary text-xs uppercase tracking-wider">Verification</th>
             {/* New column */}
             <th className="font-primary text-xs uppercase tracking-wider">Profile</th>
+            <th className="font-primary text-xs uppercase tracking-wider">Views</th>
+            <th className="font-primary text-xs uppercase tracking-wider">Saves</th>
             <th className="font-primary text-xs uppercase tracking-wider">Registration Date</th>
             <th className="font-primary text-xs uppercase tracking-wider">Actions</th>
           </tr>

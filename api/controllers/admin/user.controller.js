@@ -6,7 +6,7 @@ import { sendApprovalEmail, sendRejectionEmail, sendBlockedEmail, sendUnblockedE
 
 export const fetchUsers = async (req, res) => {
     try {
-        const { verification_status, is_blocked, gender, university_name, has_house, is_onboarded, sort } = req.query
+        const { verification_status, is_blocked, gender, university_name, has_house, is_onboarded, sort, urgency } = req.query
 
         let query = `
             SELECT
@@ -18,7 +18,9 @@ export const fetchUsers = async (req, res) => {
                 u.verification_status,
                 u.is_blocked,
                 u.has_performed_an_update,
-                u.created_at
+                u.created_at,
+                u.view_count,
+                (select count(*) from saved_housemates sh WHERE u.id = sh.housemate_id ) as number_of_saves
             FROM users u
             WHERE 1=1
         `
@@ -49,6 +51,10 @@ export const fetchUsers = async (req, res) => {
             query += ` AND u.is_onboarded = $${i++}`
             values.push(is_onboarded === 'true')
         }
+        if (urgency) {
+            query += ` AND u.urgency = $${i++}`
+            values.push(urgency)
+        }
 
         query += sort === 'oldest' ? ` ORDER BY u.created_at ASC` : ` ORDER BY u.created_at DESC`
 
@@ -64,7 +70,11 @@ export const fetchUsers = async (req, res) => {
             is_blocked: user.is_blocked,
             has_performed_an_update: user.has_performed_an_update,
             registration_date: formatDate(user.created_at),
+            view_count: user.view_count || 0,
+            number_of_saves : parseInt(user.number_of_saves) || 0
         }))
+
+        console.log(users, '-----users')
 
         return successMsg(res, 200, '', { users })
 

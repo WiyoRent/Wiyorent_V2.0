@@ -6,6 +6,7 @@ import LifestyleSection from '@/components/public/housemate/LifestyleSection';
 import ContactCard from '@/components/public/housemate/ContactCard';
 import { fetchHousemateDetail } from '@/services/public/housemate.service';
 import UserListingSection from '@/components/public/housemate/UserListingSection';
+import TrackHousemateView from '@/components/public/housemate/TrackHousemateView';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Mock detail — replace with: await fetch(`/api/housemates/${params.id}`)
@@ -62,6 +63,7 @@ export default async function HousemateDetailPage({params}) {
 
   return (
     <div className="min-h-screen bg-base-200">
+      <TrackHousemateView housemate_id={id} />
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {/* ── Hero banner ─────────────────────────────────── */}
@@ -74,7 +76,8 @@ export default async function HousemateDetailPage({params}) {
           gender={housemate_detail?.gender}
           preferred_locations={housemate_detail?.housing_preferences?.preferred_locations}
           budget={housemate_detail?.housing_preferences?.budget}
-          urgency={housemate_detail?.urgency} 
+          urgency={housemate_detail?.urgency}
+          move_in_date={housemate_detail?.housing_preferences?.move_in_date}
         />
 
         {/* ── User's available listing ─────────────────── */}

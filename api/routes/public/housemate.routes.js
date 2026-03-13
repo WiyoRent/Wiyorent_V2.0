@@ -1,5 +1,6 @@
 import express from 'express'
 import { fetchHousemates, fetchHousemate, fetchHousemateContactDetail, saveHousemate, fetchSavedHousemates } from '../../controllers/public/housemate.controller.js'
+import { trackHousemateView } from '../../controllers/public/view.controller.js'
 
 const housemateRouter = express.Router()
 
@@ -17,5 +18,8 @@ housemateRouter.post('/saveHousemate', saveHousemate)
 
 // Matches: /api/v1/public/fetchSavedHousemates
 housemateRouter.get('/fetchSavedHousemates', fetchSavedHousemates)
+
+// Matches: /api/v1/public/housemates/:id/view
+housemateRouter.post('/housemates/:id/view', trackHousemateView)
 
 export default housemateRouter
