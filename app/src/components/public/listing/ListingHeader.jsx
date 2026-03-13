@@ -1,5 +1,9 @@
+"use client"
 import { MapPin, Bed, Bath, Users, ShieldCheck, Sofa } from 'lucide-react';
 import WiyorentHouseBadge from './WiyorentHouseBadge';
+import { useEffect } from 'react';
+import { trackView } from '@/actions/public/track_view.action';
+
 
 export default function ListingHeader({
   title,
@@ -11,7 +15,13 @@ export default function ListingHeader({
   is_verified,
   is_furnished,
   is_a_wiyorent_house,
+  listing_id
 }) {
+
+  useEffect(() => {
+    trackView(listing_id)
+  }, [listing_id])
+
   const full_address = [street_address, neighborhood, city, country]
     .filter(Boolean)
     .join(', ');

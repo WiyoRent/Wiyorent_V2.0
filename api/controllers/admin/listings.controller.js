@@ -93,7 +93,9 @@ export const fetchSingleListing = async (req,res) => {
     const result = await pool.query(`
         SELECT 
             l.*,
-            ARRAY_AGG(li.image_url) as image_urls
+            ARRAY_AGG(li.image_url) as image_urls,
+            l.view_count as number_of_views,
+            (select count(*) from saved_listings where l.id = listing_id) as number_of_saves
         FROM listings l
         LEFT JOIN listing_images li
             ON l.id = li.listing_id
@@ -103,7 +105,6 @@ export const fetchSingleListing = async (req,res) => {
             l.id
     `, [id])
 
-    console.log(result)
 
     if(result.rowCount === 0){
         return errorMsg(res, 404, "Product Not Found")
@@ -151,7 +152,6 @@ export const fetchSingleListing = async (req,res) => {
         image_urls: [listing.thumbnail_url, ...listing.image_urls]
     }))
 
-    console.log(listing)
 
     return successMsg(res, 200, 'Product Fetched Successfully', listing)
 }
@@ -305,7 +305,8 @@ export const fetchAllListings = async (req, res) => {
                 price_per_month,
                 is_furnished,
                 created_at,
-                (SELECT COUNT(*) FROM saved_listings WHERE listing_id = listings.id) AS number_of_saves
+                (SELECT COUNT(*) FROM saved_listings WHERE listing_id = listings.id) AS number_of_saves,
+                view_count as number_of_views
             FROM listings
             WHERE 1=1
         `
@@ -346,7 +347,7 @@ export const fetchAllListings = async (req, res) => {
             available_status: listing.available_status,
             analytics: {
                 number_of_saves: parseInt(listing.number_of_saves) || 0,
-                number_of_views: 0,
+                number_of_views: parseInt(listing.number_of_views) || 0,
             },
             landlord: {
                 full_name: listing.full_name,

@@ -84,6 +84,8 @@ import { auth } from '@/auth';
 //   },
 // };
 
+
+
 const fetchSingleListing = async (id) => {
   try {
     const url = getBaseURL() + `api/v1/public/getSingleListing/${id}`
@@ -106,7 +108,6 @@ const fetchSingleListing = async (id) => {
   }
   
 }
-
 
 export async function generateMetadata({ params }) {
 
@@ -143,7 +144,7 @@ export default async function ListingDetailPage({ params }) {
 
   return (
     <div className="min-h-screen bg-base-200">
-      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {/* ── Image Gallery (full width) ─────────────────────── */}
         <ImageGallery
@@ -167,6 +168,7 @@ export default async function ListingDetailPage({ params }) {
               is_verified={listing_detail?.is_verified}
               is_furnished={listing_detail?.is_furnished}
               is_a_wiyorent_house={listing_detail?.is_a_wiyorent_house}
+              listing_id = {id}
             />
 
             <DescriptionSection description={listing_detail?.description} />
