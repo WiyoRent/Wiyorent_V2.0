@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import { useState } from "react";
 import { 
@@ -18,6 +18,7 @@ import {
 export default function AdminSidebar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter()
   
   const menuItems = [
     { label: "Analytics", icon: BarChart3, href: "/admin/analytics" },
@@ -110,7 +111,7 @@ export default function AdminSidebar() {
 
         {/* Footer / Logout */}
         <div className="p-4 border-t border-gray-800">
-          <button className="flex items-center gap-3 px-4 py-3 w-full text-gray-400 hover:bg-red-500/10 hover:text-red-500 rounded-lg transition-colors text-sm font-secondary">
+          <button onClick={()=> router.push('/listings')} className="flex items-center gap-3 px-4 py-3 w-full text-gray-400 hover:bg-red-500/10 hover:text-red-500 rounded-lg transition-colors text-sm font-secondary">
             <LogOut className="w-5 h-5" />
             <span>Sign Out</span>
           </button>

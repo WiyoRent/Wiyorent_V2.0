@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, List, Users, Heart, User, LogOut, Menu, X, UserPlus, LogIn, Lock, ClipboardList } from "lucide-react";
+import { Home, List, Users, Heart, User, LogOut, Menu, X, UserPlus, LogIn, Lock, ClipboardList, ShieldUser } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import Image from "next/image";
@@ -23,6 +23,7 @@ export default function Sidebar() {
     { icon: Heart, label: "Favourites", href: "/favourites" },
     { icon: ClipboardList, label: "Waitlist", href: "/waitlist" },
     { icon: User, label: "My Profile", href: "/profile" },
+    {icon: ShieldUser, label : "Admin Dashboard", href: '/admin/analytics'}
   ];
 
   const lockedItems = ["Housemates", "My Profile"];
@@ -33,12 +34,30 @@ export default function Sidebar() {
     return false;
   };
 
-  const displayNav = (label) => (
-    <span className="font-secondary font-medium flex items-center gap-1">
-      {label}
-      {isLocked(label) && <Lock className="h-3 w-3" color="red" />}
-    </span>
-  );
+  const displayNav = (item) => {
+
+    if (item.label === 'Admin Dashboard' && (session?.user?.role !== 'admin' && session?.user?.role !== 'semi_admin')  ) {
+      return null
+    } else {
+      return (
+        <Link
+              key={item.label}
+              href={item.href}
+              onClick={() => setIsOpen(false)}
+              className={`flex items-center gap-4 px-4 py-3 mb-2 rounded-lg transition-colors ${
+                pathname === item.href ? "bg-accent text-secondary" : "text-primary hover:bg-gray-800"
+              }`}
+            >
+              <item.icon className="w-5 h-5" />
+              <span className="font-secondary font-medium flex items-center gap-1">
+                {item.label}
+                {isLocked(item.label) && <Lock className="h-3 w-3" color="red" />}
+              </span>
+            </Link>
+      )
+      
+    }
+  };
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -133,17 +152,7 @@ export default function Sidebar() {
         {/* Navigation */}
         <nav className="flex-1 px-4 py-8 mt-16 lg:mt-0 overflow-y-auto">
           {navItems.map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              onClick={() => setIsOpen(false)}
-              className={`flex items-center gap-4 px-4 py-3 mb-2 rounded-lg transition-colors ${
-                pathname === item.href ? "bg-accent text-secondary" : "text-primary hover:bg-gray-800"
-              }`}
-            >
-              <item.icon className="w-5 h-5" />
-              {displayNav(item.label)}
-            </Link>
+            displayNav(item)
           ))}
         </nav>
 
