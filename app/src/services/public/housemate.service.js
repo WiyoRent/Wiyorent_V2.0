@@ -22,10 +22,13 @@ export const fetchHousemates = async (query) => {
 
         console.log(result, '--result fetch housemate')
 
-        return result.data || []
+        return {
+            housemates: result.data?.housemates ?? [],
+            filter_meta: result.data?.filter_meta ?? null
+        }
     } catch (error) {
         console.error("Proxy Fetch Housemates Error", error)
-        return [] 
+        return { housemates: [], filter_meta: null }
     }
 }
 

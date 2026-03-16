@@ -108,9 +108,20 @@ export const fetchListings = async (req,res) => {
 
         console.log(query, '---query')
 
-        const result = await pool.query(query, values)
+        const [result, metaResult] = await Promise.all([
+            pool.query(query, values),
+            pool.query(`
+                SELECT
+                    MIN(price_per_month) AS price_min,
+                    MAX(price_per_month) AS price_max,
+                    ARRAY_AGG(DISTINCT neighborhood ORDER BY neighborhood)
+                        FILTER (WHERE neighborhood IS NOT NULL) AS neighborhoods
+                FROM listings
+                WHERE is_active = true
+            `)
+        ])
 
-        const listings = result.rows 
+        const listings = result.rows
 
         const allListings = listings.map((listing,index) => (
             {
@@ -134,13 +145,20 @@ export const fetchListings = async (req,res) => {
             }
         ))
 
+        const meta = metaResult.rows[0]
+        const filter_meta = {
+            price_min: Number(meta.price_min) || 0,
+            price_max: Number(meta.price_max) || 300000,
+            neighborhoods: meta.neighborhoods ?? [],
+        }
+
         console.log(allListings, '--all_listings')
 
-        return res.status(200).json({data:allListings})
-    
+        return res.status(200).json({ data: { listings: allListings, filter_meta } })
+
     } catch (error) {
         console.error(error, '----errrrrioorr')
-        return res.status(200).json({data:[]})
+        return res.status(200).json({ data: { listings: [], filter_meta: null } })
     }
     
 }

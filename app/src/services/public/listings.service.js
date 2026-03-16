@@ -24,14 +24,14 @@ export const getListingsProxy = async (query) => {
 
         if (!response.ok) {
             console.error("Backend Error:", response.statusText);
-            return [];
+            return { listings: [], filter_meta: null };
         }
 
-        const result = await response.json() || []
-        return result.data
+        const result = await response.json()
+        return { listings: result.data.listings ?? [], filter_meta: result.data.filter_meta ?? null }
     } catch (error) {
         console.error("Proxy Fetch Error:", error);
-        return []; // Return empty array so .map() doesn't crash
+        return { listings: [], filter_meta: null };
     }
 } 
 

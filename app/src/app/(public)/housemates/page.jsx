@@ -83,25 +83,6 @@ import { fetchHousemates } from '@/services/public/housemate.service';
 //   },
 // ];
 
-// Filter options fetched from backend in production
-const filter_options = {
-  budget_range: { min: 50000, max: 300000 },
-  universities: [
-    'University of Rwanda',
-    'University of Kigali',
-    'Rwanda Polytechnic',
-    'INES-Ruhengeri',
-    'African Leadership University',
-    'AUCA',
-    'Mount Kenya University',
-  ],
-  gender_options: ['male', 'female', 'any'],
-  locations: [
-    'Kicukiro', 'Remera', 'Gasabo', 'Kimironko',
-    'Kacyiru', 'Nyarutarama', 'Gisozi', 'Gikondo',
-  ],
-};
-
 export const metadata = {
   title: 'Find a Housemate | WiyoRent',
   description: 'Browse verified student housemate profiles across Kigali.',
@@ -117,7 +98,17 @@ export default async function  HousematesPage({searchParams}) {
   const is_onboarded = user?.is_onboarded
   const verification_status = user?.verification_status
 
-  const housemate_profiles = await fetchHousemates(query)
+  const { housemates: housemate_profiles, filter_meta } = await fetchHousemates(query)
+
+  const filter_options = {
+    budget_range: {
+      min: filter_meta?.budget_min ?? 50000,
+      max: filter_meta?.budget_max ?? 300000,
+    },
+    universities: filter_meta?.universities ?? [],
+    gender_options: ['Male', 'Female', 'any'],
+    locations: filter_meta?.locations ?? [],
+  }
 
   console.log(housemate_profiles, 'housemate profile fetched frontend')
 

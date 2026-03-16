@@ -3,8 +3,7 @@ import { errorMsg, successMsg } from "../../utils/returnMsg.js";
 import { verifyHeaders } from "../../utils/verifyHeaders.js";
 
 
-export const fetchHousemates = async  (req,res) => {
-
+export const fetchHousemates = async (req, res) => {
     //  {
     //     profile_id: 'hm_7721',
     //     full_name: 'Keza A.',
@@ -17,26 +16,17 @@ export const fetchHousemates = async  (req,res) => {
     //     gender: 'female',
     //     is_verified: true,
     //   }
-
-
-    const {clientKey,userId} = verifyHeaders(req)
-
-    if(!clientKey || clientKey !== process.env.INTERNAL_BACKEND_KEY){
+    const { clientKey, userId } = verifyHeaders(req)
+    if (!clientKey || clientKey !== process.env.INTERNAL_BACKEND_KEY) {
         console.error('No client')
         return errorMsg(res, 403, 'Unauthorized access')
     }
-
-    if(!userId){
-        return errorMsg(res,401, 'Unauthentificated access. Login required')
+    if (!userId) {
+        return errorMsg(res, 401, 'Unauthentificated access. Login required')
     }
-
-    const {allow_pets, max,min, cleanliness, gender, has_a_house, smoker, max_housemates, move_in_date, preferred_locations, sleep_schedule,social_habit,university, dont_mind_pets, dont_mind_smoker, has_pet, private_room, urgency} = req.query
-
-
-    console.log(req.query, '---fetchhousemare query')
-
+    const { allow_pets, max, min, cleanliness, gender, has_a_house, smoker, max_housemates, move_in_date, preferred_locations, sleep_schedule, social_habit, university, dont_mind_pets, dont_mind_smoker, has_pet, private_room, urgency } = req.query
+    console.log(req.query, '---fetchhousemate query')
     try {
-
         let query = `
             SELECT 
                 u.id as profile_id,
@@ -61,132 +51,134 @@ export const fetchHousemates = async  (req,res) => {
                 AND u.is_blocked = false
                 AND u.verification_status != 'rejected'
         `
-
         const values = [userId]
         let paramIndex = 2
-        
-        if(allow_pets){
-            allow_pets === 'true' ? query += ` AND has_pet = true` : query += ` AND has_pet = false `
-        }
 
-        if(max){
+        if (allow_pets) {
+            allow_pets === 'true' ? query += ` AND has_pet = true` : query += ` AND has_pet = false`
+        }
+        if (max) {
             query += ` AND max <= $${paramIndex++}`
             values.push(max)
         }
-
-        if(min){
+        if (min) {
             query += ` AND min >= $${paramIndex++}`
             values.push(min)
         }
-
-        if(cleanliness){
-            query += ` AND cleanliness =$${paramIndex++}`
+        if (cleanliness) {
+            query += ` AND cleanliness = $${paramIndex++}`
             values.push(cleanliness)
         }
-
-        if(gender){
-            query += ` AND gender =$${paramIndex++}`
+        if (gender && gender !== 'any') {
+            query += ` AND gender = $${paramIndex++}`
             values.push(gender)
         }
-
-        if(has_a_house){
-            has_a_house === 'true' ? query += ` AND has_house = true` : query += ` AND has_a_house = false `
+        if (has_a_house) {
+            has_a_house === 'true' ? query += ` AND has_house = true` : query += ` AND has_house = false`
         }
-
-        if(smoker){
-            smoker === 'true' ? query += ` AND is_smoker = true` : query += ` AND is_smoker = false `
+        if (smoker) {
+            smoker === 'true' ? query += ` AND is_smoker = true` : query += ` AND is_smoker = false`
         }
-
-        if(max_housemates){
-            if(max_housemates === '4+') {
+        if (max_housemates) {
+            if (max_housemates === '4+') {
                 query += ` AND max_housemates >= 4`
             } else {
                 query += ` AND max_housemates = $${paramIndex++}`
-                values.push(max_housemates) 
+                values.push(max_housemates)
             }
         }
-
-        if(move_in_date){
+        if (move_in_date) {
             query += ` AND move_in_date::date >= $${paramIndex++}`
             values.push(move_in_date)
         }
-
-        if(preferred_locations){
+        if (preferred_locations) {
             const location_list = preferred_locations.split(',')
-
             query += ` AND preferred_locations && $${paramIndex++}::text[]`
             values.push(location_list)
         }
-
-        if(sleep_schedule){
+        if (sleep_schedule) {
             query += ` AND sleep_schedule = $${paramIndex++}`
             values.push(sleep_schedule)
         }
-
-        if(social_habit){
+        if (social_habit) {
             query += ` AND social_habits = $${paramIndex++}`
             values.push(social_habit)
         }
-
-        if(university){
+        if (university) {
             query += ` AND university_name = $${paramIndex++}`
             values.push(university)
         }
-
-        if(dont_mind_pets){
+        if (dont_mind_pets) {
             dont_mind_pets === 'true' ? query += ` AND dont_mind_pets = true` : query += ` AND dont_mind_pets = false`
         }
-
-        if(dont_mind_smoker){
+        if (dont_mind_smoker) {
             dont_mind_smoker === 'true' ? query += ` AND dont_mind_smoker = true` : query += ` AND dont_mind_smoker = false`
         }
-
-        if(has_pet){
+        if (has_pet) {
             has_pet === 'true' ? query += ` AND has_pet = true` : query += ` AND has_pet = false`
         }
-
-        if(private_room){
-            private_room === 'either' ? null : private_room === 'true' ? query += ` AND is_private_room_required = true` : query += ` AND is_private_room_required = false`
+        if (private_room) {
+            if (private_room !== 'either') {
+                private_room === 'true' ? query += ` AND is_private_room_required = true` : query += ` AND is_private_room_required = false`
+            }
         }
-
-        if(urgency){
+        if (urgency) {
             query += ` AND u.urgency = $${paramIndex++}`
             values.push(urgency)
         }
 
-        const result = await pool.query(query, values)
+        const [result, metaResult] = await Promise.all([
+            pool.query(query, values),
+            pool.query(`
+                SELECT
+                    MIN("min") AS budget_min,
+                    MAX("max") AS budget_max,
+                    ARRAY_AGG(DISTINCT university_name ORDER BY university_name)
+                        FILTER (WHERE university_name IS NOT NULL AND university_name != '') AS universities,
+                    ARRAY(
+                        SELECT DISTINCT UNNEST(preferred_locations)
+                        FROM users
+                        WHERE is_profile_public = true
+                            AND is_onboarded = true
+                            AND is_blocked = false
+                            AND verification_status != 'rejected'
+                        ORDER BY 1
+                    ) AS locations
+                FROM users
+                WHERE is_profile_public = true
+                    AND is_onboarded = true
+                    AND is_blocked = false
+                    AND verification_status != 'rejected'
+            `)
+        ])
 
-        if(result.rowCount === 0){
-            return successMsg(res , 200, 'No housemates found', [])
+        const meta = metaResult.rows[0]
+        const filter_meta = {
+            budget_min: Number(meta.budget_min) || 50000,
+            budget_max: Number(meta.budget_max) || 300000,
+            universities: meta.universities ?? [],
+            locations: meta.locations ?? [],
         }
 
-
-        const users = result.rows
-
-        const housemates = users.map((user,_) => ({
+        const housemates = result.rows.map(user => ({
             profile_id: user.profile_id,
             full_name: user.full_name,
             nationality: user.nationality,
             university_name: user.university_name,
             bio_short: user.bio_short,
-            budget: {
-                min: user.min,
-                max: user.max
-            },
+            budget: { min: user.min, max: user.max },
             preferred_locations: user.preferred_locations || [],
             avatar_url: user.avatar_url || null,
             gender: user.gender,
-            verification_status: user.verificatoin_status,
-            saved : user.saved
+            verification_status: user.verification_status,
+            saved: user.saved
         }))
 
         console.log(housemates, '--housemates from fetchHousemates')
-
-        return successMsg(res,200,'',housemates)
-
+        return successMsg(res, 200, housemates.length === 0 ? 'No housemates found' : '', { housemates, filter_meta })
     } catch (error) {
         console.error(error, 'error on fetch housemates')
-        return errorMsg(res,500, 'A server error occured, Could not fetch housemates')
+        return errorMsg(res, 500, 'A server error occured, Could not fetch housemates')
     }
 }
 

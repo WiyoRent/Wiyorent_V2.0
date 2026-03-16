@@ -157,31 +157,21 @@ import { getListingsProxy } from '@/services/public/listings.service';
 
 
 
-// Mock filter options - in production these come from the backend
-const filter_options = {
-  price_range: {
-    min: 50000,
-    max: 300000,
-  },
-  neighborhoods: [
-    "Kicukiro",
-    "Nyarugenge",
-    "Gasabo",
-    "Zindiro",
-    "Kimironko",
-    "Remera",
-    "Gisozi",
-    "Gikondo",
-  ],
-  furnishing_options: ["furnished", "unfurnished"],
-  availability_options: ["available", "booked"],
-};
-
 export default async function ListingsPage({searchParams}) {
 
   const params = await searchParams
   const queryString = new URLSearchParams(params).toString()
-  const listings = await getListingsProxy(queryString)
+  const { listings, filter_meta } = await getListingsProxy(queryString)
+
+  const filter_options = {
+    price_range: {
+      min: filter_meta?.price_min ?? 50000,
+      max: filter_meta?.price_max ?? 300000,
+    },
+    neighborhoods: filter_meta?.neighborhoods ?? [],
+    furnishing_options: ["furnished", "unfurnished"],
+    availability_options: ["available", "booked"],
+  }
 
 
   return (
