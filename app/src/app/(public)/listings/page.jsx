@@ -178,7 +178,7 @@ export default async function ListingsPage({searchParams}) {
     <main className="min-h-screen bg-base-200">
       {/* Page Header */}
       <div className="bg-base-100 border-b border-base-300">
-        <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <h1 className="font-primary text-4xl sm:text-5xl font-extrabold text-base-content uppercase tracking-tight">
             Verified Student Homes
           </h1>
@@ -189,7 +189,7 @@ export default async function ListingsPage({searchParams}) {
       </div>
 
       {/* Main Layout */}
-      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar */}
           <aside className="lg:w-72 flex-shrink-0">

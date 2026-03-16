@@ -117,7 +117,7 @@ export default async function  HousematesPage({searchParams}) {
       <InformationModal  title = 'Almost there' showModal={!is_onboarded} message={"Let's get you set up! You'll need a profile to browse and connect with housemates. Redirecting you there now...."} redirectTo={'/profile'}/>
       {/* Page header */}
       <div className="bg-base-100 border-b border-base-300">
-        <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <h1 className="font-primary text-4xl sm:text-5xl font-extrabold text-base-content uppercase tracking-tight">
             Find a Housemate
           </h1>
@@ -128,7 +128,7 @@ export default async function  HousematesPage({searchParams}) {
       </div>
 
       {/* Body */}
-      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col lg:flex-row gap-8 items-start">
 
           {/* Sidebar */}

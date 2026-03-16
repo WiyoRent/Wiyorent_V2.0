@@ -55,7 +55,7 @@ export default function ListingsFilterBar() {
 
   return (
     <div className="bg-base-100 p-4 rounded-xl shadow-sm border border-base-300 flex flex-col gap-4 mb-6">
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-3">
 
         {/* Status */}
         <div className="flex items-center gap-2">

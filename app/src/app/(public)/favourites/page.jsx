@@ -72,7 +72,7 @@ export default async function FavouritesPage() {
     <div className="min-h-screen bg-base-200">
       {/* Page header */}
       <div className="bg-base-100 border-b border-base-300">
-        <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-error/10 rounded-full flex items-center justify-center flex-shrink-0">
               <Heart size={22} className="text-error fill-error" />
@@ -92,7 +92,7 @@ export default async function FavouritesPage() {
       </div>
 
       {/* Body */}
-      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {!session ? (
           // ── Login prompt ─────────────────────────────────────────────
           <div className="flex flex-col items-center justify-center py-24 text-center">

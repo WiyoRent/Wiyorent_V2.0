@@ -22,7 +22,7 @@ export default function HousematesGrid({ profiles, verification_status }) {
 
   return (
     
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+    <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-3 gap-5">
       {profiles.map((profile) => (
         <HousemateCard my_verification_status={verification_status} key={profile.profile_id} profile={profile} />
       ))}

@@ -16,7 +16,7 @@ function FilterLabel({ children }) {
 
 function PillGroup({ options, value, onChange }) {
   return (
-    <div className="flex items-center">
+    <div className="flex items-center overflow-x-auto">
       {options.map(({ label, value: v }, i) => (
         <button
           key={v}
@@ -121,7 +121,7 @@ export default function UsersFilterBar() {
       </div>
 
       {/* ── Filter controls ─────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-end gap-x-5 gap-y-3 px-4 py-3.5">
+      <div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-end gap-4 sm:gap-x-5 sm:gap-y-3 px-4 py-3.5">
 
         {/* Verification Status */}
         <div>
@@ -131,7 +131,7 @@ export default function UsersFilterBar() {
             <select
               value={verification_status}
               onChange={(e) => { set_verification_status(e.target.value); push_filter('verification_status', e.target.value); }}
-              className={`${select_cls} min-w-[140px]`}
+              className={`${select_cls} w-full sm:min-w-[140px]`}
             >
               <option value="">Any</option>
               <option value="approved">Verified</option>
@@ -167,7 +167,7 @@ export default function UsersFilterBar() {
             <select
               value={gender}
               onChange={(e) => { set_gender(e.target.value); push_filter('gender', e.target.value); }}
-              className={`${select_cls} min-w-[120px]`}
+              className={`${select_cls} w-full sm:min-w-[120px]`}
             >
               <option value="">Any</option>
               <option value="Male">Male</option>
@@ -188,7 +188,7 @@ export default function UsersFilterBar() {
               placeholder="Search..."
               value={university}
               onChange={(e) => set_university(e.target.value)}
-              className="input input-bordered input-sm rounded-field font-secondary text-xs focus:border-accent focus:outline-none w-40"
+              className="input input-bordered input-sm rounded-field font-secondary text-xs focus:border-accent focus:outline-none w-full sm:w-40"
             />
           </div>
         </div>
@@ -228,7 +228,7 @@ export default function UsersFilterBar() {
         </div>
 
         {/* Urgency */}
-        <div>
+        <div className="col-span-2 sm:col-span-1">
           <FilterLabel>Urgency</FilterLabel>
           <div className="flex items-center gap-1.5">
             <Zap size={13} className="text-base-content/30 flex-shrink-0 mb-0.5" />
@@ -257,7 +257,7 @@ export default function UsersFilterBar() {
             <select
               value={sort}
               onChange={(e) => { set_sort(e.target.value); push_filter('sort', e.target.value); }}
-              className={`${select_cls} min-w-[130px]`}
+              className={`${select_cls} w-full sm:min-w-[130px]`}
             >
               <option value="">Newest first</option>
               <option value="oldest">Oldest first</option>
