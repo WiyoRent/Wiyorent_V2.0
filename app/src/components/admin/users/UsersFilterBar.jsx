@@ -51,8 +51,7 @@ export default function UsersFilterBar({ filter_options = {} }) {
   const [sort, set_sort] = useState('');
   const [is_blocked, set_is_blocked] = useState('');
   const [urgency, set_urgency] = useState('');
-  const [budget_min, set_budget_min] = useState('');
-  const [budget_max, set_budget_max] = useState('');
+  const [budget_max, set_budget_max] = useState(budget_range.max);
   const [preferred_location, set_preferred_location] = useState('');
 
   // Sync from URL on mount/change
@@ -65,8 +64,7 @@ export default function UsersFilterBar({ filter_options = {} }) {
     set_sort(searchParams.get('sort') || '');
     set_is_blocked(searchParams.get('is_blocked') || '');
     set_urgency(searchParams.get('urgency') || '');
-    set_budget_min(searchParams.get('budget_min') || '');
-    set_budget_max(searchParams.get('budget_max') || '');
+    set_budget_max(Number(searchParams.get('budget_max')) || budget_range.max);
     set_preferred_location(searchParams.get('preferred_location') || '');
   }, [searchParams]);
 
@@ -80,20 +78,21 @@ export default function UsersFilterBar({ filter_options = {} }) {
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  // Debounce budget inputs
+  // Debounce budget_max slider
   useEffect(() => {
     const timer = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
-      if (budget_min) { params.set('budget_min', budget_min); } else { params.delete('budget_min'); }
-      if (budget_max) { params.set('budget_max', budget_max); } else { params.delete('budget_max'); }
+      if (budget_max < budget_range.max) { params.set('budget_max', budget_max); } else { params.delete('budget_max'); }
       router.push(`${pathname}?${params.toString()}`);
     }, 400);
     return () => clearTimeout(timer);
-  }, [budget_min, budget_max]);
+  }, [budget_max]);
 
   const handle_reset = () => router.replace(pathname);
 
-  const active_count = [verification_status, gender, university, has_house, is_onboarded, sort, is_blocked, urgency, budget_min, budget_max, preferred_location].filter(Boolean).length;
+  const format_price = (n) => `${new Intl.NumberFormat('rw-RW').format(n)} RWF`;
+
+  const active_count = [verification_status, gender, university, has_house, is_onboarded, sort, is_blocked, urgency, preferred_location].filter(Boolean).length + (budget_max < budget_range.max ? 1 : 0);
   const has_active_filters = active_count > 0;
 
   const select_cls = "select select-bordered select-sm rounded-field font-secondary text-xs focus:border-accent focus:outline-none";
@@ -257,25 +256,28 @@ export default function UsersFilterBar({ filter_options = {} }) {
         {/* Divider */}
         <div className="hidden sm:block w-px h-8 bg-base-300 self-end" />
 
-        {/* Budget Range */}
-        <div>
-          <FilterLabel>Budget (RWF)</FilterLabel>
-          <div className="flex items-center gap-1.5">
-            <input
-              type="number"
-              placeholder={`Min ${budget_range.min}`}
-              value={budget_min}
-              onChange={(e) => set_budget_min(e.target.value)}
-              className="input input-bordered input-sm rounded-field font-secondary text-xs focus:border-accent focus:outline-none w-full sm:w-28"
-            />
-            <span className="text-base-content/30 text-xs flex-shrink-0">–</span>
-            <input
-              type="number"
-              placeholder={`Max ${budget_range.max}`}
-              value={budget_max}
-              onChange={(e) => set_budget_max(e.target.value)}
-              className="input input-bordered input-sm rounded-field font-secondary text-xs focus:border-accent focus:outline-none w-full sm:w-28"
-            />
+        {/* Max Budget */}
+        <div className="flex flex-col">
+          <FilterLabel>Max budget</FilterLabel>
+          <div className="flex items-baseline gap-1.5 mb-2">
+            <span className="font-secondary text-[11px] text-base-content/40">Up to</span>
+            <span className="font-secondary text-[15px] font-bold text-base-content">
+              {new Intl.NumberFormat('rw-RW').format(budget_max)}
+            </span>
+            <span className="font-secondary text-[11px] text-base-content/40">RWF/mo</span>
+          </div>
+          <input
+            type="range"
+            min={budget_range.min}
+            max={budget_range.max}
+            step={5000}
+            value={budget_max}
+            onChange={(e) => set_budget_max(Number(e.target.value))}
+            className="range range-accent range-xs"
+          />
+          <div className="flex items-center justify-between mt-1.5">
+            <span className="font-secondary text-[10px] text-base-content/30">{format_price(budget_range.min)}</span>
+            <span className="font-secondary text-[10px] text-base-content/30">{format_price(budget_range.max)}</span>
           </div>
         </div>
 

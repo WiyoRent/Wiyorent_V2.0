@@ -108,7 +108,6 @@ export default function FilterSidebar({ filter_options }) {
   const searchParams = useSearchParams()
   const pathname = usePathname()
 
-  const [price_min, set_price_min] = useState(price_range.min);
   const [price_max, set_price_max] = useState(price_range.max);
   const [selected_neighborhoods, set_selected_neighborhoods] = useState([]);
   const [selected_furnishing, set_selected_furnishing] = useState('furnished');
@@ -128,7 +127,6 @@ export default function FilterSidebar({ filter_options }) {
   const parse_pill = (val) => val ? (val === '4+' ? '4+' : Number(val)) : null
 
   useEffect(() => {
-    set_price_min(Number(searchParams.get('min')) || price_range.min)
     set_price_max(Number(searchParams.get('max')) || price_range.max)
     set_wiyorent_only(searchParams.get('wiyorent_only') === 'true')
     set_selected_availability(searchParams.get('available_only') === 'true')
@@ -145,7 +143,7 @@ export default function FilterSidebar({ filter_options }) {
     selected_neighborhoods.length;
 
   const pricing_active =
-    price_min !== price_range.min || price_max !== price_range.max ? 1 : 0;
+    price_max !== price_range.max ? 1 : 0;
 
   const prefs_active =
     (selected_furnishing !== 'furnished' ? 1 : 0) +
@@ -156,7 +154,6 @@ export default function FilterSidebar({ filter_options }) {
   const avail_active = available_from !== '' ? 1 : 0;
 
   const has_active_filters =
-    price_min !== price_range.min ||
     price_max !== price_range.max ||
     selected_neighborhoods.length > 0 ||
     selected_furnishing !== '' ||
@@ -167,7 +164,6 @@ export default function FilterSidebar({ filter_options }) {
     available_from !== '';
 
   const handle_reset = () => {
-    set_price_min(price_range.min);
     set_price_max(price_range.max);
     set_selected_neighborhoods([]);
     set_selected_furnishing('furnished');
@@ -182,7 +178,6 @@ export default function FilterSidebar({ filter_options }) {
   const handle_apply = () => {
     const param = new URLSearchParams()
 
-    if (price_min !== price_range.min) param.set('min', price_min)
     if (price_max !== price_range.max) param.set('max', price_max)
     if (wiyorent_only) param.set('wiyorent_only', true)
     if (selected_availability) param.set('available_only', true)
@@ -195,7 +190,7 @@ export default function FilterSidebar({ filter_options }) {
     if (available_from) param.set('available_from', available_from)
 
     console.log('Applying filters:', {
-      price_min, price_max,
+      price_max,
       neighborhoods: selected_neighborhoods,
       furnishing: selected_furnishing,
       availability: selected_availability,
@@ -268,41 +263,27 @@ export default function FilterSidebar({ filter_options }) {
         on_toggle={() => set_pricing_open(v => !v)}
         active_count={pricing_active}
       >
-        <div className="flex flex-col gap-2">
-          <label className={LABEL_CLS}>Price Range (RWF)</label>
-          <div className="flex flex-col gap-1">
-            <input
-              type="range"
-              min={price_range.min}
-              max={price_range.max}
-              step={5000}
-              value={price_min}
-              onChange={(e) => {
-                const val = Number(e.target.value);
-                if (val <= price_max) set_price_min(val);
-              }}
-              className="range range-accent range-xs"
-            />
-            <input
-              type="range"
-              min={price_range.min}
-              max={price_range.max}
-              step={5000}
-              value={price_max}
-              onChange={(e) => {
-                const val = Number(e.target.value);
-                if (val >= price_min) set_price_max(val);
-              }}
-              className="range range-accent range-xs mt-2"
-            />
+        <div className="flex flex-col">
+          <label className={LABEL_CLS}>Max price</label>
+          <div className="flex items-baseline gap-1.5 mb-2">
+            <span className="font-secondary text-[11px] text-base-content/40">Up to</span>
+            <span className="font-secondary text-[15px] font-bold text-base-content">
+              {new Intl.NumberFormat('rw-RW').format(price_max)}
+            </span>
+            <span className="font-secondary text-[11px] text-base-content/40">RWF/mo</span>
           </div>
-          <div className="flex items-center justify-between mt-1">
-            <span className="font-secondary text-[11px] text-base-content/50">
-              {format_price(price_min)}
-            </span>
-            <span className="font-secondary text-[11px] text-base-content/50">
-              {format_price(price_max)}
-            </span>
+          <input
+            type="range"
+            min={price_range.min}
+            max={price_range.max}
+            step={5000}
+            value={price_max}
+            onChange={(e) => set_price_max(Number(e.target.value))}
+            className="range range-accent range-xs"
+          />
+          <div className="flex items-center justify-between mt-1.5">
+            <span className="font-secondary text-[10px] text-base-content/30">{format_price(price_range.min)}</span>
+            <span className="font-secondary text-[10px] text-base-content/30">{format_price(price_range.max)}</span>
           </div>
         </div>
       </FilterSection>

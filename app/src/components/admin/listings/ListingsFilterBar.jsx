@@ -47,8 +47,7 @@ export default function ListingsFilterBar({ filter_options = {} }) {
   const [available_status, set_available_status] = useState('');
   const [neighborhood, set_neighborhood] = useState('');
   const [is_furnished, set_is_furnished] = useState('');
-  const [min_price, set_min_price] = useState('');
-  const [max_price, set_max_price] = useState('');
+  const [max_price, set_max_price] = useState(price_range.max);
   const [sort, set_sort] = useState('');
   const [property_type, set_property_type] = useState('');
   const [bedroom_number, set_bedroom_number] = useState('');
@@ -61,8 +60,7 @@ export default function ListingsFilterBar({ filter_options = {} }) {
     set_available_status(searchParams.get('available_status') || '');
     set_neighborhood(searchParams.get('neighborhood') || '');
     set_is_furnished(searchParams.get('is_furnished') || '');
-    set_min_price(searchParams.get('min_price') || '');
-    set_max_price(searchParams.get('max_price') || '');
+    set_max_price(Number(searchParams.get('max_price')) || price_range.max);
     set_sort(searchParams.get('sort') || '');
     set_property_type(searchParams.get('property_type') || '');
     set_bedroom_number(searchParams.get('bedroom_number') || '');
@@ -80,20 +78,21 @@ export default function ListingsFilterBar({ filter_options = {} }) {
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  // Debounce price inputs
+  // Debounce max_price slider
   useEffect(() => {
     const timer = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
-      if (min_price) { params.set('min_price', min_price); } else { params.delete('min_price'); }
-      if (max_price) { params.set('max_price', max_price); } else { params.delete('max_price'); }
+      if (max_price < price_range.max) { params.set('max_price', max_price); } else { params.delete('max_price'); }
       router.push(`${pathname}?${params.toString()}`);
     }, 400);
     return () => clearTimeout(timer);
-  }, [min_price, max_price]);
+  }, [max_price]);
 
   const handle_reset = () => router.replace(pathname);
 
-  const active_count = [is_active, available_status, neighborhood, is_furnished, min_price, max_price, sort, property_type, bedroom_number, is_a_wiyorent_house, landlord].filter(Boolean).length;
+  const format_price = (n) => `${new Intl.NumberFormat('rw-RW').format(n)} RWF`;
+
+  const active_count = [is_active, available_status, neighborhood, is_furnished, sort, property_type, bedroom_number, is_a_wiyorent_house, landlord].filter(Boolean).length + (max_price < price_range.max ? 1 : 0);
   const has_active_filters = active_count > 0;
 
   const select_cls = 'select select-bordered select-sm rounded-field font-secondary text-xs focus:border-accent focus:outline-none';
@@ -213,25 +212,28 @@ export default function ListingsFilterBar({ filter_options = {} }) {
         {/* Divider */}
         <div className="hidden sm:block w-px h-8 bg-base-300 self-end" />
 
-        {/* Price Range */}
-        <div>
-          <FilterLabel>Price (RWF)</FilterLabel>
-          <div className="flex items-center gap-1.5">
-            <input
-              type="number"
-              placeholder={`Min ${price_range.min}`}
-              value={min_price}
-              onChange={(e) => set_min_price(e.target.value)}
-              className="input input-bordered input-sm rounded-field font-secondary text-xs w-full sm:w-28 focus:border-accent focus:outline-none"
-            />
-            <span className="text-base-content/30 text-xs flex-shrink-0">–</span>
-            <input
-              type="number"
-              placeholder={`Max ${price_range.max}`}
-              value={max_price}
-              onChange={(e) => set_max_price(e.target.value)}
-              className="input input-bordered input-sm rounded-field font-secondary text-xs w-full sm:w-28 focus:border-accent focus:outline-none"
-            />
+        {/* Max Price */}
+        <div className="flex flex-col">
+          <FilterLabel>Max price</FilterLabel>
+          <div className="flex items-baseline gap-1.5 mb-2">
+            <span className="font-secondary text-[11px] text-base-content/40">Up to</span>
+            <span className="font-secondary text-[15px] font-bold text-base-content">
+              {new Intl.NumberFormat('rw-RW').format(max_price)}
+            </span>
+            <span className="font-secondary text-[11px] text-base-content/40">RWF/mo</span>
+          </div>
+          <input
+            type="range"
+            min={price_range.min}
+            max={price_range.max}
+            step={5000}
+            value={max_price}
+            onChange={(e) => set_max_price(Number(e.target.value))}
+            className="range range-accent range-xs"
+          />
+          <div className="flex items-center justify-between mt-1.5">
+            <span className="font-secondary text-[10px] text-base-content/30">{format_price(price_range.min)}</span>
+            <span className="font-secondary text-[10px] text-base-content/30">{format_price(price_range.max)}</span>
           </div>
         </div>
 

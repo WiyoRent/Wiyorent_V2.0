@@ -109,9 +109,14 @@ export default async function ProfileEditPage() {
 
 
   const available_neighborhoods = [
-    'Kicukiro', 'Remera', 'Nyarutarama', 'Kimironko', 'Kacyiru',
-    'Gasabo', 'Gisozi', 'Gikondo', 'Kibagabaga', 'Kanombe',
-    'Nyamirambo', 'Muhima',
+      'Kabeza', 
+      'Kanombe', 
+      'Kimironko', 
+      'Kwananzira',  
+      'Remera', 
+      'Sekimondo', 
+      'Zindiro',
+      'Other'
   ];
 
   return (

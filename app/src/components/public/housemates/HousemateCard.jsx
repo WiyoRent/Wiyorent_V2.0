@@ -1,6 +1,6 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { ShieldCheck, MapPin, GraduationCap, Wallet } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { ShieldCheck, MapPin, GraduationCap, Wallet, Home, Zap } from 'lucide-react';
 import Link from 'next/link';
 import InformationModal from '../shared/InformationModal';
 import { useRouter } from 'next/navigation';
@@ -50,40 +50,57 @@ export default function HousemateCard({ profile, my_verification_status }) {
     avatar_url,
     gender,
     verification_status,
+    has_house,
+    urgency,
+    listing_snapshot,
   } = profile;
   const router = useRouter();
   const [connected, set_connected] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [saved, setSaved] = useState(profile?.saved);
   const [isLoading, setIsLoading] = useState(false);
+  const [show_house_popup, set_show_house_popup] = useState(false);
+  const house_btn_ref = useRef(null);
   const [modalData, setModalData] = useState({
     title: 'Account Review in Progress',
     message:
       "To ensure the safety of our community, our team manually reviews all profiles. You'll be able to view housemate details and contact housemates as soon as we approve your account (usually within 24 hours).",
   });
   const is_blocked = my_verification_status == null || my_verification_status == 'pending' || my_verification_status === 'rejected';
-  const showVerificationModal = (status) => {
+  const is_urgent = urgency === 'extremely_urgent';
 
+  // Close house popup on outside click
+  useEffect(() => {
+    if (!show_house_popup) return;
+    const handle = (e) => {
+      if (house_btn_ref.current && !house_btn_ref.current.contains(e.target)) {
+        set_show_house_popup(false);
+      }
+    };
+    document.addEventListener('mousedown', handle);
+    return () => document.removeEventListener('mousedown', handle);
+  }, [show_house_popup]);
+
+  const showVerificationModal = (status) => {
     if (status === 'rejected') {
       setModalData({
         title: 'Account was rejected',
         message:
           "Your profile verification was not approved during our manual review. To access housemate details and messaging, please review your profile information, ensure all details are accurate, and resubmit for approval."
       });
-    }else{
+    } else {
       setModalData({
         title: 'Account Review in Progress',
         message:
           "To ensure the safety of our community, our team manually reviews all profiles. You'll be able to view housemate details and contact housemates as soon as we approve your account (usually within 24 hours).",
       });
     }
-    // Now trigger the modal to actually open!
     setShowModal(true);
   };
 
   const handleView = async () => {
     if (is_blocked) {
-      showVerificationModal(my_verification_status); 
+      showVerificationModal(my_verification_status);
       return;
     }
     router.push(`/housemates/${profile_id}`);
@@ -112,7 +129,7 @@ export default function HousemateCard({ profile, my_verification_status }) {
         }
       }
     } catch (error) {
-      toast.error( error.message ||  "Couldn't get housemate contact details");
+      toast.error(error.message || "Couldn't get housemate contact details");
       console.error('Failed to contact:', error);
     } finally {
       setIsLoading(false);
@@ -128,10 +145,9 @@ export default function HousemateCard({ profile, my_verification_status }) {
       if (!success) {
         throw new Error("Server rejected the toggle");
       }
-      // Subtle feedback
       toast.success(newSavedStatus ? "Added to favorites" : "Removed from favorites", {
         position: "bottom-right",
-        autoClose: 1000, // Short duration so it's not annoying
+        autoClose: 1000,
       });
     } catch (error) {
       console.error("Save failed:", error);
@@ -143,8 +159,8 @@ export default function HousemateCard({ profile, my_verification_status }) {
     setSaved(profile?.saved);
   }, [profile?.saved]);
   return (
-    <div className="bg-base-100 rounded-box shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 flex flex-col overflow-hidden group w-full">
-      {/* Dynamic modal — handles both verification and pop-up blocked cases */}
+    <div className={`bg-base-100 rounded-box shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 flex flex-col group w-full${is_urgent ? ' ring-2 ring-accent ring-offset-1' : ''}`}>
+      {/* Dynamic modal */}
       <InformationModal
         title={modalData.title}
         message={modalData.message}
@@ -152,13 +168,23 @@ export default function HousemateCard({ profile, my_verification_status }) {
         setShowModal={setShowModal}
         showModal={showModal}
       />
+
+      {/* ── Urgency strip — only for extremely_urgent ─────────────────────── */}
+      {is_urgent && (
+        <div className="flex items-center gap-1.5 px-4 py-1.5 bg-accent rounded-t-box">
+          <span className="font-primary text-[10px] font-extrabold uppercase tracking-widest text-secondary">
+            Looking for a place ASAP
+          </span>
+        </div>
+      )}
+
       {/* Card top — avatar + name block */}
       <div className="p-6 pb-4 flex items-center gap-5">
         <AvatarCircle full_name={full_name} avatar_url={avatar_url} gender={gender} />
-        {/* Right column — constrained so it never overflows */}
+        {/* Right column */}
         <div className="flex-1 min-w-0">
-          {/* Name + verified badge */}
-          <div className="flex items-center gap-2 min-w-0">
+          {/* Name + verified badge + has-a-place badge */}
+          <div className="flex items-center gap-2 min-w-0 flex-wrap">
             <Link
               href={`/housemates/${profile_id}`}
               className="font-primary text-base font-extrabold text-base-content uppercase tracking-tight hover:text-accent transition-colors leading-tight truncate block"
@@ -168,6 +194,73 @@ export default function HousemateCard({ profile, my_verification_status }) {
             {verification_status === 'approved' && (
               <ShieldCheck size={15} className="text-success flex-shrink-0" aria-label="Verified" />
             )}
+            {/* ── Has a Place badge + Quick View popup ───────────────── */}
+            {has_house && (
+              <div ref={house_btn_ref} className="relative flex-shrink-0">
+                <button
+                  onClick={(e) => { e.stopPropagation(); set_show_house_popup((v) => !v); }}
+                  className={`flex items-center gap-1 rounded-field px-1.5 py-0.5 border transition-colors ${show_house_popup ? 'bg-accent border-accent text-secondary' : 'bg-accent/15 border-accent/30 text-accent hover:bg-accent/25'}`}
+                  aria-label="Has a place — view quick preview"
+                >
+                  <Home size={11} />
+                  <span className="font-primary text-[9px] font-extrabold uppercase tracking-wide">Has a Place</span>
+                </button>
+
+                {show_house_popup && (
+                  <div className="absolute top-full left-0 mt-1.5 w-56 bg-base-100 rounded-box shadow-xl border border-base-300 overflow-hidden z-50">
+                    {listing_snapshot ? (
+                      <>
+                        {listing_snapshot.thumbnail && (
+                          <div className="w-full aspect-video bg-base-300 overflow-hidden">
+                            <img
+                              src={listing_snapshot.thumbnail}
+                              alt="Room preview"
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        )}
+                        <div className="p-3 flex flex-col gap-2">
+                          <div className="flex items-baseline gap-1.5">
+                            <span className="font-primary text-base font-extrabold text-accent">
+                              {format_rwf(listing_snapshot.price)}
+                            </span>
+                            <span className="font-secondary text-xs text-base-content/45">/ mo</span>
+                          </div>
+                          {listing_snapshot.neighborhood && (
+                            <div className="flex items-center gap-1.5">
+                              <MapPin size={11} className="text-base-content/30 flex-shrink-0" />
+                              <span className="font-secondary text-xs text-base-content/60">
+                                {listing_snapshot.neighborhood}
+                              </span>
+                            </div>
+                          )}
+                          <Link
+                            href={`/housemates/${profile_id}`}
+                            onClick={() => set_show_house_popup(false)}
+                            className="btn btn-accent btn-xs rounded-field font-primary font-extrabold uppercase tracking-wider mt-1"
+                          >
+                            View Full Profile
+                          </Link>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="p-3">
+                        <p className="font-secondary text-xs text-base-content/50 text-center">
+                          No listing details yet.
+                        </p>
+                        <Link
+                          href={`/housemates/${profile_id}`}
+                          onClick={() => set_show_house_popup(false)}
+                          className="btn btn-accent btn-xs rounded-field font-primary font-extrabold uppercase tracking-wider mt-2 w-full"
+                        >
+                          View Profile
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           {/* University */}
           <div className="flex items-center gap-1.5 mt-1.5 min-w-0">
@@ -176,7 +269,7 @@ export default function HousemateCard({ profile, my_verification_status }) {
               {university_name}
             </span>
           </div>
-          {/* Budget — nowrap so min–max stays on one line */}
+          {/* Budget */}
           <div className="flex items-center gap-1.5 mt-1.5 min-w-0">
             <Wallet size={13} className="text-base-content/35 flex-shrink-0" />
             <span className="font-secondary text-sm text-base-content/50 whitespace-nowrap truncate">
@@ -226,8 +319,6 @@ export default function HousemateCard({ profile, my_verification_status }) {
               <Loader2 size={13} className="animate-spin" />
               Connecting...
             </span>
-          ) : is_blocked ? (
-            'Contact'
           ) : (
             'Contact'
           )}

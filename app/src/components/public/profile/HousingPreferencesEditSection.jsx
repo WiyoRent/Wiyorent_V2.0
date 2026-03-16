@@ -60,8 +60,6 @@ export default function HousingPreferencesEditSection({
   preferred_locations,
   set_preferred_locations,
   available_neighborhoods,
-  budget_min,
-  set_budget_min,
   budget_max,
   set_budget_max,
   max_housemates,
@@ -223,43 +221,26 @@ export default function HousingPreferencesEditSection({
             </span>
           </label>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-            {/* Min slider */}
-            <div>
-              <span className="font-secondary text-xs text-base-content/40 mb-2 block">
-                Min: {format_rwf(budget_min)}
+          <div className="mt-2">
+            <div className="flex items-baseline gap-1.5 mb-2">
+              <span className="font-secondary text-[11px] text-base-content/40">Up to</span>
+              <span className="font-secondary text-[15px] font-bold text-base-content">
+                {new Intl.NumberFormat('rw-RW').format(budget_max)}
               </span>
-              <input
-                type="range"
-                min={100000}
-                max={300000}
-                step={5000}
-                value={budget_min || ""}
-                onChange={(e) => {
-                  const v = Number(e.target.value);
-                  if (v <= budget_max) set_budget_min(v);
-                }}
-                className="range range-accent range-sm w-full"
-              />
+              <span className="font-secondary text-[11px] text-base-content/40">RWF/mo</span>
             </div>
-
-            {/* Max slider */}
-            <div>
-              <span className="font-secondary text-xs text-base-content/40 mb-2 block">
-                Max: {format_rwf(budget_max)}
-              </span>
-              <input
-                type="range"
-                min={50000}
-                max={500000}
-                step={5000}
-                value={budget_max || ""}
-                onChange={(e) => {
-                  const v = Number(e.target.value);
-                  if (v >= budget_min) set_budget_max(v);
-                }}
-                className="range range-accent range-sm w-full"
-              />
+            <input
+              type="range"
+              min={50000}
+              max={500000}
+              step={5000}
+              value={budget_max || 500000}
+              onChange={(e) => set_budget_max(Number(e.target.value))}
+              className="range range-accent range-xs w-full"
+            />
+            <div className="flex items-center justify-between mt-1.5">
+              <span className="font-secondary text-[10px] text-base-content/30">{format_rwf(50000)}</span>
+              <span className="font-secondary text-[10px] text-base-content/30">{format_rwf(500000)}</span>
             </div>
           </div>
         </div>

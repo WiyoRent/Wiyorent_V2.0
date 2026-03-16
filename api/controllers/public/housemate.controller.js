@@ -28,7 +28,7 @@ export const fetchHousemates = async (req, res) => {
     console.log(req.query, '---fetchhousemate query')
     try {
         let query = `
-            SELECT 
+            SELECT
                 u.id as profile_id,
                 u.full_name,
                 u.nationality,
@@ -40,13 +40,22 @@ export const fetchHousemates = async (req, res) => {
                 u.avatar_url,
                 u.gender,
                 u.verification_status,
-                (sh.id is not null) as saved
+                u.has_house,
+                u.urgency,
+                (sh.id is not null) as saved,
+                ul.price AS listing_price,
+                ul.neighborhood AS listing_neighborhood,
+                uli.image_url AS listing_thumbnail
             FROM users u
             LEFT JOIN saved_housemates sh
                 ON u.id = sh.housemate_id
                 AND sh.user_id = $1
-            WHERE u.id != $1 
-                AND u.is_profile_public = true 
+            LEFT JOIN user_listings ul ON u.id = ul.user_id
+            LEFT JOIN LATERAL (
+                SELECT image_url FROM user_listing_images WHERE user_id = u.id LIMIT 1
+            ) uli ON true
+            WHERE u.id != $1
+                AND u.is_profile_public = true
                 AND u.is_onboarded = true
                 AND u.is_blocked = false
                 AND u.verification_status != 'rejected'
@@ -171,6 +180,13 @@ export const fetchHousemates = async (req, res) => {
             avatar_url: user.avatar_url || null,
             gender: user.gender,
             verification_status: user.verification_status,
+            has_house: user.has_house ?? false,
+            urgency: user.urgency ?? null,
+            listing_snapshot: (user.has_house && user.listing_price) ? {
+                price: user.listing_price,
+                neighborhood: user.listing_neighborhood,
+                thumbnail: user.listing_thumbnail,
+            } : null,
             saved: user.saved
         }))
 
