@@ -41,7 +41,7 @@ export default function ReviewsFilterBar({ total_count = 0 }) {
 
   const handle_reset = () => router.replace(pathname);
 
-  const has_active_filters = !!(status_filter || rating_filter);
+  const has_active_filters = status_filter || rating_filter;
 
   return (
     <div className="bg-base-100 p-4 rounded-xl shadow-sm border border-base-300 flex flex-col gap-4 mb-6">

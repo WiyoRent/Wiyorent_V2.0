@@ -176,8 +176,8 @@ export const fetchSingleListing = async (req,res) => {
                 l.house_rules,
                 COALESCE(
                     json_build_object(
-                        'average_rating', ROUND(AVG(lr.rating)),
-                        'total_count' , COUNT(lr.id),
+                        'average_rating', ROUND(AVG(lr.rating) FILTER (WHERE lr.is_approved = 'approved')),
+                        'total_count' , COUNT(lr.id) FILTER (WHERE lr.is_approved = 'approved'),
                         'entries', COALESCE (
                             json_agg(
                                 DISTINCT json_build_object(

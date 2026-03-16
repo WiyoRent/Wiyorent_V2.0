@@ -4,7 +4,7 @@ import { useState } from 'react';
 import StarRating from '@/components/public/listing/ReviewSectionComponents/StarRating';
 
 export default function ReviewForm({ initial = null, on_submit, on_cancel }) {
-  const is_edit = !!initial;
+  const is_edit = initial != null;
   const [rating, set_rating] = useState(initial?.rating ?? 0);
   const [comment, set_comment] = useState(initial?.comment ?? '');
   const chars_left = 300 - comment.length;

@@ -51,7 +51,7 @@ export default function ListingsFilterBar() {
 
   const handle_reset = () => router.replace(pathname);
 
-  const has_active_filters = !!(status_filter || neighborhood_filter || is_furnished_filter || min_price || max_price || sort);
+  const has_active_filters = status_filter || neighborhood_filter || is_furnished_filter || min_price || max_price || sort;
 
   return (
     <div className="bg-base-100 p-4 rounded-xl shadow-sm border border-base-300 flex flex-col gap-4 mb-6">
