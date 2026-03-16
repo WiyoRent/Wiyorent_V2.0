@@ -7,7 +7,16 @@ export const metadata = { title: 'User Management | WiyoRent Admin' };
 export default async function UsersPage({ searchParams }) {
   const params = await searchParams;
   const queryString = new URLSearchParams(params).toString();
-  const { users } = await getAdminUsers(queryString);
+  const { users, filter_meta } = await getAdminUsers(queryString);
+
+  const filter_options = {
+    budget_range: {
+      min: filter_meta?.budget_min ?? 0,
+      max: filter_meta?.budget_max ?? 500000,
+    },
+    universities: filter_meta?.universities ?? [],
+    locations: filter_meta?.locations ?? [],
+  };
 
   return (
     <div className="min-h-screen bg-base-200">
@@ -24,7 +33,7 @@ export default async function UsersPage({ searchParams }) {
       </div>
 
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <UsersFilterBar />
+        <UsersFilterBar filter_options={filter_options} />
         <UsersTable users={users} />
       </div>
     </div>

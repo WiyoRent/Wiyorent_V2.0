@@ -6,7 +6,9 @@ export const metadata = { title: 'Review Management | WiyoRent Admin' };
 
 export default async function AdminReviewsPage({ searchParams }) {
   const params = await searchParams;
-  const queryString = new URLSearchParams(params).toString();
+  // Default moderation status to 'pending' so the admin lands on their action queue
+  const paramsWithDefaults = { status: 'pending', ...params };
+  const queryString = new URLSearchParams(paramsWithDefaults).toString();
   const { reviews } = await getReviews(queryString);
 
   return (
@@ -24,7 +26,7 @@ export default async function AdminReviewsPage({ searchParams }) {
       </div>
 
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <ReviewsFilterBar />
+        <ReviewsFilterBar total_count={reviews.length} />
         <ReviewsTable reviews={reviews} />
       </div>
     </div>

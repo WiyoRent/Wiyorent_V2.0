@@ -17,6 +17,6 @@ export const getAdminUsers = async (queryString = '') => {
     return result.data
   } catch (error) {
     console.error(error.message)
-    return { users: [] }
+    return { users: [], filter_meta: null }
   }
 }

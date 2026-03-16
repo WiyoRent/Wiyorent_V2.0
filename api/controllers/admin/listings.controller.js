@@ -287,7 +287,7 @@ export const editListing = async (req, res) => {
 
 export const fetchAllListings = async (req, res) => {
     try {
-        const { is_active, neighborhood, is_furnished, min_price, max_price, sort } = req.query
+        const { is_active, neighborhood, is_furnished, min_price, max_price, sort, available_status, property_type, bedroom_number, is_a_wiyorent_house, landlord } = req.query
 
         let query = `
             SELECT
@@ -296,6 +296,7 @@ export const fetchAllListings = async (req, res) => {
                 thumbnail_url,
                 is_active,
                 is_verified,
+                is_a_wiyorent_house,
                 available_status,
                 full_name,
                 phone_number,
@@ -304,6 +305,8 @@ export const fetchAllListings = async (req, res) => {
                 country,
                 price_per_month,
                 is_furnished,
+                property_type,
+                bedroom_number,
                 created_at,
                 (SELECT COUNT(*) FROM saved_listings WHERE listing_id = listings.id) AS number_of_saves,
                 view_count as number_of_views
@@ -316,6 +319,10 @@ export const fetchAllListings = async (req, res) => {
         if (is_active !== undefined && is_active !== '') {
             query += ` AND is_active = $${i++}`
             values.push(is_active === 'true')
+        }
+        if (available_status) {
+            query += ` AND available_status = $${i++}`
+            values.push(available_status)
         }
         if (neighborhood) {
             query += ` AND neighborhood = $${i++}`
@@ -333,10 +340,46 @@ export const fetchAllListings = async (req, res) => {
             query += ` AND price_per_month <= $${i++}`
             values.push(Number(max_price))
         }
+        if (property_type) {
+            query += ` AND property_type = $${i++}`
+            values.push(property_type)
+        }
+        if (bedroom_number !== undefined && bedroom_number !== '') {
+            if (bedroom_number === '4+') {
+                query += ` AND bedroom_number >= 4`
+            } else {
+                query += ` AND bedroom_number = $${i++}`
+                values.push(Number(bedroom_number))
+            }
+        }
+        if (is_a_wiyorent_house !== undefined && is_a_wiyorent_house !== '') {
+            query += ` AND is_a_wiyorent_house = $${i++}`
+            values.push(is_a_wiyorent_house === 'true')
+        }
+        if (landlord) {
+            query += ` AND full_name = $${i++}`
+            values.push(landlord)
+        }
 
         query += sort === 'oldest' ? ` ORDER BY created_at ASC` : ` ORDER BY created_at DESC`
 
-        const data = await pool.query(query, values)
+        const [data, metaResult] = await Promise.all([
+            pool.query(query, values),
+            pool.query(`
+                SELECT
+                    MIN(price_per_month) AS price_min,
+                    MAX(price_per_month) AS price_max,
+                    ARRAY_AGG(DISTINCT neighborhood ORDER BY neighborhood)
+                        FILTER (WHERE neighborhood IS NOT NULL) AS neighborhoods,
+                    ARRAY_AGG(DISTINCT property_type ORDER BY property_type)
+                        FILTER (WHERE property_type IS NOT NULL) AS property_types,
+                    ARRAY_AGG(DISTINCT full_name ORDER BY full_name)
+                        FILTER (WHERE full_name IS NOT NULL) AS landlords
+                FROM listings
+            `)
+        ])
+
+        const filter_meta = metaResult.rows[0] ?? null
 
         const listings = data.rows.map(listing => ({
             listing_id: listing.id,
@@ -344,6 +387,7 @@ export const fetchAllListings = async (req, res) => {
             thumbnail_url: listing.thumbnail_url,
             is_active: listing.is_active,
             is_verified: listing.is_verified,
+            is_a_wiyorent_house: listing.is_a_wiyorent_house,
             available_status: listing.available_status,
             analytics: {
                 number_of_saves: parseInt(listing.number_of_saves) || 0,
@@ -360,7 +404,7 @@ export const fetchAllListings = async (req, res) => {
             },
         }))
 
-        return successMsg(res, 200, '', { listings })
+        return successMsg(res, 200, '', { listings, filter_meta })
 
     } catch (error) {
         console.error(error, '---fetchAllListings error')

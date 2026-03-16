@@ -5,7 +5,7 @@ import { sendReviewApprovedEmail, sendReviewRejectedEmail } from "../../utils/ma
 
 export const getUserReviews = async (req, res) => {
     try {
-        const { status, rating } = req.query
+        const { status, rating, date_from, date_to, search } = req.query
 
         let query = `
             SELECT
@@ -28,7 +28,7 @@ export const getUserReviews = async (req, res) => {
         const values = []
         let i = 1
 
-        if (status) {
+        if (status && status !== 'all') {
             query += ` AND lr.is_approved = $${i++}`
             values.push(status)
         }
@@ -36,8 +36,20 @@ export const getUserReviews = async (req, res) => {
             query += ` AND lr.rating = $${i++}`
             values.push(Number(rating))
         }
+        if (date_from) {
+            query += ` AND lr.created_at::date >= $${i++}`
+            values.push(date_from)
+        }
+        if (date_to) {
+            query += ` AND lr.created_at::date <= $${i++}`
+            values.push(date_to)
+        }
+        if (search) {
+            query += ` AND (u.full_name ILIKE $${i++} OR l.title ILIKE $${i++})`
+            values.push(`%${search}%`, `%${search}%`)
+        }
 
-        query += ` ORDER BY (lr.is_approved = 'pending') DESC, lr.edited_at DESC`
+        query += ` ORDER BY (lr.is_approved = 'pending') DESC, lr.created_at DESC`
 
         const result = await pool.query(query, values)
 
@@ -58,6 +70,8 @@ export const getUserReviews = async (req, res) => {
             date: formatDate(review.created_at),
             status: review.is_approved,
         }))
+
+        console.log(reviews, '----reviews')
 
         return successMsg(res, 200, '', { reviews })
 

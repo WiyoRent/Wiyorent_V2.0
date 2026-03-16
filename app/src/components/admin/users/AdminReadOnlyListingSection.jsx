@@ -1,85 +1,67 @@
 'use client';
 import { useState } from 'react';
-import { Home, User, DollarSign, BedDouble, MapPin, Sofa, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
+import {
+  Home, Bed, Bath, Sofa, Users, CalendarDays,
+  ChevronLeft, ChevronRight, User, Phone,
+} from 'lucide-react';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// AdminReadOnlyListingSection
-// ─────────────────────────────────────────────────────────────────────────────
+const format_rwf = (n) => `RWF ${new Intl.NumberFormat('rw-RW').format(n)}`;
 
-const KIGALI_NEIGHBORHOODS = [
-  'Kicukiro', 'Remera', 'Nyarutarama', 'Kimironko', 'Kacyiru',
-  'Gasabo', 'Gisozi', 'Gikondo', 'Kibagabaga', 'Kanombe',
-  'Nyamirambo', 'Muhima',
-];
-
-// ─── Image carousel ───────────────────────────────────────────────────────────
+// ── Image carousel ─────────────────────────────────────────────────────────────
 function ImageCarousel({ images }) {
   const [active, set_active] = useState(0);
-
   if (!images?.length) return null;
 
-  const go_prev = () => set_active((i) => (i - 1 + images.length) % images.length);
-  const go_next = () => set_active((i) => (i + 1) % images.length);
-  const current = images[active];
-
   return (
-    <div>
-      <span className="font-secondary text-xs font-bold text-base-content/50 uppercase mb-2 block">
-        Listing Images
-      </span>
-
-      {/* Main image */}
-      <div className="relative w-full h-72 bg-base-200 rounded-field overflow-hidden border border-base-300 group">
-        
-          <img
-          src={current}
+    <div className="flex flex-col gap-2 flex-shrink-0">
+      <div className="relative border border-accent w-full aspect-video rounded-box overflow-hidden bg-base-300">
+        <img
+          src={images[active]}
           alt={`Listing image ${active + 1}`}
-          className="w-full h-full object-cover transition-opacity duration-200"
+          className="w-full h-full object-cover"
         />
-        
 
-        {/* Open full image link */}
-        <a
-          href={current.preview_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="absolute top-2 right-2 btn btn-xs btn-ghost bg-black/50 text-white hover:bg-black/70 rounded-field gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
-        >
-          <ExternalLink size={11} />
-          Full
-        </a>
-
-        {/* Prev / Next — only shown when more than one image */}
         {images.length > 1 && (
           <>
             <button
-              onClick={go_prev}
-              className="absolute left-2 top-1/2 -translate-y-1/2 btn btn-xs btn-circle bg-black/50 text-white hover:bg-black/70 border-0"
+              onClick={() => set_active((i) => (i - 1 + images.length) % images.length)}
+              className="absolute left-3 top-1/2 -translate-y-1/2 btn btn-circle btn-sm bg-base-100/80 border-none shadow"
               aria-label="Previous image"
             >
-              <ChevronLeft size={14} />
+              <ChevronLeft size={16} />
             </button>
             <button
-              onClick={go_next}
-              className="absolute right-2 top-1/2 -translate-y-1/2 btn btn-xs btn-circle bg-black/50 text-white hover:bg-black/70 border-0"
+              onClick={() => set_active((i) => (i + 1) % images.length)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 btn btn-circle btn-sm bg-base-100/80 border-none shadow"
               aria-label="Next image"
             >
-              <ChevronRight size={14} />
+              <ChevronRight size={16} />
             </button>
-          </>
-        )}
 
-        {/* Counter badge */}
-        {images.length > 1 && (
-          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/50 text-white font-secondary text-[11px] font-semibold rounded-full px-2.5 py-0.5">
-            {active + 1} / {images.length}
-          </div>
+            {/* Dot indicators */}
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+              {images.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => set_active(i)}
+                  className={`h-2 rounded-full transition-all duration-200 ${
+                    i === active ? 'bg-accent w-4' : 'bg-white/60 w-2'
+                  }`}
+                />
+              ))}
+            </div>
+
+            {/* Counter */}
+            <span className="absolute top-3 right-3 bg-base-100/70 backdrop-blur-sm font-secondary text-xs px-2 py-1 rounded-field text-base-content/70">
+              {active + 1} / {images.length}
+            </span>
+          </>
         )}
       </div>
 
-      {/* Dot indicators + thumbnail strip */}
+      {/* Thumbnail strip */}
       {images.length > 1 && (
-        <div className="flex gap-2 mt-2 overflow-x-auto pb-1">
+        <div className="flex gap-2 overflow-x-auto pb-1">
           {images.map((img, i) => (
             <button
               key={i}
@@ -89,7 +71,7 @@ function ImageCarousel({ images }) {
               }`}
               aria-label={`Go to image ${i + 1}`}
             >
-              <img key={i} src={img} alt={`Thumb ${i + 1}`} className="w-full h-full object-cover" />
+              <img src={img} alt={`Thumb ${i + 1}`} className="w-full h-full object-cover" />
             </button>
           ))}
         </div>
@@ -98,7 +80,7 @@ function ImageCarousel({ images }) {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// ── Main component ─────────────────────────────────────────────────────────────
 export default function AdminReadOnlyListingSection({
   has_house,
   listing_images,
@@ -117,244 +99,180 @@ export default function AdminReadOnlyListingSection({
   listing_amenities,
   listing_house_rules,
 }) {
+  if (!listing_price) return null;
 
-  console.log(listing_images, '----listing images')
-
-  const available_from_value = listing_available_from
-    ? new Date(listing_available_from).toISOString().split('T')[0]
-    : '';
+  const available = listing_available_from
+    ? new Date(listing_available_from).toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      })
+    : null;
 
   return (
-    <div className="bg-base-100 rounded-box shadow-sm p-6">
+    <div className="mt-8 bg-base-100 rounded-box shadow-sm overflow-hidden">
 
-      {/* ── Section header ── */}
-      <div className="flex items-center justify-between mb-5">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-accent rounded-field flex items-center justify-center flex-shrink-0">
-            <Home size={16} className="text-accent-content" />
+      {/* ── Section header ──────────────────────────────────────────────── */}
+      <div className="px-6 sm:px-8 pt-6 pb-4 border-b border-base-200 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-accent/10 rounded-field">
+            <Home size={18} className="text-accent" />
           </div>
-          <h2 className="font-primary text-base font-extrabold text-base-content uppercase tracking-widest">
-            House Listing
-          </h2>
+          <div>
+            <h2 className="font-primary text-lg font-extrabold text-base-content uppercase tracking-tight">
+              House Listing
+            </h2>
+            <p className="font-secondary text-xs text-base-content/45 mt-0.5">
+              This user already has a place — they're looking for a housemate to join them
+            </p>
+          </div>
         </div>
-        <div className="flex items-center gap-2 bg-base-200 rounded-field px-3 py-1.5">
-          <span className="font-secondary text-xs text-base-content/50 uppercase tracking-wide">Has House:</span>
-          <span className={`badge badge-sm font-primary font-bold uppercase tracking-wide ${has_house ? 'badge-success' : 'badge-neutral'}`}>
-            {has_house ? 'Yes' : 'No'}
-          </span>
-        </div>
-      </div>
-
-      {/* ── Admin-only notice ── */}
-      <div className="flex items-center gap-2 mb-5 px-3 py-2 bg-warning/10 border border-warning/20 rounded-field">
-        <span className="font-secondary text-xs text-warning/80 font-semibold">
-          Admin view — all fields are read-only. Landlord details are visible to admins only and not shown publicly.
+        <span className={`badge badge-sm font-primary font-bold uppercase tracking-wide flex-shrink-0 ${has_house ? 'badge-success' : 'badge-neutral'}`}>
+          {has_house ? 'Has House' : 'No House'}
         </span>
       </div>
 
-      <div className="flex flex-col gap-5">
+      {/* ── Admin-only warning ──────────────────────────────────────────── */}
+      <div className="mx-6 sm:mx-8 mt-4 px-3 py-2 bg-warning/10 border border-warning/20 rounded-field">
+        <span className="font-secondary text-xs text-warning/80 font-semibold">
+          Admin view — landlord details are visible to admins only and not shown publicly.
+        </span>
+      </div>
 
-        {/* ── Divider ── */}
-        <div className="flex items-center gap-3">
-          <div className="flex-1 h-px bg-base-200" />
-          <span className="font-secondary text-xs text-base-content/40 uppercase tracking-widest">Listing Details</span>
-          <div className="flex-1 h-px bg-base-200" />
-        </div>
+      <div className="p-6 sm:p-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-        {/* ── Image carousel ── */}
+        {/* Left — image carousel */}
         <ImageCarousel images={listing_images} />
 
-        {/* ── Pricing ── */}
-        <div className="bg-base-200/50 rounded-field p-4">
-          <div className="flex items-center gap-2 mb-4">
-            <DollarSign size={14} className="text-accent" />
-            <span className="font-secondary text-xs font-semibold uppercase tracking-wide text-base-content">Pricing</span>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">Monthly Rent (RWF)</span>
-              </label>
-              <br />
-              <input type="number" value={listing_price || ''} readOnly disabled
-                className="input input-bordered rounded-field font-secondary text-sm disabled:cursor-not-allowed" />
-            </div>
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">Caution Fee (RWF)</span>
-              </label>
-              <br />
-              <input type="number" value={listing_caution_fee || ''} readOnly disabled
-                className="input input-bordered rounded-field font-secondary text-sm disabled:cursor-not-allowed" />
-            </div>
-          </div>
-        </div>
+        {/* Right — listing details */}
+        <div className="flex flex-col gap-5">
 
-        {/* ── Property Details ── */}
-        <div className="bg-base-200/50 rounded-field p-4">
-          <div className="flex items-center gap-2 mb-4">
-            <BedDouble size={14} className="text-accent" />
-            <span className="font-secondary text-xs font-semibold uppercase tracking-wide text-base-content">Property Details</span>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">Number of Bedrooms</span>
-              </label>
-              <br />
-              <select value={listing_bedrooms || ''} disabled
-                className="select select-bordered rounded-field font-secondary text-sm disabled:cursor-not-allowed">
-                <option value="">—</option>
-                {[1, 2, 3, 4, 5].map((n) => (
-                  <option key={n} value={n}>{n} Bedroom{n > 1 ? 's' : ''}</option>
-                ))}
-              </select>
+          {/* Price block */}
+          <div>
+            <div className="flex items-end gap-2 flex-wrap">
+              <span className="font-primary text-3xl font-extrabold text-accent">
+                {format_rwf(listing_price)}
+              </span>
+              <span className="font-secondary text-sm text-base-content/45 mb-1">/ month</span>
             </div>
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">Number of Bathrooms</span>
-              </label>
-              <br />
-              <select value={listing_bathrooms || ''} disabled
-                className="select select-bordered rounded-field font-secondary text-sm disabled:cursor-not-allowed">
-                <option value="">—</option>
-                {[1, 2, 3, 4].map((n) => (
-                  <option key={n} value={n}>{n} Bathroom{n > 1 ? 's' : ''}</option>
-                ))}
-              </select>
-            </div>
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">Available From</span>
-              </label>
-              <br />
-              <input type="date" value={available_from_value} readOnly disabled
-                className="input input-bordered rounded-field font-secondary text-sm disabled:cursor-not-allowed" />
-            </div>
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">Preferred Housemate Gender</span>
-              </label>
-              <br />
-              <select value={listing_housemate_gender || 'any'} disabled
-                className="select select-bordered rounded-field font-secondary text-sm disabled:cursor-not-allowed">
-                <option value="any">Any</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-              </select>
-            </div>
+            {listing_caution_fee && (
+              <div className="flex items-center gap-1.5 mt-1">
+                <span className="font-secondary font-bold text-xs text-base-content/45">
+                  {format_rwf(listing_caution_fee)} caution fee (Refundable)
+                </span>
+              </div>
+            )}
+            <p className="font-secondary text-sm text-base-content/55 mt-1.5">
+              {listing_neighborhood}, {listing_city}
+            </p>
           </div>
 
-          {/* Furnished */}
-          <div className="flex items-center justify-between mt-4 pt-4 border-t border-base-200">
-            <div className="flex items-center gap-2">
-              <Sofa size={15} className="text-accent" />
-              <div>
-                <p className="font-secondary text-sm font-semibold text-base-content">Furnished</p>
-                <p className="font-secondary text-xs text-base-content/50 mt-0.5">Is the house furnished?</p>
+          {/* Stat chips */}
+          <div className="flex flex-wrap gap-2">
+            {[
+              listing_bedrooms   && { icon: <Bed size={13} />,   label: `${listing_bedrooms} Bedroom${listing_bedrooms > 1 ? 's' : ''}` },
+              listing_bathrooms  && { icon: <Bath size={13} />,  label: `${listing_bathrooms} Bathroom${listing_bathrooms > 1 ? 's' : ''}` },
+              listing_is_furnished && { icon: <Sofa size={13} />, label: 'Furnished' },
+              listing_housemate_gender && listing_housemate_gender !== 'any' && { icon: <Users size={13} />, label: `${listing_housemate_gender} only` },
+            ]
+              .filter(Boolean)
+              .map((item) => (
+                <span
+                  key={item.label}
+                  className="inline-flex items-center gap-1.5 bg-base-200 text-base-content/65 font-secondary text-xs px-3 py-1.5 rounded-field"
+                >
+                  {item.icon}
+                  {item.label}
+                </span>
+              ))}
+          </div>
+
+          {/* Description */}
+          {listing_description && (
+            <p className="font-secondary text-sm text-base-content/65 leading-relaxed">
+              {listing_description}
+            </p>
+          )}
+
+          {/* Amenities */}
+          {listing_amenities?.length > 0 && (
+            <div>
+              <p className="font-primary text-xs font-bold uppercase tracking-wide text-base-content/35 mb-2">
+                Amenities
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {listing_amenities.map((a) => (
+                  <span
+                    key={a}
+                    className="bg-accent/10 text-accent border border-accent/20 font-secondary text-xs px-2.5 py-1 rounded-field"
+                  >
+                    {a}
+                  </span>
+                ))}
               </div>
             </div>
-            <input type="checkbox" className="toggle toggle-accent disabled:cursor-not-allowed"
-              checked={listing_is_furnished || false} disabled readOnly />
-          </div>
-        </div>
+          )}
 
-        {/* ── Location ── */}
-        <div className="bg-base-200/50 rounded-field p-4">
-          <div className="flex items-center gap-2 mb-4">
-            <MapPin size={14} className="text-accent" />
-            <span className="font-secondary text-xs font-semibold uppercase tracking-wide text-base-content">Location</span>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">Neighborhood</span>
-              </label>
-              <br />
-              <select value={listing_neighborhood || ''} disabled
-                className="select select-bordered rounded-field font-secondary text-sm disabled:cursor-not-allowed">
-                <option value="">—</option>
-                {KIGALI_NEIGHBORHOODS.map((n) => (
-                  <option key={n} value={n}>{n}</option>
+          {/* House rules */}
+          {listing_house_rules?.length > 0 && (
+            <div>
+              <p className="font-primary text-xs font-bold uppercase tracking-wide text-base-content/35 mb-2">
+                House Rules
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {listing_house_rules.map((r) => (
+                  <span
+                    key={r}
+                    className="bg-base-200 text-base-content/55 font-secondary text-xs px-2.5 py-1 rounded-field"
+                  >
+                    {r}
+                  </span>
                 ))}
-              </select>
+              </div>
             </div>
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">City</span>
-              </label>
-              <br />
-              <input type="text" value={listing_city || ''} readOnly disabled
-                className="input input-bordered rounded-field font-secondary text-sm disabled:cursor-not-allowed" />
+          )}
+
+          {/* Availability footer */}
+          {available && (
+            <div className="mt-auto pt-4 border-t border-base-200 flex items-center gap-1.5">
+              <CalendarDays size={13} className="text-accent" />
+              <span className="font-secondary text-xs text-base-content/45">
+                Available from {available}
+              </span>
             </div>
-          </div>
+          )}
+
+          {/* ── Landlord — admin only ──────────────────────────────────── */}
+          {(listing_landlord_name || listing_landlord_number) && (
+            <div className="pt-4 border-t border-base-200">
+              <div className="flex items-center gap-1.5 mb-3">
+                <User size={13} className="text-base-content/30" />
+                <p className="font-primary text-xs font-bold uppercase tracking-wide text-base-content/35">
+                  Landlord
+                </p>
+                <span className="font-secondary text-[10px] text-warning/70 font-semibold bg-warning/10 px-1.5 py-0.5 rounded-sm">
+                  Admin only
+                </span>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                {listing_landlord_name && (
+                  <span className="font-secondary text-sm text-base-content/70">
+                    {listing_landlord_name}
+                  </span>
+                )}
+                {listing_landlord_number && (
+                  <div className="flex items-center gap-1.5">
+                    <Phone size={12} className="text-base-content/30" />
+                    <span className="font-secondary text-sm text-base-content/70">
+                      {listing_landlord_number}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
         </div>
-
-        {/* ── Landlord Details — admin only ── */}
-        <div className="bg-base-200/50 rounded-field p-4">
-          <div className="flex items-center gap-2 mb-1">
-            <User size={14} className="text-accent" />
-            <span className="font-secondary text-xs font-semibold uppercase tracking-wide text-base-content">Landlord Details</span>
-          </div>
-          <p className="font-secondary text-xs text-base-content/40 mb-4">
-            For verification purposes only — not shown publicly.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">Landlord Name</span>
-              </label>
-              <br />
-              <input type="text" value={listing_landlord_name || ''} readOnly disabled
-                className="input input-bordered rounded-field font-secondary text-sm disabled:cursor-not-allowed" />
-            </div>
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">Landlord Phone Number</span>
-              </label>
-              <br />
-              <input type="text" value={listing_landlord_number || ''} readOnly disabled
-                className="input input-bordered rounded-field font-secondary text-sm disabled:cursor-not-allowed" />
-            </div>
-          </div>
-        </div>
-
-        {/* ── Amenities ── */}
-        {listing_amenities?.length > 0 && (
-          <div>
-            <span className="font-secondary text-xs font-bold text-base-content/50 uppercase block mb-2">Amenities</span>
-            <div className="flex flex-wrap gap-2">
-              {listing_amenities.map((a) => (
-                <span key={a} className="badge badge-outline badge-sm font-secondary">{a}</span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* ── House Rules ── */}
-        {listing_house_rules?.length > 0 && (
-          <div>
-            <span className="font-secondary text-xs font-bold text-base-content/50 uppercase block mb-2">House Rules</span>
-            <ul className="flex flex-col gap-1.5">
-              {listing_house_rules.map((r) => (
-                <li key={r} className="font-secondary text-sm text-base-content/70 flex items-start gap-2">
-                  <span className="text-accent mt-0.5 flex-shrink-0">•</span>{r}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {/* ── House Description ── */}
-        <div className="form-control">
-          <label className="label">
-            <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">House Description</span>
-          </label>
-          <br />
-          <textarea value={listing_description || ''} readOnly disabled rows={4}
-            className="textarea w-full textarea-bordered rounded-field font-secondary text-sm resize-none disabled:cursor-not-allowed" />
-        </div>
-
       </div>
     </div>
   );

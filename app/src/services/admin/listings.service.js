@@ -17,6 +17,6 @@ export const getAdminListings = async (queryString = '') => {
     return result.data
   } catch (error) {
     console.error(error.message)
-    return { listings: [] }
+    return { listings: [], filter_meta: null }
   }
 }

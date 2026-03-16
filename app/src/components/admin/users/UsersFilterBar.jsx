@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
-import { X, SlidersHorizontal, ShieldCheck, Users, GraduationCap, CalendarClock, Home, Zap } from 'lucide-react';
+import { X, SlidersHorizontal, ShieldCheck, Users, GraduationCap, CalendarClock, Home, Zap, MapPin } from 'lucide-react';
 
 // ── Shared sub-components ──────────────────────────────────────────────────────
 
@@ -17,7 +17,7 @@ function FilterLabel({ children }) {
 function PillGroup({ options, value, onChange }) {
   return (
     <div className="flex items-center overflow-x-auto">
-      {options.map(({ label, value: v }, i) => (
+      {options.map(({ label, value: v }) => (
         <button
           key={v}
           onClick={() => onChange(v)}
@@ -36,7 +36,9 @@ function PillGroup({ options, value, onChange }) {
 
 // ── Main component ─────────────────────────────────────────────────────────────
 
-export default function UsersFilterBar() {
+export default function UsersFilterBar({ filter_options = {} }) {
+  const { budget_range = { min: 0, max: 500000 }, universities = [], locations = [] } = filter_options;
+
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -49,6 +51,9 @@ export default function UsersFilterBar() {
   const [sort, set_sort] = useState('');
   const [is_blocked, set_is_blocked] = useState('');
   const [urgency, set_urgency] = useState('');
+  const [budget_min, set_budget_min] = useState('');
+  const [budget_max, set_budget_max] = useState('');
+  const [preferred_location, set_preferred_location] = useState('');
 
   // Sync from URL on mount/change
   useEffect(() => {
@@ -60,6 +65,9 @@ export default function UsersFilterBar() {
     set_sort(searchParams.get('sort') || '');
     set_is_blocked(searchParams.get('is_blocked') || '');
     set_urgency(searchParams.get('urgency') || '');
+    set_budget_min(searchParams.get('budget_min') || '');
+    set_budget_max(searchParams.get('budget_max') || '');
+    set_preferred_location(searchParams.get('preferred_location') || '');
   }, [searchParams]);
 
   const push_filter = (key, value) => {
@@ -72,23 +80,20 @@ export default function UsersFilterBar() {
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  // Debounce university text input
+  // Debounce budget inputs
   useEffect(() => {
     const timer = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
-      if (university) {
-        params.set('university_name', university);
-      } else {
-        params.delete('university_name');
-      }
+      if (budget_min) { params.set('budget_min', budget_min); } else { params.delete('budget_min'); }
+      if (budget_max) { params.set('budget_max', budget_max); } else { params.delete('budget_max'); }
       router.push(`${pathname}?${params.toString()}`);
-    }, 300);
+    }, 400);
     return () => clearTimeout(timer);
-  }, [university]);
+  }, [budget_min, budget_max]);
 
   const handle_reset = () => router.replace(pathname);
 
-  const active_count = [verification_status, gender, university, has_house, is_onboarded, sort, is_blocked, urgency].filter(Boolean).length;
+  const active_count = [verification_status, gender, university, has_house, is_onboarded, sort, is_blocked, urgency, budget_min, budget_max, preferred_location].filter(Boolean).length;
   const has_active_filters = active_count > 0;
 
   const select_cls = "select select-bordered select-sm rounded-field font-secondary text-xs focus:border-accent focus:outline-none";
@@ -183,13 +188,16 @@ export default function UsersFilterBar() {
           <FilterLabel>University</FilterLabel>
           <div className="flex items-center gap-1.5">
             <GraduationCap size={13} className="text-base-content/30 flex-shrink-0 mb-0.5" />
-            <input
-              type="text"
-              placeholder="Search..."
+            <select
               value={university}
-              onChange={(e) => set_university(e.target.value)}
-              className="input input-bordered input-sm rounded-field font-secondary text-xs focus:border-accent focus:outline-none w-full sm:w-40"
-            />
+              onChange={(e) => { set_university(e.target.value); push_filter('university_name', e.target.value); }}
+              className={`${select_cls} w-full sm:min-w-[160px]`}
+            >
+              <option value="">Any university</option>
+              {universities.map((u) => (
+                <option key={u} value={u}>{u}</option>
+              ))}
+            </select>
           </div>
         </div>
 
@@ -243,6 +251,49 @@ export default function UsersFilterBar() {
                 { label: 'Flexible', value: 'flexible' },
               ]}
             />
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="hidden sm:block w-px h-8 bg-base-300 self-end" />
+
+        {/* Budget Range */}
+        <div>
+          <FilterLabel>Budget (RWF)</FilterLabel>
+          <div className="flex items-center gap-1.5">
+            <input
+              type="number"
+              placeholder={`Min ${budget_range.min}`}
+              value={budget_min}
+              onChange={(e) => set_budget_min(e.target.value)}
+              className="input input-bordered input-sm rounded-field font-secondary text-xs focus:border-accent focus:outline-none w-full sm:w-28"
+            />
+            <span className="text-base-content/30 text-xs flex-shrink-0">–</span>
+            <input
+              type="number"
+              placeholder={`Max ${budget_range.max}`}
+              value={budget_max}
+              onChange={(e) => set_budget_max(e.target.value)}
+              className="input input-bordered input-sm rounded-field font-secondary text-xs focus:border-accent focus:outline-none w-full sm:w-28"
+            />
+          </div>
+        </div>
+
+        {/* Preferred Location */}
+        <div>
+          <FilterLabel>Pref. Location</FilterLabel>
+          <div className="flex items-center gap-1.5">
+            <MapPin size={13} className="text-base-content/30 flex-shrink-0 mb-0.5" />
+            <select
+              value={preferred_location}
+              onChange={(e) => { set_preferred_location(e.target.value); push_filter('preferred_location', e.target.value); }}
+              className={`${select_cls} w-full sm:min-w-[150px]`}
+            >
+              <option value="">Any location</option>
+              {locations.map((loc) => (
+                <option key={loc} value={loc}>{loc}</option>
+              ))}
+            </select>
           </div>
         </div>
 

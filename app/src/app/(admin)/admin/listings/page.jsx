@@ -9,7 +9,17 @@ export const metadata = { title: 'Manage Listings | WiyoRent Admin' };
 export default async function AdminListingsPage({ searchParams }) {
   const params = await searchParams;
   const queryString = new URLSearchParams(params).toString();
-  const { listings } = await getAdminListings(queryString);
+  const { listings, filter_meta } = await getAdminListings(queryString);
+
+  const filter_options = {
+    price_range: {
+      min: filter_meta?.price_min ?? 0,
+      max: filter_meta?.price_max ?? 500000,
+    },
+    neighborhoods: filter_meta?.neighborhoods ?? [],
+    property_types: filter_meta?.property_types ?? [],
+    landlords: filter_meta?.landlords ?? [],
+  };
 
   return (
     <div className="min-h-screen bg-base-200">
@@ -22,7 +32,7 @@ export default async function AdminListingsPage({ searchParams }) {
                 Manage Listings
               </h1>
               <p className="font-secondary text-sm text-base-content/50 mt-1">
-                Admin control panel
+                {listings.length} {listings.length === 1 ? 'listing' : 'listings'}
               </p>
             </div>
             <Link
@@ -37,7 +47,7 @@ export default async function AdminListingsPage({ searchParams }) {
       </div>
 
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <ListingsFilterBar />
+        <ListingsFilterBar filter_options={filter_options} />
         <ListingsTable listings={listings} />
       </div>
     </div>

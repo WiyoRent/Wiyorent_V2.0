@@ -6,7 +6,7 @@ import { sendApprovalEmail, sendRejectionEmail, sendBlockedEmail, sendUnblockedE
 
 export const fetchUsers = async (req, res) => {
     try {
-        const { verification_status, is_blocked, gender, university_name, has_house, is_onboarded, sort, urgency } = req.query
+        const { verification_status, is_blocked, gender, university_name, has_house, is_onboarded, sort, urgency, budget_min, budget_max, preferred_location } = req.query
 
         let query = `
             SELECT
@@ -55,10 +55,37 @@ export const fetchUsers = async (req, res) => {
             query += ` AND u.urgency = $${i++}`
             values.push(urgency)
         }
+        if (budget_min) {
+            query += ` AND u.min >= $${i++}`
+            values.push(Number(budget_min))
+        }
+        if (budget_max) {
+            query += ` AND u.max <= $${i++}`
+            values.push(Number(budget_max))
+        }
+        if (preferred_location) {
+            query += ` AND $${i++} = ANY(u.preferred_locations)`
+            values.push(preferred_location)
+        }
 
         query += sort === 'oldest' ? ` ORDER BY u.created_at ASC` : ` ORDER BY u.created_at DESC`
 
-        const result = await pool.query(query, values)
+        const [result, metaResult] = await Promise.all([
+            pool.query(query, values),
+            pool.query(`
+                SELECT
+                    MIN(u.min) AS budget_min,
+                    MAX(u.max) AS budget_max,
+                    ARRAY_AGG(DISTINCT u.university_name ORDER BY u.university_name)
+                        FILTER (WHERE u.university_name IS NOT NULL AND u.university_name != '') AS universities,
+                    ARRAY_AGG(DISTINCT loc ORDER BY loc)
+                        FILTER (WHERE loc IS NOT NULL AND loc != '') AS locations
+                FROM users u
+                LEFT JOIN LATERAL UNNEST(u.preferred_locations) AS loc ON true
+            `)
+        ])
+
+        const filter_meta = metaResult.rows[0] ?? null
 
         const users = result.rows.map(user => ({
             user_id: user.id,
@@ -76,7 +103,7 @@ export const fetchUsers = async (req, res) => {
 
         console.log(users, '-----users')
 
-        return successMsg(res, 200, '', { users })
+        return successMsg(res, 200, '', { users, filter_meta })
 
     } catch (error) {
         console.error(error, 'error on fetch users')

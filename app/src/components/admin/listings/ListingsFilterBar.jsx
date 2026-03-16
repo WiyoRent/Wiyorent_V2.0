@@ -2,30 +2,72 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
-import { X, MapPin, Activity, ArrowUpDown } from 'lucide-react';
+import { X, MapPin, Activity, ArrowUpDown, SlidersHorizontal, Home, Zap } from 'lucide-react';
 
-const NEIGHBORHOODS = ['Kicukiro', 'Nyarugenge', 'Gasabo', 'Zindiro', 'Kimironko', 'Remera', 'Gisozi', 'Gikondo'];
+// ── Shared sub-components ──────────────────────────────────────────────────────
 
-export default function ListingsFilterBar() {
+function FilterLabel({ children }) {
+  return (
+    <span className="font-primary text-[9px] uppercase tracking-[0.12em] text-base-content/40 font-bold block mb-1.5">
+      {children}
+    </span>
+  );
+}
+
+function PillGroup({ options, value, onChange }) {
+  return (
+    <div className="flex items-center overflow-x-auto">
+      {options.map(({ label, value: v }) => (
+        <button
+          key={v}
+          onClick={() => onChange(v)}
+          className={`px-3 py-1.5 text-[10px] font-primary font-bold uppercase tracking-wider transition-all border-y border-r first:border-l first:rounded-l-sm last:rounded-r-sm whitespace-nowrap ${
+            value === v
+              ? 'bg-accent border-accent text-accent-content z-10 relative'
+              : 'bg-base-100 border-base-300 text-base-content/50 hover:border-base-content/30 hover:text-base-content/80'
+          }`}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// ── Main component ─────────────────────────────────────────────────────────────
+
+export default function ListingsFilterBar({ filter_options = {} }) {
+  const { price_range = { min: 0, max: 500000 }, neighborhoods = [], property_types = [], landlords = [] } = filter_options;
+
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
 
-  const [status_filter, set_status_filter] = useState('');
-  const [neighborhood_filter, set_neighborhood_filter] = useState('');
-  const [is_furnished_filter, set_is_furnished_filter] = useState('');
+  const [is_active, set_is_active] = useState('');
+  const [available_status, set_available_status] = useState('');
+  const [neighborhood, set_neighborhood] = useState('');
+  const [is_furnished, set_is_furnished] = useState('');
   const [min_price, set_min_price] = useState('');
   const [max_price, set_max_price] = useState('');
   const [sort, set_sort] = useState('');
+  const [property_type, set_property_type] = useState('');
+  const [bedroom_number, set_bedroom_number] = useState('');
+  const [is_a_wiyorent_house, set_is_a_wiyorent_house] = useState('');
+  const [landlord, set_landlord] = useState('');
 
   // Sync from URL on mount/change
   useEffect(() => {
-    set_status_filter(searchParams.get('is_active') || '');
-    set_neighborhood_filter(searchParams.get('neighborhood') || '');
-    set_is_furnished_filter(searchParams.get('is_furnished') || '');
+    set_is_active(searchParams.get('is_active') || '');
+    set_available_status(searchParams.get('available_status') || '');
+    set_neighborhood(searchParams.get('neighborhood') || '');
+    set_is_furnished(searchParams.get('is_furnished') || '');
     set_min_price(searchParams.get('min_price') || '');
     set_max_price(searchParams.get('max_price') || '');
     set_sort(searchParams.get('sort') || '');
+    set_property_type(searchParams.get('property_type') || '');
+    set_bedroom_number(searchParams.get('bedroom_number') || '');
+    set_is_a_wiyorent_house(searchParams.get('is_a_wiyorent_house') || '');
+    set_landlord(searchParams.get('landlord') || '');
   }, [searchParams]);
 
   const push_filter = (key, value) => {
@@ -38,7 +80,7 @@ export default function ListingsFilterBar() {
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  // Price inputs debounced
+  // Debounce price inputs
   useEffect(() => {
     const timer = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
@@ -51,93 +93,217 @@ export default function ListingsFilterBar() {
 
   const handle_reset = () => router.replace(pathname);
 
-  const has_active_filters = status_filter || neighborhood_filter || is_furnished_filter || min_price || max_price || sort;
+  const active_count = [is_active, available_status, neighborhood, is_furnished, min_price, max_price, sort, property_type, bedroom_number, is_a_wiyorent_house, landlord].filter(Boolean).length;
+  const has_active_filters = active_count > 0;
+
+  const select_cls = 'select select-bordered select-sm rounded-field font-secondary text-xs focus:border-accent focus:outline-none';
 
   return (
-    <div className="bg-base-100 p-4 rounded-xl shadow-sm border border-base-300 flex flex-col gap-4 mb-6">
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-3">
+    <div className="bg-base-100 border border-base-300 rounded-xl mb-6 overflow-hidden shadow-sm">
 
-        {/* Status */}
+      {/* ── Header bar ──────────────────────────────────────────────────── */}
+      <div className="flex items-center justify-between px-4 py-2.5 bg-base-200/60 border-b border-base-300">
         <div className="flex items-center gap-2">
-          <Activity size={16} className="text-base-content/40" />
-          <select
-            value={status_filter}
-            onChange={(e) => { set_status_filter(e.target.value); push_filter('is_active', e.target.value); }}
-            className="select select-bordered select-sm rounded-field font-secondary text-xs focus:border-accent min-w-[130px]"
+          <SlidersHorizontal size={13} className="text-base-content/40" />
+          <span className="font-primary text-[10px] uppercase tracking-widest font-bold text-base-content/40">
+            Filters
+          </span>
+          {has_active_filters && (
+            <span className="bg-accent text-accent-content font-primary text-[9px] font-extrabold px-1.5 py-0.5 rounded-sm tracking-wide">
+              {active_count} active
+            </span>
+          )}
+        </div>
+        {has_active_filters && (
+          <button
+            onClick={handle_reset}
+            className="flex items-center gap-1 font-primary text-[9px] uppercase tracking-widest font-bold text-error/70 hover:text-error transition-colors"
           >
-            <option value="">Any Status</option>
-            <option value="true">Active</option>
-            <option value="false">Inactive</option>
+            <X size={10} />
+            Clear all
+          </button>
+        )}
+      </div>
+
+      {/* ── Filter controls ─────────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-end gap-4 sm:gap-x-5 sm:gap-y-3 px-4 py-3.5">
+
+        {/* Availability Status */}
+        <div>
+          <FilterLabel>Availability</FilterLabel>
+          <PillGroup
+            value={available_status}
+            onChange={(v) => { set_available_status(v); push_filter('available_status', v); }}
+            options={[
+              { label: 'All', value: '' },
+              { label: 'Available', value: 'available' },
+              { label: 'Booked', value: 'booked' },
+            ]}
+          />
+        </div>
+
+        {/* Is Active */}
+        <div>
+          <FilterLabel>Status</FilterLabel>
+          <div className="flex items-center gap-1.5">
+            <Activity size={13} className="text-base-content/30 flex-shrink-0 mb-0.5" />
+            <select
+              value={is_active}
+              onChange={(e) => { set_is_active(e.target.value); push_filter('is_active', e.target.value); }}
+              className={`${select_cls} w-full sm:min-w-[120px]`}
+            >
+              <option value="">Any</option>
+              <option value="true">Active</option>
+              <option value="false">Inactive</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="hidden sm:block w-px h-8 bg-base-300 self-end" />
+
+        {/* Property Type */}
+        <div>
+          <FilterLabel>Property Type</FilterLabel>
+          <div className="flex items-center gap-1.5">
+            <Home size={13} className="text-base-content/30 flex-shrink-0 mb-0.5" />
+            <select
+              value={property_type}
+              onChange={(e) => { set_property_type(e.target.value); push_filter('property_type', e.target.value); }}
+              className={`${select_cls} w-full sm:min-w-[130px]`}
+            >
+              <option value="">Any</option>
+              {property_types.map((t) => (
+                <option key={t} value={t} className="capitalize">{t}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Furnished */}
+        <div>
+          <FilterLabel>Furnishing</FilterLabel>
+          <select
+            value={is_furnished}
+            onChange={(e) => { set_is_furnished(e.target.value); push_filter('is_furnished', e.target.value); }}
+            className={`${select_cls} w-full sm:min-w-[130px]`}
+          >
+            <option value="">Any</option>
+            <option value="true">Furnished</option>
+            <option value="false">Unfurnished</option>
           </select>
         </div>
 
+        {/* Bedrooms */}
+        <div>
+          <FilterLabel>Bedrooms</FilterLabel>
+          <PillGroup
+            value={bedroom_number}
+            onChange={(v) => { set_bedroom_number(v); push_filter('bedroom_number', v); }}
+            options={[
+              { label: 'Any', value: '' },
+              { label: '1', value: '1' },
+              { label: '2', value: '2' },
+              { label: '3', value: '3' },
+              { label: '4+', value: '4+' },
+            ]}
+          />
+        </div>
+
+        {/* Divider */}
+        <div className="hidden sm:block w-px h-8 bg-base-300 self-end" />
+
+        {/* Price Range */}
+        <div>
+          <FilterLabel>Price (RWF)</FilterLabel>
+          <div className="flex items-center gap-1.5">
+            <input
+              type="number"
+              placeholder={`Min ${price_range.min}`}
+              value={min_price}
+              onChange={(e) => set_min_price(e.target.value)}
+              className="input input-bordered input-sm rounded-field font-secondary text-xs w-full sm:w-28 focus:border-accent focus:outline-none"
+            />
+            <span className="text-base-content/30 text-xs flex-shrink-0">–</span>
+            <input
+              type="number"
+              placeholder={`Max ${price_range.max}`}
+              value={max_price}
+              onChange={(e) => set_max_price(e.target.value)}
+              className="input input-bordered input-sm rounded-field font-secondary text-xs w-full sm:w-28 focus:border-accent focus:outline-none"
+            />
+          </div>
+        </div>
+
         {/* Neighborhood */}
-        <div className="flex items-center gap-2">
-          <MapPin size={16} className="text-base-content/40" />
+        <div>
+          <FilterLabel>Neighborhood</FilterLabel>
+          <div className="flex items-center gap-1.5">
+            <MapPin size={13} className="text-base-content/30 flex-shrink-0 mb-0.5" />
+            <select
+              value={neighborhood}
+              onChange={(e) => { set_neighborhood(e.target.value); push_filter('neighborhood', e.target.value); }}
+              className={`${select_cls} w-full sm:min-w-[150px]`}
+            >
+              <option value="">All</option>
+              {neighborhoods.map((n) => (
+                <option key={n} value={n}>{n}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="hidden sm:block w-px h-8 bg-base-300 self-end" />
+
+        {/* WiyoRent Verified */}
+        <div>
+          <FilterLabel>WiyoRent House</FilterLabel>
+          <PillGroup
+            value={is_a_wiyorent_house}
+            onChange={(v) => { set_is_a_wiyorent_house(v); push_filter('is_a_wiyorent_house', v); }}
+            options={[
+              { label: 'All', value: '' },
+              { label: 'Yes', value: 'true' },
+              { label: 'No', value: 'false' },
+            ]}
+          />
+        </div>
+
+        {/* Landlord */}
+        <div>
+          <FilterLabel>Landlord</FilterLabel>
           <select
-            value={neighborhood_filter}
-            onChange={(e) => { set_neighborhood_filter(e.target.value); push_filter('neighborhood', e.target.value); }}
-            className="select select-bordered select-sm rounded-field font-secondary text-xs focus:border-accent min-w-[150px]"
+            value={landlord}
+            onChange={(e) => { set_landlord(e.target.value); push_filter('landlord', e.target.value); }}
+            className={`${select_cls} w-full sm:min-w-[160px]`}
           >
-            <option value="">All Neighborhoods</option>
-            {NEIGHBORHOODS.map(n => (
-              <option key={n} value={n}>{n}</option>
+            <option value="">All landlords</option>
+            {landlords.map((name) => (
+              <option key={name} value={name}>{name}</option>
             ))}
           </select>
         </div>
 
-        {/* Furnished */}
-        <select
-          value={is_furnished_filter}
-          onChange={(e) => { set_is_furnished_filter(e.target.value); push_filter('is_furnished', e.target.value); }}
-          className="select select-bordered select-sm rounded-field font-secondary text-xs focus:border-accent min-w-[130px]"
-        >
-          <option value="">Any Furnishing</option>
-          <option value="true">Furnished</option>
-          <option value="false">Unfurnished</option>
-        </select>
+        {/* Divider */}
+        <div className="hidden sm:block w-px h-8 bg-base-300 self-end" />
 
-        {/* Price Range */}
-        <div className="flex items-center gap-1.5">
-          <input
-            type="number"
-            placeholder="Min price"
-            value={min_price}
-            onChange={(e) => set_min_price(e.target.value)}
-            className="input input-bordered input-sm rounded-field font-secondary text-xs w-28 focus:border-accent"
-          />
-          <span className="text-base-content/30 text-xs">–</span>
-          <input
-            type="number"
-            placeholder="Max price"
-            value={max_price}
-            onChange={(e) => set_max_price(e.target.value)}
-            className="input input-bordered input-sm rounded-field font-secondary text-xs w-28 focus:border-accent"
-          />
+        {/* Sort */}
+        <div>
+          <FilterLabel>Listed</FilterLabel>
+          <div className="flex items-center gap-1.5">
+            <ArrowUpDown size={13} className="text-base-content/30 flex-shrink-0 mb-0.5" />
+            <select
+              value={sort}
+              onChange={(e) => { set_sort(e.target.value); push_filter('sort', e.target.value); }}
+              className={`${select_cls} w-full sm:min-w-[130px]`}
+            >
+              <option value="">Newest first</option>
+              <option value="oldest">Oldest first</option>
+            </select>
+          </div>
         </div>
 
-        {/* Date Listed */}
-        <div className="flex items-center gap-2">
-          <ArrowUpDown size={16} className="text-base-content/40" />
-          <select
-            value={sort}
-            onChange={(e) => { set_sort(e.target.value); push_filter('sort', e.target.value); }}
-            className="select select-bordered select-sm rounded-field font-secondary text-xs focus:border-accent min-w-[150px]"
-          >
-            <option value="">Newest First</option>
-            <option value="oldest">Oldest First</option>
-          </select>
-        </div>
-
-        {/* Reset */}
-        {has_active_filters && (
-          <button
-            onClick={handle_reset}
-            className="btn btn-ghost btn-sm rounded-field text-error gap-1 uppercase text-[10px] font-bold tracking-widest"
-          >
-            <X size={14} /> Reset
-          </button>
-        )}
       </div>
     </div>
   );
