@@ -9,7 +9,7 @@ import AboutMeSection from './AboutMeSection';
 import HouseListingSection from './HouseListingSection';
 import { Save } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { isValidPhoneNumber } from 'react-phone-number-input';
+import { checkPhoneNumber } from '@/validators/phone';
 import { editProfile } from '@/services/public/profile.service';
 
 export default function ProfileEditForm({ initial_data, available_neighborhoods }) {
@@ -68,24 +68,53 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods 
   const [listing_landlord_number, set_listing_landlord_number] = useState(initial_data.listing_landlord_number || '');
   const [listing_description, set_listing_description] = useState(initial_data.listing_description || '');
   const [listing_neighborhood, set_listing_neighborhood] = useState(initial_data.listing_neighborhood || '');
-  const [listing_city, set_listing_city] = useState(initial_data.listing_city || '');
+  const [listing_city, set_listing_city] = useState(initial_data.listing_city || 'Kigali');
   const [listing_available_from, set_listing_available_from] = useState(initial_data.listing_available_from || '');
   const [listing_housemate_gender, set_listing_housemate_gender] = useState(initial_data.listing_housemate_gender || '');
   const [listing_amenities, set_listing_amenities] = useState(initial_data.listing_amenities || []);
   const [listing_house_rules, set_listing_house_rules] = useState(initial_data.listing_house_rules || []);
 
-  // ───────────────────────── Helpers ───────────────────────────────
-  const checkPhoneNumber = (number, message = 'Please enter a valid phone number') => {
-    if (!isValidPhoneNumber(number)) throw new Error(message);
-  };
-
-  // ───────────────────────── Save ──────────────────────────────────
+  // ───────────────────────────────────────────────────────────────── Save ──────────────────────────────────────────────────────────────
   const [is_saving, set_is_saving] = useState(false);
 
   const handle_save = async () => {
     if (!avatar_url) {
       toast.error('A profile photo is required');
       return;
+    }
+
+    // ── Phone validation ──────────────────────────────────────────────
+    try {
+      checkPhoneNumber(phone_number);
+    } catch (error) {
+      toast.error(error.message);
+      return;
+    }
+
+    // ── House listing validation ──────────────────────────────────────
+    if (has_house) {
+      const house_missing =
+        !listing_images?.length ||
+        !listing_price ||
+        !listing_caution_fee ||
+        !listing_bedrooms ||
+        !listing_bathrooms ||
+        !listing_available_from ||
+        !listing_neighborhood ||
+        !listing_landlord_name ||
+        !listing_description;
+
+      if (house_missing) {
+        toast.warn('Please fill in all required house details before saving.');
+        return;
+      }
+
+      try {
+        checkPhoneNumber(listing_landlord_number, 'Please enter a valid landlord phone number');
+      } catch (error) {
+        toast.error(error.message);
+        return;
+      }
     }
 
     set_is_saving(true);
@@ -104,7 +133,6 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods 
     formData.append('urgency', urgency);
 
     // 2. Contact
-    checkPhoneNumber(phone_number);
     formData.append('phone_number', phone_number);
     formData.append('preferred_method', preferred_method);
 
@@ -148,7 +176,6 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods 
       formData.append('listing_is_furnished', listing_is_furnished);
       formData.append('listing_landlord_name', listing_landlord_name);
 
-      checkPhoneNumber(listing_landlord_number, 'Please enter a valid landlord phone number');
       formData.append('listing_landlord_number', listing_landlord_number);
 
       formData.append('listing_description', listing_description);
@@ -156,8 +183,11 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods 
       formData.append('listing_city', listing_city);
       formData.append('listing_available_from', listing_available_from);
       formData.append('listing_housemate_gender', listing_housemate_gender);
-      listing_amenities.forEach((a) => formData.append('listing_amenities', a));
-      listing_house_rules.forEach((r) => formData.append('listing_house_rules', r));
+      formData.append('listing_amenities', listing_amenities)
+      formData.append('listing_house_rules', listing_house_rules)
+
+    console.log(listing_amenities, '------listing amenities')
+    console.log(listing_house_rules, 'llllllisting rules')
 
       listing_images.forEach(({ file, preview_url }) => {
         if (file) {

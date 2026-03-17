@@ -13,6 +13,7 @@ import FormHeader from '@/components/admin/create-listing/FormHeader';
 import FormActions from '@/components/admin/create-listing/FormActions';
 import { getBaseURL } from '@/lib/getBaseURL';
 import { toast } from 'react-toastify';
+import { checkPhoneNumber } from '@/validators/phone';
 
 // Default mockup 
 
@@ -95,8 +96,8 @@ export default function CreateListingPage() {
     formData.append('description', listing.description)
     formData.append('available_status', listing.available_status)
     formData.append('available_from', listing.available_from)
-formData.append('amenities', listing.amenities)
-formData.append('house_rules', listing.house_rules)
+    formData.append('amenities', listing.amenities)
+    formData.append('house_rules', listing.house_rules)
 
 
     for(const [key,value] of Object.entries(listing.financials)){
@@ -129,7 +130,12 @@ formData.append('house_rules', listing.house_rules)
     if(formData.getAll('images').length < 2){
       return toast.error('Please upload atleast two images')
     }
-    
+
+    try {
+      checkPhoneNumber(listing.landlord.phone_number, 'Please enter a valid landlord phone number');
+    } catch (error) {
+      return toast.error(error.message);
+    }
 
     const loadingToast = toast.loading('Creating Listing...', {autoClose: false})
     

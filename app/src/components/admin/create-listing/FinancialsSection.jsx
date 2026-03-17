@@ -8,6 +8,7 @@ const FIELDS = [
     placeholder: 'e.g., 300000',
     hint: 'Monthly rent in Rwandan Francs',
     min: 0,
+    is_rwf: true,
   },
   {
     key: 'commission_fee',
@@ -16,6 +17,7 @@ const FIELDS = [
     placeholder: 'e.g., 30000',
     hint: 'Typically 10% of one month rent',
     min: 0,
+    is_rwf: true,
   },
   {
     key: 'caution_fee',
@@ -24,6 +26,7 @@ const FIELDS = [
     placeholder: 'e.g., 300000',
     hint: 'Refundable deposit (default = 1 month rent)',
     min: 0,
+    is_rwf: true,
   },
   {
     key: 'upfront_months',
@@ -52,7 +55,7 @@ export default function FinancialsSection({ financials, set_financials }) {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
-        {FIELDS.map(({ key, label, icon: Icon, placeholder, hint, min }) => (
+        {FIELDS.map(({ key, label, icon: Icon, placeholder, hint, min, is_rwf }) => (
           <div key={key}>
             <label className="label">
               <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide flex items-center gap-1.5">
@@ -68,7 +71,13 @@ export default function FinancialsSection({ financials, set_financials }) {
               value={financials[key]}
               onChange={(e) => handle_change(key, e.target.value === '' ? '' : Number(e.target.value))}
             />
-            <p className="font-secondary text-xs text-base-content/40 mt-1">{hint}</p>
+            {is_rwf && financials[key] > 0 ? (
+              <p className="font-secondary text-xs text-base-content/40 mt-1">
+                RWF {new Intl.NumberFormat('rw-RW').format(financials[key])}
+              </p>
+            ) : (
+              <p className="font-secondary text-xs text-base-content/40 mt-1">{hint}</p>
+            )}
           </div>
         ))}
       </div>

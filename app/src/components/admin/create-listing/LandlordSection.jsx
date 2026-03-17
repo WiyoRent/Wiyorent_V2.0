@@ -1,4 +1,8 @@
+'use client';
+
 import { User, Phone } from 'lucide-react';
+import PhoneInputWithCountrySelect from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
 
 export default function LandlordSection({ landlord, set_landlord }) {
   const handle_change = (field, value) => {
@@ -40,12 +44,12 @@ export default function LandlordSection({ landlord, set_landlord }) {
               Phone Number
             </span>
           </label>
-          <input
-            type="tel"
-            className="input input-bordered rounded-field font-secondary text-sm w-full"
-            placeholder="e.g., +250780000000"
+          <PhoneInputWithCountrySelect
+            placeholder="Enter phone number (+250 123 456 789)"
             value={landlord.phone_number}
-            onChange={(e) => handle_change('phone_number', e.target.value)}
+            onChange={(val) => handle_change('phone_number', val || '')}
+            className="input w-full"
+            defaultCountry="RW"
           />
         </div>
       </div>

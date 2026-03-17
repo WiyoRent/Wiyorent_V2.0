@@ -11,6 +11,7 @@ import { Save, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { getBaseURL } from '@/lib/getBaseURL';
 import { toast } from 'react-toastify';
+import { checkPhoneNumber } from '@/validators/phone';
 
 
 export default function EditListingForm({ initial_data, listingId }) {
@@ -53,6 +54,13 @@ export default function EditListingForm({ initial_data, listingId }) {
 
   // --- Handlers ---
   const handle_save = async () => {
+    try {
+      checkPhoneNumber(landlord_phone, 'Please enter a valid landlord phone number');
+    } catch (error) {
+      toast.error(error.message);
+      return;
+    }
+
     set_is_saving(true);
 
     const loadingToast = toast.loading('Editing Listing', {

@@ -1,4 +1,8 @@
+'use client';
+
 import { UserCircle, Calendar } from 'lucide-react';
+import PhoneInputWithCountrySelect from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
 
 export default function LandlordAvailabilitySection({
   landlord_name,
@@ -48,13 +52,12 @@ export default function LandlordAvailabilitySection({
             </span>
           </label>
           <br />
-          <input
-            type="tel"
+          <PhoneInputWithCountrySelect
+            placeholder="Enter phone number (+250 123 456 789)"
             value={landlord_phone}
-            onChange={(e) => set_landlord_phone(e.target.value)}
-            placeholder="+250780000000"
-            className="input input-bordered rounded-field font-secondary text-sm"
-            required
+            onChange={(val) => set_landlord_phone(val || '')}
+            className="input w-full"
+            defaultCountry="RW"
           />
         </div>
 

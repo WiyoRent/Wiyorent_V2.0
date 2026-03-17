@@ -7,9 +7,16 @@ import PhoneInputWithCountrySelect from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 
 const KIGALI_NEIGHBORHOODS = [
-  'Kicukiro', 'Remera', 'Nyarutarama', 'Kimironko', 'Kacyiru',
-  'Gasabo', 'Gisozi', 'Gikondo', 'Kibagabaga', 'Kanombe',
-  'Nyamirambo', 'Muhima',
+  'Kabeza',
+  'Kacyiru',
+  'Kanombe',
+  'Kibagabaga',
+  'Kicukiro',
+  'Kimironko',
+  'Kwananzira',
+  'Remera',
+  'Sekimondo',
+  'Zindiro'
 ];
 
 export default function HouseListingSection({
@@ -120,6 +127,11 @@ export default function HouseListingSection({
                   placeholder="e.g. 150000"
                   className="input input-bordered rounded-field font-secondary text-sm"
                 />
+                {listing_price > 0 && (
+                  <p className="font-secondary text-xs text-base-content/40 mt-1">
+                    RWF {new Intl.NumberFormat('rw-RW').format(listing_price)}
+                  </p>
+                )}
               </div>
 
               <div className="form-control">
@@ -136,6 +148,11 @@ export default function HouseListingSection({
                   placeholder="e.g. 50000"
                   className="input input-bordered rounded-field font-secondary text-sm"
                 />
+                {listing_caution_fee > 0 && (
+                  <p className="font-secondary text-xs text-base-content/40 mt-1">
+                    RWF {new Intl.NumberFormat('rw-RW').format(listing_caution_fee)}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -283,7 +300,8 @@ export default function HouseListingSection({
                 <br />
                 <input
                   type="text"
-                  value={listing_city || ''}
+                  disabled
+                  value={'Kigali'}
                   onChange={(e) => set_listing_city(e.target.value)}
                   placeholder="e.g. Kigali"
                   className="input input-bordered rounded-field font-secondary text-sm"
