@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
-import { SlidersHorizontal, X, Bed, Users, Info, ChevronDown } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { SlidersHorizontal, X, Bed, Users } from 'lucide-react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import FilterSection from '@/components/public/shared/FilterSection';
+import FilterTooltip from '@/components/public/shared/FilterTooltip';
 
 const format_price = (value) =>
   `RWF ${new Intl.NumberFormat('rw-RW').format(value)}`;
@@ -11,94 +12,6 @@ const format_price = (value) =>
 const LABEL_CLS = "font-secondary text-[11px] font-medium text-base-content/50 uppercase tracking-widest";
 
 const WIYORENT_TIP = "WiyoRent Houses are properties managed directly by WiyoRent — no agent or commission fee. You pay rent directly, no hidden charges. Non-WiyoRent listings are privately managed and may include a commission fee on top of the rent.";
-
-// ── Portal tooltip — renders at document.body to escape all overflow clipping ──
-function InfoTooltip({ text }) {
-  const [open, set_open] = useState(false);
-  const [pos, set_pos] = useState({ top: 0, left: 0 });
-  const trigger_ref = useRef(null);
-
-  const handle_enter = () => {
-    if (trigger_ref.current) {
-      const rect = trigger_ref.current.getBoundingClientRect();
-      const is_desktop = window.matchMedia('(min-width: 1024px)').matches;
-      if (is_desktop) {
-        // Below the icon, left-aligned to icon
-        set_pos({ top: rect.bottom + 8, left: rect.left });
-      } else {
-        // Mobile: prefer right of icon, fall back to below
-        const fits_right = rect.right + 268 <= window.innerWidth;
-        set_pos(
-          fits_right
-            ? { top: rect.top + rect.height / 2, left: rect.right + 8, translate: '-0%, -50%' }
-            : { top: rect.bottom + 8, left: rect.left + rect.width / 2, translate: '-50%, 0%' }
-        );
-      }
-    }
-    set_open(true);
-  };
-
-  const tooltip = open && (
-    <div
-      style={{
-        position: 'fixed',
-        top: pos.top,
-        left: pos.left,
-        transform: pos.translate ? `translate(${pos.translate})` : undefined,
-        maxWidth: 250,
-        zIndex: 9999,
-      }}
-      className="w-max bg-neutral text-neutral-content text-xs rounded-lg px-3 py-2 font-secondary leading-relaxed shadow-xl pointer-events-none"
-    >
-      {text}
-    </div>
-  );
-
-  return (
-    <div
-      ref={trigger_ref}
-      className="relative inline-flex"
-      onMouseEnter={handle_enter}
-      onMouseLeave={() => set_open(false)}
-    >
-      <Info size={14} className="text-base-content/40 hover:text-accent cursor-help transition-colors" />
-      {typeof window !== 'undefined' && createPortal(tooltip, document.body)}
-    </div>
-  );
-}
-
-// ── Collapsible section wrapper ────────────────────────────────────────────────
-function FilterSection({ title, is_open, on_toggle, active_count, children }) {
-  return (
-    <div>
-      <button
-        type="button"
-        onClick={on_toggle}
-        className="flex items-center justify-between w-full py-3 group"
-      >
-        <div className="flex items-center gap-2">
-          <span className="font-primary text-[14px] font-extrabold text-base-content uppercase tracking-wider">
-            {title}
-          </span>
-          {active_count > 0 && (
-            <span className="w-2 h-2 rounded-full bg-accent flex-shrink-0" />
-          )}
-        </div>
-        <ChevronDown
-          size={15}
-          className={`text-base-content/40 transition-transform duration-200 group-hover:text-base-content/70 ${
-            is_open ? '' : '-rotate-90'
-          }`}
-        />
-      </button>
-      {is_open && (
-        <div className="flex flex-col gap-4 pb-4">
-          {children}
-        </div>
-      )}
-    </div>
-  );
-}
 
 export default function FilterSidebar({ filter_options }) {
   const { price_range, neighborhoods, furnishing_options, availability_options } =
@@ -216,7 +129,7 @@ export default function FilterSidebar({ filter_options }) {
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <span className={LABEL_CLS}>WiyoRent Houses</span>
-            <InfoTooltip text={WIYORENT_TIP} />
+            <FilterTooltip text={WIYORENT_TIP} />
           </div>
           <input
             type="checkbox"

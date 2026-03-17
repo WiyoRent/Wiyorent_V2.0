@@ -7,67 +7,20 @@ import { toggleSaveListing, toggleWaitlistListing } from '@/actions/public/favor
 import { useEffect } from 'react';
 
 import {
-  Wifi,
-  UtensilsCrossed,
-  Microwave,
   Heart,
   MapPin,
   ShieldCheck,
   Bed,
   Bath,
   Users,
-  Home,
   Building2,
   Info,
   ClipboardList,
 } from 'lucide-react';
 
 import Link from 'next/link';
-
-
-// Map amenity strings to Lucide icons
-const amenity_icon_map = {
-  wifi: Wifi,
-  stove: UtensilsCrossed,
-  microwave: Microwave,
-  // blender was removed
-};
-
-const amenity_fallback_icon = Home;
-
-function AmenityBadge({ amenity }) {
-  const iconKey = amenity.toLowerCase();
-  const IconComponent = amenity_icon_map[iconKey] || amenity_fallback_icon;
-  
-  return (
-    <div
-      className="w-8 h-8 rounded-field bg-base-300 flex items-center justify-center flex-shrink-0"
-      title={amenity.charAt(0).toUpperCase() + amenity.slice(1)}
-    >
-      <IconComponent size={15} className="text-base-content/70" />
-    </div>
-  );
-}
-
-function StatusBadge({ available_status }) {
-  const is_available = available_status === 'available';
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-field text-xs font-primary font-bold uppercase tracking-wide ${
-        is_available
-          ? 'bg-success text-success-content'
-          : 'bg-error text-error-content'
-      }`}
-    >
-      {is_available ? (
-        <ShieldCheck size={12} />
-      ) : (
-        <span className="w-1.5 h-1.5 rounded-full bg-current inline-block" />
-      )}
-      {is_available ? 'Available' : 'Booked'}
-    </span>
-  );
-}
+import AmenityBadge from '@/components/public/listings/AmenityBadge';
+import StatusBadge from '@/components/public/listings/StatusBadge';
 
 export default function ListingCard({ listing }) {
   console.log(listing.is_saved, '----is_SAVED')

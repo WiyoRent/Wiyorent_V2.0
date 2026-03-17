@@ -1,57 +1,11 @@
 'use client';
-import { useState } from 'react';
 import {
   Home, Bed, Bath, Sofa, Users, Phone,
-  CalendarDays, ChevronLeft, ChevronRight, Banknote,
+  CalendarDays, Banknote,
 } from 'lucide-react';
+import ImageCarousel from '@/components/shared/ImageCarousel';
 
 const format_rwf = (n) => `RWF ${new Intl.NumberFormat('rw-RW').format(n)}`;
-
-function ImageCarousel({ images }) {
-  const [idx, setIdx] = useState(0);
-  if (!images?.length) return null;
-
-  return (
-    <div className="relative border border-accent w-full aspect-video rounded-box overflow-hidden bg-base-300 flex-shrink-0">
-      <img src={images[idx]} alt="" className="w-full h-full object-cover" />
-
-      {images.length > 1 && (
-        <>
-          <button
-            onClick={() => setIdx((i) => (i - 1 + images.length) % images.length)}
-            className="absolute left-3 top-1/2 -translate-y-1/2 btn  btn-circle btn-sm bg-base-100/80 border-none shadow"
-          >
-            <ChevronLeft size={16} />
-          </button>
-          <button
-            onClick={() => setIdx((i) => (i + 1) % images.length)}
-            className="absolute right-3 top-1/2 -translate-y-1/2  btn btn-circle btn-sm bg-accent-100/80 border-none shadow"
-          >
-            <ChevronRight size={16} />
-          </button>
-
-          {/* Dot indicators */}
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-            {images.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setIdx(i)}
-                className={`h-2 rounded-full transition-all duration-200 ${
-                  i === idx ? 'bg-accent w-4' : 'bg-white/60 w-2'
-                }`}
-              />
-            ))}
-          </div>
-
-          {/* Counter */}
-          <span className="absolute top-3 right-3 bg-base-100/70 backdrop-blur-sm font-secondary text-xs px-2 py-1 rounded-field text-base-content/70">
-            {idx + 1} / {images.length}
-          </span>
-        </>
-      )}
-    </div>
-  );
-}
 
 export default function UserListingSection({ listing }) {
   if (!listing?.price) return null;

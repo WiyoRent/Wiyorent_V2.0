@@ -6,7 +6,7 @@ import LandlordAvailabilitySection from './LandlordAvailabilitySection';
 import FinancialsSpecsSection from './FinancialsSpecsSection';
 import BasicInfoSection from './BasicInfoSection';
 import MediaManagerSection from './MediaManagerSection';
-import AmenitiesRulesSection from './AmenitiesRulesSection';
+import AmenitiesRulesSection from '@/components/shared/AmenitiesRulesSection';
 import { Save, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { getBaseURL } from '@/lib/getBaseURL';

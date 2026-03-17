@@ -1,3 +1,4 @@
+'use client';
 import { Plus, X, Sparkles, FileText } from 'lucide-react';
 import { useState } from 'react';
 

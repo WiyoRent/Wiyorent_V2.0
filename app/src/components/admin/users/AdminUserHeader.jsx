@@ -6,31 +6,8 @@ import { updateUserStatus } from '@/actions/admin/update_user.action';
 import { toast } from 'react-toastify';
 import { deleteUser } from '@/actions/admin/update_user.action';
 import { useRouter } from 'next/navigation';
-
-// ─── Verification status badge ────────────────────────────────────────────────
-function VerificationStatusBadge({ status }) {
-  const styles = {
-    pending:  { badge: 'badge-warning', label: 'Pending'  },
-    approved: { badge: 'badge-success', label: 'Approved' },
-    rejected: { badge: 'badge-error',   label: 'Rejected' },
-  };
-  const { badge, label } = styles[status] ?? { badge: 'badge-neutral', label: status };
-  return (
-    <span className={`badge ${badge} badge-xs font-primary font-bold uppercase tracking-wide`}>
-      {label}
-    </span>
-  );
-}
-
-// ─── Account status badge ─────────────────────────────────────────────────────
-function AccountStatusBadge({ status }) {
-  const styles = { Pending: 'badge-warning', Active: 'badge-success', Inactive: 'badge-neutral' };
-  return (
-    <span className={`badge ${styles[status] ?? 'badge-neutral'} badge-xs font-primary font-bold uppercase tracking-wide`}>
-      {status}
-    </span>
-  );
-}
+import AccountStatusBadge from '@/components/admin/shared/AccountStatusBadge';
+import VerificationBadge from '@/components/admin/shared/VerificationBadge';
 
 // ─────────────────────────────────────────────────────────────────────────────
 export default function AdminUserHeader({
@@ -276,7 +253,7 @@ export default function AdminUserHeader({
             </div>
             <div className="flex items-center gap-1.5 bg-base-200 rounded-field px-2.5 py-1">
               <span className="font-secondary text-[10px] text-base-content/50 uppercase tracking-wide">Verif:</span>
-              <VerificationStatusBadge status={verification_status} />
+              <VerificationBadge status={verification_status} />
             </div>
           </div>
         </div>

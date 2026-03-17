@@ -1,91 +1,13 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
-import { SlidersHorizontal, X, ChevronDown, Info } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { SlidersHorizontal, X, ChevronDown } from 'lucide-react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import FilterSection from '@/components/public/shared/FilterSection';
+import FilterTooltip from '@/components/public/shared/FilterTooltip';
+import FieldLabel from '@/components/public/shared/FieldLabel';
 
 const format_rwf = (n) => `RWF ${new Intl.NumberFormat('rw-RW').format(n)}`;
-
-// ── Tooltip ────────────────────────────────────────────────────────────────────
-function Tooltip({ text }) {
-  const [visible, set_visible] = useState(false);
-  const ref = useRef(null);
-
-  useEffect(() => {
-    const handle = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) set_visible(false);
-    };
-    document.addEventListener('mousedown', handle);
-    return () => document.removeEventListener('mousedown', handle);
-  }, []);
-
-  return (
-    <span ref={ref} className="relative inline-flex items-center ml-1">
-      <button
-        type="button"
-        onMouseEnter={() => set_visible(true)}
-        onMouseLeave={() => set_visible(false)}
-        onClick={() => set_visible(v => !v)}
-        className="text-base-content/25 hover:text-accent transition-colors"
-        aria-label="More info"
-      >
-        <Info size={11} />
-      </button>
-      {visible && (
-        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 bg-base-content text-base-100 text-[11px] font-secondary rounded-box px-3 py-2 shadow-xl z-50 leading-relaxed pointer-events-none">
-          {text}
-          <span className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-base-content" />
-        </span>
-      )}
-    </span>
-  );
-}
-
-// ── Collapsible section wrapper ────────────────────────────────────────────────
-function FilterSection({ title, is_open, on_toggle, active_count, children }) {
-  return (
-    <div>
-      <button
-        type="button"
-        onClick={on_toggle}
-        className="flex items-center justify-between w-full py-3 group"
-      >
-        <div className="flex items-center gap-2">
-          <span className="font-primary text-[14px] font-bold  uppercase tracking-widest">
-            {title}
-          </span>
-          {/* Numbered badge instead of dot */}
-          {active_count > 0 && (
-            <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 rounded-full bg-accent/15 text-accent text-[10px] font-bold font-secondary">
-              {active_count}
-            </span>
-          )}
-        </div>
-        <ChevronDown
-          size={13}
-          className={`text-base-content/30 transition-transform duration-200 group-hover:text-base-content/60 ${
-            is_open ? '' : '-rotate-90'
-          }`}
-        />
-      </button>
-      {is_open && (
-        <div className="flex flex-col gap-4 pb-4">
-          {children}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── Field label ────────────────────────────────────────────────────────────────
-function FieldLabel({ children, tip }) {
-  return (
-    <label className="flex items-center gap-1 font-secondary text-[10px] font-medium text-base-content/40 uppercase tracking-widest mb-1.5">
-      {children}
-      {tip && <Tooltip text={tip} />}
-    </label>
-  );
-}
 
 // ── Main component ─────────────────────────────────────────────────────────────
 export default function HousemateFilterSidebar({ filter_options }) {
@@ -378,7 +300,7 @@ export default function HousemateFilterSidebar({ filter_options }) {
           <div className="flex flex-col gap-0.5">
             <span className="font-secondary text-[12px] font-medium text-base-content/70 flex items-center gap-1">
               Already has a place
-              <Tooltip text="Only show people who already have a house and are looking for someone to move in." />
+              <FilterTooltip text="Only show people who already have a house and are looking for someone to move in." />
             </span>
             <span className="font-secondary text-[10px] text-base-content/35">
               Has a house, needs housemates

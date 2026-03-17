@@ -1,62 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { Info, Phone, MessageCircle } from 'lucide-react';
+import { Phone, MessageCircle } from 'lucide-react';
+import FilterTooltip from '@/components/public/shared/FilterTooltip';
+import PricingRow from '@/components/public/listing/PricingRow';
 
 const format_rwf = (amount) =>
   `RWF ${new Intl.NumberFormat('rw-RW').format(amount)}`;
 
-function PricingRow({ label, sublabel, amount, highlight = false, size = 'normal' }) {
-  return (
-    <div className={`flex items-start justify-between gap-3 ${size === 'large' ? 'py-1' : ''}`}>
-      <div className="flex flex-col gap-0.5 min-w-0">
-        <span
-          className={`font-secondary leading-snug ${
-            highlight
-              ? 'text-sm font-bold text-base-content'
-              : 'text-sm text-base-content/70'
-          }`}
-        >
-          {label}
-        </span>
-        {sublabel && (
-          <span className="font-secondary text-xs text-base-content/40 leading-snug">
-            {sublabel}
-          </span>
-        )}
-      </div>
-      <span
-        className={`font-primary font-extrabold flex-shrink-0 ${
-          highlight
-            ? 'text-base text-primary'
-            : 'text-sm text-base-content/80'
-        }`}
-      >
-        {format_rwf(amount)}
-      </span>
-    </div>
-  );
-}
-
-function Tooltip({ text }) {
-  const [visible, set_visible] = useState(false);
-  return (
-    <span className="relative inline-flex">
-      <Info
-        size={13}
-        className="text-base-content/30 cursor-pointer hover:text-base-content/60 transition-colors"
-        onMouseEnter={() => set_visible(true)}
-        onMouseLeave={() => set_visible(false)}
-      />
-      {visible && (
-        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-base-content text-base-100 text-xs font-secondary rounded-field px-3 py-2 leading-snug z-10 shadow-lg pointer-events-none">
-          {text}
-          <span className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-base-content" />
-        </span>
-      )}
-    </span>
-  );
-}
 
 export default function PricingSidebar({ financials, total_first_payment, listing_id, is_a_wiyorent_house = false }) {
   const { price_per_month, commission_fee, caution_fee, upfront_months = 1 } = financials;
@@ -91,7 +42,7 @@ export default function PricingSidebar({ financials, total_first_payment, listin
                 <span className="font-secondary text-sm text-base-content/70">
                   Security Deposit
                 </span>
-                <Tooltip text="Caution fee is fully refundable when you vacate and return the property in good condition." />
+                <FilterTooltip text="Caution fee is fully refundable when you vacate and return the property in good condition." />
               </div>
               <span className="font-secondary text-xs text-success font-semibold">
                 Refundable &amp; Returnable
@@ -112,7 +63,7 @@ export default function PricingSidebar({ financials, total_first_payment, listin
                   Service Fee {!is_a_wiyorent_house && `(${commission_percent}%)`}
                 </span>
                 {!is_a_wiyorent_house && (
-                  <Tooltip text={`One-time platform service fee of ${commission_percent}% of one month's rent.`} />
+                  <FilterTooltip text={`One-time platform service fee of ${commission_percent}% of one month's rent.`} />
                 )}
               </div>
               {is_a_wiyorent_house ? (

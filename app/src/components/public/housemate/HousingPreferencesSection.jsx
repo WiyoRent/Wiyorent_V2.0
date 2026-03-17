@@ -7,38 +7,10 @@ import {
   CheckCircle,
   XCircle,
 } from 'lucide-react';
+import PrefRow from '@/components/public/housemate/PrefRow';
+import BooleanBadge from '@/components/public/housemate/BooleanBadge';
 
 const format_rwf = (n) => `RWF ${new Intl.NumberFormat('rw-RW').format(n)}`;
-
-function PrefRow({ icon: Icon, label, children }) {
-  return (
-    <div className="flex items-start gap-3 py-2.5 border-b border-base-200 last:border-0">
-      <div className="w-8 h-8 bg-base-200 rounded-field flex items-center justify-center flex-shrink-0 mt-0.5">
-        <Icon size={15} className="text-accent" />
-      </div>
-      <div className="flex flex-col gap-1 flex-1 min-w-0">
-        <span className="font-secondary text-xs text-base-content/40 uppercase tracking-wide leading-none">
-          {label}
-        </span>
-        <div className="mt-0.5">{children}</div>
-      </div>
-    </div>
-  );
-}
-
-function BooleanBadge({ value, true_label, false_label }) {
-  return value ? (
-    <span className="inline-flex items-center gap-1.5 text-success font-secondary text-sm font-semibold">
-      <CheckCircle size={15} className="text-success" />
-      {true_label}
-    </span>
-  ) : (
-    <span className="inline-flex items-center gap-1.5 text-error font-secondary text-sm font-semibold">
-      <XCircle size={15} className="text-error" />
-      {false_label}
-    </span>
-  );
-}
 
 export default function HousingPreferencesSection({ preferences }) {
   const {
