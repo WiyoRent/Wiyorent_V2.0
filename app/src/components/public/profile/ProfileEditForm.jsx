@@ -11,8 +11,11 @@ import { Save } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { checkPhoneNumber } from '@/validators/phone';
 import { editProfile } from '@/services/public/profile.service';
+import { useRouter } from 'next/navigation';
 
-export default function ProfileEditForm({ initial_data, available_neighborhoods }) {
+export default function ProfileEditForm({ initial_data, available_neighborhoods, redirect_to }) {
+
+  const router = useRouter()
 
   // ───────────────────────── Basic Profile ─────────────────────────
   const [is_profile_public, set_is_profile_public] = useState(initial_data.is_profile_public);
@@ -201,12 +204,18 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods 
     const loadingToast = toast.loading('Updating Your Profile..');
     try {
       const result = await editProfile(formData);
+
       toast.update(loadingToast, {
         type: 'success',
-        render: result.message || 'Profile updated successfully',
+        render: result.message || initial_data.is_onboarded ? 'Profile updated successfully' : 'Onboarding process completed successfully',
         autoClose: 4000,
         isLoading: false,
       });
+
+      if (!initial_data.is_onboarded) {
+        router.push(redirect_to);
+      }
+
     } catch (error) {
       console.error(error, '-error on profile frontend');
       toast.update(loadingToast, {
