@@ -173,7 +173,7 @@ export default function HousemateCard({ profile, my_verification_status }) {
       {is_urgent && (
         <div className="flex items-center gap-1.5 px-4 py-1.5 bg-accent rounded-t-box">
           <span className="font-primary text-[10px] font-extrabold uppercase tracking-widest text-secondary">
-            Looking for a place ASAP
+            IS Looking for a place ASAP
           </span>
         </div>
       )}

@@ -217,7 +217,7 @@ export default function HousingPreferencesEditSection({
           <label className="label">
             <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide flex items-center gap-1.5">
               <Wallet size={12} className="text-accent" />
-              Monthly Budget (per person)
+              Your Monthly Budget rent budget
             </span>
           </label>
 

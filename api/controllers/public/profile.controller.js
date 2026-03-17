@@ -107,7 +107,6 @@ export const updateProfile = async (req, res) => {
             !year_of_study ||
             !phone_number ||
             !move_in_date ||
-            !min ||
             !max ||
             !max_housemates ||
             !sleep_schedule ||
@@ -118,7 +117,7 @@ export const updateProfile = async (req, res) => {
             !lease_duration ||
             !urgency
         ) {
-            return errorMsg(res, 400, "Please enter all fields")
+            return errorMsg(res, 400, "Please enter all fieldssss")
         }
 
         if(!req.body.avatar && !req.files.avatar){
