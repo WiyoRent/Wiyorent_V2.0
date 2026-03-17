@@ -1,5 +1,5 @@
 "use client";
-import { Search, Home, UserCheck, SlidersHorizontal, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Search, Home, UserCheck, SlidersHorizontal, ArrowRight, CheckCircle2, ExternalLink } from "lucide-react";
 import Link from "next/link";
 
 const FILTERS = [
@@ -63,6 +63,12 @@ export default function HousemateFeature() {
             Kigali's first student roommate matching platform. Whether you need a place or already have one —
             connect with verified students from CMU-Africa, ALU, UR and more.
           </p>
+          <Link href="/housemate-matching" className="inline-flex items-center gap-2 group mt-1">
+            <span className="font-secondary text-xs font-semibold text-accent uppercase tracking-[0.18em] group-hover:text-accent/80 transition-colors duration-200">
+              See how it works
+            </span>
+            <ExternalLink size={11} className="text-accent/60 group-hover:text-accent/80 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200" />
+          </Link>
         </div>
 
         {/* ── Sub-section 1: Two cards — Find a Housemate + Has a House ── */}
