@@ -11,7 +11,7 @@ const format_price = (value) =>
 
 const LABEL_CLS = "font-secondary text-[11px] font-medium text-base-content/50 uppercase tracking-widest";
 
-const WIYORENT_TIP = "WiyoRent Houses are properties managed directly by WiyoRent — no agent or commission fee. You pay rent directly, no hidden charges. Non-WiyoRent listings are privately managed and may include a commission fee on top of the rent.";
+const WIYORENT_TIP = "WiyoRent Houses are properties managed directly by WiyoRent — no commission fee. You only pay rent directly, no hidden charges. Non-WiyoRent listings are privately managed and may include a commission fee on top of the rent.";
 
 export default function FilterSidebar({ filter_options }) {
   const { price_range, neighborhoods, furnishing_options, availability_options } =
@@ -116,7 +116,7 @@ export default function FilterSidebar({ filter_options }) {
 
   // ── Filter groups (shared between mobile + desktop) ─────────────────────────
   const filter_groups = (
-    <div className="divide-y divide-base-300">
+    <div className="divide-y divide-base-300 z-50">
 
       {/* ── Group 1: Type & Location ────────────────────────── */}
       <FilterSection
@@ -177,7 +177,7 @@ export default function FilterSidebar({ filter_options }) {
         active_count={pricing_active}
       >
         <div className="flex flex-col">
-          <label className={LABEL_CLS}>Max price</label>
+          <label className={LABEL_CLS}>Max budget</label>
           <div className="flex items-baseline gap-1.5 mb-2">
             <span className="font-secondary text-[11px] text-base-content/40">Up to</span>
             <span className="font-secondary text-[15px] font-bold text-base-content">
@@ -395,8 +395,8 @@ export default function FilterSidebar({ filter_options }) {
       )}
 
       {/* ── Desktop sidebar ─────────────────────────────────────────────────── */}
-      <div className="hidden lg:block sticky top-6 max-h-[calc(100vh-3rem)] overflow-y-auto sidebar-scroll">
-        <div className="bg-base-100 rounded-box shadow-md p-6 border-t-4 border-accent">
+      <div className="hidden lg:block sticky top-6 max-h-[calc(100vh-3rem)] overflow-y-auto  sidebar-scroll">
+        <div className="bg-base-100 rounded-box shadow-md p-6 border-t-4 border-accent overflow-visible ">
           {sidebar_header}
           {filter_groups}
           <div className="pt-4">

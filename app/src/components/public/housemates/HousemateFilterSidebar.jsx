@@ -154,7 +154,7 @@ export default function HousemateFilterSidebar({ filter_options }) {
       key={label}
       type="button"
       onClick={on_click}
-      className={`px-3 py-1 rounded-full font-secondary text-[11px] font-semibold transition-all border ${
+      className={`px-3 py-1 rounded-full font-secondary text-xs font-bold transition-all border ${
         is_active
           ? 'bg-accent/15 border-accent/40 text-accent'
           : 'bg-base-100 border-base-300 text-base-content/50 hover:border-accent/40 hover:text-accent/80'
@@ -176,7 +176,7 @@ export default function HousemateFilterSidebar({ filter_options }) {
             key={String(val)}
             type="button"
             onClick={() => setter(value === val ? null : val)}
-            className={`px-3 py-1 rounded-field font-secondary text-[11px] font-semibold transition-all border ${
+            className={`px-3 py-1 rounded-field font-secondary text-xs font-bold transition-all border ${
               value === val
                 ? 'bg-accent/15 border-accent/40 text-accent'
                 : 'bg-base-100 border-base-300 text-base-content/50 hover:border-accent/40 hover:text-accent/80'
@@ -335,7 +335,7 @@ export default function HousemateFilterSidebar({ filter_options }) {
                 key={label}
                 type="button"
                 onClick={() => set_private_room(private_room === val ? null : val)}
-                className={`py-1.5 rounded-field font-secondary text-[11px] font-semibold transition-all border text-center ${
+                className={`py-1.5 rounded-field font-secondary text-xs font-bold transition-all border text-center ${
                   private_room === val
                     ? 'bg-accent/15 border-accent/40 text-accent'
                     : 'bg-base-100 border-base-300 text-base-content/50 hover:border-accent/40 hover:text-accent/80'
@@ -361,7 +361,7 @@ export default function HousemateFilterSidebar({ filter_options }) {
             <button
               type="button"
               onClick={() => set_move_in_date('')}
-              className="flex items-center gap-1 mt-1 text-[11px] font-secondary text-base-content/35 hover:text-error transition-colors self-start"
+              className="flex items-center gap-1 mt-1 text-xs font-secondary text-base-content/35 hover:text-error transition-colors self-start"
             >
               <X size={10} /> Clear date
             </button>
@@ -400,7 +400,7 @@ export default function HousemateFilterSidebar({ filter_options }) {
     <div className="flex items-center justify-between mb-2">
       <div className="flex items-center gap-2">
         <SlidersHorizontal size={15} className="text-accent" />
-        <h2 className="font-primary text-[13px] font-bold text-base-content/70 uppercase tracking-widest">
+        <h2 className="font-primary text-lg font-extrabold text-base-content/70 uppercase tracking-widest">
           Filters
         </h2>
       </div>
@@ -408,7 +408,7 @@ export default function HousemateFilterSidebar({ filter_options }) {
         <button
           type="button"
           onClick={handle_reset}
-          className="flex items-center gap-1 text-[11px] font-secondary text-base-content/40 hover:text-error transition-colors"
+          className="flex items-center gap-1 text-xs font-secondary text-base-content/40 hover:text-error transition-colors"
         >
           <X size={11} /> Reset all
         </button>
@@ -428,9 +428,7 @@ export default function HousemateFilterSidebar({ filter_options }) {
           <SlidersHorizontal size={15} />
           Filters
           {has_filters && (
-            <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 rounded-full bg-accent text-accent-content text-[10px] font-bold">
-              {essentials_active + living_active + lifestyle_active}
-            </span>
+            <span className="badge badge-accent badge-sm font-bold">!</span>
           )}
         </button>
       </div>
@@ -448,7 +446,7 @@ export default function HousemateFilterSidebar({ filter_options }) {
             <div className="flex-shrink-0 flex items-center justify-between px-5 py-4 border-b border-base-200">
               <div className="flex items-center gap-2">
                 <SlidersHorizontal size={15} className="text-accent" />
-                <h2 className="font-primary text-[13px] font-bold text-base-content/70 uppercase tracking-widest">
+                <h2 className="font-primary text-lg font-extrabold text-base-content/70 uppercase tracking-widest">
                   Filters
                 </h2>
               </div>
@@ -472,7 +470,7 @@ export default function HousemateFilterSidebar({ filter_options }) {
                 <button
                   type="button"
                   onClick={handle_reset}
-                  className="btn btn-ghost btn-sm w-full rounded-field font-secondary text-[11px] uppercase tracking-widest text-error border border-error/20 hover:bg-error/5"
+                  className="btn btn-ghost btn-sm w-full rounded-field font-primary font-bold text-xs uppercase tracking-widest text-error border border-error/20 hover:bg-error/5"
                 >
                   <X size={12} /> Reset all
                 </button>

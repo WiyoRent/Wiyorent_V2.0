@@ -186,7 +186,7 @@ export default function ListingsFilterBar({ filter_options = {} }) {
 
         {/* Max Price */}
         <div className="flex flex-col">
-          <FilterLabel>Max price</FilterLabel>
+          <FilterLabel>Max Budget</FilterLabel>
           <div className="flex items-baseline gap-1.5 mb-2">
             <span className="font-secondary text-[11px] text-base-content/40">Up to</span>
             <span className="font-secondary text-[15px] font-bold text-base-content">
