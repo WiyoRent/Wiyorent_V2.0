@@ -9,9 +9,17 @@ import FilterTooltip from '@/components/public/shared/FilterTooltip';
 const format_price = (value) =>
   `RWF ${new Intl.NumberFormat('rw-RW').format(value)}`;
 
-const LABEL_CLS = "font-secondary text-[11px] font-medium text-base-content/50 uppercase tracking-widest";
+const LABEL_CLS = "font-secondary text-[11px] font-semibold text-base-content/50 tracking-wide";
 
 const WIYORENT_TIP = "WiyoRent Houses are properties managed directly by WiyoRent — no commission fee. You only pay rent directly, no hidden charges. Non-WiyoRent listings are privately managed and may include a commission fee on top of the rent.";
+
+// Shared pill button style
+const pill_cls = (is_active) =>
+  `px-3 py-1.5 rounded-full font-secondary text-xs font-bold transition-all duration-150 border ${
+    is_active
+      ? 'bg-accent border-accent text-accent-content shadow-sm'
+      : 'bg-base-100 border-base-300 text-base-content/60 hover:border-accent/60 hover:text-accent'
+  }`;
 
 export default function FilterSidebar({ filter_options }) {
   const { price_range, neighborhoods, furnishing_options, availability_options } =
@@ -66,6 +74,8 @@ export default function FilterSidebar({ filter_options }) {
 
   const avail_active = available_from !== '' ? 1 : 0;
 
+  const total_active = type_loc_active + pricing_active + prefs_active + avail_active;
+
   const has_active_filters =
     price_max !== price_range.max ||
     selected_neighborhoods.length > 0 ||
@@ -102,21 +112,13 @@ export default function FilterSidebar({ filter_options }) {
     }
     if (available_from) param.set('available_from', available_from)
 
-    console.log('Applying filters:', {
-      price_max,
-      neighborhoods: selected_neighborhoods,
-      furnishing: selected_furnishing,
-      availability: selected_availability,
-      bedrooms, max_roommates, wiyorent_only,
-    });
-
     set_is_mobile_open(false)
     router.push(`?${param.toString()}`)
   }
 
   // ── Filter groups (shared between mobile + desktop) ─────────────────────────
   const filter_groups = (
-    <div className="divide-y divide-base-300 z-50">
+    <div className="divide-y divide-base-200">
 
       {/* ── Group 1: Type & Location ────────────────────────── */}
       <FilterSection
@@ -155,11 +157,7 @@ export default function FilterSidebar({ filter_options }) {
                         : [...prev, neighborhood]
                     )
                   }
-                  className={`px-3 py-1.5 rounded-field font-secondary text-xs font-bold transition-all border ${
-                    is_selected
-                      ? 'bg-accent border-accent text-accent-content shadow-md'
-                      : 'bg-base-100 border-base-300 text-base-content/60 hover:border-accent hover:text-accent'
-                  }`}
+                  className={pill_cls(is_selected)}
                 >
                   {neighborhood}
                 </button>
@@ -178,7 +176,7 @@ export default function FilterSidebar({ filter_options }) {
       >
         <div className="flex flex-col">
           <label className={LABEL_CLS}>Max budget</label>
-          <div className="flex items-baseline gap-1.5 mb-2">
+          <div className="flex items-baseline gap-1.5 mb-2 mt-1">
             <span className="font-secondary text-[11px] text-base-content/40">Up to</span>
             <span className="font-secondary text-[15px] font-bold text-base-content">
               {new Intl.NumberFormat('rw-RW').format(price_max)}
@@ -242,10 +240,10 @@ export default function FilterSidebar({ filter_options }) {
               <button
                 key={num}
                 onClick={() => set_bedrooms(num === bedrooms ? null : num)}
-                className={`flex-1 py-2 rounded-field font-secondary text-xs font-bold transition-all border ${
+                className={`flex-1 py-2 rounded-full font-secondary text-xs font-bold transition-all duration-150 border ${
                   bedrooms === num
-                  ? 'bg-accent border-accent text-accent-content shadow-md'
-                  : 'bg-base-100 border-base-300 text-base-content/60 hover:border-accent hover:text-accent'
+                  ? 'bg-accent border-accent text-accent-content shadow-sm'
+                  : 'bg-base-100 border-base-300 text-base-content/60 hover:border-accent/60 hover:text-accent'
                 }`}
               >
                 {num}
@@ -264,10 +262,10 @@ export default function FilterSidebar({ filter_options }) {
               <button
                 key={num}
                 onClick={() => set_max_roommates(num === max_roommates ? null : num)}
-                className={`flex-1 py-2 rounded-field font-secondary text-xs font-bold transition-all border ${
+                className={`flex-1 py-2 rounded-full font-secondary text-xs font-bold transition-all duration-150 border ${
                   max_roommates === num
-                  ? 'bg-accent border-accent text-accent-content shadow-md'
-                  : 'bg-base-100 border-base-300 text-base-content/60 hover:border-accent hover:text-accent'
+                  ? 'bg-accent border-accent text-accent-content shadow-sm'
+                  : 'bg-base-100 border-base-300 text-base-content/60 hover:border-accent/60 hover:text-accent'
                 }`}
               >
                 {num}
@@ -291,7 +289,7 @@ export default function FilterSidebar({ filter_options }) {
             value={available_from}
             min={new Date().toISOString()?.split('T')[0]}
             onChange={(e) => set_available_from(e.target.value)}
-            className="input input-bordered w-full rounded-field font-secondary text-sm bg-base-100 focus:border-accent"
+            className="input input-bordered w-full rounded-xl font-secondary text-sm bg-base-100 focus:border-accent"
           />
           {available_from && (
             <button
@@ -311,15 +309,20 @@ export default function FilterSidebar({ filter_options }) {
   const sidebar_header = (
     <div className="flex items-center justify-between mb-1">
       <div className="flex items-center gap-2">
-        <SlidersHorizontal size={18} className="text-accent" />
-        <h2 className="font-primary text-lg font-extrabold text-base-content uppercase tracking-wide">
+        <SlidersHorizontal size={16} className="text-accent" />
+        <h2 className="font-primary text-base font-extrabold text-base-content uppercase tracking-wide">
           Filter By
         </h2>
+        {has_active_filters && (
+          <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-accent text-accent-content text-[10px] font-extrabold font-primary">
+            {total_active}
+          </span>
+        )}
       </div>
       {has_active_filters && (
         <button
           onClick={handle_reset}
-          className="flex items-center gap-1 text-xs font-secondary text-base-content/50 hover:text-error transition-colors"
+          className="flex items-center gap-1 text-xs font-secondary text-base-content/40 hover:text-error transition-colors"
         >
           <X size={12} /> Reset
         </button>
@@ -333,12 +336,14 @@ export default function FilterSidebar({ filter_options }) {
       <div className="lg:hidden mb-4">
         <button
           onClick={() => set_is_mobile_open(true)}
-          className="btn btn-outline btn-accent w-full rounded-field font-primary font-bold text-sm uppercase tracking-wide gap-2 bg-base-100 hover:bg-accent hover:text-accent-content hover:border-accent transition-colors duration-200"
+          className="btn btn-outline btn-accent w-full rounded-full font-primary font-bold text-sm uppercase tracking-wide gap-2 bg-base-100 hover:bg-accent hover:text-accent-content hover:border-accent transition-colors duration-200"
         >
           <SlidersHorizontal size={16} />
           Filters
           {has_active_filters && (
-            <span className="badge badge-accent badge-sm font-bold">!</span>
+            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-accent text-accent-content text-[10px] font-extrabold">
+              {total_active}
+            </span>
           )}
         </button>
       </div>
@@ -353,10 +358,10 @@ export default function FilterSidebar({ filter_options }) {
           <div className="relative ml-auto w-80 max-w-full h-full bg-base-100 shadow-2xl flex flex-col border-l-4 border-accent">
 
             {/* Sticky header */}
-            <div className="flex-shrink-0 flex items-center justify-between px-5 py-4 border-b border-base-300">
+            <div className="flex-shrink-0 flex items-center justify-between px-5 py-4 border-b border-base-200">
               <div className="flex items-center gap-2">
-                <SlidersHorizontal size={18} className="text-accent" />
-                <h2 className="font-primary text-lg font-extrabold text-base-content uppercase tracking-wide">
+                <SlidersHorizontal size={16} className="text-accent" />
+                <h2 className="font-primary text-base font-extrabold text-base-content uppercase tracking-wide">
                   Filter By
                 </h2>
               </div>
@@ -374,18 +379,18 @@ export default function FilterSidebar({ filter_options }) {
             </div>
 
             {/* Sticky footer — always visible */}
-            <div className="flex-shrink-0 px-5 py-4 border-t border-base-300 bg-base-100 flex flex-col gap-2">
+            <div className="flex-shrink-0 px-5 py-4 border-t border-base-200 bg-base-100 flex flex-col gap-2">
               {has_active_filters && (
                 <button
                   onClick={handle_reset}
-                  className="btn btn-ghost btn-sm w-full rounded-field font-primary font-bold text-xs uppercase tracking-widest text-error border border-error/30 hover:bg-error/5"
+                  className="btn btn-ghost btn-sm w-full rounded-full font-primary font-bold text-xs uppercase tracking-widest text-error border border-error/30 hover:bg-error/5"
                 >
                   <X size={13} /> Reset All
                 </button>
               )}
               <button
                 onClick={handle_apply}
-                className="btn btn-accent w-full rounded-field font-primary font-extrabold text-sm uppercase tracking-wider shadow-lg hover:shadow-accent/20 transition-all active:scale-95"
+                className="btn btn-accent w-full rounded-full font-primary font-extrabold text-sm uppercase tracking-wider shadow-md hover:shadow-accent/20 transition-all active:scale-95"
               >
                 Apply Filters
               </button>
@@ -395,14 +400,14 @@ export default function FilterSidebar({ filter_options }) {
       )}
 
       {/* ── Desktop sidebar ─────────────────────────────────────────────────── */}
-      <div className="hidden lg:block sticky top-6 max-h-[calc(100vh-3rem)] overflow-y-auto  sidebar-scroll">
-        <div className="bg-base-100 rounded-box shadow-md p-6 border-t-4 border-accent overflow-visible ">
+      <div className="hidden lg:block sticky top-6 max-h-[calc(100vh-3rem)] overflow-y-auto sidebar-scroll">
+        <div className="bg-base-100 rounded-2xl shadow-md p-6 border-t-4 border-accent overflow-visible">
           {sidebar_header}
           {filter_groups}
           <div className="pt-4">
             <button
               onClick={handle_apply}
-              className="btn btn-accent w-full rounded-field font-primary font-extrabold text-sm uppercase tracking-wider mt-2 shadow-lg hover:shadow-accent/20 transition-all active:scale-95"
+              className="btn btn-accent w-full rounded-full font-primary font-extrabold text-sm uppercase tracking-wider mt-2 shadow-md hover:shadow-accent/20 transition-all active:scale-95"
             >
               Apply Filters
             </button>

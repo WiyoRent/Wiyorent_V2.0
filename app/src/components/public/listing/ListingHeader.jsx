@@ -64,21 +64,21 @@ export default function ListingHeader({
       {/* Spec chips */}
       <div className="flex flex-wrap gap-3 mt-5">
         <div className="flex items-center gap-2 bg-base-200 px-3 py-2 rounded-field">
-          <Bed size={16} className="text-primary" />
+          <Bed size={16} className="text-accent" />
           <span className="font-secondary text-sm font-semibold text-base-content">
             {specifications?.bedroom_number}{' '}
             {specifications?.bedroom_number === 1 ? 'Bedroom' : 'Bedrooms'}
           </span>
         </div>
         <div className="flex items-center gap-2 bg-base-200 px-3 py-2 rounded-field">
-          <Bath size={16} className="text-primary" />
+          <Bath size={16} className="text-accent" />
           <span className="font-secondary text-sm font-semibold text-base-content">
             {specifications?.bathroom_number}{' '}
             {specifications?.bathroom_number === 1 ? 'Bathroom' : 'Bathrooms'}
           </span>
         </div>
         <div className="flex items-center gap-2 bg-base-200 px-3 py-2 rounded-field">
-          <Users size={16} className="text-primary" />
+          <Users size={16} className="text-accent" />
           <span className="font-secondary text-sm font-semibold text-base-content">
             {specifications?.max_roommates} Roommates
           </span>

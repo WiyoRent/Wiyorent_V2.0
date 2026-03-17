@@ -67,28 +67,28 @@ export default function ListingsFilterBar({ filter_options = {} }) {
   const active_count = [is_active, available_status, neighborhood, is_furnished, sort, property_type, bedroom_number, is_a_wiyorent_house, landlord].filter(Boolean).length + (max_price < price_range.max ? 1 : 0);
   const has_active_filters = active_count > 0;
 
-  const select_cls = 'select select-bordered select-sm rounded-field font-secondary text-xs focus:border-accent focus:outline-none';
+  const select_cls = 'select select-bordered select-sm rounded-xl font-secondary text-xs focus:border-accent focus:outline-none';
 
   return (
-    <div className="bg-base-100 border border-base-300 rounded-xl mb-6 overflow-hidden shadow-sm">
+    <div className="bg-base-100 border border-base-200 rounded-2xl mb-6 overflow-hidden shadow-sm">
 
       {/* ── Header bar ──────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-base-200/60 border-b border-base-300">
+      <div className="flex items-center justify-between px-4 py-3 bg-base-200/50 border-b border-base-200">
         <div className="flex items-center gap-2">
-          <SlidersHorizontal size={13} className="text-base-content/40" />
-          <span className="font-primary text-[10px] uppercase tracking-widest font-bold text-base-content/40">
+          <SlidersHorizontal size={13} className="text-accent" />
+          <span className="font-primary text-[10px] uppercase tracking-widest font-bold text-base-content/70">
             Filters
           </span>
           {has_active_filters && (
-            <span className="bg-accent text-accent-content font-primary text-[9px] font-extrabold px-1.5 py-0.5 rounded-sm tracking-wide">
-              {active_count} active
+            <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 rounded-full bg-accent text-accent-content font-primary text-[9px] font-extrabold tracking-wide">
+              {active_count}
             </span>
           )}
         </div>
         {has_active_filters && (
           <button
             onClick={handle_reset}
-            className="flex items-center gap-1 font-primary text-[9px] uppercase tracking-widest font-bold text-error/70 hover:text-error transition-colors"
+            className="flex items-center gap-1 font-primary text-[9px] uppercase tracking-widest font-bold text-error/60 hover:text-error transition-colors"
           >
             <X size={10} />
             Clear all

@@ -301,7 +301,7 @@ export default function HousemateCard({ profile, my_verification_status }) {
           className={`btn btn-ghost btn-outline btn-sm rounded-field px-3 transition-colors duration-200 ${
             saved
               ? 'text-accent border-accent hover:bg-accent/10'
-              : 'text-base-content/50 hover:text-primary'
+              : 'text-base-content/50 hover:text-secondary'
           }`}
         >
           <Bookmark size={15} className={saved ? 'fill-accent' : ''} />
@@ -310,7 +310,7 @@ export default function HousemateCard({ profile, my_verification_status }) {
         <button
           onClick={handleView}
           aria-label="View profile"
-          className="btn btn-ghost btn-outline btn-sm rounded-field text-base-content/50 hover:text-primary px-3"
+          className="btn btn-ghost btn-outline btn-sm rounded-field text-base-content/50 hover:text-secondary px-3"
         >
           <Eye size={15} />
         </button>

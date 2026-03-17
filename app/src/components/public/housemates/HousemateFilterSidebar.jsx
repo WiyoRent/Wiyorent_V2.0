@@ -176,7 +176,7 @@ export default function HousemateFilterSidebar({ filter_options }) {
             key={String(val)}
             type="button"
             onClick={() => setter(value === val ? null : val)}
-            className={`px-3 py-1 rounded-field font-secondary text-xs font-bold transition-all border ${
+            className={`px-3 py-1 rounded-full font-secondary text-xs font-bold transition-all duration-150 border ${
               value === val
                 ? 'bg-accent/15 border-accent/40 text-accent'
                 : 'bg-base-100 border-base-300 text-base-content/50 hover:border-accent/40 hover:text-accent/80'
@@ -335,7 +335,7 @@ export default function HousemateFilterSidebar({ filter_options }) {
                 key={label}
                 type="button"
                 onClick={() => set_private_room(private_room === val ? null : val)}
-                className={`py-1.5 rounded-field font-secondary text-xs font-bold transition-all border text-center ${
+                className={`py-1.5 rounded-full font-secondary text-xs font-bold transition-all duration-150 border text-center ${
                   private_room === val
                     ? 'bg-accent/15 border-accent/40 text-accent'
                     : 'bg-base-100 border-base-300 text-base-content/50 hover:border-accent/40 hover:text-accent/80'
@@ -423,12 +423,14 @@ export default function HousemateFilterSidebar({ filter_options }) {
         <button
           type="button"
           onClick={() => set_is_mobile_open(true)}
-          className="btn btn-outline btn-accent w-full rounded-field font-primary font-bold text-sm uppercase tracking-wide gap-2 bg-base-100 hover:bg-accent hover:text-accent-content hover:border-accent transition-colors duration-200"
+          className="btn btn-outline btn-accent w-full rounded-full font-primary font-bold text-sm uppercase tracking-wide gap-2 bg-base-100 hover:bg-accent hover:text-accent-content hover:border-accent transition-colors duration-200"
         >
           <SlidersHorizontal size={15} />
           Filters
           {has_filters && (
-            <span className="badge badge-accent badge-sm font-bold">!</span>
+            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-accent text-accent-content text-[10px] font-extrabold">
+              {essentials_active + living_active + lifestyle_active}
+            </span>
           )}
         </button>
       </div>
@@ -470,7 +472,7 @@ export default function HousemateFilterSidebar({ filter_options }) {
                 <button
                   type="button"
                   onClick={handle_reset}
-                  className="btn btn-ghost btn-sm w-full rounded-field font-primary font-bold text-xs uppercase tracking-widest text-error border border-error/20 hover:bg-error/5"
+                  className="btn btn-ghost btn-sm w-full rounded-full font-primary font-bold text-xs uppercase tracking-widest text-error border border-error/30 hover:bg-error/5"
                 >
                   <X size={12} /> Reset all
                 </button>
@@ -478,7 +480,7 @@ export default function HousemateFilterSidebar({ filter_options }) {
               <button
                 type="button"
                 onClick={handle_apply}
-                className="btn btn-accent w-full rounded-field font-primary font-extrabold text-sm uppercase tracking-wider shadow-lg hover:shadow-accent/20 transition-all active:scale-95"
+                className="btn btn-accent w-full rounded-full font-primary font-extrabold text-sm uppercase tracking-wider shadow-md hover:shadow-accent/20 transition-all active:scale-95"
               >
                 Apply filters
               </button>
@@ -489,14 +491,14 @@ export default function HousemateFilterSidebar({ filter_options }) {
 
       {/* ── Desktop sidebar ─────────────────────────────────────────────────── */}
       <div className="hidden lg:block sticky top-6 max-h-[calc(100vh-3rem)] overflow-y-auto sidebar-scroll">
-        <div className="bg-base-100 rounded-box shadow-sm p-5 border border-base-200 border-t-4 border-t-accent">
+        <div className="bg-base-100 rounded-2xl shadow-md p-5 border border-base-200 border-t-4 border-t-accent">
           {sidebar_header}
           {filter_groups}
           <div className="pt-4">
             <button
               type="button"
               onClick={handle_apply}
-              className="btn btn-accent w-full rounded-field font-primary font-extrabold text-sm uppercase tracking-wider shadow-lg hover:shadow-accent/20 transition-all active:scale-95"
+              className="btn btn-accent w-full rounded-full font-primary font-extrabold text-sm uppercase tracking-wider shadow-md hover:shadow-accent/20 transition-all active:scale-95"
             >
               Apply filters
             </button>

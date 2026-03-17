@@ -16,21 +16,22 @@ export default function FilterTooltip({ text }) {
   }, []);
 
   return (
-    <span ref={ref} className="relative inline-flex items-center ml-1">
+    <span ref={ref} className="relative inline-flex items-center">
       <button
         type="button"
         onMouseEnter={() => set_visible(true)}
         onMouseLeave={() => set_visible(false)}
         onClick={() => set_visible(v => !v)}
-        className="text-base-content/25 hover:text-accent transition-colors"
+        className="text-base-content/25 hover:text-accent transition-colors duration-150"
         aria-label="More info"
       >
         <Info size={11} />
       </button>
       {visible && (
-        <span className="absolute top-full left-1/2 -translate-x-1/2 mb-2 w-52 bg-base-content text-base-100 text-[11px] font-secondary rounded-box px-3 py-2 shadow-xl z-[999] leading-relaxed pointer-events-none">
+        <span className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-secondary text-white/80 text-[11px] font-secondary rounded-xl px-3 py-2.5 shadow-2xl z-[999] leading-relaxed pointer-events-none">
+          {/* Arrow pointing up toward the trigger */}
+          <span className="absolute -top-1.5 left-1/2 -translate-x-1/2 border-4 border-transparent border-b-secondary" />
           {text}
-          <span className="absolute boottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-base-content" />
         </span>
       )}
     </span>

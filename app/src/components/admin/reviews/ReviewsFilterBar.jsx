@@ -62,20 +62,20 @@ export default function ReviewsFilterBar({ total_count = 0 }) {
   ].filter(Boolean).length;
   const has_active_filters = active_count > 0 || status_filter !== 'pending';
 
-  const select_cls = 'select select-bordered select-sm rounded-field font-secondary text-xs focus:border-accent focus:outline-none';
+  const select_cls = 'select select-bordered select-sm rounded-xl font-secondary text-xs focus:border-accent focus:outline-none';
 
   return (
-    <div className="bg-base-100 border border-base-300 rounded-xl mb-6 overflow-hidden shadow-sm">
+    <div className="bg-base-100 border border-base-200 rounded-2xl mb-6 overflow-hidden shadow-sm">
 
       {/* ── Header bar ──────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-base-200/60 border-b border-base-300">
+      <div className="flex items-center justify-between px-4 py-3 bg-base-200/50 border-b border-base-200">
         <div className="flex items-center gap-2">
-          <SlidersHorizontal size={13} className="text-base-content/40" />
-          <span className="font-primary text-[10px] uppercase tracking-widest font-bold text-base-content/40">
+          <SlidersHorizontal size={13} className="text-accent" />
+          <span className="font-primary text-[10px] uppercase tracking-widest font-bold text-base-content/70">
             Filters
           </span>
           {status_filter && status_filter !== 'all' && (
-            <span className="bg-accent text-accent-content font-primary text-[9px] font-extrabold px-1.5 py-0.5 rounded-sm tracking-wide capitalize">
+            <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-accent text-accent-content font-primary text-[9px] font-extrabold tracking-wide capitalize">
               {status_filter}
             </span>
           )}
@@ -87,7 +87,7 @@ export default function ReviewsFilterBar({ total_count = 0 }) {
           {has_active_filters && (
             <button
               onClick={handle_reset}
-              className="flex items-center gap-1 font-primary text-[9px] uppercase tracking-widest font-bold text-error/70 hover:text-error transition-colors"
+              className="flex items-center gap-1 font-primary text-[9px] uppercase tracking-widest font-bold text-error/60 hover:text-error transition-colors"
             >
               <X size={10} />
               Reset
@@ -150,7 +150,7 @@ export default function ReviewsFilterBar({ total_count = 0 }) {
               placeholder="Reviewer or property..."
               value={search}
               onChange={(e) => set_search(e.target.value)}
-              className="input input-bordered input-sm rounded-field font-secondary text-xs focus:border-accent focus:outline-none w-full sm:w-48"
+              className="input input-bordered input-sm rounded-xl font-secondary text-xs focus:border-accent focus:outline-none w-full sm:w-48"
             />
           </div>
         </div>
@@ -167,7 +167,7 @@ export default function ReviewsFilterBar({ total_count = 0 }) {
               type="date"
               value={date_from}
               onChange={(e) => { set_date_from(e.target.value); push_filter('date_from', e.target.value); }}
-              className="input input-bordered input-sm rounded-field font-secondary text-xs focus:border-accent focus:outline-none w-full sm:w-36"
+              className="input input-bordered input-sm rounded-xl font-secondary text-xs focus:border-accent focus:outline-none w-full sm:w-36"
             />
             <span className="text-base-content/30 text-xs flex-shrink-0">–</span>
             <input
@@ -175,7 +175,7 @@ export default function ReviewsFilterBar({ total_count = 0 }) {
               value={date_to}
               min={date_from || undefined}
               onChange={(e) => { set_date_to(e.target.value); push_filter('date_to', e.target.value); }}
-              className="input input-bordered input-sm rounded-field font-secondary text-xs focus:border-accent focus:outline-none w-full sm:w-36"
+              className="input input-bordered input-sm rounded-xl font-secondary text-xs focus:border-accent focus:outline-none w-full sm:w-36"
             />
           </div>
         </div>

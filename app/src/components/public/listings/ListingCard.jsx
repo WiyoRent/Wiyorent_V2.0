@@ -23,7 +23,6 @@ import AmenityBadge from '@/components/public/listings/AmenityBadge';
 import StatusBadge from '@/components/public/listings/StatusBadge';
 
 export default function ListingCard({ listing }) {
-  console.log(listing.is_saved, '----is_SAVED')
   const [is_liked, set_is_liked] = useState(listing.is_saved || false);
   const [on_waitlist, set_on_waitlist] = useState(listing.is_on_waitlist || false);
   const is_available = listing.available_status === 'available';
@@ -115,7 +114,7 @@ export default function ListingCard({ listing }) {
 
           <div className="p-4 flex flex-col flex-1 gap-3">
             <div className="flex items-baseline gap-1">
-              <span className="font-primary text-2xl font-extrabold text-primary">
+              <span className="font-primary text-2xl font-extrabold text-secondary">
                 RWF {formatted_price}
               </span>
               <span className="font-secondary text-sm text-base-content/50">

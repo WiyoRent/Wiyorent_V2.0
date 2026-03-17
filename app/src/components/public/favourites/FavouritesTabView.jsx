@@ -34,7 +34,7 @@ export default function FavouritesTabView({ listings, profiles, verification_sta
                   is_active
                     ? key === 'listings'
                       ? 'text-error fill-error'
-                      : 'text-primary'
+                      : 'text-secondary'
                     : 'opacity-50'
                 }
               />
