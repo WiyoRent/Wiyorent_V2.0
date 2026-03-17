@@ -1,120 +1,99 @@
 import Image from 'next/image';
-import Link from 'next/link';
-import { signIn } from '@/auth';
+import { ShieldCheck, GraduationCap, MapPin } from 'lucide-react';
+import LoginCard from '@/components/auth/LoginCard';
+
+const VALUE_PROPS = [
+  {
+    icon: ShieldCheck,
+    title: 'Student-verified listings',
+    body: 'Every profile and listing manually reviewed before going live.',
+  },
+  {
+    icon: GraduationCap,
+    title: 'Find housemates from your university',
+    body: 'Match with students from UR, ALU, CMU-Africa, and more.',
+  },
+  {
+    icon: MapPin,
+    title: 'Neighbourhoods close to campus',
+    body: 'Find a house proximity to where you study',
+  },
+];
+
+const PATTERN_BG = `url("data:image/svg+xml,%3Csvg width='48' height='48' viewBox='0 0 48 48' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolygon points='24,1 47,24 24,47 1,24' fill='none' stroke='%23F1C528' stroke-width='0.7' stroke-opacity='0.22'/%3E%3C/svg%3E")`;
 
 export default function LoginForm() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary via-primary/95 to-primary/90 flex items-center justify-center p-4">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-        }} />
-      </div>
+    <div className="min-h-screen flex flex-col lg:flex-row">
 
-      {/* Login Card */}
-      <div className="relative w-full max-w-md">
-        <div className="bg-base-100 rounded-box shadow-2xl p-8 sm:p-10">
-          {/* Logo */}
-          <div className="flex justify-center mb-8">
-            <div className="w-32 h-32 relative">
-              <Image
-                src="/logo.svg"
-                alt="WiyoRent Logo"
-                fill
-                className="object-contain"
-                priority
-              />
-            </div>
+      {/* ── Left column — branding / hero ───────────────────────────────────── */}
+      <div className="relative flex flex-col justify-between p-8 sm:p-10 lg:p-12 bg-secondary overflow-hidden lg:w-1/2 lg:min-h-screen">
+
+        {/* Geometric diamond-mesh pattern */}
+        <div className="absolute inset-0" style={{ backgroundImage: PATTERN_BG }} />
+
+        {/* Decorative rings */}
+        <div className="hidden lg:block absolute -bottom-36 -right-36 w-96 h-96 rounded-full border border-accent/10 pointer-events-none" />
+        <div className="hidden lg:block absolute -bottom-20 -right-20 w-80 h-80 rounded-full border border-accent/15 pointer-events-none" />
+        <div className="hidden lg:block absolute top-0 -left-24 w-72 h-72 rounded-full border border-accent/10 pointer-events-none" />
+
+        {/* Accent top bar */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-accent" />
+
+        {/* Logo */}
+        <div className="relative z-10">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 relative">
+            <Image src="/logo.svg" alt="WiyoRent" fill className="object-contain" priority />
           </div>
+        </div>
 
-          {/* Welcome Text */}
-          <div className="text-center mb-8">
-            <h1 className="font-primary text-3xl sm:text-4xl font-extrabold text-base-content uppercase tracking-tight mb-2">
-              Welcome
+        {/* Headline + value props */}
+        <div className="relative z-10 flex flex-col gap-6 lg:gap-10 mt-8 lg:mt-0 text-white">
+          <div>
+            <h1 className="font-primary text-3xl sm:text-4xl font-extrabold text-primary uppercase tracking-tight leading-tight">
+              Find your people.<br />Find your place.
             </h1>
-            <p className="font-secondary text-base-content/60 text-sm">
-              Sign in to access your WiyoRent account
+            <p className="font-secondary text-primary/50 text-sm mt-3 sm:mt-4 leading-relaxed max-w-sm">
+              Wiyorent connects students across Kigali with verified housemates and real listings — no agencies, no guesswork.
             </p>
           </div>
 
-          {/* Divider */}
-          <div className="flex items-center gap-4 mb-8">
-            <div className="flex-1 h-px bg-base-300" />
-            <span className="font-secondary text-xs text-base-content/40 uppercase tracking-wide">
-              Sign in with
-            </span>
-            <div className="flex-1 h-px bg-base-300" />
-          </div>
-
-          {/* Google Sign In Form */}
-          <form
-            action={async () => {
-              'use server';
-              await signIn('google', { redirectTo: '/profile' });
-            }}
-          >
-            <button
-              type="submit"
-              className="btn btn-outline w-full rounded-field font-secondary font-semibold text-base gap-3 h-12 hover:bg-base-200 border-base-300 hover:border-primary transition-all duration-200"
-            >
-              <svg className="w-5 h-5" viewBox="0 0 24 24">
-                <path
-                  fill="#4285F4"
-                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                />
-              </svg>
-              <span>Continue with Google</span>
-            </button>
-          </form>
-
-          {/* Info Note */}
-          <div className="mt-8 pt-6 border-t border-base-200">
-            <p className="font-secondary text-xs text-base-content/40 text-center leading-relaxed">
-              By signing in, you agree to our{' '}
-              <Link href="/terms" className="text-accent hover:underline">
-                Terms of Service
-              </Link>{' '}
-              and{' '}
-              <Link href="/privacy" className="text-accent hover:underline">
-                Privacy Policy
-              </Link>
-            </p>
-          </div>
-
-          {/* Help Text */}
-          <div className="mt-6 text-center">
-            <p className="font-secondary text-sm text-base-content/50">
-              Need help?{' '}
-              <Link href="/support" className="text-accent hover:underline font-semibold">
-                Contact Support
-              </Link>
-            </p>
+          {/* Value props */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-4 sm:gap-6 lg:gap-5">
+            {VALUE_PROPS.map(({ icon: Icon, title, body }) => (
+              <div key={title} className="flex items-start gap-3 sm:gap-4">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-accent/15 border border-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Icon size={14} className="text-accent" />
+                </div>
+                <div>
+                  <p className="font-primary text-xs font-extrabold text-primary uppercase tracking-wide leading-tight">
+                    {title}
+                  </p>
+                  <p className="font-secondary text-xs text-primary/45 mt-0.5 leading-snug">
+                    {body}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Bottom Accent Decoration */}
-        <div className="mt-6 text-center">
-          <div className="inline-flex items-center gap-2 bg-accent/10 backdrop-blur-sm px-4 py-2 rounded-field border border-accent/20">
-            <div className="w-2 h-2 bg-accent rounded-full animate-pulse" />
-            <span className="font-secondary text-xs font-semibold text-accent uppercase tracking-wide">
-              Student Housing Made Simple
+        {/* Location badge */}
+        <div className="relative z-10 mt-8 lg:mt-0">
+          <div className="inline-flex items-center gap-2 border border-accent/20 bg-accent/10 rounded-lg px-3 py-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse flex-shrink-0" />
+            <span className="font-secondary text-xs font-semibold text-accent uppercase tracking-widest">
+              Kigali, Rwanda
             </span>
           </div>
         </div>
       </div>
+
+      {/* ── Right column — login form ────────────────────────────────────────── */}
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-10 sm:px-10 sm:py-14 bg-base-200">
+        <LoginCard />
+      </div>
+
     </div>
   );
 }
