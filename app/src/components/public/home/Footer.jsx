@@ -46,8 +46,7 @@ export default function Footer() {
               </span>
             </div>
             <p className="font-secondary text-sm text-white/50 leading-relaxed max-w-xs">
-              Kigali's student-first housing platform. Verified accommodation,
-              roommate matching, and full settling-in support for students across Africa.
+              Kigali's #1 student housing platform. Find verified accommodation, match with roommates, and get full settling-in support — built for students across Africa.
             </p>
             {/* Social row */}
             <nav aria-label="WiyoRent social media links">
@@ -107,7 +106,7 @@ export default function Footer() {
       <div className="border-t border-white/6 py-5 px-6 lg:px-16">
         <div className="container mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="font-secondary text-xs text-white/25">
-            © 2025 WiyoRent. All Rights Reserved.
+            © 2024 WiyoRent. All Rights Reserved.
           </p>
           <p className="font-secondary text-xs text-white/20">
             Student Rental Platform · Kigali, Rwanda
