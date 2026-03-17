@@ -1,4 +1,5 @@
 import { Mail, MessageCircle, Instagram, Linkedin, Facebook } from "lucide-react";
+import Image from "next/image";
 
 const TikTokIcon = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -7,41 +8,111 @@ const TikTokIcon = ({ className }) => (
 );
 
 const LINKS = {
-  email: "support@wiyorent.com",
-  whatsapp: "https://api.whatsapp.com/send/?phone=250794089835",
+  email:     "support@wiyorent.com",
+  whatsapp:  "https://api.whatsapp.com/send/?phone=250794089835",
   instagram: "https://www.instagram.com/wiyorent",
-  facebook: "https://www.facebook.com/people/WiyoRent/61561578203424",
-  linkedin: "https://www.linkedin.com/company/wiyorent/",
-  tiktok: "https://www.tiktok.com/@wiyorent",
+  facebook:  "https://www.facebook.com/people/WiyoRent/61561578203424",
+  linkedin:  "https://www.linkedin.com/company/wiyorent/",
+  tiktok:    "https://www.tiktok.com/@wiyorent",
 };
+
+const SOCIAL = [
+  { href: LINKS.instagram, icon: Instagram,  label: "Instagram" },
+  { href: LINKS.facebook,  icon: Facebook,   label: "Facebook"  },
+  { href: LINKS.linkedin,  icon: Linkedin,   label: "LinkedIn"  },
+  { href: LINKS.tiktok,    icon: TikTokIcon, label: "TikTok"    },
+];
 
 export default function Footer() {
   return (
-    <footer id="contact" className="bg-secondary py-16 px-6 lg:px-16">
-      <div className="container mx-auto text-center">
-        <p className="font-primary text-3xl lg:text-4xl font-bold text-white mb-4 tracking-wide uppercase">Get in Touch</p>
-        <p className="font-secondary text-sm text-white/80 mb-8">Have questions about settling in as a student in Rwanda? The WiyoRent team is here to help you settle in.</p>
-        <address className="not-italic">
-          <div className="flex flex-wrap items-center justify-center gap-6 mb-8">
-            <a href={LINKS.email} className="flex items-center gap-2 text-white hover:text-accent transition">
-              <Mail className="w-5 h-5" />
-              <span className="font-secondary text-sm">support@wiyorent.com</span>
-            </a>
-            <a href={LINKS.whatsapp} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-white hover:text-accent transition">
-              <MessageCircle className="w-5 h-5" />
-              <span className="font-secondary text-sm">Chat on WhatsApp</span>
-            </a>
+    <footer id="contact" className="bg-secondary border-t-2 border-accent/30">
+
+      {/* ── Main body ───────────────────────── */}
+      <div className="py-16 px-6 lg:px-16">
+        <div className="container mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
+
+          {/* Left — Brand */}
+          <div className="flex flex-col gap-6">
+            <div className="flex items-center gap-3">
+              <Image
+                src="/logo.svg"
+                alt="WiyoRent"
+                width={52}
+                height={34}
+                className="border border-accent/40 rounded-lg"
+              />
+              <span className="font-primary text-xl font-bold text-white tracking-widest">
+                WIYORENT
+              </span>
+            </div>
+            <p className="font-secondary text-sm text-white/50 leading-relaxed max-w-xs">
+              Kigali's student-first housing platform. Verified accommodation,
+              roommate matching, and full settling-in support for students across Africa.
+            </p>
+            {/* Social row */}
+            <nav aria-label="WiyoRent social media links">
+              <div className="flex items-center gap-5 mt-2">
+                {SOCIAL.map(({ href, icon: Icon, label }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    className="text-white/40 hover:text-accent transition-colors duration-200 hover:scale-110 inline-flex"
+                  >
+                    <Icon className="w-5 h-5" />
+                  </a>
+                ))}
+              </div>
+            </nav>
           </div>
-        </address>
-        <nav aria-label="WiyoRent social media links">
-          <div className="flex items-center justify-center gap-6 mb-8">
-            <a href={LINKS.instagram} target="_blank" rel="noopener noreferrer" className="text-white hover:text-accent transition"><Instagram className="w-6 h-6" /></a>
-            <a href={LINKS.facebook} target="_blank" rel="noopener noreferrer" className="text-white hover:text-accent transition"><Facebook className="w-6 h-6" /></a>
-            <a href={LINKS.linkedin} target="_blank" rel="noopener noreferrer" className="text-white hover:text-accent transition"><Linkedin className="w-6 h-6" /></a>
-            <a href={LINKS.tiktok} target="_blank" rel="noopener noreferrer" className="text-white hover:text-accent transition"><TikTokIcon className="w-6 h-6" /></a>
+
+          {/* Right — Contact */}
+          <div className="flex flex-col gap-6">
+            <h3 className="font-primary text-2xl lg:text-3xl font-bold text-white uppercase tracking-wide">
+              Get in Touch
+            </h3>
+            <p className="font-secondary text-sm text-white/50 leading-relaxed">
+              Have questions about finding housing or settling in Rwanda?
+              The WiyoRent team is here to help.
+            </p>
+            <address className="not-italic flex flex-col gap-3">
+              <a
+                href={`mailto:${LINKS.email}`}
+                className="group inline-flex items-center gap-3 text-white/60 hover:text-white transition-colors duration-200 w-fit"
+              >
+                <span className="w-8 h-8 rounded-lg bg-white/5 group-hover:bg-accent/20 flex items-center justify-center transition-colors duration-200">
+                  <Mail className="w-4 h-4" />
+                </span>
+                <span className="font-secondary text-sm">{LINKS.email}</span>
+              </a>
+              <a
+                href={LINKS.whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-3 text-white/60 hover:text-white transition-colors duration-200 w-fit"
+              >
+                <span className="w-8 h-8 rounded-lg bg-white/5 group-hover:bg-accent/20 flex items-center justify-center transition-colors duration-200">
+                  <MessageCircle className="w-4 h-4" />
+                </span>
+                <span className="font-secondary text-sm">Chat on WhatsApp</span>
+              </a>
+            </address>
           </div>
-        </nav>
-        <p className="font-secondary text-xs text-white/50">© 2025 WiyoRent. All Rights Reserved. · Rental Platform in Rwanda</p>
+        </div>
+      </div>
+
+      {/* ── Footer bar ──────────────────────── */}
+      <div className="border-t border-white/6 py-5 px-6 lg:px-16">
+        <div className="container mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+          <p className="font-secondary text-xs text-white/25">
+            © 2025 WiyoRent. All Rights Reserved.
+          </p>
+          <p className="font-secondary text-xs text-white/20">
+            Student Rental Platform · Kigali, Rwanda
+          </p>
+        </div>
       </div>
     </footer>
   );

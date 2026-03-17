@@ -98,7 +98,7 @@ export default function HousemateFeature() {
                 {FILTERS.map((f) => (
                   <span
                     key={f}
-                    className="px-3 py-1 rounded-full bg-white/10 font-secondary text-xs text-white/70 border border-white/10"
+                    className="px-3 py-1 rounded-full bg-white/10 font-secondary text-xs text-white/70 border border-white/10 hover:bg-accent/20 hover:text-white hover:border-accent/30 transition-all duration-200 cursor-default"
                   >
                     {f}
                   </span>
@@ -171,7 +171,7 @@ export default function HousemateFeature() {
                 key={step}
                 data-aos="fade-up"
                 data-aos-delay={i * 100}
-                className="relative flex flex-col gap-3 bg-base-200 rounded-2xl p-6"
+                className="card-lift relative flex flex-col gap-3 bg-base-200 rounded-2xl p-6 border border-secondary/5 hover:border-accent/20 transition-colors duration-300"
               >
                 {/* Step number */}
                 <span className="font-primary text-5xl font-extrabold text-accent leading-none select-none">

@@ -1,133 +1,116 @@
 "use client";
 
-import { Home, Menu, X } from "lucide-react";
-import { useState } from "react";
+import { Menu, X } from "lucide-react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
+const NAV_LINKS = [
+  { id: "about",        label: "About"       },
+  { id: "services",     label: "Services"    },
+  { id: "partners",     label: "Partners"    },
+  { id: "testimonials", label: "Testimonials"},
+  { id: "contact",      label: "Contact"     },
+];
+
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [scrolled, setScrolled]     = useState(false);
 
-  const scrollToSection = (sectionId) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-      setIsMenuOpen(false);
-    }
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const scrollToSection = (id) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    setIsMenuOpen(false);
   };
 
   return (
-    <nav className="py-4 px-6 lg:px-16 sticky top-0 z-50 shadow-sm bg-black">
+    <nav
+      className={`px-6 lg:px-16 sticky top-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? "py-3 bg-black/95 backdrop-blur-md border-b border-white/8 shadow-[0_2px_24px_rgba(0,0,0,0.4)]"
+          : "py-4 bg-black"
+      }`}
+    >
       <div className="container mx-auto flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Image 
-            src="/logo.svg" 
-            alt="WiyoRent Logo" 
-            width={60} 
-            height={40}
-            className=" border rounded-lg border-accent"
+
+        {/* ── Brand ───────────────────────────── */}
+        <div className="flex items-center gap-3">
+          <Image
+            src="/logo.svg"
+            alt="WiyoRent Logo"
+            width={52}
+            height={34}
+            className="border border-accent/50 rounded-lg"
           />
-          <span className="font-primary text-2xl font-bold text-secondary">
+          <span className="font-primary text-xl font-bold text-white tracking-widest">
             WIYORENT
           </span>
         </div>
 
-        {/* Desktop Menu */}
-        <ul className="hidden lg:flex items-center gap-8 font-secondary text-sm text-white ">
-          <li 
-            onClick={() => scrollToSection("about")}
-            className="cursor-pointer hover:text-accent transition"
-          >
-            About
-          </li>
-          <li 
-            onClick={() => scrollToSection("services")}
-            className="cursor-pointer hover:text-accent transition"
-          >
-            Services
-          </li>
-          <li 
-            onClick={() => scrollToSection("partners")}
-            className="cursor-pointer hover:text-accent transition"
-          >
-            Partners
-          </li>
-          <li 
-            onClick={() => scrollToSection("testimonials")}
-            className="cursor-pointer hover:text-accent transition"
-          >
-            Testimonials
-          </li>
-          <li 
-            onClick={() => scrollToSection("contact")}
-            className="cursor-pointer hover:text-accent transition"
-          >
-            Contact Us
-          </li>
+        {/* ── Desktop Nav ──────────────────────── */}
+        <ul className="hidden lg:flex items-center gap-8">
+          {NAV_LINKS.map(({ id, label }) => (
+            <li
+              key={id}
+              onClick={() => scrollToSection(id)}
+              className="cursor-pointer relative group py-1"
+            >
+              <span className="font-secondary text-sm text-white/70 group-hover:text-white transition-colors duration-200">
+                {label}
+              </span>
+              <span className="absolute bottom-0 left-0 h-px bg-accent w-0 group-hover:w-full transition-all duration-300 ease-out" />
+            </li>
+          ))}
         </ul>
 
-        {/* Desktop CTA Button */}
-        <Link href='/listings'>
-          <button className="hidden lg:block btn-accent btn font-secondary font-medium text-secondary border-none rounded-lg">
+        {/* ── Desktop CTA ──────────────────────── */}
+        <Link href="/listings" className="hidden lg:block">
+          <button className="btn btn-accent font-primary font-bold text-secondary text-sm tracking-wide px-6 border-none rounded-lg">
             Find a House
           </button>
         </Link>
-        
 
-        {/* Mobile Menu Button */}
-        <button 
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="lg:hidden text-secondary"
+        {/* ── Mobile Toggle ────────────────────── */}
+        <button
+          onClick={() => setIsMenuOpen((o) => !o)}
+          className="lg:hidden text-white active:scale-90 transition-transform duration-150"
+          aria-label="Toggle navigation"
         >
-          {isMenuOpen ? <X className="w-6 h-6 text-white" /> : <Menu className="w-6 h-6 text-white" />}
+          {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </div>
 
-      {/* Mobile Menu */}
-      {isMenuOpen && (
-        <div className="lg:hidden absolute top-full left-0 right-0  border-t border-secondary/10 shadow-lg bg-black">
-          <ul className="flex flex-col font-secondary text-sm  text-white">
-            <li 
-              onClick={() => scrollToSection("about")}
-              className="cursor-pointer hover:bg-accent transition px-6 py-4 border-b border-secondary/5"
+      {/* ── Mobile Drawer ─────────────────────── */}
+      <div
+        className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+          isMenuOpen ? "max-h-[480px] opacity-100" : "max-h-0 opacity-0"
+        }`}
+      >
+        <ul className="flex flex-col border-t border-white/10 mt-4 pt-2 pb-4 gap-0.5">
+          {NAV_LINKS.map(({ id, label }) => (
+            <li
+              key={id}
+              onClick={() => scrollToSection(id)}
+              className="cursor-pointer font-secondary text-sm text-white/70 hover:text-white hover:bg-white/5 transition-all duration-150 px-2 py-3.5 rounded-lg flex items-center justify-between group"
             >
-              About
+              {label}
+              <span className="w-0 group-hover:w-4 h-px bg-accent transition-all duration-200" />
             </li>
-            <li 
-              onClick={() => scrollToSection("services")}
-              className="cursor-pointer hover:bg-accent transition px-6 py-4 border-b border-secondary/5"
-            >
-              Services
-            </li>
-            <li 
-              onClick={() => scrollToSection("partners")}
-              className="cursor-pointer hover:bg-accent transition px-6 py-4 border-b border-secondary/5"
-            >
-              Partners
-            </li>
-            <li 
-              onClick={() => scrollToSection("testimonials")}
-              className="cursor-pointer hover:bg-accent transition px-6 py-4 border-b border-secondary/5"
-            >
-              Testimonials
-            </li>
-            <li 
-              onClick={() => scrollToSection("contact")}
-              className="cursor-pointer hover:bg-accent transition px-6 py-4 border-b border-secondary/5"
-            >
-              Contact Us
-            </li>
-            <Link href='/listings'>
-              <li className="px-6 py-4">
-                <button className="btn btn-accent  font-secondary font-medium text-secondary border-none rounded-lg w-full">
-                  Find a House
-                </button>
-              </li>
+          ))}
+          <li className="mt-3 pt-3 border-t border-white/10">
+            <Link href="/listings">
+              <button className="btn btn-accent font-primary font-bold text-secondary border-none rounded-lg w-full text-sm tracking-wide">
+                Find a House
+              </button>
             </Link>
-            
-          </ul>
-        </div>
-      )}
+          </li>
+        </ul>
+      </div>
     </nav>
   );
 }

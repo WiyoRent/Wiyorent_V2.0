@@ -33,89 +33,115 @@ export default function Hero() {
       setCurrentIndex((prev) => (prev + 1) % HERO_SLIDES.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, [currentIndex]);
+  }, []);
+
+  const goTo = (index) => setCurrentIndex(index);
 
   return (
     <section
       aria-label="WiyoRent — Student Housing, Roommate Matching and Settling-In Services in Kigali, Rwanda"
-      className="relative bg-cover bg-center h-[83vh] mx-6 lg:mx-16 mt-6 rounded-2xl overflow-hidden"
-      style={{ backgroundImage: `url(${HERO_SLIDES[currentIndex].image})` }}
+      className="relative h-[83vh] mx-6 lg:mx-16 mt-6 rounded-2xl overflow-hidden"
     >
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70 transition-opacity duration-1000" />
+      {/* ── Crossfading slides ───────────────────── */}
+      {HERO_SLIDES.map((slide, index) => (
+        <div
+          key={index}
+          className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out"
+          style={{
+            backgroundImage: `url(${slide.image})`,
+            opacity: index === currentIndex ? 1 : 0,
+          }}
+        />
+      ))}
 
-      {/* Content */}
-      <div className="relative z-10 h-full flex flex-col justify-center px-8 lg:px-16">
+      {/* ── Gradient overlay ─────────────────────── */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-black/20" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
 
-        {/* Badge */}
-        <div className="inline-flex items-center gap-2 mb-5 self-start">
+      {/* ── Content ──────────────────────────────── */}
+      <div className="relative z-10 h-full flex flex-col justify-center px-8 lg:px-16 max-w-4xl">
+
+        {/* Eyebrow */}
+        <div className="inline-flex items-center gap-2 mb-6 self-start">
           <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-          <span className="font-secondary text-xs font-semibold text-accent uppercase tracking-widest">
+          <span className="font-secondary text-xs font-semibold text-accent uppercase tracking-[0.2em]">
             Kigali's Student Housing Platform
           </span>
         </div>
 
-        <h1 className="font-primary text-4xl lg:text-6xl font-bold text-white mb-4 leading-tight max-w-3xl">
-          FIND STUDENT HOUSING,
-          <br />
-          HOUSEMATES & MORE.
-          <br />
-          
+        <h1 className="font-primary text-5xl lg:text-7xl font-bold text-white mb-5 leading-[1.05] uppercase">
+          Find Student<br />
+          Housing <span className="text-accent">&</span><br />
+          Housemates.
         </h1>
 
-        <p className="font-secondary text-base lg:text-lg text-white/90 mb-2 max-w-2xl">
-          Verified student apartments and rooms in Kigali — no visiting fees, no hidden charges.
+        <p className="font-secondary text-base lg:text-lg text-white/80 mb-2 max-w-xl leading-relaxed">
+          Verified apartments and rooms in Kigali — no visiting fees, no hidden charges.
         </p>
-        <p className="font-secondary text-sm text-white/60 mb-8 max-w-xl">
-          Also find compatible housemates from your university, or let us handle your full arrival — airport pickup, SIM card, bank setup and more.
+        <p className="font-secondary text-sm text-white/50 mb-8 max-w-lg">
+          Compatible housemates from your university. Airport pickup, SIM card, bank setup and more.
         </p>
 
+        {/* CTAs — clear primary / secondary / tertiary hierarchy */}
         <div className="flex flex-wrap gap-3">
           <Link href="/listings">
-            <button className="btn btn-accent font-secondary font-semibold text-secondary border-none rounded-lg">
+            <button className="btn btn-accent font-primary font-bold text-secondary border-none rounded-lg tracking-wide">
               Find a House
             </button>
           </Link>
-
           <Link href="/housemates">
-            <button className="btn btn-outline font-secondary font-medium text-white border-white hover:bg-white hover:text-secondary rounded-lg">
+            <button className="btn bg-white/15 backdrop-blur-sm font-primary font-bold text-white border border-white/30 hover:bg-white hover:text-secondary rounded-lg tracking-wide transition-all duration-200">
               Find a Housemate
             </button>
           </Link>
-
-          <a href="#packages">
-            <button className="btn btn-outline font-secondary font-medium text-white border-white hover:bg-white hover:text-secondary rounded-lg">
-              Settling-In Services
-            </button>
-          </a>
-
           <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
-            <button className="btn btn-outline font-secondary font-medium text-white border-white hover:bg-white hover:text-secondary rounded-lg">
+            <button className="btn bg-transparent font-secondary font-medium text-white/70 border border-white/20 hover:text-white hover:border-white/50 rounded-lg transition-all duration-200">
               Contact Us
             </button>
           </a>
         </div>
       </div>
 
-      {/* Slide caption */}
-      <div className="absolute bottom-14 left-8 lg:left-16 z-10">
-        <span className="font-secondary text-xs text-white/50 tracking-wide">
+      {/* ── Caption ──────────────────────────────── */}
+      <div className="absolute bottom-12 left-8 lg:left-16 z-10">
+        <p
+          key={currentIndex}
+          className="font-secondary text-xs text-white/45 tracking-widest uppercase"
+          style={{ animation: "fadeSlideUp 0.6s ease-out" }}
+        >
           {HERO_SLIDES[currentIndex].caption}
-        </span>
+        </p>
       </div>
 
-      {/* Dot indicators */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+      {/* ── Dot indicators ───────────────────────── */}
+      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
         {HERO_SLIDES.map((_, index) => (
-          <div
+          <button
             key={index}
-            onClick={() => setCurrentIndex(index)}
-            className={`w-3 h-3 rounded-full cursor-pointer transition-all duration-500 ${
-              index === currentIndex ? "bg-accent" : "bg-white/50"
+            onClick={() => goTo(index)}
+            aria-label={`Slide ${index + 1}`}
+            className={`rounded-full cursor-pointer transition-all duration-400 ${
+              index === currentIndex
+                ? "w-6 h-1.5 bg-accent"
+                : "w-1.5 h-1.5 bg-white/40 hover:bg-white/70"
             }`}
           />
         ))}
       </div>
+
+      {/* ── Slide count ──────────────────────────── */}
+      <div className="absolute bottom-5 right-8 lg:right-16 z-10">
+        <span className="font-primary text-xs text-white/30 tabular-nums">
+          {String(currentIndex + 1).padStart(2, "0")} / {String(HERO_SLIDES.length).padStart(2, "0")}
+        </span>
+      </div>
+
+      <style>{`
+        @keyframes fadeSlideUp {
+          from { opacity: 0; transform: translateY(6px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </section>
   );
 }
