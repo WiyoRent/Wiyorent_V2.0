@@ -32,6 +32,7 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods 
   const [move_in_date, set_move_in_date] = useState(initial_data.housing_preferences.move_in_date);
   const [lease_duration, set_lease_duration] = useState(initial_data.housing_preferences.lease_duration);
   const [preferred_locations, set_preferred_locations] = useState(initial_data.housing_preferences.preferred_locations || []);
+  const [budget_min, set_budget_min] = useState(initial_data.housing_preferences.budget.min);
   const [budget_max, set_budget_max] = useState(initial_data.housing_preferences.budget.max);
   const [max_housemates, set_max_housemates] = useState(initial_data.housing_preferences.max_housemates);
   const [is_smoker, set_is_smoker] = useState(initial_data.housing_preferences.is_smoker ?? null);
@@ -82,6 +83,11 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods 
   const [is_saving, set_is_saving] = useState(false);
 
   const handle_save = async () => {
+    if (!avatar_url) {
+      toast.error('A profile photo is required');
+      return;
+    }
+
     set_is_saving(true);
 
     const formData = new FormData();
@@ -105,6 +111,7 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods 
     // 3. Housing Preferences
     formData.append('move_in_date', move_in_date);
     formData.append('lease_duration', lease_duration);
+    formData.append('min', budget_min);
     formData.append('max', budget_max);
     formData.append('max_housemates', max_housemates);
     formData.append('is_smoker', is_smoker);
@@ -241,6 +248,8 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods 
         preferred_locations={preferred_locations}
         set_preferred_locations={set_preferred_locations}
         available_neighborhoods={available_neighborhoods}
+        budget_min={budget_min}
+        set_budget_min={set_budget_min}
         budget_max={budget_max}
         set_budget_max={set_budget_max}
         max_housemates={max_housemates}

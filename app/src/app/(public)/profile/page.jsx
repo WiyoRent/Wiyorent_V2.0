@@ -116,7 +116,7 @@ export default async function ProfileEditPage() {
       'Remera', 
       'Sekimondo', 
       'Zindiro',
-      'Any location close to my University'
+      'Other'
   ];
 
   return (

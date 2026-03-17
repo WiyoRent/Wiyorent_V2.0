@@ -4,7 +4,7 @@ const VERIFICATION_CONFIG = {
   pending: {
     icon: Clock,
     label: 'Verification Pending',
-    description: 'Our team is currently reviewing your profile. This usually takes 24 hours business days.',
+    description: 'Our team is currently reviewing your profile. This usually takes 24 hours.',
     containerClass: 'bg-warning/10 border-warning/30',
     iconClass: 'text-warning',
     labelClass: 'text-warning',

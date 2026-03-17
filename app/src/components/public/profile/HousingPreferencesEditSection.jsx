@@ -18,6 +18,8 @@ export default function HousingPreferencesEditSection({
   preferred_locations,
   set_preferred_locations,
   available_neighborhoods,
+  budget_min,
+  set_budget_min,
   budget_max,
   set_budget_max,
   max_housemates,
@@ -170,35 +172,58 @@ export default function HousingPreferencesEditSection({
 
         <div className="border-t border-base-200" />
 
-        {/* ── Monthly Budget Slider ──────────────────────────────────── */}
+        {/* ── Monthly Budget Sliders ─────────────────────────────────── */}
         <div>
           <label className="label">
             <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide flex items-center gap-1.5">
               <Wallet size={12} className="text-accent" />
-              Your Monthly Budget rent budget
+              Monthly Budget
             </span>
           </label>
 
-          <div className="mt-2">
-            <div className="flex items-baseline gap-1.5 mb-2">
-              <span className="font-secondary text-[11px] text-base-content/40">Up to</span>
-              <span className="font-secondary text-[15px] font-bold text-base-content">
-                {new Intl.NumberFormat('rw-RW').format(budget_max)}
-              </span>
-              <span className="font-secondary text-[11px] text-base-content/40">RWF/mo</span>
+          <div className="mt-2 flex flex-col gap-4">
+            {/* Min slider */}
+            <div>
+              <div className="flex items-baseline gap-1.5 mb-2">
+                <span className="font-secondary text-[11px] text-base-content/40">From</span>
+                <span className="font-secondary text-[15px] font-bold text-base-content">
+                  {new Intl.NumberFormat('rw-RW').format(budget_min)}
+                </span>
+                <span className="font-secondary text-[11px] text-base-content/40">RWF/mo</span>
+              </div>
+              <input
+                type="range"
+                min={50000}
+                max={500000}
+                step={5000}
+                value={budget_min || 50000}
+                onChange={(e) => set_budget_min(Math.min(Number(e.target.value), budget_max))}
+                className="range range-accent range-xs w-full"
+              />
             </div>
-            <input
-              type="range"
-              min={50000}
-              max={500000}
-              step={5000}
-              value={budget_max || 500000}
-              onChange={(e) => set_budget_max(Number(e.target.value))}
-              className="range range-accent range-xs w-full"
-            />
-            <div className="flex items-center justify-between mt-1.5">
-              <span className="font-secondary text-[10px] text-base-content/30">{format_rwf(50000)}</span>
-              <span className="font-secondary text-[10px] text-base-content/30">{format_rwf(500000)}</span>
+
+            {/* Max slider */}
+            <div>
+              <div className="flex items-baseline gap-1.5 mb-2">
+                <span className="font-secondary text-[11px] text-base-content/40">Up to</span>
+                <span className="font-secondary text-[15px] font-bold text-base-content">
+                  {new Intl.NumberFormat('rw-RW').format(budget_max)}
+                </span>
+                <span className="font-secondary text-[11px] text-base-content/40">RWF/mo</span>
+              </div>
+              <input
+                type="range"
+                min={50000}
+                max={500000}
+                step={5000}
+                value={budget_max || 500000}
+                onChange={(e) => set_budget_max(Math.max(Number(e.target.value), budget_min))}
+                className="range range-accent range-xs w-full"
+              />
+              <div className="flex items-center justify-between mt-1.5">
+                <span className="font-secondary text-[10px] text-base-content/30">{format_rwf(50000)}</span>
+                <span className="font-secondary text-[10px] text-base-content/30">{format_rwf(500000)}</span>
+              </div>
             </div>
           </div>
         </div>
