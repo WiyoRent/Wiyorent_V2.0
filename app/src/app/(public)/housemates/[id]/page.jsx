@@ -46,13 +46,62 @@ import TrackHousemateView from '@/components/public/housemate/TrackHousemateView
 // };
 
 export async function generateMetadata({ params }) {
+  const { id } = await params;
+  const h = await fetchHousemateDetail(id);
 
-  const {id} = await params
-  const housemate_detail = await fetchHousemateDetail(id) 
+  if (!h) {
+    return {
+      title: "Housemate Profile Not Found | WiyoRent",
+      description: "This housemate profile could not be found on WiyoRent.",
+      robots: { index: false, follow: false },
+    };
+  }
+
+  const budget = h.housing_preferences?.budget;
+  const locations = h.housing_preferences?.preferred_locations?.join(", ");
+  const university = h.university_name;
+  const moveIn = h.housing_preferences?.move_in_date
+    ? new Date(h.housing_preferences.move_in_date).toLocaleDateString("en-US", {
+        month: "long",
+        year: "numeric",
+      })
+    : null;
+
+  const description = h.about_me
+    ? h.about_me.slice(0, 155)
+    : `${h.full_name} is a verified student at ${university} looking for a housemate in ${locations ?? "Kigali"}${moveIn ? `, moving in ${moveIn}` : ""}. Find and connect on WiyoRent.`;
 
   return {
-    title: `${housemate_detail?.full_name} — Housemate Profile | WiyoRent`,
-    description: housemate_detail?.about_me?.slice(0, 155),
+    title: `${h.full_name} — Student Housemate in Kigali | WiyoRent`,
+    description,
+    openGraph: {
+      title: `${h.full_name} — Student Housemate in Kigali | WiyoRent`,
+      description,
+      url: `https://wiyorent.com/housemates/${id}`,
+      siteName: "WiyoRent",
+      locale: "en_US",
+      type: "profile",
+      ...(h.avatar_url && {
+        images: [
+          {
+            url: h.avatar_url,
+            width: 400,
+            height: 400,
+            alt: `${h.full_name} profile photo`,
+          },
+        ],
+      }),
+    },
+    twitter: {
+      card: "summary",
+      title: `${h.full_name} — Student Housemate in Kigali | WiyoRent`,
+      description,
+      ...(h.avatar_url && { images: [h.avatar_url] }),
+    },
+    robots: {
+      index: false,
+      follow: false,
+    },
   };
 }
 

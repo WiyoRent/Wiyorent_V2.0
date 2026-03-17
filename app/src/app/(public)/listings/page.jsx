@@ -155,6 +155,41 @@ import { getListingsProxy } from '@/services/public/listings.service';
 //   }
 // };
 
+export const metadata = {
+  title: "Student Rooms & Apartments in Kigali",
+  description:
+    "Browse verified student rooms and apartments in Kigali, Rwanda. Filter by price, location, furnished, availability date, number of bedrooms, and more — no visiting fees, no hidden charges.",
+  keywords: [
+    "student rooms Kigali",
+    "student apartments Kigali Rwanda",
+    "furnished student housing Kigali",
+    "affordable student rooms Kigali",
+    "student accommodation near CMU Africa",
+    "student accommodation near ALU Kigali",
+    "available student housing Kigali",
+    "verified student listings Kigali",
+    "student rooms with roommates Kigali",
+  ],
+  openGraph: {
+    title: "Student Rooms & Apartments in Kigali | WiyoRent",
+    description:
+      "Browse verified student rooms and apartments in Kigali. Filter by price, location, furnished status, availability date, and more — no visiting fees, no hidden charges.",
+    url: "https://wiyorent.com/listings",
+    siteName: "WiyoRent",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Student Rooms & Apartments in Kigali | WiyoRent",
+    description:
+      "Browse verified student rooms and apartments in Kigali. Filter by price, location, furnished status, and availability — no visiting fees, no hidden charges.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
 
 
 export default async function ListingsPage({searchParams}) {

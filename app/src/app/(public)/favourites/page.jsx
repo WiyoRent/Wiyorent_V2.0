@@ -51,8 +51,22 @@ import Link from 'next/link';
 // ];
 
 export const metadata = {
-  title: 'My Favourites | WiyoRent',
-  description: 'Your saved student housing listings and housemate profiles in Kigali',
+  title: "Saved Listings & Housemates",
+  description:
+    "View your saved student rooms, apartments, and housemate profiles in Kigali. Pick up where you left off and find your perfect match on WiyoRent.",
+  openGraph: {
+    title: "Saved Listings & Housemates | WiyoRent",
+    description:
+      "View your saved student rooms, apartments, and housemate profiles in Kigali.",
+    url: "https://wiyorent.com/favourites",
+    siteName: "WiyoRent",
+    locale: "en_US",
+    type: "website",
+  },
+  robots: {
+    index: false,  // personal page, no value in indexing
+    follow: false,
+  },
 };
 
 export default async function FavouritesPage() {

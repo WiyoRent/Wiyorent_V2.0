@@ -4,7 +4,24 @@ import { ClipboardList, LogIn } from 'lucide-react'
 import Link from 'next/link'
 import WaitlistGrid from '@/components/public/waitlist/WaitlistGrid'
 
-export const metadata = { title: 'My Waitlist | WiyoRent' }
+export const metadata = {
+  title: "My Waitlist",
+  description:
+    "Track student rooms and apartments you've joined the waitlist for in Kigali. Get notified when a spot opens up — no visiting fees, no hidden charges.",
+  openGraph: {
+    title: "My Waitlist | WiyoRent",
+    description:
+      "Track waitlisted student rooms and apartments in Kigali. Get notified when a spot opens up.",
+    url: "https://wiyorent.com/waitlist",
+    siteName: "WiyoRent",
+    locale: "en_US",
+    type: "website",
+  },
+  robots: {
+    index: false,  // personal page, no value in indexing
+    follow: false,
+  },
+};
 
 export default async function WaitlistPage() {
   const session = await auth()

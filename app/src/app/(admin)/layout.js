@@ -2,6 +2,13 @@ import "../globals.css";
 import AdminSidebar from "@/components/admin/shared/AdminSidebar";
 import { ToastContainer } from "react-toastify";
 
+export const metadata = {
+  title: "Admin | WiyoRent",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default function AdminLayout({ children }) {
   return (

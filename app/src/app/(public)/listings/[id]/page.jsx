@@ -110,14 +110,62 @@ const fetchSingleListing = async (id) => {
 }
 
 export async function generateMetadata({ params }) {
+  const { id } = await params;
+  const listing = await fetchSingleListing(id);
 
-  const {id} = await params
+  if (!listing) {
+    return {
+      title: "Listing Not Found | WiyoRent",
+      description: "This student housing listing could not be found on WiyoRent.",
+      robots: { index: false, follow: false },
+    };
+  }
 
-  const listing_detail = await fetchSingleListing(id)
+  const price = listing.financials?.price_per_month
+    ? `${listing.financials.price_per_month.toLocaleString()} RWF/month`
+    : null;
+
+  const bedrooms = listing.specifications?.bedroom_number;
+  const bathrooms = listing.specifications?.bathroom_number;
+  const furnished = listing.is_furnished ? "Furnished" : "Unfurnished";
+  const location = [listing.neighborhood, listing.city].filter(Boolean).join(", ");
+  const verified = listing.is_verified;
+
+  const description = listing.description
+    ? listing.description.slice(0, 155)
+    : `${furnished} ${bedrooms ? `${bedrooms}-bedroom` : ""} student ${listing.specifications?.property_type ?? "property"} in ${location}${price ? ` from ${price}` : ""}. ${verified ? "Verified listing" : ""} on WiyoRent — no visiting fees, no hidden charges.`;
 
   return {
-    title: `${listing_detail?.title} | WiyoRent`,
-    description: listing_detail?.description,
+    title: `${listing.title} | Student House in ${location} | WiyoRent`,
+    description,
+    openGraph: {
+      title: `${listing.title} | WiyoRent`,
+      description,
+      url: `https://wiyorent.com/listings/${id}`,
+      siteName: "WiyoRent",
+      locale: "en_US",
+      type: "website",
+      ...(listing.thumbnail_url && {
+        images: [
+          {
+            url: listing.thumbnail_url,
+            width: 1200,
+            height: 630,
+            alt: `${listing.title} — student housing in ${location}`,
+          },
+        ],
+      }),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${listing.title} | WiyoRent`,
+      description,
+      ...(listing.thumbnail_url && { images: [listing.thumbnail_url] }),
+    },
+    robots: {
+      index: listing.available_status === "available" ? true : false,
+      follow: true,
+    },
   };
 }
 

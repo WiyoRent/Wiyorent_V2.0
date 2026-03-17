@@ -84,8 +84,39 @@ import { fetchHousemates } from '@/services/public/housemate.service';
 // ];
 
 export const metadata = {
-  title: 'Find a Housemate | WiyoRent',
-  description: 'Browse verified student housemate profiles across Kigali.',
+  title: "Find a Housemate in Kigali",
+  description:
+    "Browse verified student housemate profiles in Kigali. Filter by budget, university, move-in date, gender, neighbourhood, lifestyle habits, and more — Kigali's first student roommate matching platform.",
+  keywords: [
+    "find a housemate Kigali",
+    "student roommate Kigali Rwanda",
+    "housemate matching CMU Africa",
+    "housemate matching ALU Kigali",
+    "student roommate finder Kigali",
+    "verified housemates Kigali",
+    "roommate filter budget lifestyle Kigali",
+    "student roommate non-smoker Kigali",
+    "pet friendly student housing Kigali",
+  ],
+  openGraph: {
+    title: "Find a Housemate in Kigali | WiyoRent",
+    description:
+      "Browse verified student housemate profiles in Kigali. Filter by budget, university, move-in date, gender, neighbourhood, lifestyle, smoking, and pet preferences.",
+    url: "https://wiyorent.com/housemates",
+    siteName: "WiyoRent",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Find a Housemate in Kigali | WiyoRent",
+    description:
+      "Kigali's first student roommate matching platform. Filter by budget, university, lifestyle, and more — verified students only.",
+  },
+  robots: {
+    index: false,  // public page, worth indexing
+    follow: false,
+  },
 };
 
 export default async function  HousematesPage({searchParams}) {

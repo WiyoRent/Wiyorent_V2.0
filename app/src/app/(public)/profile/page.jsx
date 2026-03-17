@@ -5,24 +5,28 @@ import { getProfile } from '@/services/public/profile.service';
 
 export async function generateMetadata() {
   const session = await auth();
-  
   const isOnboarded = session?.user?.is_onboarded;
 
   return {
-    title: isOnboarded ? 'My Profile | WiyoRent' : 'Complete Your Profile | WiyoRent',
+    title: isOnboarded ? "My Profile | WiyoRent" : "Complete Your Profile | WiyoRent",
     description: isOnboarded
-      ? 'Manage your housemate profile and housing preferences'
-      : 'Set up your profile to start finding compatible housemates in Kigali',
+      ? "Manage your housemate profile, housing preferences, and listing on WiyoRent."
+      : "Complete your profile to start finding compatible housemates in Kigali.",
+    robots: {
+      index: false,
+      follow: false,
+    },
   };
 }
 
-export default async function ProfileEditPage() {
+export default async function ProfileEditPage({searchParams}) {
 
   const session = await auth();
   if (!session?.user) {
     return redirect('/login');
   }
 
+  const { redirect: redirectTo } = await searchParams; 
   const { user, listing } = await getProfile();
 
   const user_profile_data = {
@@ -134,6 +138,7 @@ export default async function ProfileEditPage() {
         <ProfileEditForm
           initial_data={user_profile_data}
           available_neighborhoods={available_neighborhoods}
+          redirect_to={redirectTo ?? '/listings'}
         />
       </div>
     </div>

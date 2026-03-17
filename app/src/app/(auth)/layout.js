@@ -2,8 +2,13 @@
 import "../globals.css";
 
 export const metadata = {
-  title: "WiyoRent - Login | Register",
-  description: "",
+  title: "Login | WiyoRent",
+  description:
+    "Sign in to your WiyoRent account to manage your listings, housemate matches, and settling-in services in Kigali, Rwanda.",
+  robots: {
+    index: false, // auth pages should never be indexed
+    follow: false,
+  },
 };
 
 export default function RootLayout({ children }) {
