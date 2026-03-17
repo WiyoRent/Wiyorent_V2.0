@@ -1,6 +1,7 @@
 import Navbar from "@/components/public/home/Navbar.jsx";
 import Hero from "@/components/public/home/Hero.jsx";
 import AboutUs from "@/components/public/home/AboutUs.jsx";
+import HousemateFeature from "@/components/public/home/HousemateFeature.jsx";
 import Mission from "@/components/public/home/Mission.jsx";
 import Packages from "@/components/public/home/Packages.jsx";
 import Stats from "@/components/public/home/Stats.jsx";
@@ -17,6 +18,7 @@ export default function HomePage() {
         <Navbar />
         <Hero />
         <AboutUs />
+        <HousemateFeature />
         <Mission />
         <Packages />
         <Stats />
