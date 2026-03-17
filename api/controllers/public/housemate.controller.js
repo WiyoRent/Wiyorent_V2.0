@@ -258,12 +258,16 @@ export const fetchHousemateContactDetail = async (req,res) => {
         const {clientKey,userId} = verifyHeaders(req)
 
         const result = await pool.query(`
-            SELECT 
+            SELECT
                 preferred_method,
                 phone_number,
                 email
-            from users
-            WHERE users.id = $1
+            FROM users
+            WHERE id = $1
+              AND is_profile_public = true
+              AND is_onboarded = true
+              AND is_blocked = false
+              AND verification_status != 'rejected'
         `, [housemateId])
 
         if(result.rowCount == 0){
