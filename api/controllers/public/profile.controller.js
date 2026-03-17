@@ -107,6 +107,7 @@ export const updateProfile = async (req, res) => {
             !year_of_study ||
             !phone_number ||
             !move_in_date ||
+            !min ||
             !max ||
             !max_housemates ||
             !sleep_schedule ||
@@ -181,7 +182,7 @@ export const updateProfile = async (req, res) => {
             parseBoolOrNull(dont_mind_pets),
             parseBoolOrNull(private_room),
             parseBoolOrNull(furnished),
-            is_profile_public === 'true',
+            parseBoolOrNull(is_profile_public),
             sleep_schedule,
             cleanliness,
             social_habits,
@@ -330,7 +331,8 @@ const create_user_listing = async (body, listing_images, userId) => {
     }
 
     try {
-        
+        const amenities_array = listing_amenities.split(',').map(item => item.trim())
+        const house_rules_array = listing_house_rules.split(',').map(item => item.trim())
 
         // ------ Upsert listing row ------
         const listingResult = await pool.query(`
@@ -382,8 +384,8 @@ const create_user_listing = async (body, listing_images, userId) => {
             listing_city,
             listing_available_from,
             listing_housemate_gender,
-            listing_amenities,
-            listing_house_rules
+            amenities_array,
+            house_rules_array
         ])
 
         if (listingResult.rowCount == 0) {
