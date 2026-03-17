@@ -1,6 +1,22 @@
 import PackageInformation from "@/components/public/home/PackageInformation";
+import { getBaseURL } from "@/lib/getBaseURL";
 
-export default function Packages() {
+async function fetchPackages() {
+  try {
+    const res = await fetch(`${getBaseURL()}api/v1/public/get/packages`, {
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.data ?? [];
+  } catch {
+    return [];
+  }
+}
+
+export default async function Packages() {
+  const packages = await fetchPackages();
+
   return (
     <section
       data-aos="fade-up"
@@ -17,19 +33,23 @@ export default function Packages() {
           packages.
         </p>
 
-        <div
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto"
-          data-aos="zoom-in"
-        >
-          {/* Standard Package */}
-          <PackageInformation packageName="Standard" />
-
-          {/* Premium Package */}
-          <PackageInformation packageName="Premium" />
-
-          {/* Gold Package */}
-          <PackageInformation packageName="Gold" />
-        </div>
+        {packages.length === 0 ? (
+          <p className="font-secondary text-center text-white/50 text-sm">
+            Packages coming soon. Contact us on WhatsApp for details.
+          </p>
+        ) : (
+          <div
+            className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto"
+            data-aos="zoom-in"
+          >
+            {(() => {
+              const all_inclusions = [...new Set(packages.flatMap((p) => p.inclusions ?? []))];
+              return packages.map((pkg) => (
+                <PackageInformation key={pkg.package_id} pkg={pkg} all_inclusions={all_inclusions} />
+              ));
+            })()}
+          </div>
+        )}
       </div>
     </section>
   );
