@@ -2,7 +2,10 @@ import { Target, Rocket } from "lucide-react";
 
 export default function Mission() {
   return (
-    <section data-aos="zoom-in" className="py-16 px-6 lg:px-16">
+    <section data-aos="zoom-in" className="py-16 px-6 lg:px-16 bg-black">
+      <h2 className="font-primary text-4xl lg:text-5xl font-bold text-center text-white mb-12">
+        WHERE WE STAND. WHERE WE ARE GOING
+      </h2>
       <div className="container mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
         <div
           data-aos="zoom-in"
@@ -15,10 +18,10 @@ export default function Mission() {
             OUR MISSION
           </h2>
           <p className="font-secondary text-base text-secondary/80 leading-relaxed">
-            To revolutionize the African real estate industry by harnessing
-            technology to address the changing market demands, with a specific
-            emphasis on delivering innovative student housing solutions and
-            streamlining the process for students seeking accommodation.
+            To make finding student housing in Kigali simple, safe, and
+            stress-free. We connect international and local students in Rwanda
+            with verified accommodation, trusted housemates, and the settlement
+            support they need to focus on what matters — their education.
           </p>
         </div>
 
@@ -33,10 +36,11 @@ export default function Mission() {
             OUR VISION
           </h2>
           <p className="font-secondary text-base text-secondary/80 leading-relaxed">
-            We aspire to shape the future of African Real Estate, providing
-            cutting-edge student housing that meets the evolving needs of the
-            modern student and be the go-to African leader in facilitating
-            student housing search in Africa.
+            To become Africa's leading student housing platform — the first
+            place every student searches when relocating for university. From
+            Kigali to the continent, we're building the infrastructure that
+            makes student accommodation across Africa findable, verified, and
+            accessible.
           </p>
         </div>
       </div>
