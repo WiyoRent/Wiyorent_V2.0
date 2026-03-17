@@ -1,6 +1,5 @@
 import { DollarSign, CalendarDays } from 'lucide-react';
-
-const format_rwf = (n) => `RWF ${new Intl.NumberFormat('rw-RW').format(n)}`;
+import { formatRWF } from '@/lib/formatRWF';
 
 export default function FinancialsSpecsSection({
   price_per_month,
@@ -56,7 +55,7 @@ export default function FinancialsSpecsSection({
               />
               <label className="label">
                 <span className="label-text-alt font-secondary text-xs text-base-content/40">
-                  {format_rwf(price_per_month)}
+                  {formatRWF(price_per_month)}
                 </span>
               </label>
             </div>
@@ -76,7 +75,7 @@ export default function FinancialsSpecsSection({
               />
               <label className="label">
                 <span className="label-text-alt font-secondary text-xs text-base-content/40">
-                  {format_rwf(commission_fee)}
+                  {formatRWF(commission_fee)}
                 </span>
               </label>
             </div>
@@ -96,7 +95,7 @@ export default function FinancialsSpecsSection({
               />
               <label className="label">
                 <span className="label-text-alt font-secondary text-xs text-base-content/40">
-                  {format_rwf(caution_fee)}
+                  {formatRWF(caution_fee)}
                 </span>
               </label>
             </div>

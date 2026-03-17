@@ -5,6 +5,7 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { X, MapPin, Activity, ArrowUpDown, SlidersHorizontal, Home, Zap } from 'lucide-react';
 import FilterLabel from '@/components/admin/shared/FilterLabel';
 import PillGroup from '@/components/admin/shared/PillGroup';
+import { formatRWF, formatRWFNumber } from '@/lib/formatRWF';
 
 // ── Main component ─────────────────────────────────────────────────────────────
 
@@ -62,7 +63,6 @@ export default function ListingsFilterBar({ filter_options = {} }) {
 
   const handle_reset = () => router.replace(pathname);
 
-  const format_price = (n) => `${new Intl.NumberFormat('rw-RW').format(n)} RWF`;
 
   const active_count = [is_active, available_status, neighborhood, is_furnished, sort, property_type, bedroom_number, is_a_wiyorent_house, landlord].filter(Boolean).length + (max_price < price_range.max ? 1 : 0);
   const has_active_filters = active_count > 0;
@@ -190,7 +190,7 @@ export default function ListingsFilterBar({ filter_options = {} }) {
           <div className="flex items-baseline gap-1.5 mb-2">
             <span className="font-secondary text-[11px] text-base-content/40">Up to</span>
             <span className="font-secondary text-[15px] font-bold text-base-content">
-              {new Intl.NumberFormat('rw-RW').format(max_price)}
+              {formatRWFNumber(max_price)}
             </span>
             <span className="font-secondary text-[11px] text-base-content/40">RWF/mo</span>
           </div>
@@ -204,8 +204,8 @@ export default function ListingsFilterBar({ filter_options = {} }) {
             className="range range-accent range-xs"
           />
           <div className="flex items-center justify-between mt-1.5">
-            <span className="font-secondary text-[10px] text-base-content/30">{format_price(price_range.min)}</span>
-            <span className="font-secondary text-[10px] text-base-content/30">{format_price(price_range.max)}</span>
+            <span className="font-secondary text-[10px] text-base-content/30">{formatRWF(price_range.min)}</span>
+            <span className="font-secondary text-[10px] text-base-content/30">{formatRWF(price_range.max)}</span>
           </div>
         </div>
 

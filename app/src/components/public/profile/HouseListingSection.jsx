@@ -1,6 +1,7 @@
 'use client';
 
 import { Home, User, DollarSign, BedDouble, MapPin, Sofa } from 'lucide-react';
+import { formatRWF } from '@/lib/formatRWF';
 import ImagesSection from '@/components/shared/ImagesSection';
 import AmenitiesRulesSection from '@/components/shared/AmenitiesRulesSection';
 import PhoneInputWithCountrySelect from 'react-phone-number-input';
@@ -129,7 +130,7 @@ export default function HouseListingSection({
                 />
                 {listing_price > 0 && (
                   <p className="font-secondary text-xs text-base-content/40 mt-1">
-                    RWF {new Intl.NumberFormat('rw-RW').format(listing_price)}
+                    {formatRWF(listing_price)}
                   </p>
                 )}
               </div>
@@ -150,7 +151,7 @@ export default function HouseListingSection({
                 />
                 {listing_caution_fee > 0 && (
                   <p className="font-secondary text-xs text-base-content/40 mt-1">
-                    RWF {new Intl.NumberFormat('rw-RW').format(listing_caution_fee)}
+                    {formatRWF(listing_caution_fee)}
                   </p>
                 )}
               </div>

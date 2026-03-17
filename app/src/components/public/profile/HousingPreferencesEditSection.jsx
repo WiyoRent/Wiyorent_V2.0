@@ -4,8 +4,7 @@ import { useState, useRef, useLayoutEffect } from 'react';
 import { Home, Calendar, MapPin, Wallet } from 'lucide-react';
 import PillChipGroup from '@/components/public/profile/PillChipGroup';
 import PrefRow from '@/components/public/profile/PrefRow';
-
-const format_rwf = (n) => `RWF ${new Intl.NumberFormat('rw-RW').format(n)}`;
+import { formatRWF, formatRWFNumber } from '@/lib/formatRWF';
 
 // How many pills fit in one row before we show "Show more"
 const PILLS_ROW_MAX = 1; // measured in rows — we use overflow clipping instead
@@ -187,7 +186,7 @@ export default function HousingPreferencesEditSection({
               <div className="flex items-baseline gap-1.5 mb-2">
                 <span className="font-secondary text-[11px] text-base-content/40">From</span>
                 <span className="font-secondary text-[15px] font-bold text-base-content">
-                  {new Intl.NumberFormat('rw-RW').format(budget_min)}
+                  {formatRWFNumber(budget_min)}
                 </span>
                 <span className="font-secondary text-[11px] text-base-content/40">RWF/mo</span>
               </div>
@@ -207,7 +206,7 @@ export default function HousingPreferencesEditSection({
               <div className="flex items-baseline gap-1.5 mb-2">
                 <span className="font-secondary text-[11px] text-base-content/40">Up to</span>
                 <span className="font-secondary text-[15px] font-bold text-base-content">
-                  {new Intl.NumberFormat('rw-RW').format(budget_max)}
+                  {formatRWFNumber(budget_max)}
                 </span>
                 <span className="font-secondary text-[11px] text-base-content/40">RWF/mo</span>
               </div>
@@ -221,8 +220,8 @@ export default function HousingPreferencesEditSection({
                 className="range range-accent range-xs w-full"
               />
               <div className="flex items-center justify-between mt-1.5">
-                <span className="font-secondary text-[10px] text-base-content/30">{format_rwf(50000)}</span>
-                <span className="font-secondary text-[10px] text-base-content/30">{format_rwf(500000)}</span>
+                <span className="font-secondary text-[10px] text-base-content/30">{formatRWF(50000)}</span>
+                <span className="font-secondary text-[10px] text-base-content/30">{formatRWF(500000)}</span>
               </div>
             </div>
           </div>

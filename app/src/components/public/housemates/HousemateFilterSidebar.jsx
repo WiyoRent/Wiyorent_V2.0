@@ -7,7 +7,7 @@ import FilterSection from '@/components/public/shared/FilterSection';
 import FilterTooltip from '@/components/public/shared/FilterTooltip';
 import FieldLabel from '@/components/public/shared/FieldLabel';
 
-const format_rwf = (n) => `RWF ${new Intl.NumberFormat('rw-RW').format(n)}`;
+import { formatRWF, formatRWFNumber } from '@/lib/formatRWF';
 
 // ── Main component ─────────────────────────────────────────────────────────────
 export default function HousemateFilterSidebar({ filter_options }) {
@@ -226,7 +226,7 @@ export default function HousemateFilterSidebar({ filter_options }) {
           <div className="flex items-baseline gap-1.5 mb-2">
             <span className="font-secondary text-[11px] text-base-content/40">Up to</span>
             <span className="font-secondary text-[15px] font-bold text-base-content">
-              {new Intl.NumberFormat('rw-RW').format(budget_max)}
+              {formatRWFNumber(budget_max)}
             </span>
             <span className="font-secondary text-[11px] text-base-content/40">RWF/mo</span>
           </div>
@@ -240,8 +240,8 @@ export default function HousemateFilterSidebar({ filter_options }) {
             className="range range-accent range-xs"
           />
           <div className="flex items-center justify-between mt-1.5">
-            <span className="font-secondary text-[10px] text-base-content/30">{format_rwf(budget_range.min)}</span>
-            <span className="font-secondary text-[10px] text-base-content/30">{format_rwf(budget_range.max)}</span>
+            <span className="font-secondary text-[10px] text-base-content/30">{formatRWF(budget_range.min)}</span>
+            <span className="font-secondary text-[10px] text-base-content/30">{formatRWF(budget_range.max)}</span>
           </div>
         </div>
 

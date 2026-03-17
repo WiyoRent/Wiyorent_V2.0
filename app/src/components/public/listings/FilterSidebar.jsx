@@ -5,9 +5,7 @@ import { SlidersHorizontal, X, Bed, Users } from 'lucide-react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import FilterSection from '@/components/public/shared/FilterSection';
 import FilterTooltip from '@/components/public/shared/FilterTooltip';
-
-const format_price = (value) =>
-  `RWF ${new Intl.NumberFormat('rw-RW').format(value)}`;
+import { formatRWF, formatRWFNumber } from '@/lib/formatRWF';
 
 const LABEL_CLS = "font-secondary text-[11px] font-semibold text-base-content/50 tracking-wide";
 
@@ -179,7 +177,7 @@ export default function FilterSidebar({ filter_options }) {
           <div className="flex items-baseline gap-1.5 mb-2 mt-1">
             <span className="font-secondary text-[11px] text-base-content/40">Up to</span>
             <span className="font-secondary text-[15px] font-bold text-base-content">
-              {new Intl.NumberFormat('rw-RW').format(price_max)}
+              {formatRWFNumber(price_max)}
             </span>
             <span className="font-secondary text-[11px] text-base-content/40">RWF/mo</span>
           </div>
@@ -193,8 +191,8 @@ export default function FilterSidebar({ filter_options }) {
             className="range range-accent range-xs"
           />
           <div className="flex items-center justify-between mt-1.5">
-            <span className="font-secondary text-[10px] text-base-content/30">{format_price(price_range.min)}</span>
-            <span className="font-secondary text-[10px] text-base-content/30">{format_price(price_range.max)}</span>
+            <span className="font-secondary text-[10px] text-base-content/30">{formatRWF(price_range.min)}</span>
+            <span className="font-secondary text-[10px] text-base-content/30">{formatRWF(price_range.max)}</span>
           </div>
         </div>
       </FilterSection>

@@ -5,9 +5,7 @@ import { Phone, MessageCircle } from 'lucide-react';
 import FilterTooltip from '@/components/public/shared/FilterTooltip';
 import PricingRow from '@/components/public/listing/PricingRow';
 
-const format_rwf = (amount) =>
-  `RWF ${new Intl.NumberFormat('rw-RW').format(amount)}`;
-
+import { formatRWF } from '@/lib/formatRWF';
 
 export default function PricingSidebar({ financials, total_first_payment, listing_id, is_a_wiyorent_house = false }) {
   const { price_per_month, commission_fee, caution_fee, upfront_months = 1 } = financials;
@@ -49,7 +47,7 @@ export default function PricingSidebar({ financials, total_first_payment, listin
               </span>
             </div>
             <span className="font-primary text-sm font-extrabold text-base-content/80 flex-shrink-0">
-              {format_rwf(caution_fee)}
+              {formatRWF(caution_fee)}
             </span>
           </div>
 
@@ -77,7 +75,7 @@ export default function PricingSidebar({ financials, total_first_payment, listin
               )}
             </div>
             <span className={`font-primary text-sm font-extrabold flex-shrink-0 ${is_a_wiyorent_house ? 'line-through text-base-content/30' : 'text-base-content/80'}`}>
-              {format_rwf(commission_fee)}
+              {formatRWF(commission_fee)}
             </span>
           </div>
         </div>
@@ -102,13 +100,13 @@ export default function PricingSidebar({ financials, total_first_payment, listin
           <div className="flex items-center justify-between">
             <span className="font-secondary text-sm text-base-content/60">Monthly Rent × {upfront_months}</span>
             <span className="font-secondary text-sm font-semibold text-base-content/80">
-              {format_rwf(upfront_rent_total)}
+              {formatRWF(upfront_rent_total)}
             </span>
           </div>
           <div className="flex items-center justify-between">
             <span className="font-secondary text-sm text-base-content/60">Security Deposit</span>
             <span className="font-secondary text-sm font-semibold text-base-content/80">
-              {format_rwf(caution_fee)}
+              {formatRWF(caution_fee)}
             </span>
           </div>
           <div className="flex items-center justify-between">
@@ -119,7 +117,7 @@ export default function PricingSidebar({ financials, total_first_payment, listin
               <span className="font-secondary text-sm font-semibold text-accent">Waived</span>
             ) : (
               <span className="font-secondary text-sm font-semibold text-base-content/80">
-                {format_rwf(commission_fee)}
+                {formatRWF(commission_fee)}
               </span>
             )}
           </div>
@@ -130,7 +128,7 @@ export default function PricingSidebar({ financials, total_first_payment, listin
                 Total First Payment
               </span>
               <span className="font-primary text-lg font-extrabold text-primary-content">
-                {format_rwf(total_first_payment)}
+                {formatRWF(total_first_payment)}
               </span>
             </div>
           </div>

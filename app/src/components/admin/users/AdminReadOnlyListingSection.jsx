@@ -4,8 +4,7 @@ import {
   User, Phone,
 } from 'lucide-react';
 import ImageCarousel from '@/components/shared/ImageCarousel';
-
-const format_rwf = (n) => `RWF ${new Intl.NumberFormat('rw-RW').format(n)}`;
+import { formatRWF } from '@/lib/formatRWF';
 
 // ── Main component ─────────────────────────────────────────────────────────────
 export default function AdminReadOnlyListingSection({
@@ -78,14 +77,14 @@ export default function AdminReadOnlyListingSection({
           <div>
             <div className="flex items-end gap-2 flex-wrap">
               <span className="font-primary text-3xl font-extrabold text-accent">
-                {format_rwf(listing_price)}
+                {formatRWF(listing_price)}
               </span>
               <span className="font-secondary text-sm text-base-content/45 mb-1">/ month</span>
             </div>
             {listing_caution_fee && (
               <div className="flex items-center gap-1.5 mt-1">
                 <span className="font-secondary font-bold text-xs text-base-content/45">
-                  {format_rwf(listing_caution_fee)} caution fee (Refundable)
+                  {formatRWF(listing_caution_fee)} caution fee (Refundable)
                 </span>
               </div>
             )}

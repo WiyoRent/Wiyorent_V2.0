@@ -4,8 +4,7 @@ import {
   CalendarDays, Banknote,
 } from 'lucide-react';
 import ImageCarousel from '@/components/shared/ImageCarousel';
-
-const format_rwf = (n) => `RWF ${new Intl.NumberFormat('rw-RW').format(n)}`;
+import { formatRWF } from '@/lib/formatRWF';
 
 export default function UserListingSection({ listing }) {
   if (!listing?.price) return null;
@@ -48,7 +47,7 @@ export default function UserListingSection({ listing }) {
           <div>
             <div className="flex items-end gap-2 flex-wrap">
               <span className="font-primary text-3xl font-extrabold text-accent">
-                {format_rwf(listing?.price)}
+                {formatRWF(listing?.price)}
               </span>
               <span className="font-secondary text-sm text-base-content/45 mb-1">/ month</span>
             </div>
@@ -57,7 +56,7 @@ export default function UserListingSection({ listing }) {
               <div className="flex items-center gap-1.5 mt-1">
             
                 <span className="font-secondary font-bold text-xs text-base-content/45">
-                  {format_rwf(listing.caution_fee)} caution fee (Refundable)
+                  {formatRWF(listing.caution_fee)} caution fee (Refundable)
                 </span>
               </div>
             )}

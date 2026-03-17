@@ -1,4 +1,5 @@
 import { Banknote, Percent, ShieldAlert, CalendarDays } from 'lucide-react';
+import { formatRWF } from '@/lib/formatRWF';
 
 const FIELDS = [
   {
@@ -73,7 +74,7 @@ export default function FinancialsSection({ financials, set_financials }) {
             />
             {is_rwf && financials[key] > 0 ? (
               <p className="font-secondary text-xs text-base-content/40 mt-1">
-                RWF {new Intl.NumberFormat('rw-RW').format(financials[key])}
+                {formatRWF(financials[key])}
               </p>
             ) : (
               <p className="font-secondary text-xs text-base-content/40 mt-1">{hint}</p>

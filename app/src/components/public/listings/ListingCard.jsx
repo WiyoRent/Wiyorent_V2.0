@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { toggleSaveListing, toggleWaitlistListing } from '@/actions/public/favorites.action';
-import { useEffect } from 'react';
+import { formatRWF } from '@/lib/formatRWF';
 
 import {
   Heart,
@@ -28,19 +28,9 @@ export default function ListingCard({ listing }) {
   const is_available = listing.available_status === 'available';
 
   const price = listing.financials?.price_per_month || 0;
-  const formatted_price = new Intl.NumberFormat('rw-RW').format(price);
 
   const router = useRouter()
   const session = useSession()
-
-  const saveListing = async (listingId) => {
-    set_is_liked(!is_liked)
-    
-  }
-
-  useEffect(() => {
-    toggleSaveListing(listing.listing_id, is_liked)
-  }, [is_liked])
 
   const handleWaitlist = (e) => {
     e.preventDefault()
@@ -60,17 +50,18 @@ export default function ListingCard({ listing }) {
     e.preventDefault()
     e.stopPropagation()
 
-    if(!session?.data){
+    if (!session?.data) {
       router.push('/login')
-      return 
+      return
     }
 
-    saveListing(listing.listing_id)
+    const next = !is_liked
+    set_is_liked(next)
+    toggleSaveListing(listing.listing_id, next)
   }
 
   return (
-    <>
-      <Link href={`/listings/${listing.listing_id}`}>
+    <Link href={`/listings/${listing.listing_id}`}>
         <div className="bg-base-100 rounded-box shadow-md flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-xl group">
           <div className="relative overflow-hidden h-48 sm:h-52 bg-base-300 rounded-t-2xl">
             <img
@@ -115,7 +106,7 @@ export default function ListingCard({ listing }) {
           <div className="p-4 flex flex-col flex-1 gap-3">
             <div className="flex items-baseline gap-1">
               <span className="font-primary text-2xl font-extrabold text-secondary">
-                RWF {formatted_price}
+                {formatRWF(price)}
               </span>
               <span className="font-secondary text-sm text-base-content/50">
                 / month
@@ -191,9 +182,6 @@ export default function ListingCard({ listing }) {
             </div>
           </div>
         </div>
-      </Link>
-      
-    </>
-    
+    </Link>
   );
 }

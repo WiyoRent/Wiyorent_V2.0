@@ -1,5 +1,4 @@
-const format_rwf = (amount) =>
-  `RWF ${new Intl.NumberFormat('rw-RW').format(amount)}`;
+import { formatRWF } from '@/lib/formatRWF';
 
 export default function PricingRow({ label, sublabel, amount, highlight = false, size = 'normal' }) {
   return (
@@ -27,7 +26,7 @@ export default function PricingRow({ label, sublabel, amount, highlight = false,
             : 'text-sm text-base-content/80'
         }`}
       >
-        {format_rwf(amount)}
+        {formatRWF(amount)}
       </span>
     </div>
   );

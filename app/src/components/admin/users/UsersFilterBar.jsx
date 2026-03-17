@@ -5,6 +5,7 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { X, SlidersHorizontal, ShieldCheck, Users, GraduationCap, CalendarClock, Home, Zap, MapPin } from 'lucide-react';
 import FilterLabel from '@/components/admin/shared/FilterLabel';
 import PillGroup from '@/components/admin/shared/PillGroup';
+import { formatRWF, formatRWFNumber } from '@/lib/formatRWF';
 
 // ── Main component ─────────────────────────────────────────────────────────────
 
@@ -62,7 +63,6 @@ export default function UsersFilterBar({ filter_options = {} }) {
 
   const handle_reset = () => router.replace(pathname);
 
-  const format_price = (n) => `${new Intl.NumberFormat('rw-RW').format(n)} RWF`;
 
   const active_count = [verification_status, gender, university, has_house, is_onboarded, sort, is_blocked, urgency, preferred_location].filter(Boolean).length + (budget_max < budget_range.max ? 1 : 0);
   const has_active_filters = active_count > 0;
@@ -234,7 +234,7 @@ export default function UsersFilterBar({ filter_options = {} }) {
           <div className="flex items-baseline gap-1.5 mb-2">
             <span className="font-secondary text-[11px] text-base-content/40">Up to</span>
             <span className="font-secondary text-[15px] font-bold text-base-content">
-              {new Intl.NumberFormat('rw-RW').format(budget_max)}
+              {formatRWFNumber(budget_max)}
             </span>
             <span className="font-secondary text-[11px] text-base-content/40">RWF/mo</span>
           </div>
@@ -248,8 +248,8 @@ export default function UsersFilterBar({ filter_options = {} }) {
             className="range range-accent range-xs"
           />
           <div className="flex items-center justify-between mt-1.5">
-            <span className="font-secondary text-[10px] text-base-content/30">{format_price(budget_range.min)}</span>
-            <span className="font-secondary text-[10px] text-base-content/30">{format_price(budget_range.max)}</span>
+            <span className="font-secondary text-[10px] text-base-content/30">{formatRWF(budget_range.min)}</span>
+            <span className="font-secondary text-[10px] text-base-content/30">{formatRWF(budget_range.max)}</span>
           </div>
         </div>
 

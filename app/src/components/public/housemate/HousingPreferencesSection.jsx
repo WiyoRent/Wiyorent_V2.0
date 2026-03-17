@@ -9,8 +9,7 @@ import {
 } from 'lucide-react';
 import PrefRow from '@/components/public/housemate/PrefRow';
 import BooleanBadge from '@/components/public/housemate/BooleanBadge';
-
-const format_rwf = (n) => `RWF ${new Intl.NumberFormat('rw-RW').format(n)}`;
+import { formatRWF } from '@/lib/formatRWF';
 
 export default function HousingPreferencesSection({ preferences }) {
   const {
@@ -48,7 +47,7 @@ export default function HousingPreferencesSection({ preferences }) {
         {/* Budget */}
         <PrefRow icon={Wallet} label="Budget Range">
           <span className="font-secondary text-sm font-semibold text-base-content">
-            {format_rwf(budget?.min)} – {format_rwf(budget?.max)} / month
+            {formatRWF(budget?.min)} – {formatRWF(budget?.max)} / month
           </span>
         </PrefRow>
 

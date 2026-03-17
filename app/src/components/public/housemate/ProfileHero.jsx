@@ -2,8 +2,7 @@ import { ShieldCheck, GraduationCap, MapPin, Wallet, UserPlus } from 'lucide-rea
 import countryList from 'react-select-country-list';
 import ReactCountryFlag from 'react-country-flag';
 import HeroAvatar from '@/components/public/housemate/HeroAvatar';
-
-const format_rwf = (n) => `RWF ${new Intl.NumberFormat('rw-RW').format(n)}`;
+import { formatRWF } from '@/lib/formatRWF';
 
 const URGENCY_MAP = {
   not_urgent: {
@@ -141,7 +140,7 @@ export default function ProfileHero({
           <div className="flex items-center gap-2 mt-1.5">
             <Wallet size={15} className="text-accent flex-shrink-0" />
             <span className="font-secondary text-sm text-base-content/65">
-              {format_rwf(budget?.min)} – {format_rwf(budget?.max)} / month
+              {formatRWF(budget?.min)} – {formatRWF(budget?.max)} / month
             </span>
           </div>
 

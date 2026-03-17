@@ -9,7 +9,7 @@ import { toast } from 'react-toastify';
 import { contactHousemate } from '@/actions/public/contact_housemate.action.js.js';
 import { toggleSaveHousemate } from '@/actions/public/favorites.action';
 import AvatarCircle from '@/components/public/housemates/AvatarCircle';
-const format_rwf = (n) => `RWF ${new Intl.NumberFormat('rw-RW').format(n)}`;
+import { formatRWF } from '@/lib/formatRWF';
 export default function HousemateCard({ profile, my_verification_status }) {
   const {
     profile_id,
@@ -193,7 +193,7 @@ export default function HousemateCard({ profile, my_verification_status }) {
                         <div className="p-3 flex flex-col gap-2">
                           <div className="flex items-baseline gap-1.5">
                             <span className="font-primary text-base font-extrabold text-accent">
-                              {format_rwf(listing_snapshot.price)}
+                              {formatRWF(listing_snapshot.price)}
                             </span>
                             <span className="font-secondary text-xs text-base-content/45">/ mo</span>
                           </div>
@@ -244,7 +244,7 @@ export default function HousemateCard({ profile, my_verification_status }) {
           <div className="flex items-center gap-1.5 mt-1.5 min-w-0">
             <Wallet size={13} className="text-base-content/35 flex-shrink-0" />
             <span className="font-secondary text-sm text-base-content/50 whitespace-nowrap truncate">
-              {format_rwf(budget.min)} – {format_rwf(budget.max)}
+              {formatRWF(budget.min)} – {formatRWF(budget.max)}
             </span>
           </div>
         </div>
