@@ -1,3 +1,5 @@
+export const dynamic =  'force-dynamic'
+
 import { auth } from '@/auth'
 import { getWaitlistedListings } from '@/services/public/fetch_saves.service'
 import { ClipboardList, LogIn } from 'lucide-react'

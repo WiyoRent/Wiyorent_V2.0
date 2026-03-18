@@ -1,3 +1,5 @@
+export const dynamic =  'force-dynamic'
+
 import ReviewsTable from '@/components/admin/reviews/ReviewsTable';
 import ReviewsFilterBar from '@/components/admin/reviews/ReviewsFilterBar';
 import { getReviews } from '@/services/admin/review.service';

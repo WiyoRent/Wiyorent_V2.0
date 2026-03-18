@@ -1,3 +1,5 @@
+export const dynamic =  'force-dynamic'
+
 import ListingsTable from '@/components/admin/listings/ListingsTable';
 import ListingsFilterBar from '@/components/admin/listings/ListingsFilterBar';
 import { getAdminListings } from '@/services/admin/listings.service';

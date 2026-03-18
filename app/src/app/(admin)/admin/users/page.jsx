@@ -1,3 +1,5 @@
+export const dynamic =  'force-dynamic'
+
 import UsersTable from '@/components/admin/users/UsersTable';
 import UsersFilterBar from '@/components/admin/users/UsersFilterBar';
 import { getAdminUsers } from '@/services/admin/users.service';

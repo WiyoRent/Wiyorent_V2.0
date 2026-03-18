@@ -1,3 +1,5 @@
+export const dynamic =  'force-dynamic'
+
 import { getAdminAnalytics } from '@/services/admin/analytics.service';
 import AnalyticsDashboard from '@/components/admin/analytics/AnalyticsDashboard';
 

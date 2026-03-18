@@ -1,3 +1,5 @@
+export const dynamic =  'force-dynamic'
+
 import AdminUserHeader from '@/components/admin/users/AdminUserHeader';
 import ProfileHero from '@/components/public/housemate/ProfileHero';
 import AboutSection from '@/components/public/housemate/AboutSection';

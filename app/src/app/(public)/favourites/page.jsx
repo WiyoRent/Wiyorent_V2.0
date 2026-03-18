@@ -1,3 +1,5 @@
+export const dynamic =  'force-dynamic'
+
 import FavouritesTabView from '@/components/public/favourites/FavouritesTabView';
 import { Heart, LogIn } from 'lucide-react';
 import { getSavedHousemates, getSavedListings } from '@/services/public/fetch_saves.service';

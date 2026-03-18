@@ -1,3 +1,5 @@
+export const dynamic =  'force-dynamic'
+
 import ProfileEditForm from '@/components/public/profile/ProfileEditForm';
 import { auth } from '@/auth';
 import { redirect } from 'next/navigation';

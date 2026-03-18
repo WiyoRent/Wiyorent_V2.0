@@ -1,3 +1,5 @@
+export const dynamic =  'force-dynamic'
+
 import { auth } from '@/auth';
 import HousemateFilterSidebar from '@/components/public/housemates/HousemateFilterSidebar';
 import HousematesGrid from '@/components/public/housemates/HousemateGrid';

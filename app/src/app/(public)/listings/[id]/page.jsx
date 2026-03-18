@@ -1,3 +1,5 @@
+export const dynamic =  'force-dynamic'
+
 import ImageGallery from '@/components/public/listing/ImageGallery';
 import ListingHeader from '@/components/public/listing/ListingHeader';
 import DescriptionSection from '@/components/public/listing/DescriptionSection';

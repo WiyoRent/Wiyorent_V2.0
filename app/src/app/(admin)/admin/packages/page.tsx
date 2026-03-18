@@ -1,3 +1,5 @@
+export const dynamic =  'force-dynamic'
+
 import PackagesClient from '@/components/admin/packages/PackagesClient';
 import { getPackages } from '@/services/admin/package.service';
 
