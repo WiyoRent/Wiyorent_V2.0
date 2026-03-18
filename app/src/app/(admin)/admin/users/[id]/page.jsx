@@ -98,7 +98,7 @@ const fetchUserDetails = async (userId) => {
     const endpoint = getBaseURL() + `api/v1/admin/get/user/${userId}`
     const res = await fetch(endpoint, {
       headers : {
-        'X-INTERNAL-BACKEND-KEY' : process.env.INTERNAL_BACKEND_KEY,
+        'X-INTERNAL-API-KEY' : process.env.INTERNAL_BACKEND_KEY,
         'X-USER-ROLE' : userRole
       }
     })
