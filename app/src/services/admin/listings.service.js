@@ -20,3 +20,35 @@ export const getAdminListings = async (queryString = '') => {
     return { listings: [], filter_meta: null }
   }
 }
+
+export const createListing = async (formData) => {
+    try {
+        const session = await auth()
+
+        if (!session) {
+            throw new Error('Unauthenticated access')
+        }
+
+        const endPoint = getBaseURL() + 'api/v1/admin/createListing'
+
+        const res = await fetch(endPoint, {
+            method: 'POST',
+            headers: {
+                'X-INTERNAL-API-KEY': process.env.INTERNAL_BACKEND_KEY,
+                'X-USER-ROLE': session?.user?.role,
+            },
+            body: formData
+        })
+
+        const result = await res.json()
+
+        if (!res.ok) {
+            throw new Error(result.message)
+        }
+
+        return result.data
+    } catch (error) {
+        console.error(error.message)
+        throw new Error(error.message || 'An internal server error occured while creating listing')
+    }
+}

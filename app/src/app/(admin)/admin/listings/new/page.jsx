@@ -11,7 +11,7 @@ import LandlordSection from '@/components/admin/create-listing/LandlordSection';
 import StatusSection from '@/components/admin/create-listing/StatusSection';
 import FormHeader from '@/components/admin/create-listing/FormHeader';
 import FormActions from '@/components/admin/create-listing/FormActions';
-import { getBaseURL } from '@/lib/getBaseURL';
+import { createListing } from '@/services/admin/listings.service';
 import { toast } from 'react-toastify';
 import { checkPhoneNumber } from '@/validators/phone';
 
@@ -143,38 +143,11 @@ export default function CreateListingPage() {
       // Set loading to true to disable buttons
       setIsLoading(true)
 
-      // Get our base url
-      const url = getBaseURL() + 'api/v1/admin/createListing'
-
-      // API endpoint we send our post request to the backedn
-      const response = await fetch(url , {
-        method : 'POST',
-        body : formData
-      })
-
-      // Getting json result from backend
-      const result = await response.json()
-
-      // If response is not okay we throw a new error
-      if(!response.ok){
-        throw new Error (result.message || "Something Went Wrong")
-      }
-
-      if(!result.success){
-        toast.update(
-            loadingToast, {
-            render : result.message,
-            type: "error",
-            isLoading: false,
-            autoClose : 3000
-          }
-        )
-        return 
-      }
+      await createListing(formData)
 
       toast.update(
         loadingToast,{
-          render : result.message,
+          render : 'Listing created successfully',
           type : 'success',
           isLoading : false,
           autoClose : 3000
