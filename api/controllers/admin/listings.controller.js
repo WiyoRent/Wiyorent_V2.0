@@ -152,8 +152,10 @@ export const fetchSingleListing = async (req,res) => {
         image_urls: [listing.thumbnail_url, ...listing.image_urls]
     }))
 
+    console.log(listing, '----detaill listing fetched')
 
-    return successMsg(res, 200, 'Product Fetched Successfully', listing)
+
+    return successMsg(res, 200, 'Listing Fetched Successfully', listing)
 }
 
 export const editListing = async (req, res) => {
