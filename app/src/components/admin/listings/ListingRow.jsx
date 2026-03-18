@@ -4,7 +4,7 @@ import { Eye, Heart, Edit2, Trash2, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
-import { getBaseURL } from '@/lib/getBaseURL';
+import { deleteListing } from '@/services/admin/listings.service';
 import StatusBadge from '@/components/admin/listings/StatusBadge';
 
 export default function ListingRow({ listing, on_toggle_active }) {
@@ -22,16 +22,7 @@ export default function ListingRow({ listing, on_toggle_active }) {
   const handle_delete = async () => {
     const loadingToast = toast.loading('Deleting listing...');
     try {
-      const url = getBaseURL() + `api/v1/admin/deleteListing/${listing.listing_id}`
-      const response = await fetch(url, {
-        method : 'DELETE'
-      })
-
-      const result = await response.json()
-
-      if(!response.ok){
-        throw new Error( result.message || 'An error occured while deleting')
-      }
+      await deleteListing(listing.listing_id)
 
       toast.update(loadingToast, {
         render: 'Listing deleted successfully',
