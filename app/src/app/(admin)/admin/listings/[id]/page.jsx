@@ -1,29 +1,36 @@
 import EditListingForm from '@/components/admin/listings/EditListingForm';
 import { getBaseURL } from '@/lib/getBaseURL';
+import { auth } from '@/auth';
 
 
 const fetchSingleListing = async (id) => {
   try {
-    const url = getBaseURL() + `api/v1/admin/fetchSingleListing/${id}`
-    const response = await fetch(url)
-
-    if(!response.ok){
-      throw new Error()
+    const session = await auth()
+    if (!session) {
+      throw new Error('Unauthenticated access')
     }
+
+    const url = getBaseURL() + `api/v1/admin/fetchSingleListing/${id}`
+    const response = await fetch(url, {
+      headers: {
+        'X-INTERNAL-API-KEY': process.env.INTERNAL_BACKEND_KEY,
+        'X-USER-ROLE': session?.user?.role,
+      },
+    })
 
     const result = await response.json()
 
-    if(!result.success){
-      console.error(result.message)
+    if (!response.ok) {
+      throw new Error(result.message)
     }
 
     return result.data[0]
 
   } catch (error) {
-    
+    console.error(error.message)
+    throw new Error(error.message || 'An internal server error occurred while fetching listing')
   }
-  
-} 
+}
 
 
 // const listing_detail = {
@@ -71,7 +78,7 @@ export async function generateMetadata({ params }) {
   const listing_detail = await fetchSingleListing(id)
 
   return {
-    title: `Edit ${listing_detail.title} | WiyoRent Admin`,
+    title: `Edit ${listing_detail?.title} | WiyoRent Admin`,
     description: 'Admin listing editor',
   };
 }
@@ -89,7 +96,7 @@ export default async function  EditListingPage({ params }) {
             Edit Listing
           </h1>
           <p className="font-secondary text-sm text-base-content/50 mt-1">
-            ID: {listing_detail.listing_id}
+            ID: {listing_detail?.listing_id}
           </p>
         </div>
 

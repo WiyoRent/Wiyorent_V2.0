@@ -1,5 +1,4 @@
 'use client';
-
 import { useState } from 'react';
 import StatusAnalyticsBar from './StatusAnalyticsBar';
 import LandlordAvailabilitySection from './LandlordAvailabilitySection';
@@ -13,43 +12,41 @@ import { getBaseURL } from '@/lib/getBaseURL';
 import { toast } from 'react-toastify';
 import { checkPhoneNumber } from '@/validators/phone';
 
-
 export default function EditListingForm({ initial_data, listingId }) {
   // --- State Initialization ---
-  const [is_active, set_is_active] = useState(initial_data.is_active);
-  const [is_a_wiyorent_house, set_is_a_wiyorent_house] = useState(initial_data.is_a_wiyorent_house ?? false);
-  const [title, set_title] = useState(initial_data.title);
-  const [description, set_description] = useState(initial_data.description);
-  const [available_status, set_available_status] = useState(initial_data.available_status);
-  const [available_from, set_available_from] = useState(initial_data.available_from);
-  
-  // Landlord
-  const [landlord_name, set_landlord_name] = useState(initial_data.landlord.full_name);
-  const [landlord_phone, set_landlord_phone] = useState(initial_data.landlord.phone_number);
-  
-  // Financials
-  const [price_per_month, set_price_per_month] = useState(initial_data.financials.price_per_month);
-  const [commission_fee, set_commission_fee] = useState(initial_data.financials.commission_fee);
-  const [caution_fee, set_caution_fee] = useState(initial_data.financials.caution_fee);
-  const [upfront_months, set_upfront_months] = useState(initial_data.financials.upfront_months ?? 1);
-  
-  // Specifications
-  const [bedroom_number, set_bedroom_number] = useState(initial_data.specifications.bedroom_number);
-  const [bathroom_number, set_bathroom_number] = useState(initial_data.specifications.bathroom_number);
-  const [max_roommates, set_max_roommates] = useState(initial_data.specifications.max_roommates);
-  const [property_type, set_property_type] = useState(initial_data.specifications.property_type);
-  const [is_furnished, set_is_furnished] = useState(initial_data.specifications.is_furnished);
-  
-  // Location
-  const [neighborhood, set_neighborhood] = useState(initial_data.location.neighborhood);
-  const [city, set_city] = useState(initial_data.location.city);
-  const [country, set_country] = useState(initial_data.location.country);
-  
-  // Arrays
-  const [image_urls, set_image_urls] = useState(initial_data.image_urls);
-  const [amenities, set_amenities] = useState(initial_data.amenities);
-  const [house_rules, set_house_rules] = useState(initial_data.house_rules);
+  const [is_active, set_is_active] = useState(initial_data?.is_active);
+  const [is_a_wiyorent_house, set_is_a_wiyorent_house] = useState(initial_data?.is_a_wiyorent_house ?? false);
+  const [title, set_title] = useState(initial_data?.title);
+  const [description, set_description] = useState(initial_data?.description);
+  const [available_status, set_available_status] = useState(initial_data?.available_status);
+  const [available_from, set_available_from] = useState(initial_data?.available_from);
 
+  // Landlord
+  const [landlord_name, set_landlord_name] = useState(initial_data?.landlord?.full_name);
+  const [landlord_phone, set_landlord_phone] = useState(initial_data?.landlord?.phone_number);
+
+  // Financials
+  const [price_per_month, set_price_per_month] = useState(initial_data?.financials?.price_per_month);
+  const [commission_fee, set_commission_fee] = useState(initial_data?.financials?.commission_fee);
+  const [caution_fee, set_caution_fee] = useState(initial_data?.financials?.caution_fee);
+  const [upfront_months, set_upfront_months] = useState(initial_data?.financials?.upfront_months ?? 1);
+
+  // Specifications
+  const [bedroom_number, set_bedroom_number] = useState(initial_data?.specifications?.bedroom_number);
+  const [bathroom_number, set_bathroom_number] = useState(initial_data?.specifications?.bathroom_number);
+  const [max_roommates, set_max_roommates] = useState(initial_data?.specifications?.max_roommates);
+  const [property_type, set_property_type] = useState(initial_data?.specifications?.property_type);
+  const [is_furnished, set_is_furnished] = useState(initial_data?.specifications?.is_furnished);
+
+  // Location
+  const [neighborhood, set_neighborhood] = useState(initial_data?.location?.neighborhood);
+  const [city, set_city] = useState(initial_data?.location?.city);
+  const [country, set_country] = useState(initial_data?.location?.country);
+
+  // Arrays
+  const [image_urls, set_image_urls] = useState(initial_data?.image_urls ?? []);
+  const [amenities, set_amenities] = useState(initial_data?.amenities ?? []);
+  const [house_rules, set_house_rules] = useState(initial_data?.house_rules ?? []);
   const [is_saving, set_is_saving] = useState(false);
 
   // --- Handlers ---
@@ -60,13 +57,8 @@ export default function EditListingForm({ initial_data, listingId }) {
       toast.error(error.message);
       return;
     }
-
     set_is_saving(true);
-
-    const loadingToast = toast.loading('Editing Listing', {
-      autoClose: false
-    })
-
+    const loadingToast = toast.loading('Editing Listing', { autoClose: false });
     try {
       const payload = {
         is_active,
@@ -84,80 +76,65 @@ export default function EditListingForm({ initial_data, listingId }) {
         house_rules,
       };
 
+      const formData = new FormData();
 
-      const formData = new FormData()
-
-
-      // Nested Objects
-      for (const [key,value] of Object.entries(payload)){
-        if(typeof value == 'object' && key !== 'amenities' && key !== 'house_rules' && key !== 'image_urls'){
-          for(const [nestedKey,nestedValue] of Object.entries(value)){
-            formData.append(nestedKey,nestedValue)
+      for (const [key, value] of Object.entries(payload)) {
+        if (typeof value === 'object' && key !== 'amenities' && key !== 'house_rules' && key !== 'image_urls') {
+          for (const [nestedKey, nestedValue] of Object.entries(value ?? {})) {
+            formData.append(nestedKey, nestedValue);
           }
-        }else if(key !== 'image_urls') {
-          formData.append(key,value)
+        } else if (key !== 'image_urls') {
+          formData.append(key, value);
         }
       }
 
-      // Append Images
-      for(const img of image_urls){
-        typeof img === 'string' ? formData.append('images',img) : formData.append('images', img.file)
+      for (const img of image_urls ?? []) {
+        typeof img === 'string'
+          ? formData.append('images', img)
+          : formData.append('images', img?.file);
       }
 
-      // debugging formData
-
-      for(const [key,value] of formData.entries()){
-        console.log(key,value,'---formData')
+      for (const [key, value] of formData.entries()) {
+        console.log(key, value, '---formData');
       }
-      
-      //fetch/API call
-      const url = getBaseURL() + `api/v1/admin/editListing/${listingId}`
 
-      // Response
+      const url = getBaseURL() + `api/v1/admin/editListing/${listingId}`;
       const response = await fetch(url, {
-        method : 'PATCH',
+        method: 'PATCH',
         body: formData,
-      })
+      });
 
-      const result = await response.json()
+      const result = await response.json();
 
-      if(!response.ok){
-        throw new Error(result.message || "Something went wrong")
+      if (!response.ok) {
+        throw new Error(result?.message || 'Something went wrong');
       }
 
-      if(!result.success){
-        toast.update(
-          loadingToast,{
-            render : result.message,
-            type: 'error',
-            autoClose : 3000,
-            isLoading: false
-          }
-        )
-        return 
+      if (!result?.success) {
+        toast.update(loadingToast, {
+          render: result?.message,
+          type: 'error',
+          autoClose: 3000,
+          isLoading: false,
+        });
+        return;
       }
 
-      toast.update(
-        loadingToast,{
-          render : result.message,
-          type: 'success',
-          autoClose : 3000,
-          isLoading: false
-
-        }
-      )
-      
+      toast.update(loadingToast, {
+        render: result?.message,
+        type: 'success',
+        autoClose: 3000,
+        isLoading: false,
+      });
     } catch (error) {
-      console.log(error, 'error in catch')
-        toast.update(
-          loadingToast,{
-            isLoading: false,
-            render : error.message,
-            type: 'error',
-            autoClose : 3000
-          }
-        )
-      console.error("Failed to save listing:", error);
+      console.log(error, 'error in catch');
+      toast.update(loadingToast, {
+        isLoading: false,
+        render: error?.message,
+        type: 'error',
+        autoClose: 3000,
+      });
+      console.error('Failed to save listing:', error);
     } finally {
       set_is_saving(false);
     }
@@ -175,8 +152,8 @@ export default function EditListingForm({ initial_data, listingId }) {
       <StatusAnalyticsBar
         is_active={is_active}
         set_is_active={set_is_active}
-        analytics={initial_data.analytics}
-        is_verified={initial_data.is_verified}
+        analytics={initial_data?.analytics}
+        is_verified={initial_data?.is_verified}
         is_a_wiyorent_house={is_a_wiyorent_house}
         set_is_a_wiyorent_house={set_is_a_wiyorent_house}
       />

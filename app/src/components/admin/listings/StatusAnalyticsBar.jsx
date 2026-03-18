@@ -12,7 +12,7 @@ export default function StatusAnalyticsBar({ is_active, set_is_active, analytics
             </div>
             <div className="flex flex-col">
               <span className="font-primary text-xl font-extrabold text-base-content">
-                {analytics.number_of_views.toLocaleString()}
+                {analytics?.number_of_views?.toLocaleString()}
               </span>
               <span className="font-secondary text-xs text-base-content/40 uppercase tracking-wide">
                 Views
@@ -26,7 +26,7 @@ export default function StatusAnalyticsBar({ is_active, set_is_active, analytics
             </div>
             <div className="flex flex-col">
               <span className="font-primary text-xl font-extrabold text-base-content">
-                {analytics.number_of_saves.toLocaleString()}
+                {analytics?.number_of_saves?.toLocaleString()}
               </span>
               <span className="font-secondary text-xs text-base-content/40 uppercase tracking-wide">
                 Saves
