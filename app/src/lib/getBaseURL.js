@@ -4,6 +4,6 @@ export function getBaseURL(){
         return "http://localhost:4000/"
     }
 
-    return "http://localhost:4000/"
+    return process.env.NEXT_PUBLIC_API_URL
 
 }
