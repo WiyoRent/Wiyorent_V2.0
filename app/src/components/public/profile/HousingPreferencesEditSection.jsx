@@ -41,6 +41,10 @@ export default function HousingPreferencesEditSection({
   const [show_toggle, set_show_toggle] = useState(false);
   const pills_ref = useRef(null);
 
+
+
+  console.log(move_in_date, '--------')
+
   // After render, measure whether the pill container overflows a single row
   useLayoutEffect(() => {
     const el = pills_ref.current;
@@ -89,7 +93,7 @@ export default function HousingPreferencesEditSection({
             <input
               min={new Date().toISOString().split('T')[0]}
               type="date"
-              value={new Date(move_in_date).toISOString().split('T')[0] || ""}
+              value={move_in_date ? move_in_date.split('T')[0] : ""}
               onChange={(e) => set_move_in_date(e.target.value)}
               className="input input-bordered rounded-field font-secondary text-sm w-full"
               required

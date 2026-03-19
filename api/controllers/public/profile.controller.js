@@ -16,7 +16,13 @@ export const getProfile = async (req, res) => {
 
         // Fetch user profile
         const userRes = await pool.query(
-            `SELECT *, date_part('year', age(date_of_birth))::int AS age FROM users WHERE id = $1`,
+            `SELECT 
+                *, 
+                TO_CHAR(move_in_date, 'YYYY-MM-DD') AS move_in_date,
+                TO_CHAR(date_of_birth, 'YYYY-MM-DD'),
+                date_part('year', age(date_of_birth))::int AS age 
+            FROM users WHERE id = $1
+                `,
             [userId]
         )
 
@@ -30,6 +36,7 @@ export const getProfile = async (req, res) => {
         const listingRes = await pool.query(`
             SELECT 
                 ul.*,
+                TO_CHAR(available_from, 'YYYY-MM-DD') as available_from,
                 ARRAY_AGG(uli.image_url) FILTER (WHERE uli.image_url IS NOT NULL) AS listing_images
             FROM user_listings ul
             LEFT JOIN user_listing_images uli 
