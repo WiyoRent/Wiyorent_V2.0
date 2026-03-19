@@ -91,17 +91,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth(() => {
     callbacks: {
       async jwt({ token, user }) {
         if (user) {
-          token.role         = user.role;
-          token.is_onboarded = user.is_onboarded;
-          token.id           = user.id;
+          token.role              = user.role;
+          token.is_onboarded      = user.is_onboarded;
+          token.id                = user.id;
+          token.is_blocked        = user.is_blocked;
+          token.is_blocked_reason = user.is_blocked_reason;
         }
         return token;
       },
       async session({ session, token }) {
         if (token) {
-          session.user.id          = token.id;
-          session.user.role        = token.role;
-          session.user.is_onboarded = token.is_onboarded;
+          session.user.id               = token.id;
+          session.user.role             = token.role;
+          session.user.is_onboarded     = token.is_onboarded;
+          session.user.is_blocked        = token.is_blocked;
+          session.user.is_blocked_reason = token.is_blocked_reason;
         }
         return session;
       },

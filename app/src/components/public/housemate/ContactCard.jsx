@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 import InformationModal from '../shared/InformationModal';
 import { toggleSaveHousemate } from '@/actions/public/favorites.action';
 
-export default function ContactCard({ full_name, profile_id, verification_status, is_saved }) {
+export default function ContactCard({ full_name, profile_id, verification_status, is_saved, my_is_blocked, my_is_blocked_reason }) {
   const [saved, setSaved] = useState(is_saved);
   const [isLoading, setIsLoading] = useState(false);
   
@@ -18,7 +18,15 @@ export default function ContactCard({ full_name, profile_id, verification_status
   const first_name = full_name?.split(' ')[0];
 
   const handleContact = async () => {
-    
+    if (my_is_blocked) {
+      setModalData({
+        title: 'Account Suspended',
+        message: 'Your account has been suspended. You cannot contact or save housemates while your account is suspended.',
+      });
+      setShowModal(true);
+      return;
+    }
+
     try {
       setIsLoading(true);
       const {url, preferred_contact_method} = await contactHousemate(profile_id);
@@ -50,6 +58,14 @@ export default function ContactCard({ full_name, profile_id, verification_status
   };
 
   const handleSave = async () => {
+    if (my_is_blocked) {
+      setModalData({
+        title: 'Account Suspended',
+        message: 'Your account has been suspended. You cannot contact or save housemates while your account is suspended.',
+      });
+      setShowModal(true);
+      return;
+    }
     const next = !saved;
     setSaved(next);
     await toggleSaveHousemate(profile_id, next);

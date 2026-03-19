@@ -10,7 +10,7 @@ import { contactHousemate } from '@/actions/public/contact_housemate.action.js.j
 import { toggleSaveHousemate } from '@/actions/public/favorites.action';
 import AvatarCircle from '@/components/public/housemates/AvatarCircle';
 import { formatRWF } from '@/lib/formatRWF';
-export default function HousemateCard({ profile, my_verification_status }) {
+export default function HousemateCard({ profile, my_verification_status, my_is_blocked, my_is_blocked_reason }) {
   const {
     profile_id,
     full_name,
@@ -37,7 +37,7 @@ export default function HousemateCard({ profile, my_verification_status }) {
     message:
       "To ensure the safety of our community, our team manually reviews all profiles. You'll be able to view housemate details and contact housemates as soon as we approve your account (usually within 24 hours).",
   });
-  const is_blocked = my_verification_status == null || my_verification_status == 'pending' || my_verification_status === 'rejected';
+  const is_access_restricted = my_is_blocked === true || my_verification_status == null || my_verification_status == 'pending' || my_verification_status === 'rejected';
   const is_urgent = urgency === 'extremely_urgent';
 
   // Close house popup on outside click
@@ -53,7 +53,13 @@ export default function HousemateCard({ profile, my_verification_status }) {
   }, [show_house_popup]);
 
   const showVerificationModal = (status) => {
-    if (status === 'rejected') {
+    if (my_is_blocked) {
+      setModalData({
+        title: 'Account Suspended',
+        message:
+          'Your account has been suspended by the WiyoRent team. You cannot view housemate profiles or initiate contact. Please reach out to support@wiyorent.com for assistance.',
+      });
+    } else if (status === 'rejected') {
       setModalData({
         title: 'Account was rejected',
         message:
@@ -70,7 +76,7 @@ export default function HousemateCard({ profile, my_verification_status }) {
   };
 
   const handleView = async () => {
-    if (is_blocked) {
+    if (is_access_restricted) {
       showVerificationModal(my_verification_status);
       return;
     }
@@ -78,7 +84,7 @@ export default function HousemateCard({ profile, my_verification_status }) {
   };
   const handleContact = async (e) => {
     e.stopPropagation();
-    if (is_blocked) {
+    if (is_access_restricted) {
       showVerificationModal(my_verification_status);
       return;
     }
@@ -108,6 +114,10 @@ export default function HousemateCard({ profile, my_verification_status }) {
   };
   const handleSave = async (e) => {
     e.stopPropagation();
+    if (is_access_restricted) {
+      showVerificationModal(my_verification_status);
+      return;
+    }
     const previousSavedState = saved;
     const newSavedStatus = !saved;
     setSaved(newSavedStatus);

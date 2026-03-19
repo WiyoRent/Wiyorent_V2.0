@@ -30,6 +30,7 @@ export default function Sidebar() {
 
   const isLocked = (label) => {
     if (lockedItems.includes(label) && !session?.user?.id) return true;
+    if (label === 'Housemates' && session?.user?.is_blocked) return true;
     if (label === "Housemates" && !session?.user?.is_onboarded) return true;
     return false;
   };

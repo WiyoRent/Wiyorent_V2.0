@@ -130,6 +130,8 @@ export default async function  HousematesPage({searchParams}) {
   const user = session?.user
   const is_onboarded = user?.is_onboarded
   const verification_status = user?.verification_status
+  const is_blocked = user?.is_blocked
+  const is_blocked_reason = user?.is_blocked_reason
 
   const { housemates: housemate_profiles, filter_meta } = await fetchHousemates(query)
 
@@ -147,7 +149,8 @@ export default async function  HousematesPage({searchParams}) {
 
   return (
     <div className="min-h-screen bg-base-200">
-      <InformationModal  title = 'Almost there' showModal={!is_onboarded} message={"Let's get you set up! You'll need a profile to browse and connect with housemates. Redirecting you there now...."} redirectTo={'/profile'}/>
+      <InformationModal title="Account Suspended" showModal={is_blocked === true} message="Your account has been suspended by the WiyoRent team. You cannot browse or contact housemates while your account is suspended. Please reach out to support@wiyorent.com for assistance." />
+      <InformationModal  title = 'Almost there' showModal={!is_blocked && !is_onboarded} message={"Let's get you set up! You'll need a profile to browse and connect with housemates. Redirecting you there now...."} redirectTo={'/profile'}/>
       {/* Page header */}
       <div className="bg-base-100 border-b border-base-300">
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -171,8 +174,10 @@ export default async function  HousematesPage({searchParams}) {
 
           {/* Grid */}
           <div className="flex-1 min-w-0">
-            <HousematesGrid 
-              verification_status = {verification_status}
+            <HousematesGrid
+              verification_status={verification_status}
+              is_blocked={is_blocked}
+              is_blocked_reason={is_blocked_reason}
               profiles={housemate_profiles} />
           </div>
 

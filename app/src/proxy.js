@@ -24,6 +24,11 @@ export async function proxy (req){
         return NextResponse.redirect(new URL('/login', req.url))
     }
 
+    // Blocked users cannot access housemate detail pages
+    if(pathname.startsWith('/housemates/') && user?.is_blocked){
+        return NextResponse.redirect(new URL('/profile', req.url))
+    }
+
     // Protected HouseMate Path
     const isVerified = user?.verification_status
     const completedOnboarding = user?.is_onboarded

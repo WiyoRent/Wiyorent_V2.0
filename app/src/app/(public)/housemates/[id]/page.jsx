@@ -7,6 +7,8 @@ import ContactCard from '@/components/public/housemate/ContactCard';
 import { fetchHousemateDetail } from '@/services/public/housemate.service';
 import UserListingSection from '@/components/public/housemate/UserListingSection';
 import TrackHousemateView from '@/components/public/housemate/TrackHousemateView';
+import InformationModal from '@/components/public/shared/InformationModal';
+import { auth } from '@/auth';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Mock detail — replace with: await fetch(`/api/housemates/${params.id}`)
@@ -110,8 +112,13 @@ export default async function HousemateDetailPage({params}) {
   const {id} = await params
   const housemate_detail = await fetchHousemateDetail(id)
 
+  const session = await auth()
+  const viewer_is_blocked = session?.user?.is_blocked
+  const viewer_is_blocked_reason = session?.user?.is_blocked_reason
+
   return (
     <div className="min-h-screen bg-base-200">
+      <InformationModal title="Account Suspended" showModal={viewer_is_blocked === true} message="Your account has been suspended. You cannot view housemate profiles while your account is suspended. Please reach out to support@wiyorent.com." />
       <TrackHousemateView housemate_id={id} />
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
@@ -157,8 +164,10 @@ export default async function HousemateDetailPage({params}) {
                 full_name={housemate_detail?.full_name}
                 verification_status={housemate_detail?.verification_status}
                 profile_id={housemate_detail?.profile_id}
-                preferred_contact_method = {housemate_detail?.preferred_method}
-                is_saved = {housemate_detail.saved}
+                preferred_contact_method={housemate_detail?.preferred_method}
+                is_saved={housemate_detail.saved}
+                my_is_blocked={viewer_is_blocked}
+                my_is_blocked_reason={viewer_is_blocked_reason}
               />
             </div>
           </div>
