@@ -1,0 +1,3 @@
+[crons.process-listings]
+schedule = "0 21 * * *"
+command = "curl -X POST https://wiyorentv20-production.up.railway.app/internal/process-available-listings -H 'x-cron-secret: $CRON_SECRET' -H 'Content-Type: application/json'"
