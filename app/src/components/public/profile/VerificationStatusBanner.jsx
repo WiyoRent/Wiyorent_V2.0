@@ -1,6 +1,15 @@
-import { Clock, CheckCircle2, XCircle, ShieldCheck } from 'lucide-react';
+import { Clock, CheckCircle2, XCircle, ShieldCheck, Ban } from 'lucide-react';
 
 const VERIFICATION_CONFIG = {
+  blocked: {
+    icon: Ban,
+    label: 'Account Blocked',
+    description: 'Your account has been suspended by the WiyoRent team. You cannot access housemate features while your account is suspended.',
+    containerClass: 'bg-error/10 border-error/30',
+    iconClass: 'text-error',
+    labelClass: 'text-error',
+    dotClass: 'bg-error',
+  },
   pending: {
     icon: Clock,
     label: 'Verification Pending',
@@ -30,10 +39,11 @@ const VERIFICATION_CONFIG = {
   },
 };
 
-export default function VerificationStatusBanner({ verification_status, admin_note }) {
-  if (!verification_status) return null;
+export default function VerificationStatusBanner({ verification_status, admin_note, is_blocked, is_blocked_reason }) {
+  const effective_status = is_blocked ? 'blocked' : verification_status;
+  if (!effective_status) return null;
 
-  const config = VERIFICATION_CONFIG[verification_status];
+  const config = VERIFICATION_CONFIG[effective_status];
   if (!config) return null;
 
   const Icon = config.icon;
@@ -63,14 +73,25 @@ export default function VerificationStatusBanner({ verification_status, admin_no
             {config.description}
           </p>
 
-          {/* Admin note — only shown on rejection */}
-          {verification_status === 'rejected' && admin_note && (
+          {/* Admin note — shown on rejection */}
+          {effective_status === 'rejected' && admin_note && (
             <div className="mt-3 pt-3 border-t border-error/20">
               <p className="font-secondary text-xs font-semibold uppercase tracking-wide text-error/70 mb-1">
                 Note from WiyoRent Team
               </p>
               <p className="font-secondary text-xs text-base-content/70 leading-relaxed italic">
                 "{admin_note}"
+              </p>
+            </div>
+          )}
+          {/* Block reason — shown when blocked */}
+          {effective_status === 'blocked' && is_blocked_reason && (
+            <div className="mt-3 pt-3 border-t border-error/20">
+              <p className="font-secondary text-xs font-semibold uppercase tracking-wide text-error/70 mb-1">
+                Note from WiyoRent Team
+              </p>
+              <p className="font-secondary text-xs text-base-content/70 leading-relaxed italic">
+                "{is_blocked_reason}"
               </p>
             </div>
           )}

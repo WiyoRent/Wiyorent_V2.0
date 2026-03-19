@@ -39,7 +39,7 @@ export default async function ProfileEditPage({searchParams}) {
     nationality: user.nationality,
     university_name: user.university_name,
     avatar_url: user.avatar_url,
-    age: user.age,
+    date_of_birth: user.date_of_birth,
     gender: user.gender,
     program: user.program,
     year_of_study: user.year_of_study,
@@ -47,6 +47,8 @@ export default async function ProfileEditPage({searchParams}) {
     verification_status: user.verification_status,
     is_onboarded : user.is_onboarded,
     admin_note : user.admin_note,
+    is_blocked: user.is_blocked,
+    is_blocked_reason: user.is_blocked_reason,
 
     // Contact Information
     contact_info: {

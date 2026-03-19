@@ -1,5 +1,5 @@
 "use client"
-import { User, Camera, Zap, CheckCircle2, Lock } from 'lucide-react';
+import { User, Camera, Zap, CheckCircle2, Lock, Ban } from 'lucide-react';
 import VerificationStatusBanner from '@/components/public/profile/VerificationStatusBanner';
 import Image from 'next/image';
 import PhoneInputWithCountrySelect from 'react-phone-number-input';
@@ -71,8 +71,8 @@ export default function BasicProfileSection({
   set_last_name,
   avatar_url,
   set_avatar_url,
-  age,
-  set_age,
+  date_of_birth,
+  set_date_of_birth,
   gender,
   set_gender,
   phone_number,
@@ -90,7 +90,9 @@ export default function BasicProfileSection({
   // Verification
   verification_status,
   admin_note,
-  is_onboarded
+  is_onboarded,
+  is_blocked,
+  is_blocked_reason,
 }) {
   const options = useMemo(() => countryList()?.getData(), [])
   const is_approved = verification_status === 'approved'
@@ -143,8 +145,14 @@ export default function BasicProfileSection({
         </label>
         <input accept="image/*" onChange={uploadProfilePicture} type="file" className="hidden" id="uploadPfp" />
 
-        {/* Inline verified badge */}
-        {is_onboarded && verification_status === 'approved' && (
+        {/* Inline blocked / verified badge */}
+        {is_onboarded && is_blocked && (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-error/10 border border-error/25 text-error font-secondary text-xs font-semibold">
+            <Ban size={13} />
+            Blocked
+          </span>
+        )}
+        {is_onboarded && !is_blocked && verification_status === 'approved' && (
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-success/10 border border-success/25 text-success font-secondary text-xs font-semibold">
             <CheckCircle2 size={13} />
             Verified
@@ -152,9 +160,9 @@ export default function BasicProfileSection({
         )}
       </div>
 
-      {/* ── Verification status banner (pending / rejected only) ─────────────── */}
-      {is_onboarded && verification_status !== 'approved' && (
-        <VerificationStatusBanner verification_status={verification_status} admin_note={admin_note} />
+      {/* ── Verification status banner ─────────────────────────────────────── */}
+      {is_onboarded && (is_blocked || verification_status !== 'approved') && (
+        <VerificationStatusBanner verification_status={verification_status} admin_note={admin_note} is_blocked={is_blocked} is_blocked_reason={is_blocked_reason} />
       )}
 
       {/* Form grid — 2 cols on md+, single col on mobile */}
@@ -202,20 +210,19 @@ export default function BasicProfileSection({
           />
         </div>
 
-        {/* Age */}
+        {/* Date of Birth */}
         <div className="flex flex-col gap-1.5">
           <label className="text-[11px] font-secondary font-semibold uppercase tracking-wide text-base-content/50">
-            Age
+            Date of Birth
           </label>
           <input
-            type="number"
-            value={age || ""}
-            onChange={(e) => set_age(Number(e.target.value))}
-            placeholder="21"
-            min="18"
-            max="50"
+            type="date"
+            value={date_of_birth ? date_of_birth.split('T')[0] : ''}
+            onChange={(e) => set_date_of_birth(e.target.value)}
+            max={new Date().toISOString().split('T')[0]}
             className="input input-bordered rounded-field font-secondary text-sm w-full"
             required
+            disabled={is_approved}
           />
         </div>
 
