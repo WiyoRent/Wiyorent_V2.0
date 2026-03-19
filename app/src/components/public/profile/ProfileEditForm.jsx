@@ -1,6 +1,5 @@
 'use client';
-
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import BasicProfileSection from './BasicProfileSection';
 import HousingPreferencesEditSection from './HousingPreferencesEditSection';
 import LifestyleEditSection from './LifestyleEditSection';
@@ -14,7 +13,6 @@ import { editProfile } from '@/services/public/profile.service';
 import { useRouter } from 'next/navigation';
 
 export default function ProfileEditForm({ initial_data, available_neighborhoods, redirect_to }) {
-
   const router = useRouter()
 
   // ───────────────────────── Basic Profile ─────────────────────────
@@ -30,7 +28,7 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
   const [nationality, set_nationality] = useState(initial_data.nationality);
   const [avatar_url, set_avatar_url] = useState(initial_data.avatar_url);
   const [urgency, set_urgency] = useState(initial_data.urgency || 'not_urgent');
-  
+
   // ───────────────────────── Housing Preferences ───────────────────
   const [move_in_date, set_move_in_date] = useState(initial_data.housing_preferences.move_in_date);
   const [lease_duration, set_lease_duration] = useState(initial_data.housing_preferences.lease_duration);
@@ -77,29 +75,121 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
   const [listing_amenities, set_listing_amenities] = useState(initial_data.listing_amenities || []);
   const [listing_house_rules, set_listing_house_rules] = useState(initial_data.listing_house_rules || []);
 
-  // ───────────────────────────────────────────────────────────────── Save ──────────────────────────────────────────────────────────────
+  // ───────────────────────── Change Detection ──────────────────────
+  const initial_snapshot = useMemo(() => ({
+    full_name: initial_data.full_name,
+    date_of_birth: initial_data.date_of_birth ?? '',
+    gender: initial_data.gender,
+    phone_number: initial_data.contact_info.phone_number,
+    university_name: initial_data.university_name,
+    program: initial_data.program,
+    year_of_study: initial_data.year_of_study,
+    nationality: initial_data.nationality,
+    urgency: initial_data.urgency || 'not_urgent',
+    move_in_date: initial_data.housing_preferences.move_in_date,
+    lease_duration: initial_data.housing_preferences.lease_duration,
+    preferred_locations: initial_data.housing_preferences.preferred_locations || [],
+    budget_min: initial_data.housing_preferences.budget.min,
+    budget_max: initial_data.housing_preferences.budget.max,
+    max_housemates: initial_data.housing_preferences.max_housemates,
+    is_smoker: initial_data.housing_preferences.is_smoker ?? null,
+    dont_mind_smoker: initial_data.housing_preferences.dont_mind_smoker ?? null,
+    has_pet: initial_data.housing_preferences.has_pet ?? null,
+    dont_mind_pets: initial_data.housing_preferences.dont_mind_pets ?? null,
+    private_room: initial_data.housing_preferences.private_room ?? null,
+    furnished: initial_data.housing_preferences.furnished ?? null,
+    sleep_schedule: initial_data.lifestyle_personality.sleep_schedule,
+    cleanliness: initial_data.lifestyle_personality.cleanliness,
+    social_habits: initial_data.lifestyle_personality.social_habits,
+    preferred_method: initial_data.contact_info.preferred_method,
+    about_me: initial_data.about_me,
+    is_profile_public: initial_data.is_profile_public,
+    has_house: initial_data.has_house || false,
+    listing_price: initial_data.listing_price || '',
+    listing_caution_fee: initial_data.listing_caution_fee || '',
+    listing_bedrooms: initial_data.listing_bedrooms || '',
+    listing_bathrooms: initial_data.listing_bathrooms || '',
+    listing_is_furnished: initial_data.listing_is_furnished || false,
+    listing_landlord_name: initial_data.listing_landlord_name || '',
+    listing_landlord_number: initial_data.listing_landlord_number || '',
+    listing_description: initial_data.listing_description || '',
+    listing_neighborhood: initial_data.listing_neighborhood || '',
+    listing_city: initial_data.listing_city || 'Kigali',
+    listing_available_from: initial_data.listing_available_from || '',
+    listing_housemate_gender: initial_data.listing_housemate_gender || '',
+    listing_amenities: initial_data.listing_amenities || [],
+    listing_house_rules: initial_data.listing_house_rules || [],
+  }), []);
+
+  const current_snapshot = {
+    full_name: `${first_name} ${last_name}`.trim(),
+    date_of_birth,
+    gender,
+    phone_number,
+    university_name,
+    program,
+    year_of_study,
+    nationality,
+    urgency,
+    move_in_date,
+    lease_duration,
+    preferred_locations,
+    budget_min,
+    budget_max,
+    max_housemates,
+    is_smoker,
+    dont_mind_smoker,
+    has_pet,
+    dont_mind_pets,
+    private_room,
+    furnished,
+    sleep_schedule,
+    cleanliness,
+    social_habits,
+    preferred_method,
+    about_me,
+    is_profile_public,
+    has_house,
+    listing_price,
+    listing_caution_fee,
+    listing_bedrooms,
+    listing_bathrooms,
+    listing_is_furnished,
+    listing_landlord_name,
+    listing_landlord_number,
+    listing_description,
+    listing_neighborhood,
+    listing_city,
+    listing_available_from,
+    listing_housemate_gender,
+    listing_amenities,
+    listing_house_rules,
+  };
+
+  const has_changes = JSON.stringify(current_snapshot) !== JSON.stringify(initial_snapshot);
+
+  // ───────────────────────── Save ──────────────────────────────────
   const [is_saving, set_is_saving] = useState(false);
 
   const handle_save = async () => {
+    if (!has_changes) {
+      toast.info('No changes to save.');
+      return;
+    }
     if (initial_data.is_blocked) {
       toast.error('Your account has been suspended. You cannot make changes to your profile. Please contact support@wiyorent.com for assistance.');
       return;
     }
-
     if (!avatar_url) {
       toast.error('A profile photo is required');
       return;
     }
-
-    // ── Phone validation ──────────────────────────────────────────────
     try {
       checkPhoneNumber(phone_number);
     } catch (error) {
       toast.error(error.message);
       return;
     }
-
-    // ── House listing validation ──────────────────────────────────────
     if (has_house) {
       const house_missing =
         !listing_images?.length ||
@@ -111,12 +201,10 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
         !listing_neighborhood ||
         !listing_landlord_name ||
         !listing_description;
-
       if (house_missing) {
         toast.warn('Please fill in all required house details before saving.');
         return;
       }
-
       try {
         checkPhoneNumber(listing_landlord_number, 'Please enter a valid landlord phone number');
       } catch (error) {
@@ -124,12 +212,8 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
         return;
       }
     }
-
     set_is_saving(true);
-
     const formData = new FormData();
-
-    // 1. Basic Information
     formData.append('full_name', `${first_name} ${last_name}`.trim());
     formData.append('nationality', nationality);
     formData.append('university_name', university_name);
@@ -139,13 +223,8 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
     formData.append('program', program);
     formData.append('year_of_study', year_of_study);
     formData.append('urgency', urgency);
-
-    // 2. Contact
     formData.append('phone_number', phone_number);
     formData.append('preferred_method', preferred_method);
-
-
-    // 3. Housing Preferences
     formData.append('move_in_date', move_in_date);
     formData.append('lease_duration', lease_duration);
     formData.append('min', budget_min);
@@ -158,25 +237,14 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
     formData.append('private_room', private_room);
     formData.append('furnished', furnished);
     formData.append('preferred_locations', preferred_locations);
-
-    // 4. Lifestyle
     formData.append('sleep_schedule', sleep_schedule);
     formData.append('cleanliness', cleanliness);
     formData.append('social_habits', social_habits);
-
-    // 5. Documents and Privacy
     formData.append('admission_letter', admission_letter);
     formData.append('passport_id', passport_id);
-    formData.append('is_profile_public', is_profile_public)
-
-    // 6. About Me
+    formData.append('is_profile_public', is_profile_public);
     formData.append('about_me', about_me);
-
-    
-
-    // 7. House listing
     formData.append('has_house', has_house);
-
     if (has_house) {
       formData.append('listing_price', listing_price);
       formData.append('listing_caution_fee', listing_caution_fee);
@@ -184,20 +252,14 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
       formData.append('listing_bathrooms', listing_bathrooms);
       formData.append('listing_is_furnished', listing_is_furnished);
       formData.append('listing_landlord_name', listing_landlord_name);
-
       formData.append('listing_landlord_number', listing_landlord_number);
-
       formData.append('listing_description', listing_description);
       formData.append('listing_neighborhood', listing_neighborhood);
       formData.append('listing_city', listing_city);
       formData.append('listing_available_from', listing_available_from);
       formData.append('listing_housemate_gender', listing_housemate_gender);
-      formData.append('listing_amenities', listing_amenities)
-      formData.append('listing_house_rules', listing_house_rules)
-
-    console.log(listing_amenities, '------listing amenities')
-    console.log(listing_house_rules, 'llllllisting rules')
-
+      formData.append('listing_amenities', listing_amenities);
+      formData.append('listing_house_rules', listing_house_rules);
       listing_images.forEach(({ file, preview_url }) => {
         if (file) {
           formData.append('listing_images', file);
@@ -206,24 +268,22 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
         }
       });
     }
-
     const loadingToast = toast.loading('Updating Your Profile..');
     try {
       const result = await editProfile(formData);
-
       toast.update(loadingToast, {
         type: 'success',
         render: result.message || !initial_data.is_onboarded ? 'Profile updated successfully' : 'Onboarding process completed successfully',
         autoClose: 4000,
         isLoading: false,
       });
-
       if (!initial_data.is_onboarded && redirect_to) {
         router.push(redirect_to);
+        return 
       }
 
-      router.refresh()
-
+      window.location.reload()
+      
     } catch (error) {
       console.error(error, '-error on profile frontend');
       toast.update(loadingToast, {
@@ -242,7 +302,6 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
       onSubmit={(e) => { e.preventDefault(); handle_save(); }}
       className="flex flex-col gap-6"
     >
-      {/* Basic Profile (includes Urgency) */}
       <BasicProfileSection
         first_name={first_name}
         set_first_name={set_first_name}
@@ -272,11 +331,7 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
         is_blocked={initial_data.is_blocked}
         is_blocked_reason={initial_data.is_blocked_reason}
       />
-
-      {/* About Me */}
       <AboutMeSection about_me={about_me} set_about_me={set_about_me} />
-
-      {/* Lifestyle & Personality */}
       <LifestyleEditSection
         sleep_schedule={sleep_schedule}
         set_sleep_schedule={set_sleep_schedule}
@@ -287,8 +342,6 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
         cultural_considerations={cultural_considerations}
         set_cultural_considerations={set_cultural_considerations}
       />
-
-      {/* Housing Preferences */}
       <HousingPreferencesEditSection
         move_in_date={move_in_date}
         set_move_in_date={set_move_in_date}
@@ -316,8 +369,6 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
         furnished={furnished}
         set_furnished={set_furnished}
       />
-
-      {/* House Availability + Listing */}
       <HouseListingSection
         has_house={has_house}
         set_has_house={set_has_house}
@@ -352,8 +403,6 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
         listing_house_rules={listing_house_rules}
         set_listing_house_rules={set_listing_house_rules}
       />
-
-      {/* Practical Information */}
       <PracticalInfoSection
         preferred_method={preferred_method}
         set_preferred_method={set_preferred_method}
@@ -365,12 +414,10 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
         set_admission_letter={set_admission_letter}
         verification_status={initial_data.verification_status}
       />
-
-      {/* Save */}
       <div className="flex flex-col sm:flex-row gap-3 pt-4">
         <button
           type="submit"
-          disabled={is_saving}
+          disabled={is_saving || !has_changes}
           className="btn btn-accent flex-1 rounded-field font-primary font-extrabold text-sm uppercase tracking-wider gap-2"
         >
           <Save size={16} />
