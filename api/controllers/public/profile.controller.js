@@ -16,7 +16,7 @@ export const getProfile = async (req, res) => {
 
         // Fetch user profile
         const userRes = await pool.query(
-            `SELECT * FROM users WHERE id = $1`,
+            `SELECT *, date_part('year', age(date_of_birth))::int AS age FROM users WHERE id = $1`,
             [userId]
         )
 
@@ -57,6 +57,14 @@ export const updateProfile = async (req, res) => {
     try {
         const { userId } = verifyHeaders(req)
 
+        const blockedCheck = await pool.query(
+            `SELECT is_blocked FROM users WHERE id = $1`,
+            [userId]
+        )
+        if (blockedCheck.rows[0]?.is_blocked) {
+            return errorMsg(res, 403, 'Your account has been suspended. You cannot update your profile.')
+        }
+
         console.log(req.body, '-------req_body')
         console.log(req.files, '-------req_files')
 
@@ -64,7 +72,7 @@ export const updateProfile = async (req, res) => {
             full_name,
             nationality,
             university_name,
-            age,
+            date_of_birth,
             gender,
             program,
             year_of_study,
@@ -101,7 +109,7 @@ export const updateProfile = async (req, res) => {
             !full_name ||
             !nationality ||
             !university_name ||
-            !age ||
+            !date_of_birth ||
             !gender ||
             !program ||
             !year_of_study ||
@@ -121,9 +129,24 @@ export const updateProfile = async (req, res) => {
             return errorMsg(res, 400, "Please enter all fieldssss")
         }
 
+        const dob = new Date(date_of_birth)
+        const now = new Date()
+        if (isNaN(dob.getTime())) {
+            return errorMsg(res, 400, 'Please enter a valid date of birth')
+        }
+        if (dob > now) {
+            return errorMsg(res, 400, 'Date of birth cannot be in the future')
+        }
+        const age_years = (now - dob) / (1000 * 60 * 60 * 24 * 365.25)
+        if (age_years < 16) {
+            return errorMsg(res, 400, 'You must be at least 16 years old to use WiyoRent')
+        }
+
         if(!req.body.avatar && !req.files.avatar){
             return errorMsg(res, 400, "Please enter a valid profile picture")
         }
+
+        const preferred_locations_array = preferred_locations.split(',').map(item => item.trim())
 
         
 
@@ -134,7 +157,7 @@ export const updateProfile = async (req, res) => {
                 full_name = $1,
                 nationality = $2,
                 university_name = $3,
-                age = $4,
+                date_of_birth = $4,
                 gender = $5,
                 program = $6,
                 year_of_study = $7,
@@ -167,7 +190,7 @@ export const updateProfile = async (req, res) => {
             full_name,
             nationality,
             university_name,
-            age,
+            date_of_birth,
             gender,
             program,
             year_of_study,
@@ -186,7 +209,7 @@ export const updateProfile = async (req, res) => {
             sleep_schedule,
             cleanliness,
             social_habits,
-            preferred_locations,
+            preferred_locations_array,
             about_me,
             lease_duration,
             urgency,

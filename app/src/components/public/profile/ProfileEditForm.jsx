@@ -21,7 +21,7 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
   const [is_profile_public, set_is_profile_public] = useState(initial_data.is_profile_public);
   const [first_name, set_first_name] = useState(() => initial_data.full_name?.split(' ')[0] || '');
   const [last_name, set_last_name] = useState(() => initial_data.full_name?.split(' ').slice(1).join(' ') || '');
-  const [age, set_age] = useState(initial_data.age);
+  const [date_of_birth, set_date_of_birth] = useState(initial_data.date_of_birth ?? '');
   const [gender, set_gender] = useState(initial_data.gender);
   const [phone_number, set_phone_number] = useState(initial_data.contact_info.phone_number);
   const [university_name, set_university_name] = useState(initial_data.university_name);
@@ -81,6 +81,11 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
   const [is_saving, set_is_saving] = useState(false);
 
   const handle_save = async () => {
+    if (initial_data.is_blocked) {
+      toast.error('Your account has been suspended. You cannot make changes to your profile. Please contact support@wiyorent.com for assistance.');
+      return;
+    }
+
     if (!avatar_url) {
       toast.error('A profile photo is required');
       return;
@@ -129,7 +134,7 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
     formData.append('nationality', nationality);
     formData.append('university_name', university_name);
     formData.append('avatar', typeof avatar_url === 'string' ? avatar_url : avatar_url?.file);
-    formData.append('age', age);
+    formData.append('date_of_birth', date_of_birth);
     formData.append('gender', gender);
     formData.append('program', program);
     formData.append('year_of_study', year_of_study);
@@ -138,6 +143,8 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
     // 2. Contact
     formData.append('phone_number', phone_number);
     formData.append('preferred_method', preferred_method);
+
+    alert(lease_duration, '----lease duration')
 
     // 3. Housing Preferences
     formData.append('move_in_date', move_in_date);
@@ -151,7 +158,7 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
     formData.append('dont_mind_pets', dont_mind_pets);
     formData.append('private_room', private_room);
     formData.append('furnished', furnished);
-    preferred_locations.forEach((loc) => formData.append('preferred_locations', loc));
+    formData.append('preferred_locations', preferred_locations);
 
     // 4. Lifestyle
     formData.append('sleep_schedule', sleep_schedule);
@@ -207,14 +214,16 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
 
       toast.update(loadingToast, {
         type: 'success',
-        render: result.message || initial_data.is_onboarded ? 'Profile updated successfully' : 'Onboarding process completed successfully',
+        render: result.message || !initial_data.is_onboarded ? 'Profile updated successfully' : 'Onboarding process completed successfully',
         autoClose: 4000,
         isLoading: false,
       });
 
-      if (!initial_data.is_onboarded) {
+      if (!initial_data.is_onboarded && redirect_to) {
         router.push(redirect_to);
       }
+
+      router.refresh()
 
     } catch (error) {
       console.error(error, '-error on profile frontend');
@@ -242,8 +251,8 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
         set_last_name={set_last_name}
         avatar_url={avatar_url}
         set_avatar_url={set_avatar_url}
-        age={age}
-        set_age={set_age}
+        date_of_birth={date_of_birth}
+        set_date_of_birth={set_date_of_birth}
         gender={gender}
         set_gender={set_gender}
         phone_number={phone_number}
@@ -261,6 +270,8 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
         verification_status={initial_data.verification_status}
         is_onboarded={initial_data.is_onboarded}
         admin_note={initial_data.admin_note}
+        is_blocked={initial_data.is_blocked}
+        is_blocked_reason={initial_data.is_blocked_reason}
       />
 
       {/* About Me */}
