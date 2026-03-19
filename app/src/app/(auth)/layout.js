@@ -1,5 +1,7 @@
 
 import "../globals.css";
+import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Analytics } from "@vercel/analytics/next"
 
 export const metadata = {
   title: "Login | WiyoRent",
@@ -17,6 +19,8 @@ export default function RootLayout({ children }) {
       <div className="flex h-full grow flex-col items-center justify-center">
         {children}
       </div>
+      <Analytics/>
+      <SpeedInsights/>
     </div>
   );
 }

@@ -3,6 +3,8 @@ import "../globals.css";
 import Sidebar from "@/components/public/shared/Sidebar";
 import ClientSessionProvider from "@/context/ClientSessionProvider";
 import { ToastContainer } from "react-toastify";
+import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Analytics } from "@vercel/analytics/next"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,6 +24,8 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
         <ClientSessionProvider>
+          <Analytics />
+          <SpeedInsights/>
           <div className="flex min-h-screen">
             <Sidebar />
             <main className="flex-1 overflow-y-auto mt-12 lg:mt-0">
