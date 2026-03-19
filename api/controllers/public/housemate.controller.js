@@ -351,7 +351,7 @@ export const fetchSavedHousemates = async (req,res) => {
             FROM users u
             iNNER JOIN saved_housemates sh
                 ON u.id = sh.housemate_id
-            WHERE sh.user_id = $1 
+            WHERE sh.user_id = $1  and u.is_profile_public = true
             ORDER BY sh.saved_at DESC;
         `, [userId])
 
