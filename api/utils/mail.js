@@ -42,7 +42,7 @@ const emailFooter = `
 const emailWrapper = (content) =>
   `<div style="font-family: sans-serif; color: #333; max-width: 600px; line-height: 1.6;">
     <div style="background: ${C_BLACK}; padding: 16px 24px; border-radius: 8px 8px 0 0; text-align: center;">
-      <img src="https://res.cloudinary.com/dal1jquhx/image/upload/v1772651284/wiyorent_logo_vsix0b.jpg" alt="Wiyorent" height="45" style="display: block; margin: 0 auto;" />
+      <img src="https://res.cloudinary.com/dal1jquhx/image/upload/v1773911456/wiyorent_logo_jqy5i9.jpg" alt="Wiyorent" height="45" style="display: block; margin: 0 auto;" />
     </div>
     <div style="padding: 24px; border: 1px solid #eee; border-top: none; border-radius: 0 0 8px 8px;">
       ${content}
