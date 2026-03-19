@@ -144,7 +144,6 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
     formData.append('phone_number', phone_number);
     formData.append('preferred_method', preferred_method);
 
-    alert(lease_duration, '----lease duration')
 
     // 3. Housing Preferences
     formData.append('move_in_date', move_in_date);
