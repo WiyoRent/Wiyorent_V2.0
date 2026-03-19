@@ -8,8 +8,10 @@ import analyticsRouter from "./analytics.routes.js"
 
 const adminRouter = express.Router()
 
+// Middleware
 adminRouter.use(requireAdmin)
 
+// Routes
 adminRouter.use('/', listingRouter)
 adminRouter.use('/', reviewsRouter)
 adminRouter.use('/', userAdminRouter)

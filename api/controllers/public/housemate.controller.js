@@ -206,8 +206,9 @@ export const fetchHousemate = async (req,res) => {
 
         const result = await pool.query(
             `
-                SELECT 
-                u.* ,
+                SELECT
+                u.*,
+                date_part('year', age(u.date_of_birth))::int AS age,
                 (sh.id is not null) as saved,
                 ul.price,
                 ul.caution_fee, 

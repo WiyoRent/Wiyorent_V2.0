@@ -120,6 +120,7 @@ export const fetchSingleUser = async (req,res) => {
                 SELECT
                     u.id AS user_real_id,
                     u.*,
+                    date_part('year', age(u.date_of_birth))::int AS age,
                     ul.* ,
                     ARRAY_AGG(uli.image_url) as image_urls
                 FROM users u
