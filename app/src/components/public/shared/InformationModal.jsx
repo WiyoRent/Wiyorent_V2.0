@@ -34,7 +34,7 @@ function InformationModal({ title, message, showModal, setShowModal, redirectTo 
         router.push(redirectTo)
     }else{
         dialogRef.current.close()
-        setShowModal(false)
+        if (setShowModal) setShowModal(false)
     }
   }
 
