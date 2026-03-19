@@ -120,29 +120,7 @@ export const updateProfile = async (req, res) => {
             return errorMsg(res, 400, `Missing fields: ${missing.join(', ')}`)
         }
 
-        if (
-            !full_name ||
-            !nationality ||
-            !university_name ||
-            !date_of_birth ||
-            !gender ||
-            !program ||
-            !year_of_study ||
-            !phone_number ||
-            !move_in_date ||
-            !min ||
-            !max ||
-            !max_housemates ||
-            !sleep_schedule ||
-            !cleanliness ||
-            !social_habits ||
-            !preferred_locations ||
-            !about_me ||
-            !lease_duration ||
-            !urgency
-        ) {
-            return errorMsg(res, 400, "Please enter all fieldssss")
-        }
+        
 
         const dob = new Date(date_of_birth)
         const now = new Date()
