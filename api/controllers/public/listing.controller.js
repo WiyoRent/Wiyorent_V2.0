@@ -167,9 +167,10 @@ export const fetchSingleListing = async (req,res) => {
 
     try {
         const listingId = req.params.id
+        const userId = req.query.userId || null
 
         const result = await pool.query(`
-            SELECT 
+            SELECT
                 l.id,
                 l.title,
                 l.price_per_month,
@@ -186,12 +187,19 @@ export const fetchSingleListing = async (req,res) => {
                 l.city,
                 l.country,
                 l.available_status,
+                TO_CHAR(
+                    CASE
+                        WHEN l.available_from < CURRENT_DATE THEN CURRENT_DATE
+                        ELSE l.available_from
+                    END, 'YYYY-MM-DD'
+                ) AS available_from,
                 l.is_furnished,
                 l.is_verified,
                 l.thumbnail_url,
                 l.description,
                 ARRAY_AGG(DISTINCT li.image_url) as image_urls,
                 l.house_rules,
+                (w.id IS NOT NULL) AS is_on_waitlist,
                 COALESCE(
                     json_build_object(
                         'average_rating', ROUND(AVG(lr.rating) FILTER (WHERE lr.is_approved = 'approved')),
@@ -220,10 +228,12 @@ export const fetchSingleListing = async (req,res) => {
                 ON lr.listing_id = l.id
             LEFT JOIN users u
                 ON u.id = lr.user_id
-            WHERE 
+            LEFT JOIN waitlists w
+                ON w.listing_id = l.id AND w.user_id = $2
+            WHERE
                 l.id = $1
-            GROUP BY l.id
-            `, [listingId])
+            GROUP BY l.id, w.id
+            `, [listingId, userId])
 
         if(result.rowCount == 0){
             return errorMsg(res, 404, "Couldn't find listing")
@@ -254,12 +264,14 @@ export const fetchSingleListing = async (req,res) => {
             city: listing.city,
             country: listing.country,
             available_status: listing.available_status,
+            available_from: listing.available_from,
             is_furnished: listing.is_furnished,
             is_verified: listing.is_verified,
             thumbnail_url: listing.thumbnail_url,
             description: listing.description,
             image_urls: [listing.thumbnail_url,...listing.image_urls],
             house_rules: listing.house_rules,
+            is_on_waitlist: listing.is_on_waitlist,
             reviews: listing.reviews
         }; 
 

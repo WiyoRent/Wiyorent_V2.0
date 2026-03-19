@@ -16,6 +16,7 @@ import {
   Building2,
   Info,
   ClipboardList,
+  MessageCircle,
 } from 'lucide-react';
 
 import Link from 'next/link';
@@ -45,6 +46,12 @@ export default function ListingCard({ listing }) {
     set_on_waitlist(next)
     toggleWaitlistListing(listing.listing_id, next)
   }
+
+  const handleBookNow = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    window.open('https://wa.me/250794089835', '_blank');
+  };
 
   const handleLike = (e) => {
     e.preventDefault()
@@ -155,30 +162,34 @@ export default function ListingCard({ listing }) {
 
             <div className="mt-auto pt-1 flex items-center gap-2">
               {is_available ? (
-                <button className="flex-1 btn btn-accent rounded-field font-primary font-bold text-sm uppercase tracking-wide transition-all duration-200 active:scale-95">
+                <button
+                  onClick={handleBookNow}
+                  className="flex-1 btn btn-accent rounded-field font-primary font-bold text-sm uppercase tracking-wide transition-all duration-200 active:scale-95 gap-1.5"
+                >
+                  <MessageCircle size={15} />
                   Book Now
                 </button>
               ) : (
-                <button
-                  disabled
-                  className="flex-1 btn btn-disabled rounded-field font-primary font-bold text-sm uppercase tracking-wide cursor-not-allowed opacity-60"
-                >
-                  Booked
-                </button>
+                <>
+                  <button
+                    disabled
+                    className="flex-1 btn btn-disabled rounded-field font-primary font-bold text-sm uppercase tracking-wide cursor-not-allowed opacity-60"
+                  >
+                    Booked
+                  </button>
+                  <button
+                    onClick={handleWaitlist}
+                    className={`flex-1 btn rounded-field border-2 font-primary font-bold text-xs uppercase tracking-wide transition-all duration-200 active:scale-95 gap-1.5 ${
+                      on_waitlist
+                        ? 'bg-accent border-accent text-accent-content'
+                        : 'bg-base-100 border-base-300 text-base-content/60 hover:border-accent hover:text-accent hover:bg-accent/10'
+                    }`}
+                  >
+                    <ClipboardList size={14} />
+                    {on_waitlist ? 'On Waitlist' : 'Join Waitlist'}
+                  </button>
+                </>
               )}
-
-              <button
-                onClick={handleWaitlist}
-                className={`tooltip tooltip-top btn btn-square rounded-field border-2 transition-all duration-200 active:scale-95 ${
-                  on_waitlist
-                    ? 'bg-accent border-accent text-accent-content shadow-md scale-105'
-                    : 'bg-base-100 border-base-300 text-base-content/40 hover:border-accent hover:text-accent-content hover:bg-accent/10'
-                }`}
-                data-tip={on_waitlist ? 'Leave waitlist' : 'Join waitlist'}
-                aria-label="Join waitlist"
-              >
-                <ClipboardList size={16} />
-              </button>
             </div>
           </div>
         </div>

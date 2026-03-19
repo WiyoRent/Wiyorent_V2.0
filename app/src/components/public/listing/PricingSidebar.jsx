@@ -1,14 +1,41 @@
 'use client';
 
 import { useState } from 'react';
-import { Phone, MessageCircle } from 'lucide-react';
+import { Phone, MessageCircle, ClipboardList } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import FilterTooltip from '@/components/public/shared/FilterTooltip';
 import PricingRow from '@/components/public/listing/PricingRow';
-
+import { toggleWaitlistListing } from '@/actions/public/favorites.action';
 import { formatRWF } from '@/lib/formatRWF';
 
-export default function PricingSidebar({ financials, total_first_payment, listing_id, is_a_wiyorent_house = false }) {
+const WHATSAPP_URL = 'https://wa.me/250794089835';
+
+export default function PricingSidebar({ financials, total_first_payment, listing_id, is_a_wiyorent_house = false, available_status, is_on_waitlist = false }) {
   const { price_per_month, commission_fee, caution_fee, upfront_months = 1 } = financials;
+  const is_available = available_status === 'available';
+
+  const [on_waitlist, set_on_waitlist] = useState(is_on_waitlist);
+  const session = useSession();
+  const router = useRouter();
+
+  const handleBookNow = () => {
+    window.open(WHATSAPP_URL, '_blank');
+  };
+
+  const handleContact = () => {
+    window.open(WHATSAPP_URL, '_blank');
+  };
+
+  const handleWaitlist = () => {
+    if (!session?.data) {
+      router.push('/login');
+      return;
+    }
+    const next = !on_waitlist;
+    set_on_waitlist(next);
+    toggleWaitlistListing(listing_id, next);
+  };
   const commission_percent = Math.round((commission_fee / price_per_month) * 100);
   const upfront_rent_total = price_per_month * upfront_months;
 
@@ -133,6 +160,45 @@ export default function PricingSidebar({ financials, total_first_payment, listin
             </div>
           </div>
         </div>
+      </div>
+
+      {/* ── Action Buttons ──────────────────────────────────── */}
+      <div className="flex flex-col gap-2.5">
+
+        {/* Book Now — disabled when booked */}
+        <button
+          onClick={handleBookNow}
+          disabled={!is_available}
+          className={`btn btn-accent w-full rounded-field font-primary font-extrabold text-sm uppercase tracking-wider gap-2 transition-all duration-200 ${is_available ? 'active:scale-95' : 'opacity-50 cursor-not-allowed'}`}
+        >
+          <MessageCircle size={16} />
+          Book Now
+        </button>
+
+        {/* Contact Now — always enabled */}
+        <button
+          onClick={handleContact}
+          className="btn btn-secondary w-full rounded-field font-primary font-extrabold text-sm uppercase tracking-wider gap-2 active:scale-95 transition-all duration-200"
+        >
+          <Phone size={16} />
+          Contact Now
+        </button>
+
+        {/* Join Waitlist — only when booked */}
+        {!is_available && (
+          <button
+            onClick={handleWaitlist}
+            className={`btn w-full rounded-field font-primary font-bold text-sm uppercase tracking-wider border-2 gap-2 transition-all duration-200 active:scale-95 ${
+              on_waitlist
+                ? 'bg-accent border-accent text-accent-content'
+                : 'bg-base-100 border-base-300 text-base-content/60 hover:border-accent hover:text-accent hover:bg-accent/10'
+            }`}
+          >
+            <ClipboardList size={16} />
+            {on_waitlist ? 'Leave Waitlist' : 'Join Waitlist'}
+          </button>
+        )}
+
       </div>
 
     </div>

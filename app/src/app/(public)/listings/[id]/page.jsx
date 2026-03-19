@@ -88,9 +88,10 @@ import { auth } from '@/auth';
 
 
 
-const fetchSingleListing = async (id) => {
+const fetchSingleListing = async (id, userId = null) => {
   try {
-    const url = getBaseURL() + `api/v1/public/getSingleListing/${id}`
+    const params = userId ? `?userId=${userId}` : ''
+    const url = getBaseURL() + `api/v1/public/getSingleListing/${id}${params}`
 
     const response = await fetch(url)
 
@@ -175,12 +176,11 @@ export default async function ListingDetailPage({ params }) {
 
   const {id} = await params
 
-  const listing_detail = await fetchSingleListing(id)
-
   const session = await auth()
   const user = session?.user
   const full_name = user?.full_name
 
+  const listing_detail = await fetchSingleListing(id, user?.id)
 
   const { financials, specifications, reviews} = listing_detail;
 
@@ -218,7 +218,8 @@ export default async function ListingDetailPage({ params }) {
               is_verified={listing_detail?.is_verified}
               is_furnished={listing_detail?.is_furnished}
               is_a_wiyorent_house={listing_detail?.is_a_wiyorent_house}
-              listing_id = {id}
+              listing_id={id}
+              available_from={listing_detail?.available_from}
             />
 
             <DescriptionSection description={listing_detail?.description} />
@@ -239,6 +240,8 @@ export default async function ListingDetailPage({ params }) {
                 total_first_payment={total_first_payment}
                 listing_id={listing_detail.listing_id}
                 is_a_wiyorent_house={is_a_wiyorent_house}
+                available_status={listing_detail?.available_status}
+                is_on_waitlist={listing_detail?.is_on_waitlist}
               />
             </div>
           </aside>

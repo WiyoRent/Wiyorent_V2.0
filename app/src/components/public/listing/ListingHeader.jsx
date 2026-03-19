@@ -1,5 +1,5 @@
 "use client"
-import { MapPin, Bed, Bath, Users, ShieldCheck, Sofa } from 'lucide-react';
+import { MapPin, Bed, Bath, Users, ShieldCheck, Sofa, CalendarCheck } from 'lucide-react';
 import WiyorentHouseBadge from './WiyorentHouseBadge';
 import { useEffect } from 'react';
 import { trackView } from '@/actions/public/track_view.action';
@@ -15,7 +15,8 @@ export default function ListingHeader({
   is_verified,
   is_furnished,
   is_a_wiyorent_house,
-  listing_id
+  listing_id,
+  available_from,
 }) {
 
   useEffect(() => {
@@ -83,6 +84,14 @@ export default function ListingHeader({
             {specifications?.max_roommates} Roommates
           </span>
         </div>
+        {available_from && (
+          <div className="flex items-center gap-2 bg-base-200 px-3 py-2 rounded-field">
+            <CalendarCheck size={16} className="text-accent" />
+            <span className="font-secondary text-sm font-semibold text-base-content">
+              Available {new Date(available_from).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
