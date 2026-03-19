@@ -93,6 +93,12 @@ export const fetchSingleListing = async (req,res) => {
     const result = await pool.query(`
         SELECT 
             l.*,
+            TO_CHAR(
+                CASE
+                    WHEN l.available_from < CURRENT_DATE THEN CURRENT_DATE
+                    ELSE l.available_from
+                END, 'YYYY-MM-DD'
+            ) as available_from,
             ARRAY_AGG(li.image_url) as image_urls,
             l.view_count as number_of_views,
             (select count(*) from saved_listings where l.id = listing_id) as number_of_saves

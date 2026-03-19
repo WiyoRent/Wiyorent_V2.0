@@ -98,7 +98,7 @@ export const fetchListings = async (req,res) => {
         }
 
         if (available_from) {
-            query += ` AND l.available_from >= $${paramIndex++}`
+            query += ` AND l.available_from <= $${paramIndex++} OR l.available_from < CURRENT_DATE`
             values.push(available_from)
         }
 
