@@ -107,7 +107,8 @@ export default function HousingPreferencesEditSection({
               onChange={(e) => set_lease_duration(e.target.value)}
               className="select select-bordered rounded-field font-secondary text-sm w-full"
             >
-              <option value="less than 3 months">Less than 3 Months</option>
+              <option value="" disabled>Select duration</option>
+              <option value="less than 3months">Less than 3 Months</option>
               <option value="3 months">3 Months</option>
               <option value="6 months">6 Months</option>
               <option value="12 months">12 Months</option>
@@ -212,7 +213,7 @@ export default function HousingPreferencesEditSection({
               </div>
               <input
                 type="range"
-                min={50000}
+                min={150000}
                 max={500000}
                 step={5000}
                 value={budget_max || 500000}
@@ -247,14 +248,14 @@ export default function HousingPreferencesEditSection({
           />
           <PrefRow
             label="Do you mind living with a smoker?"
-            options={[{ label: 'Yes', val: true }, { label: 'No', val: false }, { label: "Don't Mind", val: null }]}
+            options={[{ label: 'Yes', val: true }, { label: 'No', val: false }]}
             value={dont_mind_smoker}
             onChange={set_dont_mind_smoker}
             full_width
           />
           <PrefRow
             label="Do you mind living with a pet owner?"
-            options={[{ label: 'Yes', val: true }, { label: 'No', val: false }, { label: "Don't Mind", val: null }]}
+            options={[{ label: 'Yes', val: true }, { label: 'No', val: false }]}
             value={dont_mind_pets}
             onChange={set_dont_mind_pets}
             full_width
@@ -290,6 +291,7 @@ export default function HousingPreferencesEditSection({
             onChange={(e) => set_max_housemates(Number(e.target.value))}
             className="select select-bordered rounded-field font-secondary text-sm w-full"
           >
+            <option value='' disabled>Number of housemates you are comfortable living with.</option>
             <option value={1}>1-2 housemates</option>
             <option value={2}>2-3 housemates</option>
             <option value={3}>3-4 housemates</option>
