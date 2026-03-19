@@ -9,7 +9,7 @@ export default function AmenitiesSection({ amenities }) {
       <div className="flex items-center gap-3 mb-5">
         <span className="w-1.5 h-6 bg-accent rounded-full inline-block" />
         <h2 className="font-primary text-base font-extrabold text-base-content uppercase tracking-widest">
-          Amenities
+          House Perks
         </h2>
       </div>
 

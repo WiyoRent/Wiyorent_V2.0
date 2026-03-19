@@ -89,7 +89,7 @@ export default function AmenitiesRulesSection({ amenities, set_amenities, house_
           <Sparkles size={16} className="text-accent-content" />
         </div>
         <h2 className="font-primary text-base font-extrabold text-base-content uppercase tracking-widest">
-          Amenities &amp; House Rules
+          Perks &amp; House Rules
         </h2>
       </div>
 
