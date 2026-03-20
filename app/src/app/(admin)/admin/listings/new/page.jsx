@@ -123,7 +123,7 @@ export default function CreateListingPage() {
 
     for(const [key,value] of formData.entries()){
       if((key !== 'images' || key !== 'amenities' || key !== 'house_rules') && !value){
-        return toast.error('Please enter all fields')
+        return toast.error(`Please enter all fields you missed: ${key}`)
       }
     }
 
