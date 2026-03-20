@@ -34,6 +34,7 @@ export default function LandlordSection({ landlord, set_landlord }) {
             placeholder="e.g., WiyoRent Ltd"
             value={landlord.full_name}
             onChange={(e) => handle_change('full_name', e.target.value)}
+            required
           />
         </div>
 
@@ -50,6 +51,7 @@ export default function LandlordSection({ landlord, set_landlord }) {
             onChange={(val) => handle_change('phone_number', val || '')}
             className="input w-full"
             defaultCountry="RW"
+            required
           />
         </div>
       </div>

@@ -71,6 +71,7 @@ export default function FinancialsSection({ financials, set_financials }) {
               placeholder={placeholder}
               value={financials[key]}
               onChange={(e) => handle_change(key, e.target.value === '' ? '' : Number(e.target.value))}
+              required
             />
             {is_rwf && financials[key] > 0 ? (
               <p className="font-secondary text-xs text-base-content/40 mt-1">

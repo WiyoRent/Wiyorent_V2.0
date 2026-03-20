@@ -91,6 +91,7 @@ export default function StatusSection({
             className="select select-bordered rounded-field font-secondary text-sm w-full"
             value={available_status}
             onChange={(e) => set_available_status(e.target.value)}
+            required
           >
             {STATUS_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -114,6 +115,7 @@ export default function StatusSection({
             className="input input-bordered rounded-field font-secondary text-sm w-full"
             value={available_from}
             onChange={(e) => set_available_from(e.target.value)}
+            required
           />
         </div>
       </div>

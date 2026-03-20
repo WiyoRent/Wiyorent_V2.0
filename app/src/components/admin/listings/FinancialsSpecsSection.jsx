@@ -72,6 +72,7 @@ export default function FinancialsSpecsSection({
                 onChange={(e) => set_commission_fee(Number(e.target.value))}
                 placeholder="30000"
                 className="input input-bordered rounded-field font-secondary text-sm"
+                required
               />
               <label className="label">
                 <span className="label-text-alt font-secondary text-xs text-base-content/40">
@@ -92,6 +93,7 @@ export default function FinancialsSpecsSection({
                 onChange={(e) => set_caution_fee(Number(e.target.value))}
                 placeholder="300000"
                 className="input input-bordered rounded-field font-secondary text-sm"
+                required
               />
               <label className="label">
                 <span className="label-text-alt font-secondary text-xs text-base-content/40">
@@ -114,6 +116,7 @@ export default function FinancialsSpecsSection({
                 min="1"
                 placeholder="e.g., 1"
                 className="input input-bordered rounded-field font-secondary text-sm"
+                required
               />
               <label className="label">
                 <span className="label-text-alt font-secondary text-xs text-base-content/40">
@@ -176,6 +179,7 @@ export default function FinancialsSpecsSection({
                 onChange={(e) => set_max_roommates(Number(e.target.value))}
                 min="1"
                 className="input input-bordered rounded-field font-secondary text-sm"
+                required
               />
             </div>
 
@@ -189,6 +193,7 @@ export default function FinancialsSpecsSection({
                 value={property_type}
                 onChange={(e) => set_property_type(e.target.value)}
                 className="select select-bordered rounded-field font-secondary text-sm"
+                required
               >
                 <option value="room">Room</option>
                 <option value="studio">Studio</option>

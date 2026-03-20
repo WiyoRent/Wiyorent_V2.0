@@ -44,6 +44,7 @@ export default function BasicInfoSection({ title, set_title, description, set_de
             placeholder="Describe the property — its highlights, surroundings, and what makes it special..."
             value={description}
             onChange={(e) => set_description(e.target.value)}
+            required
           />
         </div>
       </div>

@@ -127,8 +127,8 @@ export default function CreateListingPage() {
       }
     }
 
-    if(formData.getAll('images').length < 2){
-      return toast.error('Please upload atleast two images')
+    if(formData.getAll('images').length < 4){
+      return toast.error('Please upload atleast four images')
     }
 
     try {
