@@ -11,8 +11,31 @@ export const createListing = async (req, res) => {
 
         const images = req.files.images
 
-        if (!title || !description || !available_status || !available_from || !price_per_month || !commission_fee || !caution_fee || !full_name || !phone_number || !neighborhood || !city || !country || !bedroom_number || !bathroom_number || !max_roommates || !property_type) {
-            return errorMsg(res, 400, 'Please Enter All Fields')
+        const requiredFields = {
+            title,
+            description,
+            available_status,
+            available_from,
+            price_per_month,
+            commission_fee,
+            caution_fee,
+            full_name,
+            phone_number,
+            neighborhood,
+            city,
+            country,
+            bedroom_number,
+            bathroom_number,
+            max_roommates,
+            property_type,
+        };
+
+        const missingFields = Object.entries(requiredFields)
+            .filter(([_, val]) => val === null || val === undefined || String(val).trim() === '')
+            .map(([key]) => key);
+
+        if (missingFields.length > 0) {
+            return errorMsg(res, 400, `Missing required fields: ${missingFields.join(', ')}`);
         }
 
         if (images.length <= 0) {
