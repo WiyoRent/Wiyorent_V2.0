@@ -127,6 +127,7 @@ export default function HouseListingSection({
                   onChange={(e) => set_listing_price(e.target.value)}
                   placeholder="e.g. 150000"
                   className="input input-bordered rounded-field font-secondary text-sm"
+                  required
                 />
                 {listing_price > 0 && (
                   <p className="font-secondary text-xs text-base-content/40 mt-1">
@@ -148,6 +149,7 @@ export default function HouseListingSection({
                   onChange={(e) => set_listing_caution_fee(e.target.value)}
                   placeholder="e.g. 50000"
                   className="input input-bordered rounded-field font-secondary text-sm"
+                  required
                 />
                 {listing_caution_fee > 0 && (
                   <p className="font-secondary text-xs text-base-content/40 mt-1">
@@ -178,6 +180,7 @@ export default function HouseListingSection({
                   value={listing_bedrooms || ''}
                   onChange={(e) => set_listing_bedrooms(e.target.value)}
                   className="select select-bordered rounded-field font-secondary text-sm"
+                  required
                 >
                   <option value="">Select bedrooms</option>
                   {[1, 2, 3, 4, 5].map((n) => (
@@ -197,6 +200,7 @@ export default function HouseListingSection({
                   value={listing_bathrooms || ''}
                   onChange={(e) => set_listing_bathrooms(e.target.value)}
                   className="select select-bordered rounded-field font-secondary text-sm"
+                  required
                 >
                   <option value="">Select bathrooms</option>
                   {[1, 2, 3, 4].map((n) => (
@@ -220,6 +224,7 @@ export default function HouseListingSection({
                   }
                   onChange={(e) => set_listing_available_from(e.target.value)}
                   className="input input-bordered rounded-field font-secondary text-sm"
+                  required
                 />
               </div>
 
@@ -234,7 +239,9 @@ export default function HouseListingSection({
                   value={listing_housemate_gender || ''}
                   onChange={(e) => set_listing_housemate_gender(e.target.value)}
                   className="select select-bordered rounded-field font-secondary text-sm"
+                  required
                 >
+                  <option value="" disabled>Select gender preference</option>
                   <option value="any">Any</option>
                   <option value="male">Male</option>
                   <option value="female">Female</option>
@@ -284,6 +291,7 @@ export default function HouseListingSection({
                   value={listing_neighborhood || ''}
                   onChange={(e) => set_listing_neighborhood(e.target.value)}
                   className="select select-bordered rounded-field font-secondary text-sm"
+                  required
                 >
                   <option value="">Select neighborhood</option>
                   {KIGALI_NEIGHBORHOODS.map((n) => (
@@ -336,6 +344,7 @@ export default function HouseListingSection({
                   onChange={(e) => set_listing_landlord_name(e.target.value)}
                   placeholder="e.g. Mr. Nkurunziza"
                   className="input input-bordered rounded-field font-secondary text-sm"
+                  required
                 />
               </div>
 
@@ -352,6 +361,7 @@ export default function HouseListingSection({
                   onChange={set_listing_landlord_number}
                   className="input"
                   defaultCountry="RW"
+                  required
                 />
               </div>
             </div>
@@ -379,6 +389,7 @@ export default function HouseListingSection({
               placeholder="Describe your house — size, layout, neighbourhood vibe, what you're looking for in a housemate..."
               rows={4}
               className="textarea w-full textarea-bordered rounded-field font-secondary text-sm resize-none"
+              required
             />
           </div>
 

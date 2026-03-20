@@ -184,6 +184,7 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
       toast.error('A profile photo is required');
       return;
     }
+
     try {
       checkPhoneNumber(phone_number);
     } catch (error) {
@@ -191,20 +192,29 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
       return;
     }
     if (has_house) {
-      const house_missing =
-        !listing_images?.length ||
-        !listing_price ||
-        !listing_caution_fee ||
-        !listing_bedrooms ||
-        !listing_bathrooms ||
-        !listing_available_from ||
-        !listing_neighborhood ||
-        !listing_landlord_name ||
-        !listing_description;
-      if (house_missing) {
-        toast.warn('Please fill in all required house details before saving.');
+      const houseFields = {
+        // 'Listing Images': listing_images?.length,
+        'Listing Price': listing_price,
+        'Caution Fee': listing_caution_fee,
+        'Bedrooms': listing_bedrooms,
+        'Bathrooms': listing_bathrooms,
+        'Available From': listing_available_from,
+        'Neighborhood': listing_neighborhood,
+        'Landlord Name': listing_landlord_name,
+        'Description': listing_description,
+        'Amenities' : listing_amenities,
+        'House_rules' : listing_house_rules
+      };
+
+      const missingFields = Object.entries(houseFields)
+        .filter(([_, val]) => !val)
+        .map(([key]) => key);
+
+      if (missingFields.length > 0) {
+        toast.warn(`Please fill in the following house details: ${missingFields.join(', ')}`);
         return;
       }
+
       try {
         checkPhoneNumber(listing_landlord_number, 'Please enter a valid landlord phone number');
       } catch (error) {
@@ -212,6 +222,7 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
         return;
       }
     }
+    
     set_is_saving(true);
     const formData = new FormData();
     formData.append('full_name', `${first_name} ${last_name}`.trim());

@@ -112,6 +112,13 @@ export const updateProfile = async (req, res) => {
             return null
         }
 
+        const isEmpty = (val) => 
+          val === null || 
+          val === undefined || 
+          val === 'null' || 
+          val === '' || 
+          (typeof val === 'string' && val.trim() === '')
+
         const fields = {
             full_name, nationality, university_name, date_of_birth,
             gender, program, year_of_study, phone_number, move_in_date,
@@ -120,8 +127,9 @@ export const updateProfile = async (req, res) => {
         }
 
         const missing = Object.entries(fields)
-            .filter(([_, v]) => !v)
-            .map(([k]) => k)
+        .filter(([_, v]) => isEmpty(v))
+        .map(([k]) => k)
+
 
         if (missing.length > 0) {
             return errorMsg(res, 400, `Missing fields: ${missing.join(', ')}`)
@@ -139,7 +147,7 @@ export const updateProfile = async (req, res) => {
         }
         const age_years = (now - dob) / (1000 * 60 * 60 * 24 * 365.25)
         if (age_years < 16) {
-            return errorMsg(res, 400, 'You must be at least 16 years old to use WiyoRent')
+            return errorMsg(res, 400, 'You must be at least 16 years old to complete onboarding')
         }
 
         if(!req.body.avatar && !req.files.avatar){
@@ -323,22 +331,35 @@ const create_user_listing = async (body, listing_images, userId) => {
         listing_house_rules
     } = body
 
-    if (
-        !listing_price ||
-        !listing_caution_fee ||
-        !listing_bedrooms ||
-        !listing_bathrooms ||
-        !listing_landlord_name ||
-        !listing_landlord_number ||
-        !listing_description ||
-        !listing_neighborhood ||
-        !listing_city ||
-        !listing_available_from ||
-        !listing_housemate_gender ||
-        !listing_amenities ||
-        !listing_house_rules
-    ) {
-        throwError(400, "Please fill in all listing fields")
+    const isEmpty = (val) =>
+        val === null ||
+        val === undefined ||
+        val === 'null' ||
+        val === '' ||
+        (typeof val === 'string' && val.trim() === '')
+
+    const requiredFields = {
+        listing_price,
+        listing_caution_fee,
+        listing_bedrooms,
+        listing_bathrooms,
+        listing_landlord_name,
+        listing_landlord_number,
+        listing_description,
+        listing_neighborhood,
+        listing_city,
+        listing_available_from,
+        listing_housemate_gender,
+        listing_amenities,
+        listing_house_rules
+    }
+
+    const missingFields = Object.entries(requiredFields)
+        .filter(([_, v]) => isEmpty(v))
+        .map(([k]) => k)
+
+    if (missingFields.length > 0) {
+        throwError(400, `Missing listing fields: ${missingFields.join(', ')}`)
     }
 
     if (!listing_images || listing_images.length === 0) {

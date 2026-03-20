@@ -71,6 +71,7 @@ export default function PracticalInfoSection({
                   accept=".png, .jpg"
                   onChange={(e) => set_admission_letter(e.target.files[0])}
                   className="file-input file-input-bordered file-input-accent w-full rounded-field font-secondary text-sm" 
+                  required
                 />
                 <p className="mt-2 text-[10px] font-secondary text-base-content/40 italic">
                   {is_rejected
@@ -129,6 +130,7 @@ export default function PracticalInfoSection({
                   accept=".png, .jpg"
                   onChange={(e) => set_passport_id(e.target.files[0])}
                   className="file-input file-input-bordered file-input-accent w-full rounded-field font-secondary text-sm" 
+                  required
                 />
                 <p className="mt-2 text-[10px] font-secondary text-base-content/40 italic">
                   {is_rejected

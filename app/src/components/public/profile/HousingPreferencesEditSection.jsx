@@ -110,6 +110,7 @@ export default function HousingPreferencesEditSection({
               value={lease_duration || ""}
               onChange={(e) => set_lease_duration(e.target.value)}
               className="select select-bordered rounded-field font-secondary text-sm w-full"
+              required
             >
               <option value="" disabled>Select duration</option>
               <option value="less than 3months">Less than 3 Months</option>
@@ -186,25 +187,6 @@ export default function HousingPreferencesEditSection({
           </label>
 
           <div className="mt-2 flex flex-col gap-4">
-            {/* Min slider */}
-            <div>
-              <div className="flex items-baseline gap-1.5 mb-2">
-                <span className="font-secondary text-[11px] text-base-content/40">From</span>
-                <span className="font-secondary text-[15px] font-bold text-base-content">
-                  {formatRWFNumber(budget_min)}
-                </span>
-                <span className="font-secondary text-[11px] text-base-content/40">RWF/mo</span>
-              </div>
-              <input
-                type="range"
-                min={50000}
-                max={500000}
-                step={5000}
-                value={budget_min || 50000}
-                onChange={(e) => set_budget_min(Math.min(Number(e.target.value), budget_max))}
-                className="range range-accent range-xs w-full"
-              />
-            </div>
 
             {/* Max slider */}
             <div>
@@ -223,11 +205,33 @@ export default function HousingPreferencesEditSection({
                 value={budget_max || 500000}
                 onChange={(e) => set_budget_max(Math.max(Number(e.target.value), budget_min))}
                 className="range range-accent range-xs w-full"
+                required
               />
               <div className="flex items-center justify-between mt-1.5">
                 <span className="font-secondary text-[10px] text-base-content/30">{formatRWF(50000)}</span>
                 <span className="font-secondary text-[10px] text-base-content/30">{formatRWF(500000)}</span>
               </div>
+            </div>
+
+            {/* Min slider */}
+            <div>
+              <div className="flex items-baseline gap-1.5 mb-2">
+                <span className="font-secondary text-[11px] text-base-content/40">From</span>
+                <span className="font-secondary text-[15px] font-bold text-base-content">
+                  {formatRWFNumber(budget_min)}
+                </span>
+                <span className="font-secondary text-[11px] text-base-content/40">RWF/mo</span>
+              </div>
+              <input
+                type="range"
+                min={50000}
+                max={500000}
+                step={5000}
+                value={budget_min || 50000}
+                onChange={(e) => set_budget_min(Math.min(Number(e.target.value), budget_max))}
+                className="range range-accent range-xs w-full"
+                required
+              />
             </div>
           </div>
         </div>
@@ -294,6 +298,7 @@ export default function HousingPreferencesEditSection({
             value={max_housemates || ""}
             onChange={(e) => set_max_housemates(Number(e.target.value))}
             className="select select-bordered rounded-field font-secondary text-sm w-full"
+            required
           >
             <option value='' disabled>Number of housemates you are comfortable living with.</option>
             <option value={1}>1-2 housemates</option>

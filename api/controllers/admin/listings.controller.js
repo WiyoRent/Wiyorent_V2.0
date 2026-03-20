@@ -39,7 +39,7 @@ export const createListing = async (req, res) => {
         }
 
         if (images.length <= 0) {
-            return errorMsg(res, 403, 'Please add listing images')
+            return errorMsg(res, 400, 'Please add listing images')
         }
 
         const amenities_array = amenities.split(',').map(item => item.trim())
