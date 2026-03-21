@@ -53,6 +53,39 @@ export const createListing = async (formData) => {
     }
 }
 
+export const toggleListingActive = async (listing_id, is_active) => {
+    try {
+        const session = await auth()
+
+        if (!session) {
+            throw new Error('Unauthenticated access')
+        }
+
+        const endPoint = getBaseURL() + `api/v1/admin/listings/${listing_id}`
+
+        const res = await fetch(endPoint, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-INTERNAL-API-KEY': process.env.INTERNAL_BACKEND_KEY,
+                'X-USER-ROLE': session?.user?.role,
+            },
+            body: JSON.stringify({ is_active }),
+        })
+
+        const result = await res.json()
+
+        if (!res.ok) {
+            throw new Error(result.message)
+        }
+
+        return result
+    } catch (error) {
+        console.error(error.message)
+        throw new Error(error.message || 'An internal server error occured while updating listing visibility')
+    }
+}
+
 export const editListing = async (listing_id, formData) => {
     try {
         const session = await auth()
