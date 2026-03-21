@@ -197,8 +197,31 @@ export const editListing = async (req, res) => {
 
         const { title, is_active, is_verified, description, available_status, available_from, amenities, house_rules, price_per_month, commission_fee, caution_fee, upfront_months, is_a_wiyorent_house, full_name, phone_number, neighborhood, city, country, bedroom_number, bathroom_number, max_roommates, property_type, is_furnished } = req.body
 
-        if (!title || !description || !available_status || !available_from || !price_per_month || !commission_fee || !caution_fee || !full_name || !phone_number || !neighborhood || !city || !country || !bedroom_number || !bathroom_number || !max_roommates || !property_type) {
-            return errorMsg(res, 400, 'Please Enter All Fields')
+        const requiredFields = {
+            title,
+            description,
+            available_status,
+            available_from,
+            price_per_month,
+            commission_fee,
+            caution_fee,
+            full_name,
+            phone_number,
+            neighborhood,
+            city,
+            country,
+            bedroom_number,
+            bathroom_number,
+            max_roommates,
+            property_type,
+        };
+
+        const missingFields = Object.entries(requiredFields)
+            .filter(([_, val]) => val === null || val === undefined || String(val).trim() === '')
+            .map(([key]) => key);
+
+        if (missingFields.length > 0) {
+            return errorMsg(res, 400, `Missing required fields: ${missingFields.join(', ')}`);
         }
 
         const uploadedImages = req.files || []

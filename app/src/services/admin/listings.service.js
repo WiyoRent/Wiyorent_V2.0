@@ -53,7 +53,7 @@ export const createListing = async (formData) => {
     }
 }
 
-export const deleteListing = async (listing_id) => {
+export const editListing = async (listing_id, formData) => {
     try {
         const session = await auth()
 
@@ -61,14 +61,15 @@ export const deleteListing = async (listing_id) => {
             throw new Error('Unauthenticated access')
         }
 
-        const endPoint = getBaseURL() + `api/v1/admin/deleteListing/${listing_id}`
+        const endPoint = getBaseURL() + `api/v1/admin/editListing/${listing_id}`
 
         const res = await fetch(endPoint, {
-            method: 'DELETE',
+            method: 'PATCH',
             headers: {
                 'X-INTERNAL-API-KEY': process.env.INTERNAL_BACKEND_KEY,
                 'X-USER-ROLE': session?.user?.role,
             },
+            body: formData
         })
 
         const result = await res.json()
@@ -76,8 +77,10 @@ export const deleteListing = async (listing_id) => {
         if (!res.ok) {
             throw new Error(result.message)
         }
+
+        return result
     } catch (error) {
         console.error(error.message)
-        throw new Error(error.message || 'An internal server error occured while deleting listing')
+        throw new Error(error.message || 'An internal server error occured while editing listing')
     }
 }

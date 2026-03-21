@@ -4,7 +4,7 @@ import { Eye, Heart, Edit2, Trash2, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
-import { deleteListing } from '@/services/admin/listings.service';
+import { deleteListing } from '@/actions/admin/listings.action';
 import StatusBadge from '@/components/admin/listings/StatusBadge';
 
 export default function ListingRow({ listing, on_toggle_active }) {

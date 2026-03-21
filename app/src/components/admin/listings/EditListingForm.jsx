@@ -8,7 +8,7 @@ import MediaManagerSection from './MediaManagerSection';
 import AmenitiesRulesSection from '@/components/shared/AmenitiesRulesSection';
 import { Save, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { getBaseURL } from '@/lib/getBaseURL';
+import { editListing } from '@/services/admin/listings.service';
 import { toast } from 'react-toastify';
 import { checkPhoneNumber } from '@/validators/phone';
 
@@ -98,27 +98,7 @@ export default function EditListingForm({ initial_data, listingId }) {
         console.log(key, value, '---formData');
       }
 
-      const url = getBaseURL() + `api/v1/admin/editListing/${listingId}`;
-      const response = await fetch(url, {
-        method: 'PATCH',
-        body: formData,
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result?.message || 'Something went wrong');
-      }
-
-      if (!result?.success) {
-        toast.update(loadingToast, {
-          render: result?.message,
-          type: 'error',
-          autoClose: 3000,
-          isLoading: false,
-        });
-        return;
-      }
+      const result = await editListing(listingId, formData);
 
       toast.update(loadingToast, {
         render: result?.message,
