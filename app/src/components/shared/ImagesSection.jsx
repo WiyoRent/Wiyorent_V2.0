@@ -116,7 +116,7 @@ export default function ImagesSection({ image_urls, set_image_urls }) {
               <button
                 type="button"
                 onClick={() => handle_remove(index)}
-                className="absolute top-2 right-2 w-6 h-6 bg-error text-error-content rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute top-2 right-2 w-6 h-6 bg-error text-error-content rounded-full flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                 aria-label={`Remove ${file?.name}`}
               >
                 <X size={12} />

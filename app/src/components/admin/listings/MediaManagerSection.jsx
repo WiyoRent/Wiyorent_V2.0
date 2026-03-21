@@ -60,12 +60,12 @@ export default function MediaManagerSection({ image_urls, set_image_urls }) {
               <button
                 type="button"
                 onClick={() => handle_remove_image(index)}
-                className="absolute top-2 right-2 w-7 h-7 bg-error rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                className="absolute top-2 right-2 w-7 h-7 bg-error rounded-full flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow-md"
                 aria-label="Remove image"
               >
                 <X size={14} className="text-error-content" />
               </button>
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-base-content/50 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-base-content/50 to-transparent p-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                 <span className="font-secondary text-xs text-base-100 font-semibold">
                   Image {index + 1}
                 </span>

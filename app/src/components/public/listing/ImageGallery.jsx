@@ -28,7 +28,7 @@ export default function ImageGallery({ image_urls, title }) {
 
           {/* Expand icon */}
           <button
-            className="absolute top-3 right-3 w-9 h-9 bg-base-100/80 backdrop-blur-sm rounded-field flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+            className="absolute top-3 right-3 w-9 h-9 bg-base-100/80 backdrop-blur-sm rounded-field flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
             onClick={(e) => { e.stopPropagation(); set_lightbox_open(true); }}
             aria-label="View fullscreen"
           >
@@ -40,14 +40,14 @@ export default function ImageGallery({ image_urls, title }) {
             <>
               <button
                 onClick={(e) => { e.stopPropagation(); handle_prev(); }}
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-base-100/80 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-base-100"
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-base-100/80 backdrop-blur-sm rounded-full flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity hover:bg-base-100"
                 aria-label="Previous image"
               >
                 <ChevronLeft size={18} className="text-base-content" />
               </button>
               <button
                 onClick={(e) => { e.stopPropagation(); handle_next(); }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-base-100/80 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-base-100"
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-base-100/80 backdrop-blur-sm rounded-full flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity hover:bg-base-100"
                 aria-label="Next image"
               >
                 <ChevronRight size={18} className="text-base-content" />
