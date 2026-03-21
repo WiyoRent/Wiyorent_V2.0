@@ -191,6 +191,10 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
       toast.error(error.message);
       return;
     }
+    if (budget_min === 0 || budget_max === 0) {
+      toast.error('Please enter your minimum and maximum rent budget');
+      return;
+    }
     if (has_house) {
       const houseFields = {
         // 'Listing Images': listing_images?.length,
