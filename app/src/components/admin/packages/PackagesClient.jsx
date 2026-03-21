@@ -5,7 +5,8 @@ import { toast } from 'react-toastify';
 import PackageCard from '@/components/admin/packages/PackageCard';
 import PackageModal from '@/components/admin/packages/PackageModal';
 import PageHeader from '@/components/admin/packages/PageHeader';
-import { createPackage, updatePackage, deletePackage } from '@/services/admin/package.service';
+import { createPackage, updatePackage } from '@/services/admin/package.service';
+import { deletePackage } from '@/actions/admin/package.action';
 
 const empty_package = {
   package_id: null,
