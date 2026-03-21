@@ -9,7 +9,7 @@ const nextConfig = {
   },
   experimental: {
     serverActions: {
-      bodySizeLimit: '5mb', // Increased to 5MB to be safer for mobile uploads
+      bodySizeLimit: '50mb',
     },
   },
 };
