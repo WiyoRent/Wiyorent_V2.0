@@ -134,7 +134,7 @@ export default function FinancialsSpecsSection({
           <h3 className="font-secondary text-xs font-semibold uppercase tracking-wide text-base-content/50 mb-3">
             Property Details
           </h3>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
             <div className="form-control">
               <label className="label">
                 <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">

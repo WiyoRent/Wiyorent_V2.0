@@ -12,9 +12,9 @@ export const metadata = {
 
 export default function AdminLayout({ children }) {
   return (
-    <div className="flex min-h-screen bg-primary">
+    <div className="flex min-h-screen bg-primary overflow-x-hidden">
       <AdminSidebar />
-      <main className="sm:mt-12 md:mt-0 flex-1 p-4">
+      <main className="mt-16  md:mt-0 flex-1 p-4 overflow-x-hidden">
         {children}
       </main>
       <ToastContainer autoClose={3000} />
