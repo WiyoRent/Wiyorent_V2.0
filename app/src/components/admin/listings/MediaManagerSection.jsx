@@ -1,6 +1,7 @@
 'use client';
 
 import { Image as ImageIcon, X, Plus } from 'lucide-react';
+import { toast } from 'react-toastify';
 
 export default function MediaManagerSection({ image_urls, set_image_urls }) {
   const handle_remove_image = (index) => {
@@ -8,20 +9,24 @@ export default function MediaManagerSection({ image_urls, set_image_urls }) {
   };
 
   const handle_image = (e) => {
-    const file = e.target.files
+    const files = e.target.files
 
-    console.log(file)
+    console.log(files)
 
-    if(file.length !== 0){
-      const newImage = Array.from(file).map(file => ({
-        file,
-        preview_url : URL.createObjectURL(file)
-      }))
+    if (!files || files.length === 0) return
 
-      set_image_urls(prev => [...prev , ...newImage])
+    const oversized = Array.from(files).find(file => file.size > 10 * 1024 * 1024)
+    if (oversized) {
+      toast.error(`${oversized.name} exceeds the 10MB limit. Please choose a smaller file.`)
+      return
     }
 
-    return 
+    const newImage = Array.from(files).map(file => ({
+      file,
+      preview_url : URL.createObjectURL(file)
+    }))
+
+    set_image_urls(prev => [...prev , ...newImage])
   }
 
 
@@ -88,7 +93,8 @@ export default function MediaManagerSection({ image_urls, set_image_urls }) {
       <input onChange={handle_image} className='hidden' type="file" id="uploadImg" accept='.png. .jpeg, .jpg' />
 
       <p className="font-secondary text-xs text-base-content/40 mt-4">
-        Recommended: Upload high-quality images (min 1200×800px). First image will be used as thumbnail.
+        Recommended: Upload high-quality images (min 1200×800px). First image will be used as thumbnail.{' '}
+        <span className="text-base-content/30">· Max 10MB per image</span>
       </p>
     </div>
   );

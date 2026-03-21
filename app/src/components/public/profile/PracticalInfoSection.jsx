@@ -2,6 +2,7 @@
 import Image from 'next/image';
 import { ShieldCheck, FileText, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'react-toastify';
 
 export default function PracticalInfoSection({ 
   preferred_method, 
@@ -19,6 +20,28 @@ export default function PracticalInfoSection({
   // Per-document replace toggles — only relevant when is_rejected and doc is an existing URL
   const [replace_admission, set_replace_admission] = useState(false);
   const [replace_passport,  set_replace_passport]  = useState(false);
+
+  const handle_admission_change = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('Image exceeds 10MB limit. Please choose a smaller file.')
+      e.target.value = ''
+      return
+    }
+    set_admission_letter(file)
+  }
+
+  const handle_passport_change = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('Image exceeds 10MB limit. Please choose a smaller file.')
+      e.target.value = ''
+      return
+    }
+    set_passport_id(file)
+  }
 
   const show_admission_upload = typeof admission_letter !== 'string' || (is_rejected && replace_admission);
   const show_passport_upload  = typeof passport_id     !== 'string' || (is_rejected && replace_passport);
@@ -69,14 +92,15 @@ export default function PracticalInfoSection({
                 <input 
                   type="file" 
                   accept=".png, .jpg"
-                  onChange={(e) => set_admission_letter(e.target.files[0])}
-                  className="file-input file-input-bordered file-input-accent w-full rounded-field font-secondary text-sm" 
+                  onChange={handle_admission_change}
+                  className="file-input file-input-bordered file-input-accent w-full rounded-field font-secondary text-sm"
                   required
                 />
-                <p className="mt-2 text-[10px] font-secondary text-base-content/40 italic">
+                <p className="mt-2 font-secondary text-[10px] text-base-content/35 italic">
                   {is_rejected
                     ? 'Upload a new copy of your admission letter.'
-                    : 'Required to verify your student status at your university.'}
+                    : 'Required to verify your student status at your university.'}{' '}
+                  <span className="not-italic text-base-content/30">· Max 10MB per file</span>
                 </p>
               </>
             ) : (
@@ -128,14 +152,15 @@ export default function PracticalInfoSection({
                 <input 
                   type="file" 
                   accept=".png, .jpg"
-                  onChange={(e) => set_passport_id(e.target.files[0])}
-                  className="file-input file-input-bordered file-input-accent w-full rounded-field font-secondary text-sm" 
+                  onChange={handle_passport_change}
+                  className="file-input file-input-bordered file-input-accent w-full rounded-field font-secondary text-sm"
                   required
                 />
-                <p className="mt-2 text-[10px] font-secondary text-base-content/40 italic">
+                <p className="mt-2 font-secondary text-[10px] text-base-content/35 italic">
                   {is_rejected
                     ? 'Upload a new copy of your passport or ID.'
-                    : 'Clear photo of your identity document for legal compliance.'}
+                    : 'Clear photo of your identity document for legal compliance.'}{' '}
+                  <span className="not-italic text-base-content/30">· Max 10MB per file</span>
                 </p>
               </>
             ) : (

@@ -1,5 +1,6 @@
 "use client"
 import { User, Camera, Zap, CheckCircle2, Lock, Ban } from 'lucide-react';
+import { toast } from 'react-toastify';
 import VerificationStatusBanner from '@/components/public/profile/VerificationStatusBanner';
 import Image from 'next/image';
 import PhoneInputWithCountrySelect from 'react-phone-number-input';
@@ -100,6 +101,11 @@ export default function BasicProfileSection({
   const uploadProfilePicture = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('Image exceeds 10MB limit. Please choose a smaller file.')
+      e.target.value = ''
+      return
+    }
     const previewUrl = URL.createObjectURL(file)
     set_avatar_url({ file, previewUrl })
   }
@@ -123,26 +129,29 @@ export default function BasicProfileSection({
 
       {/* ── Avatar + verified badge row ─────────────────────────────────────── */}
       <div className="flex items-center gap-4 mb-5">
-        {/* Avatar with camera overlay */}
-        <label htmlFor="uploadPfp" className="relative w-24 h-24 rounded-full cursor-pointer group flex-shrink-0">
-          {/* Base circle */}
-          <div className="w-24 h-24 rounded-full border-2 border-accent bg-base-300 overflow-hidden flex items-center justify-center">
-            {avatar_url ? (
-              <Image
-                className="rounded-full object-cover"
-                alt="Your profile image"
-                fill
-                src={typeof avatar_url === 'string' ? avatar_url : avatar_url?.previewUrl}
-              />
-            ) : (
-              <User size={36} className="text-base-content/30" />
-            )}
-          </div>
-          {/* Camera overlay on hover */}
-          <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-            <Camera size={22} className="text-white" />
-          </div>
-        </label>
+        {/* Avatar with camera overlay + size hint stacked below */}
+        <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
+          <label htmlFor="uploadPfp" className="relative w-24 h-24 rounded-full cursor-pointer group">
+            {/* Base circle */}
+            <div className="w-24 h-24 rounded-full border-2 border-accent bg-base-300 overflow-hidden flex items-center justify-center">
+              {avatar_url ? (
+                <Image
+                  className="rounded-full object-cover"
+                  alt="Your profile image"
+                  fill
+                  src={typeof avatar_url === 'string' ? avatar_url : avatar_url?.previewUrl}
+                />
+              ) : (
+                <User size={36} className="text-base-content/30" />
+              )}
+            </div>
+            {/* Camera overlay on hover */}
+            <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              <Camera size={22} className="text-white" />
+            </div>
+          </label>
+          <p className="font-secondary text-[10px] text-base-content/50 text-center leading-tight font-bold">Max 10MB</p>
+        </div>
         <input accept="image/*" onChange={uploadProfilePicture} type="file" className="hidden" id="uploadPfp" />
 
         {/* Inline blocked / verified badge */}

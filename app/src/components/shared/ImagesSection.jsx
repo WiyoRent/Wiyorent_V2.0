@@ -2,6 +2,7 @@
 
 import { ImagePlus, X, UploadCloud } from 'lucide-react';
 import { useRef } from 'react';
+import { toast } from 'react-toastify';
 
 // image_urls on the create page holds { file: File, preview_url: string } entries
 // until the form is submitted and files are uploaded — at which point the API
@@ -11,11 +12,16 @@ export default function ImagesSection({ image_urls, set_image_urls }) {
 
   const handle_files = (files) => {
     console.log(files, '-------')
+    const oversized = Array.from(files).find(file => file.size > 10 * 1024 * 1024)
+    if (oversized) {
+      toast.error(`${oversized.name} exceeds the 10MB limit. Please choose a smaller file.`)
+      return
+    }
     const new_file = Array.from(files).map((file) => (
       {file,
       preview_url:URL.createObjectURL(file)}
     ))
-    
+
     console.log(new_file)
 
     return set_image_urls(prev => [...prev, ...new_file])
@@ -73,7 +79,7 @@ export default function ImagesSection({ image_urls, set_image_urls }) {
           <span className="text-accent font-semibold">browse</span>
         </p>
         <p className="font-secondary text-xs text-base-content/30">
-          PNG, JPG, WEBP supported
+          PNG, JPG, WEBP &nbsp;·&nbsp; Max 10MB per image
         </p>
       </div>
 
