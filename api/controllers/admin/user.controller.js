@@ -269,8 +269,12 @@ export const deleteUser = async (req, res) => {
 
         const folderPath = `users/${userId}`
 
-        await cloudinary.api.delete_resources_by_prefix(`${folderPath}`)
-        await cloudinary.api.delete_folder(folderPath)
+        try {
+            await cloudinary.api.delete_resources_by_prefix(folderPath)
+            await cloudinary.api.delete_folder(folderPath)
+        } catch (cloudinaryError) {
+            console.error('Cloudinary cleanup failed (continuing with DB delete):', cloudinaryError.message)
+        }
 
         const result = await pool.query(
             `
@@ -286,7 +290,7 @@ export const deleteUser = async (req, res) => {
 
         return successMsg(res, 200, 'User Deleted Successfully')
     } catch (error) {
-        console.error('error on delete user')
-        return errorMsg(res, error.status || 500, error.message || "Internal Server Error")
+        console.error('error on delete user', error)
+        return errorMsg(res, error.http_code || error.status || 500, error.message || "Internal Server Error")
     }
 }

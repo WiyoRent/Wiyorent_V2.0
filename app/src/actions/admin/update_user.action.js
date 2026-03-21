@@ -19,7 +19,7 @@ export const updateUserStatus = async (data) => {
             headers: {
                 'Content-Type' : 'application/json',
                 'X-INTERNAL-API-KEY' : process.env.INTERNAL_BACKEND_KEY,
-                'X-User-Role' : session.user.role
+                'X-USER-ROLE' : session.user.role
             },
             body: JSON.stringify(
                 data
@@ -44,9 +44,9 @@ export const updateUserStatus = async (data) => {
 }
 
 export const deleteUser = async(userId) => {
-    const session = await auth()
-
     try {
+        const session = await auth()
+
         if(!session){
             throw new Error('Unauthorized action')
         }
