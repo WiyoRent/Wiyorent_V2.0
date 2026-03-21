@@ -17,7 +17,7 @@ export const reviewAction = async (endpoint, method, review) => {
             ...method,
             headers: { 
                 'Content-Type': 'application/json' ,
-                'X-Internal-API-Key' : process.env.INTERNAL_BACKEND_KEY,
+                'X-INTERNAL-API-KEY' : process.env.INTERNAL_BACKEND_KEY,
                 'X-User-Id' : session?.user?.id
             },
             body: JSON.stringify(review),

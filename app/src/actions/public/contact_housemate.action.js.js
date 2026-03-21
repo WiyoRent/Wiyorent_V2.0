@@ -13,7 +13,7 @@ export async function contactHousemate (profile_id){
 
         const response = await fetch(endpoint, {
             headers : {
-                'X-Internal-API-Key' : process.env.INTERNAL_BACKEND_KEY,
+                'X-INTERNAL-API-KEY' : process.env.INTERNAL_BACKEND_KEY,
                 'X-User-Id' : userId
             }
         })

@@ -24,8 +24,8 @@ export const approveReview = async (review_id, email, full_name, property_title)
             }),
             headers : {
                 'Content-Type' : 'application/json',
-                'X-Internal-API-Key' : process.env.INTERNAL_BACKEND_KEY,
-                'X-User-Role' : session?.user?.role,
+                'X-INTERNAL-API-KEY' : process.env.INTERNAL_BACKEND_KEY,
+                'X-USER-ROLE' : session?.user?.role,
             }
         })
         const result = await res.json()
@@ -65,8 +65,8 @@ export const rejectReview = async (review_id, email, full_name, property_title, 
             }),
             headers : {
                 'Content-Type' : 'application/json',
-                'X-Internal-API-Key' : process.env.INTERNAL_BACKEND_KEY,
-                'X-User-Role' : session?.user?.role,
+                'X-INTERNAL-API-KEY' : process.env.INTERNAL_BACKEND_KEY,
+                'X-USER-ROLE' : session?.user?.role,
             }
         })
         const result = await res.json()
@@ -93,8 +93,8 @@ export const deleteReview = async (review_id) => {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Internal-API-Key': process.env.INTERNAL_BACKEND_KEY,
-                'X-User-Role': session?.user?.role,
+                'X-INTERNAL-API-KEY': process.env.INTERNAL_BACKEND_KEY,
+                'X-USER-ROLE': session?.user?.role,
             }
         })
         const result = await res.json()

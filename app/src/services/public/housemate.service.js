@@ -13,7 +13,7 @@ export const fetchHousemates = async (query) => {
 
         const response = await fetch(url, {
             headers : {
-                'X-Internal-API-Key' : process.env.INTERNAL_BACKEND_KEY,
+                'X-INTERNAL-API-KEY' : process.env.INTERNAL_BACKEND_KEY,
                 'X-User-Id' : userId
             }
         }) 
@@ -41,7 +41,7 @@ export const fetchHousemateDetail = async (housemateId) => {
     try {
         const response = await fetch(url, {
             headers: {
-                'X-Internal-API-Key': process.env.INTERNAL_BACKEND_KEY,
+                'X-INTERNAL-API-KEY': process.env.INTERNAL_BACKEND_KEY,
                 'X-User-ID': userId
             },
             cache: 'no-cache'

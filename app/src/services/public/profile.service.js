@@ -19,7 +19,7 @@ export const getProfile = async () => {
             method: 'GET',
             cache: 'no-cache', // always fresh — never serve stale profile data
             headers: {
-                'X-Internal-API-Key': process.env.INTERNAL_BACKEND_KEY,
+                'X-INTERNAL-API-KEY': process.env.INTERNAL_BACKEND_KEY,
                 'X-User-Id': userId
             }
         })
@@ -54,7 +54,7 @@ export const editProfile = async (formData) => {
             method : 'PATCH',
             body : formData,
             headers : {
-                'X-Internal-API-Key' : process.env.INTERNAL_BACKEND_KEY,
+                'X-INTERNAL-API-KEY' : process.env.INTERNAL_BACKEND_KEY,
                 'X-User-Id' : session?.user?.id
             }
         })
