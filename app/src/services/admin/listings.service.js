@@ -61,7 +61,7 @@ export const toggleListingActive = async (listing_id, is_active) => {
             throw new Error('Unauthenticated access')
         }
 
-        const endPoint = getBaseURL() + `api/v1/admin/listings/${listing_id}`
+        const endPoint = getBaseURL() + `api/v1/admin/toggleActive/${listing_id}`
 
         const res = await fetch(endPoint, {
             method: 'PATCH',

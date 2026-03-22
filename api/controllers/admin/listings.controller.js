@@ -466,6 +466,36 @@ export const fetchAllListings = async (req, res) => {
     }
 }
 
+export const toggleListingActive = async (req, res) => {
+    try {
+        const { id } = req.params
+        const { is_active } = req.body
+
+        if (!id) {
+            return errorMsg(res, 400, "Listing ID is required")
+        }
+
+        if (is_active === undefined || is_active === null) {
+            return errorMsg(res, 400, "is_active field is required")
+        }
+
+        const result = await pool.query(
+            `UPDATE listings SET is_active = $1 WHERE id = $2 RETURNING id, is_active`,
+            [is_active, id]
+        )
+
+        if (result.rowCount === 0) {
+            return errorMsg(res, 404, "Listing not found")
+        }
+
+        return successMsg(res, 200, 'Listing visibility updated successfully', result.rows[0])
+
+    } catch (error) {
+        console.error(error, '---toggleListingActive error')
+        return errorMsg(res, 500, 'A server error occurred')
+    }
+}
+
 export const deleteListing = async (req,res) => {
     const id = req.params.id
 

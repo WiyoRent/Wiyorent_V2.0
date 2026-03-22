@@ -12,7 +12,7 @@ export const metadata = {
 
 export default function AdminLayout({ children }) {
   return (
-    <div className="flex min-h-screen bg-primary overflow-x-hidden">
+    <div className="flex min-h-screen bg-primary ">
       <AdminSidebar />
       <main className="mt-16  md:mt-0 flex-1 p-4 overflow-x-hidden">
         {children}

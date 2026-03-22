@@ -1,4 +1,4 @@
-import { editListing, fetchAllListings, createListing, fetchSingleListing, deleteListing } from "../../controllers/admin/listings.controller.js";
+import { editListing, fetchAllListings, createListing, fetchSingleListing, deleteListing, toggleListingActive } from "../../controllers/admin/listings.controller.js";
 import express from 'express'
 import upload from "../../middleware/multer.js";
 
@@ -25,6 +25,11 @@ listingRouter.patch(
     '/editListing/:id',
     upload.array('images', 20),
     editListing
+)
+
+listingRouter.patch(
+    '/toggleActive/:id',
+    toggleListingActive
 )
 
 listingRouter.delete(
