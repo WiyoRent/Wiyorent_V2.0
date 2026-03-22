@@ -90,7 +90,7 @@ export default function MediaManagerSection({ image_urls, set_image_urls }) {
        
       </div>
 
-      <input onChange={handle_image} className='hidden' type="file" id="uploadImg" accept='.png. .jpeg, .jpg' />
+      <input onChange={handle_image} className='hidden' type="file" id="uploadImg" accept="image/jpeg,image/jpg,image/png,image/webp" />
 
       <p className="font-secondary text-xs text-base-content/40 mt-4">
         Recommended: Upload high-quality images (min 1200×800px). First image will be used as thumbnail.{' '}

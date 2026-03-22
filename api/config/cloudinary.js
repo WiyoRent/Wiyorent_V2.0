@@ -10,7 +10,7 @@ export const connectCloudinary = () => {
         });
         console.log('Cloudinary Connected')
     } catch (error) {
-        console.erjror(error)
+        console.error(error)
         throw error
     }
 }

@@ -58,11 +58,13 @@ export const editProfile = async (formData) => {
                 'X-User-Id' : session?.user?.id
             }
         })
-        const result = await res.json()
-
-        if(!res.ok){
-            throw new Error(result.message || 'An internal server occured. Try again later.')
+        if (!res.ok) {
+            let message = 'An error occurred. Try again later.'
+            try { const err = await res.json(); message = err.message || message } catch {}
+            throw new Error(message)
         }
+
+        const result = await res.json()
 
         console.log(result, '--result from edit profile')
 

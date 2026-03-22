@@ -87,7 +87,7 @@ export default function ImagesSection({ image_urls, set_image_urls }) {
       <input
         ref={input_ref}
         type="file"
-        accept="image/*"
+        accept="image/jpeg,image/jpg,image/png,image/webp"
         multiple
         className="hidden"
         onChange={handle_input_change}

@@ -152,7 +152,7 @@ export default function BasicProfileSection({
           </label>
           <p className="font-secondary text-[10px] text-base-content/50 text-center leading-tight font-bold">Max 10MB</p>
         </div>
-        <input accept="image/*" onChange={uploadProfilePicture} type="file" className="hidden" id="uploadPfp" />
+        <input accept="image/jpeg,image/jpg,image/png,image/webp" onChange={uploadProfilePicture} type="file" className="hidden" id="uploadPfp" />
 
         {/* Inline blocked / verified badge */}
         {is_onboarded && is_blocked && (

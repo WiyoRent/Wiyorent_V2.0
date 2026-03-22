@@ -40,11 +40,13 @@ export const createListing = async (formData) => {
             body: formData
         })
 
-        const result = await res.json()
-
         if (!res.ok) {
-            throw new Error(result.message)
+            let message = 'An error occurred. Try again later.'
+            try { const err = await res.json(); message = err.message || message } catch {}
+            throw new Error(message)
         }
+
+        const result = await res.json()
 
         return result.data
     } catch (error) {
@@ -105,11 +107,13 @@ export const editListing = async (listing_id, formData) => {
             body: formData
         })
 
-        const result = await res.json()
-
         if (!res.ok) {
-            throw new Error(result.message)
+            let message = 'An error occurred. Try again later.'
+            try { const err = await res.json(); message = err.message || message } catch {}
+            throw new Error(message)
         }
+
+        const result = await res.json()
 
         return result
     } catch (error) {
