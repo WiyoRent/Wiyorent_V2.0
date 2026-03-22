@@ -5,11 +5,13 @@ const UNIVERSITIES = [
     name:  "Carnegie Mellon University Africa",
     short: "CMU-Africa",
     src:   "/universities/cmu-africa.png",
+    alt:   "Carnegie Mellon University Africa – WiyoRent student housing partner",
   },
   {
     name:  "African Leadership University",
     short: "ALU",
     src:   "/universities/alu.png",
+    alt:   "African Leadership University – WiyoRent student housing partner",
   },
 ];
 
@@ -47,7 +49,7 @@ export default function Partners() {
               <div className="w-56 h-40 rounded-xl flex items-center justify-center overflow-hidden bg-white border border-white/10 p-4 shadow-[0_4px_24px_rgba(0,0,0,0.3)] group-hover:border-accent/50 transition-all duration-300">
                 <img
                   src={uni.src}
-                  alt={uni.name}
+                  alt={uni.alt}
                   className="w-full h-full object-contain"
                 />
               </div>

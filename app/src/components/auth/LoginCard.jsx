@@ -55,9 +55,9 @@ export default function LoginCard() {
       {/* Support link — below card */}
       <p className="font-secondary text-sm text-base-content/40 text-center mt-5">
         Need help?{' '}
-        <Link href="/support" className="text-accent hover:underline font-semibold">
+        <a href="mailto:support@wiyorent.com" className="text-accent hover:underline font-semibold">
           Contact Support
-        </Link>
+        </a>
       </p>
     </div>
   );

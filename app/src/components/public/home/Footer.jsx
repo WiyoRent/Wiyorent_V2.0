@@ -107,7 +107,7 @@ export default function Footer() {
       <div className="border-t border-white/6 py-5 px-6 lg:px-16">
         <div className="container mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="font-secondary text-xs text-white/25 flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span>© 2025 WiyoRent. All Rights Reserved.</span>
+            <span>© {new Date().getFullYear()} WiyoRent. All Rights Reserved.</span>
             <span aria-hidden="true">&middot;</span>
             <Link href="/privacy" className="hover:text-white/60 hover:underline transition-colors duration-200">
               Privacy Policy
