@@ -79,7 +79,7 @@ export default function Footer() {
             </p>
             <address className="not-italic flex flex-col gap-3">
               <a
-                href={`mailto:${LINKS.email}`}
+                href="mailto:wiyorent@gmail.com"
                 className="group inline-flex items-center gap-3 text-white/60 hover:text-white transition-colors duration-200 w-fit"
               >
                 <span className="w-8 h-8 rounded-lg bg-white/5 group-hover:bg-accent/20 flex items-center justify-center transition-colors duration-200">

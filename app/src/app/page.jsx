@@ -31,7 +31,7 @@ const JSON_LD = {
   },
   "sameAs": [
     "https://wiyorent.com",
-    "mailto:support@wiyorent.com",
+    "mailto:wiyorent@gmail.com",
     "https://wa.me/250794089835",
     "https://www.instagram.com/wiyorent",
     "https://www.facebook.com/people/WiyoRent/61561578203424",

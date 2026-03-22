@@ -163,7 +163,7 @@ const SECTIONS = [
           <li>
             <strong>Deletion:</strong> you may request that your account and all
             associated data be deleted by emailing{" "}
-            <a href="mailto:support@wiyorent.com">support@wiyorent.com</a>.
+            <a href="mailto:wiyorent@gmail.com">support@wiyorent.com</a>.
           </li>
           <li>
             <strong>Withdrawal of consent:</strong> where processing is based on your
@@ -173,7 +173,7 @@ const SECTIONS = [
         </ul>
         <p>
           To exercise any of these rights, please contact us at{" "}
-          <a href="mailto:support@wiyorent.com">support@wiyorent.com</a>. We will
+          <a href="mailto:wiyorent@gmail.com">support@wiyorent.com</a>. We will
           respond within 14 business days.
         </p>
       </>
@@ -229,7 +229,7 @@ const SECTIONS = [
       <p>
         If you have any questions about this Privacy Policy or how we handle your
         personal data, please contact WiyoRent Ltd at{" "}
-        <a href="mailto:support@wiyorent.com">support@wiyorent.com</a>. Our team is
+        <a href="mailto:wiyorent@gmail.com">support@wiyorent.com</a>. Our team is
         based in Kigali, Rwanda.
       </p>
     ),

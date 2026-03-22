@@ -78,7 +78,7 @@ const SECTIONS = [
         <p>
           If you encounter a listing you believe to be inaccurate or fraudulent, please
           report it immediately to{" "}
-          <a href="mailto:support@wiyorent.com">support@wiyorent.com</a>.
+          <a href="mailto:wiyorent@gmail.com">support@wiyorent.com</a>.
         </p>
       </>
     ),
@@ -266,7 +266,7 @@ const SECTIONS = [
       <p>
         If you have any questions about these Terms and Conditions, please contact
         WiyoRent Ltd at{" "}
-        <a href="mailto:support@wiyorent.com">support@wiyorent.com</a>. Our team is
+        <a href="mailto:wiyorent@gmail.com">support@wiyorent.com</a>. Our team is
         based in Kigali, Rwanda.
       </p>
     ),
@@ -318,7 +318,7 @@ export default function TermsPage() {
               WiyoRent Ltd is registered in Kigali, Rwanda. These terms were last
               updated on January 1, 2025. For questions or concerns, contact us at{" "}
               <a
-                href="mailto:support@wiyorent.com"
+                href="mailto:wiyorent@gmail.com"
                 className="text-accent underline underline-offset-2 hover:opacity-75"
               >
                 support@wiyorent.com
