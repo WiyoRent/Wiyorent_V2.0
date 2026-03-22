@@ -31,6 +31,8 @@ export const createListing = async (formData) => {
 
         const endPoint = getBaseURL() + 'api/v1/admin/createListing'
 
+        console.log('[createListing] fetching', endPoint)
+
         const res = await fetch(endPoint, {
             method: 'POST',
             headers: {
@@ -40,9 +42,17 @@ export const createListing = async (formData) => {
             body: formData
         })
 
+        console.log('[createListing] response status:', res.status, res.statusText)
+
         if (!res.ok) {
             let message = 'An error occurred. Try again later.'
-            try { const err = await res.json(); message = err.message || message } catch {}
+            try {
+                const err = await res.json()
+                console.log('[createListing] error body:', err)
+                message = err.message || message
+            } catch (parseErr) {
+                console.error('[createListing] failed to parse error response as JSON:', parseErr.message)
+            }
             throw new Error(message)
         }
 
@@ -50,7 +60,7 @@ export const createListing = async (formData) => {
 
         return result.data
     } catch (error) {
-        console.error(error.message)
+        console.error('[createListing] caught error:', error)
         throw new Error(error.message || 'An internal server error occured while creating listing')
     }
 }
@@ -98,6 +108,8 @@ export const editListing = async (listing_id, formData) => {
 
         const endPoint = getBaseURL() + `api/v1/admin/editListing/${listing_id}`
 
+        console.log('[editListing] fetching', endPoint)
+
         const res = await fetch(endPoint, {
             method: 'PATCH',
             headers: {
@@ -107,9 +119,17 @@ export const editListing = async (listing_id, formData) => {
             body: formData
         })
 
+        console.log('[editListing] response status:', res.status, res.statusText)
+
         if (!res.ok) {
             let message = 'An error occurred. Try again later.'
-            try { const err = await res.json(); message = err.message || message } catch {}
+            try {
+                const err = await res.json()
+                console.log('[editListing] error body:', err)
+                message = err.message || message
+            } catch (parseErr) {
+                console.error('[editListing] failed to parse error response as JSON:', parseErr.message)
+            }
             throw new Error(message)
         }
 
@@ -117,7 +137,7 @@ export const editListing = async (listing_id, formData) => {
 
         return result
     } catch (error) {
-        console.error(error.message)
+        console.error('[editListing] caught error:', error)
         throw new Error(error.message || 'An internal server error occured while editing listing')
     }
 }

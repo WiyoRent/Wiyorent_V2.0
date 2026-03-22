@@ -50,6 +50,8 @@ export const editProfile = async (formData) => {
 
         const endPoint = getBaseURL() + `api/v1/public/update/profile`
 
+        console.log('[editProfile] fetching', endPoint, 'userId:', session?.user?.id)
+
         const res = await fetch(endPoint, {
             method : 'PATCH',
             body : formData,
@@ -58,9 +60,18 @@ export const editProfile = async (formData) => {
                 'X-User-Id' : session?.user?.id
             }
         })
+
+        console.log('[editProfile] response status:', res.status, res.statusText)
+
         if (!res.ok) {
             let message = 'An error occurred. Try again later.'
-            try { const err = await res.json(); message = err.message || message } catch {}
+            try {
+                const err = await res.json()
+                console.log('[editProfile] error body:', err)
+                message = err.message || message
+            } catch (parseErr) {
+                console.error('[editProfile] failed to parse error response as JSON:', parseErr.message)
+            }
             throw new Error(message)
         }
 
@@ -70,7 +81,7 @@ export const editProfile = async (formData) => {
 
         return result
     } catch (error) {
-        console.error(error || 'An ineternal server error occured on editProfile')
+        console.error('[editProfile] caught error:', error)
 
         throw new Error(error.message || 'An internal server error occured on editProfile')
     }
