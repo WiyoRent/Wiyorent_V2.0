@@ -1,8 +1,9 @@
 'use client';
 import Image from 'next/image';
-import { ShieldCheck, FileText, RefreshCw } from 'lucide-react';
+import { ShieldCheck, FileText, RefreshCw, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
+import useCloudinaryUpload from '@/hooks/useCloudinaryUpload';
 
 export default function PracticalInfoSection({ 
   preferred_method, 
@@ -21,26 +22,38 @@ export default function PracticalInfoSection({
   const [replace_admission, set_replace_admission] = useState(false);
   const [replace_passport,  set_replace_passport]  = useState(false);
 
-  const handle_admission_change = (e) => {
+  const { upload, uploading } = useCloudinaryUpload();
+  const [uploading_admission, set_uploading_admission] = useState(false);
+  const [uploading_passport, set_uploading_passport] = useState(false);
+
+  const handle_admission_change = async (e) => {
     const file = e.target.files[0]
     if (!file) return
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error('Image exceeds 10MB limit. Please choose a smaller file.')
-      e.target.value = ''
-      return
+    set_uploading_admission(true);
+    const secure_url = await upload(file, 'wiyorent/users/{userId}/documents');
+    set_uploading_admission(false);
+    if (secure_url) {
+      set_admission_letter(secure_url);
+      set_replace_admission(false);
+    } else {
+      toast.error('Failed to upload admission letter. Please try again.');
     }
-    set_admission_letter(file)
+    e.target.value = '';
   }
 
-  const handle_passport_change = (e) => {
+  const handle_passport_change = async (e) => {
     const file = e.target.files[0]
     if (!file) return
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error('Image exceeds 10MB limit. Please choose a smaller file.')
-      e.target.value = ''
-      return
+    set_uploading_passport(true);
+    const secure_url = await upload(file, 'wiyorent/users/{userId}/documents');
+    set_uploading_passport(false);
+    if (secure_url) {
+      set_passport_id(secure_url);
+      set_replace_passport(false);
+    } else {
+      toast.error('Failed to upload passport/ID. Please try again.');
     }
-    set_passport_id(file)
+    e.target.value = '';
   }
 
   const show_admission_upload = typeof admission_letter !== 'string' || (is_rejected && replace_admission);
@@ -89,18 +102,25 @@ export default function PracticalInfoSection({
 
             {show_admission_upload ? (
               <>
-                <input 
-                  type="file" 
-                  accept=".png, .jpg"
-                  onChange={handle_admission_change}
-                  className="file-input file-input-bordered file-input-accent w-full rounded-field font-secondary text-sm"
-                  required
-                />
+                {uploading_admission ? (
+                  <div className="flex items-center gap-2 h-12 px-4 bg-base-200 rounded-field border border-base-300">
+                    <Loader2 size={16} className="text-accent animate-spin" />
+                    <span className="font-secondary text-sm text-base-content/50">Uploading...</span>
+                  </div>
+                ) : (
+                  <input
+                    type="file"
+                    accept=".png, .jpg"
+                    onChange={handle_admission_change}
+                    className="file-input file-input-bordered file-input-accent w-full rounded-field font-secondary text-sm"
+                    required
+                  />
+                )}
                 <p className="mt-2 font-secondary text-[10px] text-base-content/35 italic">
                   {is_rejected
                     ? 'Upload a new copy of your admission letter.'
                     : 'Required to verify your student status at your university.'}{' '}
-                  <span className="not-italic text-base-content/30">· Max 10MB per file</span>
+                  <span className="not-italic text-base-content/30">· Compressed automatically</span>
                 </p>
               </>
             ) : (
@@ -149,18 +169,25 @@ export default function PracticalInfoSection({
 
             {show_passport_upload ? (
               <>
-                <input 
-                  type="file" 
-                  accept=".png, .jpg"
-                  onChange={handle_passport_change}
-                  className="file-input file-input-bordered file-input-accent w-full rounded-field font-secondary text-sm"
-                  required
-                />
+                {uploading_passport ? (
+                  <div className="flex items-center gap-2 h-12 px-4 bg-base-200 rounded-field border border-base-300">
+                    <Loader2 size={16} className="text-accent animate-spin" />
+                    <span className="font-secondary text-sm text-base-content/50">Uploading...</span>
+                  </div>
+                ) : (
+                  <input
+                    type="file"
+                    accept=".png, .jpg"
+                    onChange={handle_passport_change}
+                    className="file-input file-input-bordered file-input-accent w-full rounded-field font-secondary text-sm"
+                    required
+                  />
+                )}
                 <p className="mt-2 font-secondary text-[10px] text-base-content/35 italic">
                   {is_rejected
                     ? 'Upload a new copy of your passport or ID.'
                     : 'Clear photo of your identity document for legal compliance.'}{' '}
-                  <span className="not-italic text-base-content/30">· Max 10MB per file</span>
+                  <span className="not-italic text-base-content/30">· Compressed automatically</span>
                 </p>
               </>
             ) : (
@@ -215,8 +242,9 @@ export default function PracticalInfoSection({
               value={preferred_method}
               onChange={(e) => set_preferred_method(e.target.value)}
             >
-              <option>Email</option>
-              <option>Whatsapp</option>
+              <option value={null} disabled>Select how people contact you</option>
+              <option value='email'>Email</option>
+              <option value='phone'>Whatsapp</option>
             </select>
           </div>
         </div>

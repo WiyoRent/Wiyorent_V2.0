@@ -1,5 +1,5 @@
 "use client"
-import { User, Camera, Zap, CheckCircle2, Lock, Ban } from 'lucide-react';
+import { User, Camera, Zap, CheckCircle2, Lock, Ban, Loader2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import VerificationStatusBanner from '@/components/public/profile/VerificationStatusBanner';
 import Image from 'next/image';
@@ -8,6 +8,7 @@ import 'react-phone-number-input/style.css'
 import Select from 'react-select'
 import countryList from 'react-select-country-list'
 import { useMemo } from 'react';
+import useCloudinaryUpload from '@/hooks/useCloudinaryUpload';
 
 const UNIVERSITIES = [
   { value: 'University of Rwanda (UR)',                              label: 'University of Rwanda (UR)' },
@@ -97,17 +98,18 @@ export default function BasicProfileSection({
 }) {
   const options = useMemo(() => countryList()?.getData(), [])
   const is_approved = verification_status === 'approved'
+  const { upload, uploading } = useCloudinaryUpload();
 
-  const uploadProfilePicture = (e) => {
+  const uploadProfilePicture = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error('Image exceeds 10MB limit. Please choose a smaller file.')
-      e.target.value = ''
-      return
+    const secure_url = await upload(file, 'wiyorent/users/{userId}/avatars');
+    if (secure_url) {
+      set_avatar_url(secure_url);
+    } else {
+      toast.error('Failed to upload profile picture. Please try again.');
     }
-    const previewUrl = URL.createObjectURL(file)
-    set_avatar_url({ file, previewUrl })
+    e.target.value = '';
   }
 
   const handle_nationality = (selectedOption) => {
@@ -139,7 +141,7 @@ export default function BasicProfileSection({
                   className="rounded-full object-cover"
                   alt="Your profile image"
                   fill
-                  src={typeof avatar_url === 'string' ? avatar_url : avatar_url?.previewUrl}
+                  src={avatar_url}
                 />
               ) : (
                 <User size={36} className="text-base-content/30" />
@@ -147,7 +149,7 @@ export default function BasicProfileSection({
             </div>
             {/* Camera overlay on hover */}
             <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              <Camera size={22} className="text-white" />
+              {uploading ? <Loader2 size={22} className="text-white animate-spin" /> : <Camera size={22} className="text-white" />}
             </div>
           </label>
           <p className="font-secondary text-[10px] text-base-content/50 text-center leading-tight font-bold">Max 10MB</p>

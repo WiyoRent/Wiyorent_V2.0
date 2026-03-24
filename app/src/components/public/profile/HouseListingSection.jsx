@@ -103,6 +103,7 @@ export default function HouseListingSection({
           <ImagesSection
             image_urls={listing_images}
             set_image_urls={set_listing_images}
+            upload_folder="wiyorent/users/{userId}/user_listings"
           />
 
           {/* ── Pricing ── */}

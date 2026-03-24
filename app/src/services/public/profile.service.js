@@ -24,11 +24,8 @@ export const getProfile = async () => {
             }
         })
 
+        if (!res.ok) throw new Error(`Request failed: ${res.status}`)
         const result = await res.json()
-
-        if (!res.ok) {
-            throw new Error(result.message || 'Failed to fetch profile. Try again later.')
-        }
 
         return result // { user, listing }
 

@@ -103,9 +103,7 @@ export default async function ProfileEditPage({searchParams}) {
     listing_housemate_gender: listing?.housemate_gender  ?? '',
     listing_amenities:        listing?.amenities         ?? [],
     listing_house_rules:      listing?.house_rules       ?? [],
-    listing_images:           (listing?.listing_images ?? [])
-                                .filter(Boolean)
-                                .map(url => ({ file: null, preview_url: url })),
+    listing_images:           (listing?.listing_images ?? []).filter(Boolean),
 
     // Practical — Settings & Privacy
     is_profile_public: user.is_profile_public,

@@ -1,5 +1,4 @@
 import { errorMsg, successMsg } from "../../utils/returnMsg.js"
-import { uploadToCloudinary } from "../../utils/uploadToCloudinary.js"
 import pool from "../../config/db.js"
 import { verifyHeaders } from "../../utils/verifyHeaders.js"
 import { throwError } from "../../utils/throwError.js"
@@ -18,7 +17,12 @@ export const getProfile = async (req, res) => {
         const userRes = await pool.query(
             `SELECT 
                 *, 
-                TO_CHAR(move_in_date, 'YYYY-MM-DD') AS move_in_date,
+                TO_CHAR(
+                    CASE 
+                        WHEN move_in_date <= CURRENT_DATE THEN CURRENT_DATE
+                        ELSE move_in_date
+                    END, 'YYYY-MM-DD'
+                ) AS move_in_date,
                 TO_CHAR(date_of_birth, 'YYYY-MM-DD'),
                 date_part('year', age(date_of_birth))::int AS age 
             FROM users WHERE id = $1
@@ -36,7 +40,11 @@ export const getProfile = async (req, res) => {
         const listingRes = await pool.query(`
             SELECT 
                 ul.*,
-                TO_CHAR(available_from, 'YYYY-MM-DD') as available_from,
+                TO_CHAR(
+                CASE 
+                    WHEN available_from <= CURRENT_DATE THEN CURRENT_DATE
+                    ELSE available_from
+                END, 'YYYY-MM-DD') as available_from,
                 ARRAY_AGG(uli.image_url) FILTER (WHERE uli.image_url IS NOT NULL) AS listing_images
             FROM user_listings ul
             LEFT JOIN user_listing_images uli 
@@ -73,7 +81,6 @@ export const updateProfile = async (req, res) => {
         }
 
         console.log(req.body, '-------req_body')
-        console.log(req.files, '-------req_files')
 
         const {
             full_name,
@@ -150,7 +157,7 @@ export const updateProfile = async (req, res) => {
             return errorMsg(res, 400, 'You must be at least 16 years old to complete onboarding')
         }
 
-        if(!req.body.avatar && !req.files.avatar){
+        if(!req.body.avatar){
             return errorMsg(res, 400, "Please enter a valid profile picture")
         }
 
@@ -235,52 +242,33 @@ export const updateProfile = async (req, res) => {
 
         const existingAvatar = user?.avatar_url
 
-        // ------ Handle document/avatar uploads ------
-        if (req.files?.avatar || req.files?.admission_letter || req.files?.passport_id) {
-            let avatar_url = req.body.avatar
-            let admission_letter_url = req.body.admission_letter
-            let passport_id_url = req.body.passport_id
+        // ------ Handle document/avatar updates (all are URL strings now) ------
+        const avatar_url = req.body.avatar
+        const admission_letter_url = req.body.admission_letter
+        const passport_id_url = req.body.passport_id
 
-            if (req.files.avatar) {
-                const upload = await uploadToCloudinary(req.files.avatar[0].buffer, `users/${userId}/profile`)
-                avatar_url = upload.secure_url
-            }
+        if (existingAvatar && existingAvatar !== avatar_url) {
+            const publicId = extractPublicId(existingAvatar)
+            await cloudinary.api.delete_resources([publicId])
+        }
 
-            if (req.files.admission_letter) {
-                const upload = await uploadToCloudinary(req.files.admission_letter[0].buffer, `users/${userId}/documents`)
-                admission_letter_url = upload.secure_url
-            }
+        const uploadResult = await pool.query(`
+            UPDATE users
+            SET avatar_url = $1, admission_letter = $2, passport_id = $3
+            WHERE id = $4
+        `, [avatar_url, admission_letter_url, passport_id_url, userId])
 
-            if (req.files.passport_id) {
-                const upload = await uploadToCloudinary(req.files.passport_id[0].buffer, `users/${userId}/documents`)
-                passport_id_url = upload.secure_url
-            }
-
-            if(existingAvatar !== avatar_url){
-                const publicId = extractPublicId(existingAvatar)
-                await cloudinary.api.delete_resources([publicId])
-            }
-
-            const uploadResult = await pool.query(`
-                UPDATE users
-                SET avatar_url = $1, admission_letter = $2, passport_id = $3
-                WHERE id = $4
-            `, [avatar_url, admission_letter_url, passport_id_url, userId])
-
-            if (uploadResult.rowCount == 0) {
-                return errorMsg(res, 404, "Couldn't update your documents")
-            }
+        if (uploadResult.rowCount == 0) {
+            return errorMsg(res, 404, "Couldn't update your documents")
         }
 
         // ------ Handle listing creation/update ------
         if (has_house === 'true') {
-            const alreadyExistingImages = req.body.listing_images_existing
+            const listingImages = req.body.listing_images_existing
                 ? Array.isArray(req.body.listing_images_existing)
                     ? req.body.listing_images_existing
                     : [req.body.listing_images_existing]
                 : []
-            const newUploads = req.files?.listing_images || []
-            const listingImages = [...alreadyExistingImages, ...newUploads]
 
             await create_user_listing(req.body, listingImages, userId)
         }
@@ -438,16 +426,7 @@ const create_user_listing = async (body, listing_images, userId) => {
 
         const userListingId = listingResult.rows[0].id
 
-        // ------ Upload new images to Cloudinary ------
-        const imageUrls = []
-        for (const image of listing_images) {
-            if (typeof image === 'string') {
-                imageUrls.push(image)
-            } else {
-                const upload = await uploadToCloudinary(image.buffer, `users/${userId}/user_listings`)
-                imageUrls.push(upload.secure_url)
-            }
-        }
+        const imageUrls = listing_images
 
         // ------ Sync images ------
         const existingRes = await pool.query(`

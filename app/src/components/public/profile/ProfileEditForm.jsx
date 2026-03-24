@@ -119,6 +119,10 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
     listing_housemate_gender: initial_data.listing_housemate_gender || '',
     listing_amenities: initial_data.listing_amenities || [],
     listing_house_rules: initial_data.listing_house_rules || [],
+    avatar_url: initial_data.avatar_url,
+    admission_letter: initial_data.admission_letter,
+    passport_id: initial_data.passport_id,
+    listing_images: initial_data.listing_images || [],
   }), []);
 
   const current_snapshot = {
@@ -164,6 +168,10 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
     listing_housemate_gender,
     listing_amenities,
     listing_house_rules,
+    avatar_url,
+    admission_letter,
+    passport_id,
+    listing_images,
   };
 
   const has_changes = JSON.stringify(current_snapshot) !== JSON.stringify(initial_snapshot);
@@ -232,7 +240,7 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
     formData.append('full_name', `${first_name} ${last_name}`.trim());
     formData.append('nationality', nationality);
     formData.append('university_name', university_name);
-    formData.append('avatar', typeof avatar_url === 'string' ? avatar_url : avatar_url?.file);
+    formData.append('avatar', avatar_url);
     formData.append('date_of_birth', date_of_birth);
     formData.append('gender', gender);
     formData.append('program', program);
@@ -275,12 +283,8 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
       formData.append('listing_housemate_gender', listing_housemate_gender);
       formData.append('listing_amenities', listing_amenities);
       formData.append('listing_house_rules', listing_house_rules);
-      listing_images.forEach(({ file, preview_url }) => {
-        if (file) {
-          formData.append('listing_images', file);
-        } else if (typeof preview_url === 'string') {
-          formData.append('listing_images_existing', preview_url);
-        }
+      listing_images.forEach(url => {
+        formData.append('listing_images_existing', url);
       });
     }
     const loadingToast = toast.loading('Updating Your Profile..');
