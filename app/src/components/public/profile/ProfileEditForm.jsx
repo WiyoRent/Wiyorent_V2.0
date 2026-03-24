@@ -301,7 +301,6 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
         return 
       }
 
-      window.location.reload()
       
     } catch (error) {
       console.error(error, '-error on profile frontend');
