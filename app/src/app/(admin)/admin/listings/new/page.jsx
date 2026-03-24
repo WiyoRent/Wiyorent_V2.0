@@ -11,9 +11,10 @@ import LandlordSection from '@/components/admin/create-listing/LandlordSection';
 import StatusSection from '@/components/admin/create-listing/StatusSection';
 import FormHeader from '@/components/admin/create-listing/FormHeader';
 import FormActions from '@/components/admin/create-listing/FormActions';
-import { createListing } from '@/services/admin/listings.service';
+import { createListing, setListingImages, deleteListing } from '@/services/admin/listings.service';
 import { toast } from 'react-toastify';
 import { checkPhoneNumber } from '@/validators/phone';
+import useCloudinaryUpload from '@/hooks/useCloudinaryUpload';
 
 // Default mockup 
 
@@ -54,6 +55,7 @@ const default_listing = {
 
 export default function CreateListingPage() {
   const [listing, set_listing] = useState(default_listing);
+  const { upload } = useCloudinaryUpload();
 
 
   const set_title = (val) => set_listing((prev) => ({ ...prev, title: val }));
@@ -85,8 +87,14 @@ export default function CreateListingPage() {
   
   const handle_submit = async (e) => {
     e.preventDefault();
-    console.log('Submitting listing:', listing);
-    
+
+    // ── 1. Validate files ────────────────────────────────────────────────────
+    const files = listing.image_urls
+    if (files.length < 4) {
+      return toast.error('Please upload at least four images')
+    }
+
+    // ── 2. Build formData (no images) ────────────────────────────────────────
     const formData = new FormData()
 
     formData.append('title', listing.title)
@@ -99,36 +107,23 @@ export default function CreateListingPage() {
     formData.append('amenities', listing.amenities)
     formData.append('house_rules', listing.house_rules)
 
-
-    for(const [key,value] of Object.entries(listing.financials)){
-      formData.append(key,value)
+    for (const [key, value] of Object.entries(listing.financials)) {
+      formData.append(key, value)
+    }
+    for (const [key, value] of Object.entries(listing.landlord)) {
+      formData.append(key, value)
+    }
+    for (const [key, value] of Object.entries(listing.location)) {
+      formData.append(key, value)
+    }
+    for (const [key, value] of Object.entries(listing.specifications)) {
+      formData.append(key, value)
     }
 
-    for(const [key,value] of Object.entries(listing.landlord)){
-      formData.append(key,value)
-    }
-
-    for(const [key,value] of Object.entries(listing.location)){
-      formData.append(key,value)
-    }
-
-    for(const [key,value] of Object.entries(listing.specifications)){
-      formData.append(key,value)
-    }
-
-    for(const img of listing.image_urls){
-      const {file, preview_url} = img
-        formData.append('images', file)
-    }
-
-    for(const [key,value] of formData.entries()){
-      if((key !== 'images' || key !== 'amenities' || key !== 'house_rules') && !value){
+    for (const [key, value] of formData.entries()) {
+      if (key !== 'amenities' && key !== 'house_rules' && !value) {
         return toast.error(`Please enter all fields you missed: ${key}`)
       }
-    }
-
-    if(formData.getAll('images').length < 4){
-      return toast.error('Please upload atleast four images')
     }
 
     try {
@@ -137,39 +132,45 @@ export default function CreateListingPage() {
       return toast.error(error.message);
     }
 
-    const loadingToast = toast.loading('Creating Listing...', {autoClose: false})
-    
+    const loadingToast = toast.loading('Creating listing...', { autoClose: false })
+    setIsLoading(true)
+
+    let listing_id
     try {
-      // Set loading to true to disable buttons
-      setIsLoading(true)
-
-      await createListing(formData)
-
-      toast.update(
-        loadingToast,{
-          render : 'Listing created successfully',
-          type : 'success',
-          isLoading : false,
-          autoClose : 3000
-        }
-      )
-
-      handle_reset()
-
+      // ── 3. Create DB row ─────────────────────────────────────────────────
+      listing_id = await createListing(formData)
     } catch (error) {
-      console.log(error)
-      toast.update(
-        loadingToast,{
-          render : error.message,
-          type : 'error',
-          isLoading : false,
-          autoClose : 3000
-        }
-      )
-    }finally{
+      console.error(error)
+      toast.update(loadingToast, { render: error.message, type: 'error', isLoading: false, autoClose: 3000 })
       setIsLoading(false)
+      return
     }
 
+    try {
+      // ── 4. Upload files to scoped folder ─────────────────────────────────
+      const image_urls = []
+      for (const file of files) {
+        const url = await upload(file, `wiyorent/listings/${listing_id}`)
+        if (!url) {
+          await deleteListing(listing_id)
+          toast.update(loadingToast, { render: 'Image upload failed. Please try again.', type: 'error', isLoading: false, autoClose: 3000 })
+          setIsLoading(false)
+          return
+        }
+        image_urls.push(url)
+      }
+
+      // ── 5. Set images on listing ──────────────────────────────────────────
+      await setListingImages(listing_id, image_urls)
+
+      toast.update(loadingToast, { render: 'Listing created successfully', type: 'success', isLoading: false, autoClose: 3000 })
+      handle_reset()
+    } catch (error) {
+      console.error(error)
+      toast.update(loadingToast, { render: error.message, type: 'error', isLoading: false, autoClose: 3000 })
+    } finally {
+      setIsLoading(false)
+    }
   };
 
   const handle_reset = () => {

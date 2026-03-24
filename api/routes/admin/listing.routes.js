@@ -1,14 +1,13 @@
-import { editListing, fetchAllListings, createListing, fetchSingleListing, deleteListing, toggleListingActive } from "../../controllers/admin/listings.controller.js";
+import { editListing, fetchAllListings, createListing, fetchSingleListing, deleteListing, toggleListingActive, setListingImages } from "../../controllers/admin/listings.controller.js";
 import express from 'express'
-import upload from "../../middleware/multer.js";
+import multer from 'multer'
 
 const listingRouter = express.Router()
+const parseForm = multer().none()
 
 listingRouter.post(
     '/createListing',
-    upload.fields([
-        {name: "images", maxCount:20}
-    ]),
+    parseForm,
     createListing
 )
 listingRouter.get(
@@ -23,13 +22,18 @@ listingRouter.get(
 
 listingRouter.patch(
     '/editListing/:id',
-    upload.array('images', 20),
+    parseForm,
     editListing
 )
 
 listingRouter.patch(
     '/toggleActive/:id',
     toggleListingActive
+)
+
+listingRouter.patch(
+    '/setListingImages/:id',
+    setListingImages
 )
 
 listingRouter.delete(

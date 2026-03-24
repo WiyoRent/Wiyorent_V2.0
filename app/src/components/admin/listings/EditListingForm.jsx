@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { editListing } from '@/services/admin/listings.service';
 import { toast } from 'react-toastify';
 import { checkPhoneNumber } from '@/validators/phone';
+import useCloudinaryUpload from '@/hooks/useCloudinaryUpload';
 
 export default function EditListingForm({ initial_data, listingId }) {
   // --- State Initialization ---
@@ -48,6 +49,7 @@ export default function EditListingForm({ initial_data, listingId }) {
   const [amenities, set_amenities] = useState(initial_data?.amenities ?? []);
   const [house_rules, set_house_rules] = useState(initial_data?.house_rules ?? []);
   const [is_saving, set_is_saving] = useState(false);
+  const { upload } = useCloudinaryUpload();
 
   // --- Handlers ---
   const handle_save = async () => {
@@ -57,9 +59,29 @@ export default function EditListingForm({ initial_data, listingId }) {
       toast.error(error.message);
       return;
     }
+
+    // ── 1. Separate existing URLs from new File objects ───────────────────────
+    const existingUrls = image_urls.filter(item => typeof item === 'string')
+    const newFiles = image_urls.filter(item => item instanceof File)
+
     set_is_saving(true);
-    const loadingToast = toast.loading('Editing Listing', { autoClose: false });
+    const loadingToast = toast.loading('Saving listing...', { autoClose: false });
     try {
+      // ── 2. Upload new files to scoped folder ──────────────────────────────
+      const uploadedUrls = []
+      for (const file of newFiles) {
+        const url = await upload(file, `wiyorent/listings/${listingId}`)
+        if (!url) {
+          toast.update(loadingToast, { isLoading: false, render: `Failed to upload ${file.name}. Please try again.`, type: 'error', autoClose: 3000 })
+          set_is_saving(false)
+          return
+        }
+        uploadedUrls.push(url)
+      }
+
+      // ── 3. Combine and submit ─────────────────────────────────────────────
+      const allUrls = [...existingUrls, ...uploadedUrls]
+
       const payload = {
         is_active,
         is_a_wiyorent_house,
@@ -71,7 +93,6 @@ export default function EditListingForm({ initial_data, listingId }) {
         financials: { price_per_month, commission_fee, caution_fee, upfront_months },
         specifications: { bedroom_number, bathroom_number, max_roommates, property_type, is_furnished },
         location: { neighborhood, city, country },
-        image_urls,
         amenities,
         house_rules,
       };
@@ -79,23 +100,17 @@ export default function EditListingForm({ initial_data, listingId }) {
       const formData = new FormData();
 
       for (const [key, value] of Object.entries(payload)) {
-        if (typeof value === 'object' && key !== 'amenities' && key !== 'house_rules' && key !== 'image_urls') {
+        if (typeof value === 'object' && key !== 'amenities' && key !== 'house_rules') {
           for (const [nestedKey, nestedValue] of Object.entries(value ?? {})) {
             formData.append(nestedKey, nestedValue);
           }
-        } else if (key !== 'image_urls') {
+        } else {
           formData.append(key, value);
         }
       }
 
-      for (const img of image_urls ?? []) {
-        typeof img === 'string'
-          ? formData.append('images', img)
-          : formData.append('images', img?.file);
-      }
-
-      for (const [key, value] of formData.entries()) {
-        console.log(key, value, '---formData');
+      for (const img of allUrls) {
+        formData.append('images', img);
       }
 
       const result = await editListing(listingId, formData);
@@ -107,14 +122,13 @@ export default function EditListingForm({ initial_data, listingId }) {
         isLoading: false,
       });
     } catch (error) {
-      console.log(error, 'error in catch');
+      console.error('Failed to save listing:', error);
       toast.update(loadingToast, {
         isLoading: false,
         render: error?.message,
         type: 'error',
         autoClose: 3000,
       });
-      console.error('Failed to save listing:', error);
     } finally {
       set_is_saving(false);
     }

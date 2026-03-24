@@ -1,15 +1,11 @@
 import { errorMsg, successMsg } from "../../utils/returnMsg.js"
-import { uploadToCloudinary } from "../../utils/uploadToCloudinary.js"
 import pool from "../../config/db.js"
 import { v2 as cloudinary } from "cloudinary"
-import {extractPublicId} from 'cloudinary-build-url'
 import { sendWaitlistAvailabilityEmail } from "../../utils/mail.js"
 
 export const createListing = async (req, res) => {
     try {
         const { title, is_active, is_verified, description, available_status, available_from, amenities, house_rules, price_per_month, commission_fee, caution_fee, upfront_months, is_a_wiyorent_house, full_name, phone_number, neighborhood, city, country, bedroom_number, bathroom_number, max_roommates, property_type, is_furnished } = req.body
-
-        const images = req.files.images
 
         const requiredFields = {
             title,
@@ -38,14 +34,9 @@ export const createListing = async (req, res) => {
             return errorMsg(res, 400, `Missing required fields: ${missingFields.join(', ')}`);
         }
 
-        if (images.length <= 0) {
-            return errorMsg(res, 400, 'Please add listing images')
-        }
-
         const amenities_array = amenities.split(',').map(item => item.trim())
         const house_rules_array = house_rules.split(',').map(item => item.trim())
 
-        //  Create listing first 
         const query = `
             INSERT INTO listings (
                 title, is_active, is_verified, description, available_status,
@@ -77,31 +68,48 @@ export const createListing = async (req, res) => {
 
         const listingId = listing[0].id
 
-        // Upload images using the real listing ID
-        const imageUrls = []
-        for (const image of images) {
-            const imageUpload = await uploadToCloudinary(image.buffer, `house_images/${listingId}`)
-            imageUrls.push(imageUpload.secure_url)
-        }
-
-        //  Update listing with thumbnail 
-        await pool.query(
-            `UPDATE listings SET thumbnail_url = $1 WHERE id = $2`,
-            [imageUrls[0], listingId]
-        )
-
-        //  Insert remaining images into gallery
-        for (const url of imageUrls.slice(1)) {
-            await pool.query(
-                `INSERT INTO listing_images (listing_id, image_url) VALUES ($1, $2)`,
-                [listingId, url]
-            )
-        }
-
-        return successMsg(res, 201, 'Listing successfully created')
+        return successMsg(res, 201, 'Listing successfully created', { listing_id: listingId })
 
     } catch (error) {
         console.error(error, '---ERROR')
+        return errorMsg(res, 500, 'A server error occurred')
+    }
+}
+
+export const setListingImages = async (req, res) => {
+    try {
+        const { id } = req.params
+        const images = req.body.images
+
+        if (!id) {
+            return errorMsg(res, 400, 'Listing ID is required')
+        }
+
+        if (!Array.isArray(images) || images.length === 0) {
+            return errorMsg(res, 400, 'Images array is required')
+        }
+
+        await pool.query(
+            `UPDATE listings SET thumbnail_url = $1 WHERE id = $2`,
+            [images[0], id]
+        )
+
+        await pool.query(
+            `DELETE FROM listing_images WHERE listing_id = $1`,
+            [id]
+        )
+
+        for (const url of images.slice(1)) {
+            await pool.query(
+                `INSERT INTO listing_images (listing_id, image_url) VALUES ($1, $2)`,
+                [id, url]
+            )
+        }
+
+        return successMsg(res, 200, 'Images set successfully')
+
+    } catch (error) {
+        console.error(error, '---setListingImages ERROR')
         return errorMsg(res, 500, 'A server error occurred')
     }
 }
@@ -224,34 +232,19 @@ export const editListing = async (req, res) => {
             return errorMsg(res, 400, `Missing required fields: ${missingFields.join(', ')}`);
         }
 
-        const uploadedImages = req.files || []
-
-        // Normalize and strip the first image (thumbnail) — frontend sends all
-        // image_urls including the thumbnail, but we only want the gallery ones
-        const rawExisting = req.body.images
+        // All images are URL strings — strip the first (thumbnail) for gallery
+        const rawImages = req.body.images
             ? (Array.isArray(req.body.images) ? req.body.images : [req.body.images])
             : []
 
-        const [thumbnail, ...existingGallery] = rawExisting
-        const allImages = [...existingGallery, ...uploadedImages]
+        const [thumbnail, ...galleryUrls] = rawImages
 
-        if (allImages.length < 3) {
+        if (galleryUrls.length < 3) {
             return errorMsg(res, 403, 'Please upload at least 4 images for this property')
         }
 
         const amenities_array = amenities.split(',').map(item => item.trim())
         const house_rules_array = house_rules.split(',').map(item => item.trim())
-
-        // Upload new files, keep existing URLs as-is
-        const galleryUrls = []
-        for (const image of allImages) {
-            if (typeof image === 'string') {
-                galleryUrls.push(image)
-            } else {
-                const upload = await uploadToCloudinary(image.buffer, `house_images/${id}`)
-                galleryUrls.push(upload.secure_url)
-            }
-        }
 
         // Fetch current status before update (needed for waitlist notification)
         const current = await pool.query(
@@ -497,22 +490,34 @@ export const toggleListingActive = async (req, res) => {
 }
 
 export const deleteListing = async (req,res) => {
-    const id = req.params.id
+    try {
+        const id = req.params.id
 
-    if(!id){
-        return errorMsg(res,404, "Couldn't find listing")
+        if(!id){
+            return errorMsg(res,404, "Couldn't find listing")
+        }
+
+        const result = await pool.query(`
+            DELETE FROM listings
+            WHERE
+                id = $1
+            RETURNING *
+        `, [id])
+
+        if(result.rowCount == 0){
+            return errorMsg(res, 404, "Couldn't find listing")
+        }
+
+        try {
+            await cloudinary.api.delete_resources_by_prefix(`wiyorent/listings/${id}`)
+            await cloudinary.api.delete_folder(`wiyorent/listings/${id}`)
+        } catch (cloudinaryError) {
+            console.error('Cloudinary cleanup failed (listing deleted from DB):', cloudinaryError.message)
+        }
+
+        return successMsg(res,200,"Item Successfully Deleted")
+    } catch (error) {
+        console.error(error, '---deleteListing error')
+        return errorMsg(res, 500, 'A server error occurred')
     }
-
-    const result = await pool.query(`
-        DELETE FROM listings
-        WHERE 
-            id = $1
-        RETURNING *
-    `, [id])
-
-    if(result.rowCount == 0){
-        return errorMsg(res, 404, "Couldn't find listing")
-    }
-
-    return successMsg(res,200,"Item Successfully Deleted")
 }
