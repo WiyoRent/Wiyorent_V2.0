@@ -15,18 +15,15 @@ export const reviewAction = async (endpoint, method, review) => {
 
         const res = await fetch(endpoint, {
             ...method,
-            headers: { 
+            headers: {
                 'Content-Type': 'application/json' ,
                 'X-INTERNAL-API-KEY' : process.env.INTERNAL_BACKEND_KEY,
                 'X-User-Id' : session?.user?.id
             },
             body: JSON.stringify(review),
         });
+        if (!res.ok) throw new Error(`Request failed: ${res.status}`)
         const result = await res.json();
-    
-        if (!res.ok) {
-            throw new Error(result.message || "Failed to perform review action");
-        }
 
         console.log('RESULT ON revuew ACTION:', result)
 
@@ -68,11 +65,8 @@ export const deleteReview = async (reviewId) => {
 
         })
         
+        if (!res.ok) throw new Error(`Request failed: ${res.status}`)
         const result = await res.json()
-
-        if(!res.ok){
-            throw new Error(result.message || 'An error occured on delete')
-        }
 
     } catch (error) {
         console.error('Error occured on delete review', error.message)

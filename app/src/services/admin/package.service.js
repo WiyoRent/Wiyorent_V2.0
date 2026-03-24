@@ -20,11 +20,8 @@ export const getPackages = async () => {
             },
         })
 
+        if (!res.ok) throw new Error(`Request failed: ${res.status}`)
         const result = await res.json()
-
-        if (!res.ok) {
-            throw new Error(result.message)
-        }
 
         return result.data
     } catch (error) {
@@ -53,11 +50,8 @@ export const createPackage = async (pkg) => {
             body: JSON.stringify(pkg),
         })
 
+        if (!res.ok) throw new Error(`Request failed: ${res.status}`)
         const result = await res.json()
-
-        if (!res.ok) {
-            throw new Error(result.message)
-        }
 
         return result.data
     } catch (error) {
@@ -86,11 +80,8 @@ export const updatePackage = async (id, pkg) => {
             body: JSON.stringify(pkg),
         })
 
+        if (!res.ok) throw new Error(`Request failed: ${res.status}`)
         const result = await res.json()
-
-        if (!res.ok) {
-            throw new Error(result.message)
-        }
 
         return result.data
     } catch (error) {

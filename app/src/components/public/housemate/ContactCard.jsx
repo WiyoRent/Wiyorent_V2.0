@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { ShieldCheck, Bookmark, Contact as ContactIcon } from 'lucide-react';
-import { contactHousemate } from '@/actions/public/contact_housemate.action.js.js';
+import { contactHousemate } from '@/actions/public/contact_housemate.action.js';
 import { toast } from 'react-toastify';
 import InformationModal from '../shared/InformationModal';
 import { toggleSaveHousemate } from '@/actions/public/favorites.action';

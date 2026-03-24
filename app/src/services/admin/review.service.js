@@ -19,11 +19,8 @@ export const getReviews = async (queryString = '') => {
                 'X-USER-ROLE' : session?.user?.role
             }
         })
+        if (!res.ok) throw new Error(`Request failed: ${res.status}`)
         const result = await res.json()
-
-        if(!res.ok){
-            throw new Error(result.message)
-        }
 
         if(!result.success){
             throw new Error(result.message)

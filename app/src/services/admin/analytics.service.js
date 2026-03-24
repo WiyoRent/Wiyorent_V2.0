@@ -12,6 +12,7 @@ export const getAdminAnalytics = async () => {
         'X-USER-ROLE': session?.user?.role,
       },
     })
+    if (!res.ok) throw new Error(`Analytics fetch failed: ${res.status}`)
     const result = await res.json()
     if (!result.success) throw new Error(result.message)
     return result.data

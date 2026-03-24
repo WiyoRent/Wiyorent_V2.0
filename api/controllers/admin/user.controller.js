@@ -267,7 +267,7 @@ export const deleteUser = async (req, res) => {
     try {
         const userId = req.params.id
 
-        const folderPath = `users/${userId}`
+        const folderPath = `wiyorent/users/${userId}`
 
         try {
             await cloudinary.api.delete_resources_by_prefix(folderPath)

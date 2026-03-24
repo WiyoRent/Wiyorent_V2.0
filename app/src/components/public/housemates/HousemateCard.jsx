@@ -6,7 +6,7 @@ import InformationModal from '../shared/InformationModal';
 import { useRouter } from 'next/navigation';
 import { Eye, Bookmark, Loader2 } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { contactHousemate } from '@/actions/public/contact_housemate.action.js.js';
+import { contactHousemate } from '@/actions/public/contact_housemate.action.js';
 import { toggleSaveHousemate } from '@/actions/public/favorites.action';
 import AvatarCircle from '@/components/public/housemates/AvatarCircle';
 import { formatRWF } from '@/lib/formatRWF';
