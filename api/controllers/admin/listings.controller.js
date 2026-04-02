@@ -1,6 +1,7 @@
 import { errorMsg, successMsg } from "../../utils/returnMsg.js"
 import pool from "../../config/db.js"
 import { v2 as cloudinary } from "cloudinary"
+import { extractPublicId } from 'cloudinary-build-url'
 import { sendWaitlistAvailabilityEmail } from "../../utils/mail.js"
 
 export const createListing = async (req, res) => {
@@ -294,7 +295,7 @@ export const editListing = async (req, res) => {
                 [id, urlToRemove]
             )
             const publicIds = urlToRemove.map(url => extractPublicId(url))
-            await cloudinary.uploader.destroy(publicIds)
+            await Promise.all(publicIds.map(id => cloudinary.uploader.destroy(id)))
         }
 
         for (const url of urlToAdd) {
