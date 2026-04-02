@@ -6,14 +6,25 @@ import LifestyleEditSection from './LifestyleEditSection';
 import PracticalInfoSection from './PracticalInfoSection';
 import AboutMeSection from './AboutMeSection';
 import HouseListingSection from './HouseListingSection';
-import { Save } from 'lucide-react';
+import { Save, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { checkPhoneNumber } from '@/validators/phone';
 import { editProfile } from '@/services/public/profile.service';
 import { useRouter } from 'next/navigation';
 
+const STEPS = [
+  { id: 1, label: 'Basic Info' },
+  { id: 2, label: 'About Me' },
+  { id: 3, label: 'Housing' },
+  { id: 4, label: 'House Listing' },
+  { id: 5, label: 'Verification' },
+];
+
 export default function ProfileEditForm({ initial_data, available_neighborhoods, redirect_to }) {
   const router = useRouter()
+
+  // ───────────────────────── Step ──────────────────────────────────
+  const [current_step, set_current_step] = useState(1);
 
   // ───────────────────────── Basic Profile ─────────────────────────
   const [is_profile_public, set_is_profile_public] = useState(initial_data.is_profile_public);
@@ -176,6 +187,67 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
 
   const has_changes = JSON.stringify(current_snapshot) !== JSON.stringify(initial_snapshot);
 
+  // ───────────────────────── Step Validation ───────────────────────
+  const validate_step = (step) => {
+    if (step === 1) {
+      if (!avatar_url) {
+        toast.error('A profile photo is required');
+        return false;
+      }
+      try {
+        checkPhoneNumber(phone_number);
+      } catch (error) {
+        toast.error(error.message);
+        return false;
+      }
+    }
+    if (step === 3) {
+      if (budget_min === 0 || budget_max === 0) {
+        toast.error('Please enter your minimum and maximum rent budget');
+        return false;
+      }
+    }
+    if (step === 4 && has_house) {
+      const houseFields = {
+        'Listing Price': listing_price,
+        'Caution Fee': listing_caution_fee,
+        'Bedrooms': listing_bedrooms,
+        'Bathrooms': listing_bathrooms,
+        'Available From': listing_available_from,
+        'Neighborhood': listing_neighborhood,
+        'Landlord Name': listing_landlord_name,
+        'Description': listing_description,
+        'Amenities': listing_amenities,
+        'House_rules': listing_house_rules,
+      };
+      const missingFields = Object.entries(houseFields)
+        .filter(([_, val]) => !val)
+        .map(([key]) => key);
+      if (missingFields.length > 0) {
+        toast.warn(`Please fill in the following house details: ${missingFields.join(', ')}`);
+        return false;
+      }
+      try {
+        checkPhoneNumber(listing_landlord_number, 'Please enter a valid landlord phone number');
+      } catch (error) {
+        toast.error(error.message);
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const handle_next = () => {
+    if (!validate_step(current_step)) return;
+    set_current_step(v => v + 1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handle_back = () => {
+    set_current_step(v => v - 1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // ───────────────────────── Save ──────────────────────────────────
   const [is_saving, set_is_saving] = useState(false);
 
@@ -234,7 +306,7 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
         return;
       }
     }
-    
+
     set_is_saving(true);
     const formData = new FormData();
     formData.append('full_name', `${first_name} ${last_name}`.trim());
@@ -298,10 +370,10 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
       });
       if (!initial_data.is_onboarded && redirect_to) {
         router.push(redirect_to);
-        return 
+        return
       }
 
-      
+
     } catch (error) {
       console.error(error, '-error on profile frontend');
       toast.update(loadingToast, {
@@ -315,132 +387,251 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
     }
   };
 
+  const is_last_step = current_step === STEPS.length;
+
   return (
     <form
       onSubmit={(e) => { e.preventDefault(); handle_save(); }}
       className="flex flex-col gap-6"
     >
-      <BasicProfileSection
-        first_name={first_name}
-        set_first_name={set_first_name}
-        last_name={last_name}
-        set_last_name={set_last_name}
-        avatar_url={avatar_url}
-        set_avatar_url={set_avatar_url}
-        date_of_birth={date_of_birth}
-        set_date_of_birth={set_date_of_birth}
-        gender={gender}
-        set_gender={set_gender}
-        phone_number={phone_number}
-        set_phone_number={set_phone_number}
-        university_name={university_name}
-        set_university_name={set_university_name}
-        program={program}
-        set_program={set_program}
-        year_of_study={year_of_study}
-        set_year_of_study={set_year_of_study}
-        nationality={nationality}
-        set_nationality={set_nationality}
-        urgency={urgency}
-        set_urgency={set_urgency}
-        verification_status={initial_data.verification_status}
-        is_onboarded={initial_data.is_onboarded}
-        admin_note={initial_data.admin_note}
-        is_blocked={initial_data.is_blocked}
-        is_blocked_reason={initial_data.is_blocked_reason}
-      />
-      <AboutMeSection about_me={about_me} set_about_me={set_about_me} />
-      <LifestyleEditSection
-        sleep_schedule={sleep_schedule}
-        set_sleep_schedule={set_sleep_schedule}
-        cleanliness={cleanliness}
-        set_cleanliness={set_cleanliness}
-        social_habits={social_habits}
-        set_social_habits={set_social_habits}
-        cultural_considerations={cultural_considerations}
-        set_cultural_considerations={set_cultural_considerations}
-      />
-      <HousingPreferencesEditSection
-        move_in_date={move_in_date}
-        set_move_in_date={set_move_in_date}
-        lease_duration={lease_duration}
-        set_lease_duration={set_lease_duration}
-        preferred_locations={preferred_locations}
-        set_preferred_locations={set_preferred_locations}
-        available_neighborhoods={available_neighborhoods}
-        budget_min={budget_min}
-        set_budget_min={set_budget_min}
-        budget_max={budget_max}
-        set_budget_max={set_budget_max}
-        max_housemates={max_housemates}
-        set_max_housemates={set_max_housemates}
-        is_smoker={is_smoker}
-        set_is_smoker={set_is_smoker}
-        dont_mind_smoker={dont_mind_smoker}
-        set_dont_mind_smoker={set_dont_mind_smoker}
-        has_pet={has_pet}
-        set_has_pet={set_has_pet}
-        dont_mind_pets={dont_mind_pets}
-        set_dont_mind_pets={set_dont_mind_pets}
-        private_room={private_room}
-        set_private_room={set_private_room}
-        furnished={furnished}
-        set_furnished={set_furnished}
-      />
-      <HouseListingSection
-        has_house={has_house}
-        set_has_house={set_has_house}
-        listing_images={listing_images}
-        set_listing_images={set_listing_images}
-        listing_price={listing_price}
-        set_listing_price={set_listing_price}
-        listing_caution_fee={listing_caution_fee}
-        set_listing_caution_fee={set_listing_caution_fee}
-        listing_bedrooms={listing_bedrooms}
-        set_listing_bedrooms={set_listing_bedrooms}
-        listing_bathrooms={listing_bathrooms}
-        set_listing_bathrooms={set_listing_bathrooms}
-        listing_is_furnished={listing_is_furnished}
-        set_listing_is_furnished={set_listing_is_furnished}
-        listing_landlord_name={listing_landlord_name}
-        set_listing_landlord_name={set_listing_landlord_name}
-        listing_landlord_number={listing_landlord_number}
-        set_listing_landlord_number={set_listing_landlord_number}
-        listing_description={listing_description}
-        set_listing_description={set_listing_description}
-        listing_neighborhood={listing_neighborhood}
-        set_listing_neighborhood={set_listing_neighborhood}
-        listing_city={listing_city}
-        set_listing_city={set_listing_city}
-        listing_available_from={listing_available_from}
-        set_listing_available_from={set_listing_available_from}
-        listing_housemate_gender={listing_housemate_gender}
-        set_listing_housemate_gender={set_listing_housemate_gender}
-        listing_amenities={listing_amenities}
-        set_listing_amenities={set_listing_amenities}
-        listing_house_rules={listing_house_rules}
-        set_listing_house_rules={set_listing_house_rules}
-      />
-      <PracticalInfoSection
-        preferred_method={preferred_method}
-        set_preferred_method={set_preferred_method}
-        is_profile_public={is_profile_public}
-        set_is_profile_public={set_is_profile_public}
-        passport_id={passport_id}
-        set_passport_id={set_passport_id}
-        admission_letter={admission_letter}
-        set_admission_letter={set_admission_letter}
-        verification_status={initial_data.verification_status}
-      />
-      <div className="flex flex-col sm:flex-row gap-3 pt-4">
-        <button
-          type="submit"
-          disabled={is_saving || !has_changes}
-          className="btn btn-accent flex-1 rounded-field font-primary font-extrabold text-sm uppercase tracking-wider gap-2"
-        >
-          <Save size={16} />
-          {is_saving ? 'Saving...' : 'Save Profile'}
-        </button>
+      {/* ── Step indicator ───────────────────────────────────────────── */}
+      <div className="bg-base-100 rounded-box shadow-sm px-6 py-5">
+        {/* Label row */}
+        <div className="flex items-center justify-between mb-4">
+          <span className="font-secondary text-xs font-semibold text-base-content/50 uppercase tracking-wide">
+            Step {current_step} of {STEPS.length}
+          </span>
+          <span className="font-primary text-xs font-extrabold text-accent uppercase tracking-widest">
+            {STEPS[current_step - 1].label}
+          </span>
+        </div>
+
+        {/* Step circles + connectors */}
+        <div className="flex items-center">
+          {STEPS.map((step, idx) => {
+            const is_complete = idx + 1 < current_step;
+            const is_active = idx + 1 === current_step;
+            return (
+              <div key={step.id} className="flex items-center flex-1 last:flex-none">
+                {/* Circle */}
+                <div className={`
+                  w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0
+                  font-primary text-xs font-extrabold transition-all duration-200
+                  ${is_active ? 'bg-accent text-accent-content ring-2 ring-accent ring-offset-2' : ''}
+                  ${is_complete ? 'bg-secondary text-secondary-content' : ''}
+                  ${!is_active && !is_complete ? 'bg-base-300 text-base-content/40' : ''}
+                `}>
+                  {is_complete ? (
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                      <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  ) : (
+                    step.id
+                  )}
+                </div>
+
+                {/* Connector line — not after last step */}
+                {idx < STEPS.length - 1 && (
+                  <div className={`
+                    flex-1 h-0.5 mx-1 transition-all duration-300
+                    ${idx + 1 < current_step ? 'bg-secondary' : 'bg-base-300'}
+                  `} />
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Step labels row — hidden on mobile, visible on sm+ */}
+        <div className="hidden sm:flex items-center mt-2">
+          {STEPS.map((step, idx) => {
+            const is_complete = idx + 1 < current_step;
+            const is_active = idx + 1 === current_step;
+            return (
+              <div key={step.id} className="flex items-center flex-1 last:flex-none">
+                <span className={`
+                  font-secondary text-[10px] font-semibold w-8 text-center
+                  ${is_active ? 'text-accent' : ''}
+                  ${is_complete ? 'text-secondary' : ''}
+                  ${!is_active && !is_complete ? 'text-base-content/30' : ''}
+                `}>
+                  {step.label}
+                </span>
+                {idx < STEPS.length - 1 && <div className="flex-1" />}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── Step content ─────────────────────────────────────────────── */}
+
+      {/* Step 1 — Basic Info */}
+      {current_step === 1 && (
+        <BasicProfileSection
+          first_name={first_name}
+          set_first_name={set_first_name}
+          last_name={last_name}
+          set_last_name={set_last_name}
+          avatar_url={avatar_url}
+          set_avatar_url={set_avatar_url}
+          date_of_birth={date_of_birth}
+          set_date_of_birth={set_date_of_birth}
+          gender={gender}
+          set_gender={set_gender}
+          phone_number={phone_number}
+          set_phone_number={set_phone_number}
+          university_name={university_name}
+          set_university_name={set_university_name}
+          program={program}
+          set_program={set_program}
+          year_of_study={year_of_study}
+          set_year_of_study={set_year_of_study}
+          nationality={nationality}
+          set_nationality={set_nationality}
+          urgency={urgency}
+          set_urgency={set_urgency}
+          verification_status={initial_data.verification_status}
+          is_onboarded={initial_data.is_onboarded}
+          admin_note={initial_data.admin_note}
+          is_blocked={initial_data.is_blocked}
+          is_blocked_reason={initial_data.is_blocked_reason}
+        />
+      )}
+
+      {/* Step 2 — About Me & Lifestyle */}
+      {current_step === 2 && (
+        <>
+          <AboutMeSection about_me={about_me} set_about_me={set_about_me} />
+          <LifestyleEditSection
+            sleep_schedule={sleep_schedule}
+            set_sleep_schedule={set_sleep_schedule}
+            cleanliness={cleanliness}
+            set_cleanliness={set_cleanliness}
+            social_habits={social_habits}
+            set_social_habits={set_social_habits}
+            cultural_considerations={cultural_considerations}
+            set_cultural_considerations={set_cultural_considerations}
+          />
+        </>
+      )}
+
+      {/* Step 3 — Housing Preferences */}
+      {current_step === 3 && (
+        <HousingPreferencesEditSection
+          move_in_date={move_in_date}
+          set_move_in_date={set_move_in_date}
+          lease_duration={lease_duration}
+          set_lease_duration={set_lease_duration}
+          preferred_locations={preferred_locations}
+          set_preferred_locations={set_preferred_locations}
+          available_neighborhoods={available_neighborhoods}
+          budget_min={budget_min}
+          set_budget_min={set_budget_min}
+          budget_max={budget_max}
+          set_budget_max={set_budget_max}
+          max_housemates={max_housemates}
+          set_max_housemates={set_max_housemates}
+          is_smoker={is_smoker}
+          set_is_smoker={set_is_smoker}
+          dont_mind_smoker={dont_mind_smoker}
+          set_dont_mind_smoker={set_dont_mind_smoker}
+          has_pet={has_pet}
+          set_has_pet={set_has_pet}
+          dont_mind_pets={dont_mind_pets}
+          set_dont_mind_pets={set_dont_mind_pets}
+          private_room={private_room}
+          set_private_room={set_private_room}
+          furnished={furnished}
+          set_furnished={set_furnished}
+        />
+      )}
+
+      {/* Step 4 — House Listing */}
+      {current_step === 4 && (
+        <HouseListingSection
+          has_house={has_house}
+          set_has_house={set_has_house}
+          listing_images={listing_images}
+          set_listing_images={set_listing_images}
+          listing_price={listing_price}
+          set_listing_price={set_listing_price}
+          listing_caution_fee={listing_caution_fee}
+          set_listing_caution_fee={set_listing_caution_fee}
+          listing_bedrooms={listing_bedrooms}
+          set_listing_bedrooms={set_listing_bedrooms}
+          listing_bathrooms={listing_bathrooms}
+          set_listing_bathrooms={set_listing_bathrooms}
+          listing_is_furnished={listing_is_furnished}
+          set_listing_is_furnished={set_listing_is_furnished}
+          listing_landlord_name={listing_landlord_name}
+          set_listing_landlord_name={set_listing_landlord_name}
+          listing_landlord_number={listing_landlord_number}
+          set_listing_landlord_number={set_listing_landlord_number}
+          listing_description={listing_description}
+          set_listing_description={set_listing_description}
+          listing_neighborhood={listing_neighborhood}
+          set_listing_neighborhood={set_listing_neighborhood}
+          listing_city={listing_city}
+          set_listing_city={set_listing_city}
+          listing_available_from={listing_available_from}
+          set_listing_available_from={set_listing_available_from}
+          listing_housemate_gender={listing_housemate_gender}
+          set_listing_housemate_gender={set_listing_housemate_gender}
+          listing_amenities={listing_amenities}
+          set_listing_amenities={set_listing_amenities}
+          listing_house_rules={listing_house_rules}
+          set_listing_house_rules={set_listing_house_rules}
+        />
+      )}
+
+      {/* Step 5 — Verification & Privacy */}
+      {current_step === 5 && (
+        <PracticalInfoSection
+          preferred_method={preferred_method}
+          set_preferred_method={set_preferred_method}
+          is_profile_public={is_profile_public}
+          set_is_profile_public={set_is_profile_public}
+          passport_id={passport_id}
+          set_passport_id={set_passport_id}
+          admission_letter={admission_letter}
+          set_admission_letter={set_admission_letter}
+          verification_status={initial_data.verification_status}
+        />
+      )}
+
+      {/* ── Navigation buttons ───────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row gap-3 pt-2">
+        {current_step > 1 && (
+          <button
+            type="button"
+            onClick={handle_back}
+            className="btn btn-outline rounded-field font-primary font-extrabold text-sm uppercase tracking-wider gap-2 sm:w-36"
+          >
+            <ChevronLeft size={16} />
+            Back
+          </button>
+        )}
+
+        {!is_last_step ? (
+          <button
+            type="button"
+            onClick={handle_next}
+            className="btn btn-accent flex-1 rounded-field font-primary font-extrabold text-sm uppercase tracking-wider gap-2"
+          >
+            Next
+            <ChevronRight size={16} />
+          </button>
+        ) : (
+          <button
+            type="submit"
+            disabled={is_saving || !has_changes}
+            className="btn btn-accent flex-1 rounded-field font-primary font-extrabold text-sm uppercase tracking-wider gap-2"
+          >
+            <Save size={16} />
+            {is_saving ? 'Saving...' : 'Save Profile'}
+          </button>
+        )}
       </div>
     </form>
   );
