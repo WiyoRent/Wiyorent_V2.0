@@ -11,12 +11,13 @@ import LandlordSection from '@/components/admin/create-listing/LandlordSection';
 import StatusSection from '@/components/admin/create-listing/StatusSection';
 import FormHeader from '@/components/admin/create-listing/FormHeader';
 import FormActions from '@/components/admin/create-listing/FormActions';
+import ListingFormStepper from '@/components/admin/shared/ListingFormStepper';
 import { createListing, setListingImages, deleteListing } from '@/services/admin/listings.service';
 import { toast } from 'react-toastify';
 import { checkPhoneNumber } from '@/validators/phone';
 import useCloudinaryUpload from '@/hooks/useCloudinaryUpload';
 
-// Default mockup 
+// Default mockup
 
 const default_listing = {
   title: '',
@@ -53,8 +54,16 @@ const default_listing = {
   image_urls: [], // on create: holds File objects; resolved to URLs after upload
 };
 
+const STEPS = [
+  { id: 1, label: 'Listing Info' },
+  { id: 2, label: 'Landlord' },
+  { id: 3, label: 'Financials & Specs' },
+  { id: 4, label: 'Media & Amenities' },
+];
+
 export default function CreateListingPage() {
   const [listing, set_listing] = useState(default_listing);
+  const [current_step, set_current_step] = useState(1);
   const { upload } = useCloudinaryUpload();
 
 
@@ -81,10 +90,10 @@ export default function CreateListingPage() {
       ...prev,
       image_urls: typeof val === 'function' ? val(prev.image_urls) : val,
     }));
-    
+
   const [isLoading, setIsLoading] = useState(false)
 
-  
+
   const handle_submit = async (e) => {
     e.preventDefault();
 
@@ -175,6 +184,7 @@ export default function CreateListingPage() {
 
   const handle_reset = () => {
     set_listing(default_listing);
+    set_current_step(1);
   };
 
   return (
@@ -182,72 +192,82 @@ export default function CreateListingPage() {
       <div className="max-w-4xl mx-auto">
         <FormHeader />
 
-        <form onSubmit={handle_submit} className="flex flex-col gap-6 mt-6">
-          {/* Status & Visibility */}
-          <StatusSection
-            is_active={listing.is_active}
-            set_is_active={set_is_active}
-            is_verified={listing.is_verified}
-            set_is_verified={set_is_verified}
-            is_a_wiyorent_house={listing.is_a_wiyorent_house}
-            set_is_a_wiyorent_house={set_is_a_wiyorent_house}
-            available_status={listing.available_status}
-            set_available_status={set_available_status}
-            available_from={listing.available_from}
-            set_available_from={set_available_from}
-          />
+        <form onSubmit={handle_submit} className="mt-6">
+          <ListingFormStepper
+            steps={STEPS}
+            current_step={current_step}
+            on_next={() => set_current_step(v => v + 1)}
+            on_back={() => set_current_step(v => v - 1)}
+            submit_node={<FormActions on_reset={handle_reset} isLoading={isLoading} />}
+          >
 
-          {/* Landlord */}
-          <LandlordSection
-            landlord={listing.landlord}
-            set_landlord={set_landlord}
-          />
+            {/* ── Step 1 — Listing Info ─────────────────────────────── */}
+            {current_step === 1 && (
+              <div className="flex flex-col gap-6">
+                <StatusSection
+                  is_active={listing.is_active}
+                  set_is_active={set_is_active}
+                  is_verified={listing.is_verified}
+                  set_is_verified={set_is_verified}
+                  is_a_wiyorent_house={listing.is_a_wiyorent_house}
+                  set_is_a_wiyorent_house={set_is_a_wiyorent_house}
+                  available_status={listing.available_status}
+                  set_available_status={set_available_status}
+                  available_from={listing.available_from}
+                  set_available_from={set_available_from}
+                />
+                <BasicInfoSection
+                  title={listing.title}
+                  set_title={set_title}
+                  description={listing.description}
+                  set_description={set_description}
+                />
+                <LocationSection
+                  location={listing.location}
+                  set_location={set_location}
+                />
+              </div>
+            )}
 
-          {/* Basic Info */}
-          <BasicInfoSection
-            title={listing.title}
-            set_title={set_title}
-            description={listing.description}
-            set_description={set_description}
-          />
+            {/* ── Step 2 — Landlord ─────────────────────────────────── */}
+            {current_step === 2 && (
+              <LandlordSection
+                landlord={listing.landlord}
+                set_landlord={set_landlord}
+              />
+            )}
 
-          {/* Location */}
-          <LocationSection
-            location={listing.location}
-            set_location={set_location}
-          />
+            {/* ── Step 3 — Financials & Specs ───────────────────────── */}
+            {current_step === 3 && (
+              <div className="flex flex-col gap-6">
+                <FinancialsSection
+                  financials={listing.financials}
+                  set_financials={set_financials}
+                />
+                <SpecificationsSection
+                  specifications={listing.specifications}
+                  set_specifications={set_specifications}
+                />
+              </div>
+            )}
 
-          {/* Financials */}
-          <FinancialsSection
-            financials={listing.financials}
-            set_financials={set_financials}
-          />
+            {/* ── Step 4 — Media & Amenities ────────────────────────── */}
+            {current_step === 4 && (
+              <div className="flex flex-col gap-6">
+                <AmenitiesRulesSection
+                  amenities={listing.amenities}
+                  set_amenities={set_amenities}
+                  house_rules={listing.house_rules}
+                  set_house_rules={set_house_rules}
+                />
+                <ImagesSection
+                  image_urls={listing.image_urls}
+                  set_image_urls={set_image_urls}
+                />
+              </div>
+            )}
 
-          {/* Specifications */}
-          <SpecificationsSection
-            specifications={listing.specifications}
-            set_specifications={set_specifications}
-          />
-
-          {/* Amenities & House Rules */}
-          <AmenitiesRulesSection
-            amenities={listing.amenities}
-            set_amenities={set_amenities}
-            house_rules={listing.house_rules}
-            set_house_rules={set_house_rules}
-          />
-
-          {/* Images */}
-          <ImagesSection
-            image_urls={listing.image_urls}
-            set_image_urls={set_image_urls}
-          />
-
-          {/* Actions */}
-          <FormActions  
-            on_reset={handle_reset}
-            isLoading = {isLoading}
-          />
+          </ListingFormStepper>
         </form>
       </div>
     </div>

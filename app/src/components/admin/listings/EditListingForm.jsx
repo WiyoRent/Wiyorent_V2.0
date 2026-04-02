@@ -6,12 +6,20 @@ import FinancialsSpecsSection from './FinancialsSpecsSection';
 import BasicInfoSection from './BasicInfoSection';
 import MediaManagerSection from './MediaManagerSection';
 import AmenitiesRulesSection from '@/components/shared/AmenitiesRulesSection';
+import ListingFormStepper from '@/components/admin/shared/ListingFormStepper';
 import { Save, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { editListing } from '@/services/admin/listings.service';
 import { toast } from 'react-toastify';
 import { checkPhoneNumber } from '@/validators/phone';
 import useCloudinaryUpload from '@/hooks/useCloudinaryUpload';
+
+const STEPS = [
+  { id: 1, label: 'Listing Info' },
+  { id: 2, label: 'Landlord' },
+  { id: 3, label: 'Financials & Specs' },
+  { id: 4, label: 'Media & Amenities' },
+];
 
 export default function EditListingForm({ initial_data, listingId }) {
   // --- State Initialization ---
@@ -50,6 +58,9 @@ export default function EditListingForm({ initial_data, listingId }) {
   const [house_rules, set_house_rules] = useState(initial_data?.house_rules ?? []);
   const [is_saving, set_is_saving] = useState(false);
   const { upload } = useCloudinaryUpload();
+
+  // --- Step state ---
+  const [current_step, set_current_step] = useState(1);
 
   // --- Handlers ---
   const handle_save = async () => {
@@ -134,101 +145,119 @@ export default function EditListingForm({ initial_data, listingId }) {
     }
   };
 
+  const save_button = (
+    <div className="flex flex-col sm:flex-row gap-3">
+      <Link
+        href="/admin/listings"
+        className="btn btn-outline flex-1 rounded-field font-primary font-bold text-sm uppercase tracking-wider gap-2 border-base-content/20 hover:border-primary"
+      >
+        <ArrowLeft size={16} />
+        Back to List
+      </Link>
+      <button
+        type="submit"
+        disabled={is_saving}
+        className="btn btn-accent flex-1 rounded-field font-primary font-extrabold text-sm uppercase tracking-wider gap-2"
+      >
+        <Save size={16} />
+        {is_saving ? 'Saving...' : 'Save Changes'}
+      </button>
+    </div>
+  );
+
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
         handle_save();
       }}
-      className="flex flex-col gap-6"
     >
-      {/* Status & Analytics Bar */}
-      <StatusAnalyticsBar
-        is_active={is_active}
-        set_is_active={set_is_active}
-        analytics={initial_data?.analytics}
-        is_verified={initial_data?.is_verified}
-        is_a_wiyorent_house={is_a_wiyorent_house}
-        set_is_a_wiyorent_house={set_is_a_wiyorent_house}
-      />
+      <ListingFormStepper
+        steps={STEPS}
+        current_step={current_step}
+        on_next={() => set_current_step(v => v + 1)}
+        on_back={() => set_current_step(v => v - 1)}
+        submit_node={save_button}
+      >
 
-      {/* Basic Info */}
-      <BasicInfoSection
-        title={title}
-        set_title={set_title}
-        description={description}
-        set_description={set_description}
-        neighborhood={neighborhood}
-        set_neighborhood={set_neighborhood}
-        city={city}
-        set_city={set_city}
-        country={country}
-        set_country={set_country}
-      />
+        {/* ── Step 1 — Listing Info ───────────────────────────────── */}
+        {current_step === 1 && (
+          <div className="flex flex-col gap-6">
+            <StatusAnalyticsBar
+              is_active={is_active}
+              set_is_active={set_is_active}
+              analytics={initial_data?.analytics}
+              is_verified={initial_data?.is_verified}
+              is_a_wiyorent_house={is_a_wiyorent_house}
+              set_is_a_wiyorent_house={set_is_a_wiyorent_house}
+            />
+            <BasicInfoSection
+              title={title}
+              set_title={set_title}
+              description={description}
+              set_description={set_description}
+              neighborhood={neighborhood}
+              set_neighborhood={set_neighborhood}
+              city={city}
+              set_city={set_city}
+              country={country}
+              set_country={set_country}
+            />
+          </div>
+        )}
 
-      {/* Landlord & Availability */}
-      <LandlordAvailabilitySection
-        landlord_name={landlord_name}
-        set_landlord_name={set_landlord_name}
-        landlord_phone={landlord_phone}
-        set_landlord_phone={set_landlord_phone}
-        available_status={available_status}
-        set_available_status={set_available_status}
-        available_from={available_from}
-        set_available_from={set_available_from}
-      />
+        {/* ── Step 2 — Landlord ──────────────────────────────────── */}
+        {current_step === 2 && (
+          <LandlordAvailabilitySection
+            landlord_name={landlord_name}
+            set_landlord_name={set_landlord_name}
+            landlord_phone={landlord_phone}
+            set_landlord_phone={set_landlord_phone}
+            available_status={available_status}
+            set_available_status={set_available_status}
+            available_from={available_from}
+            set_available_from={set_available_from}
+          />
+        )}
 
-      {/* Financials & Specs */}
-      <FinancialsSpecsSection
-        price_per_month={price_per_month}
-        set_price_per_month={set_price_per_month}
-        commission_fee={commission_fee}
-        set_commission_fee={set_commission_fee}
-        caution_fee={caution_fee}
-        set_caution_fee={set_caution_fee}
-        upfront_months={upfront_months}
-        set_upfront_months={set_upfront_months}
-        bedroom_number={bedroom_number}
-        set_bedroom_number={set_bedroom_number}
-        bathroom_number={bathroom_number}
-        set_bathroom_number={set_bathroom_number}
-        max_roommates={max_roommates}
-        set_max_roommates={set_max_roommates}
-        property_type={property_type}
-        set_property_type={set_property_type}
-        is_furnished={is_furnished}
-        set_is_furnished={set_is_furnished}
-      />
+        {/* ── Step 3 — Financials & Specs ────────────────────────── */}
+        {current_step === 3 && (
+          <FinancialsSpecsSection
+            price_per_month={price_per_month}
+            set_price_per_month={set_price_per_month}
+            commission_fee={commission_fee}
+            set_commission_fee={set_commission_fee}
+            caution_fee={caution_fee}
+            set_caution_fee={set_caution_fee}
+            upfront_months={upfront_months}
+            set_upfront_months={set_upfront_months}
+            bedroom_number={bedroom_number}
+            set_bedroom_number={set_bedroom_number}
+            bathroom_number={bathroom_number}
+            set_bathroom_number={set_bathroom_number}
+            max_roommates={max_roommates}
+            set_max_roommates={set_max_roommates}
+            property_type={property_type}
+            set_property_type={set_property_type}
+            is_furnished={is_furnished}
+            set_is_furnished={set_is_furnished}
+          />
+        )}
 
-      {/* Media Manager */}
-      <MediaManagerSection image_urls={image_urls} set_image_urls={set_image_urls} />
+        {/* ── Step 4 — Media & Amenities ─────────────────────────── */}
+        {current_step === 4 && (
+          <div className="flex flex-col gap-6">
+            <MediaManagerSection image_urls={image_urls} set_image_urls={set_image_urls} />
+            <AmenitiesRulesSection
+              amenities={amenities}
+              set_amenities={set_amenities}
+              house_rules={house_rules}
+              set_house_rules={set_house_rules}
+            />
+          </div>
+        )}
 
-      {/* Amenities & Rules */}
-      <AmenitiesRulesSection
-        amenities={amenities}
-        set_amenities={set_amenities}
-        house_rules={house_rules}
-        set_house_rules={set_house_rules}
-      />
-
-      {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-3 pt-4">
-        <Link
-          href="/admin/listings"
-          className="btn btn-outline flex-1 rounded-field font-primary font-bold text-sm uppercase tracking-wider gap-2 border-base-content/20 hover:border-primary"
-        >
-          <ArrowLeft size={16} />
-          Back to List
-        </Link>
-        <button
-          type="submit"
-          disabled={is_saving}
-          className="btn btn-accent flex-1 rounded-field font-primary font-extrabold text-sm uppercase tracking-wider gap-2"
-        >
-          <Save size={16} />
-          {is_saving ? 'Saving...' : 'Save Changes'}
-        </button>
-      </div>
+      </ListingFormStepper>
     </form>
   );
 }
