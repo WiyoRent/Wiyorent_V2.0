@@ -398,7 +398,7 @@ export default function FilterSidebar({ filter_options }) {
       )}
 
       {/* ── Desktop sidebar ─────────────────────────────────────────────────── */}
-      <div className="hidden lg:block sticky top-6 max-h-[calc(100vh-3rem)] overflow-y-auto sidebar-scroll">
+      <div className="hidden lg:block max-h-[calc(100vh-3rem)] overflow-y-auto sidebar-scroll">
         <div className="bg-base-100 rounded-2xl shadow-md p-6 border-t-4 border-accent overflow-visible">
           {sidebar_header}
           {filter_groups}

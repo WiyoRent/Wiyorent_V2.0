@@ -43,7 +43,7 @@ const JSON_LD = {
 export default function HomePage() {
   return (
     <AOSProvider>
-      <main className="bg-primary">
+      <main className="bg-primary overflow-x-hidden">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
