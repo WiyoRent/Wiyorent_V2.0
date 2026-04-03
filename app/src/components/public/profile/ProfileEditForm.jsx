@@ -601,14 +601,14 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
       )}
 
       {/* ── Navigation buttons ───────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row gap-3 pt-2">
+      <div className="flex flex-row gap-3 pt-2">
         {current_step > 1 && (
           <button
             type="button"
             onClick={handle_back}
-            className="btn btn-outline rounded-field font-primary font-extrabold text-sm uppercase tracking-wider gap-2 sm:w-36"
+            className="btn btn-sm sm:btn-md btn-outline rounded-field font-primary font-extrabold text-xs sm:text-sm uppercase tracking-wider gap-1.5 sm:w-36"
           >
-            <ChevronLeft size={16} />
+            <ChevronLeft size={14} />
             Back
           </button>
         )}
@@ -617,18 +617,18 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
           <button
             type="button"
             onClick={handle_next}
-            className="btn btn-accent flex-1 rounded-field font-primary font-extrabold text-sm uppercase tracking-wider gap-2"
+            className="btn btn-sm sm:btn-md btn-accent rounded-field font-primary font-extrabold text-xs sm:text-sm uppercase tracking-wider gap-1.5 sm:w-36"
           >
             Next
-            <ChevronRight size={16} />
+            <ChevronRight size={14} />
           </button>
         ) : (
           <button
             type="submit"
             disabled={is_saving || !has_changes}
-            className="btn btn-accent flex-1 rounded-field font-primary font-extrabold text-sm uppercase tracking-wider gap-2"
+            className="btn btn-sm sm:btn-md btn-accent flex-1 rounded-field font-primary font-extrabold text-xs sm:text-sm uppercase tracking-wider gap-1.5"
           >
-            <Save size={16} />
+            <Save size={14} />
             {is_saving ? 'Saving...' : 'Save Profile'}
           </button>
         )}

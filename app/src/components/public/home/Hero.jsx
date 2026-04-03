@@ -40,7 +40,7 @@ export default function Hero() {
   return (
     <section
       aria-label="WiyoRent — Student Housing, Roommate Matching and Settling-In Services in Kigali, Rwanda"
-      className="relative h-[83vh] mx-6 lg:mx-16 mt-6 rounded-2xl overflow-hidden"
+      className="relative h-[78vh] sm:h-[83vh] mx-3 sm:mx-6 lg:mx-16 mt-6 rounded-2xl overflow-hidden"
     >
       {/* ── Crossfading slides ───────────────────── */}
       {HERO_SLIDES.map((slide, index) => (
@@ -59,7 +59,7 @@ export default function Hero() {
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
 
       {/* ── Content ──────────────────────────────── */}
-      <div className="relative z-10 h-full flex flex-col justify-center px-8 lg:px-16 max-w-4xl">
+      <div className="relative z-10 h-full flex flex-col justify-center px-5 sm:px-8 lg:px-16 max-w-4xl">
 
         {/* Eyebrow */}
         <div className="inline-flex items-center gap-2 mb-6 self-start">
@@ -69,16 +69,16 @@ export default function Hero() {
           </span>
         </div>
 
-        <h1 className="font-primary text-5xl lg:text-7xl font-bold text-white mb-5 leading-[1.05] uppercase">
+        <h1 className="font-primary text-[1.85rem] sm:text-5xl lg:text-7xl font-bold text-white mb-4 sm:mb-5 leading-[1.05] uppercase">
           Find Student<br />
           Housing <span className="text-accent">&</span><br />
           Housemates.
         </h1>
 
-        <p className="font-secondary text-base lg:text-lg text-white/80 mb-2 max-w-xl leading-relaxed">
+        <p className="font-secondary text-sm sm:text-base lg:text-lg text-white/80 mb-2 max-w-xl leading-relaxed">
           Verified apartments and rooms in Kigali — no visiting fees, no hidden charges.
         </p>
-        <p className="font-secondary text-sm text-white/50 mb-8 max-w-lg">
+        <p className="font-secondary text-xs sm:text-sm text-white/50 mb-5 sm:mb-8 max-w-lg">
           Compatible housemates from your university. Airport pickup, SIM card, bank setup and more.
         </p>
 
@@ -103,7 +103,7 @@ export default function Hero() {
       </div>
 
       {/* ── Caption ──────────────────────────────── */}
-      <div className="absolute bottom-12 left-8 lg:left-16 z-10">
+      <div className="absolute bottom-10 sm:bottom-12 left-5 sm:left-8 lg:left-16 z-10">
         <p
           key={currentIndex}
           className="font-secondary text-xs text-white/45 tracking-widest uppercase"
@@ -130,7 +130,7 @@ export default function Hero() {
       </div>
 
       {/* ── Slide count ──────────────────────────── */}
-      <div className="absolute bottom-5 right-8 lg:right-16 z-10">
+      <div className="absolute bottom-5 right-5 sm:right-8 lg:right-16 z-10">
         <span className="font-primary text-xs text-white/30 tabular-nums">
           {String(currentIndex + 1).padStart(2, "0")} / {String(HERO_SLIDES.length).padStart(2, "0")}
         </span>
