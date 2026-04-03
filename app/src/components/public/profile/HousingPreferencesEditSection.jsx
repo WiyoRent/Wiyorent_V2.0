@@ -43,8 +43,6 @@ export default function HousingPreferencesEditSection({
 
 
 
-  console.log(move_in_date, '--------')
-
   // After render, measure whether the pill container overflows a single row
   useLayoutEffect(() => {
     const el = pills_ref.current;
@@ -65,8 +63,6 @@ export default function HousingPreferencesEditSection({
       set_preferred_locations(prev => [...prev, loc]);
     }
   };
-
-  console.log(lease_duration, '----lease duration')
 
   return (
     <div className="bg-base-100 rounded-box shadow-sm p-6">

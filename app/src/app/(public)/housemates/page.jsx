@@ -145,7 +145,6 @@ export default async function  HousematesPage({searchParams}) {
     locations: filter_meta?.locations ?? [],
   }
 
-  console.log(housemate_profiles, 'housemate profile fetched frontend')
 
   return (
     <div className="min-h-screen bg-base-200">
