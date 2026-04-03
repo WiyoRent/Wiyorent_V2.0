@@ -47,8 +47,8 @@ export const trackListingView = async (req, res) => {
         return successMsg(res, 200, 'View tracked', null)
 
     } catch (error) {
-        console.error(error, 'error tracking listing view')
-        return errorMsg(res, 500, 'Could not track view')
+        console.error('Error occurred on trackListingView:', error)
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
 }
 
@@ -97,7 +97,7 @@ export const trackHousemateView = async (req, res) => {
         return successMsg(res, 200, 'View tracked', null)
 
     } catch (error) {
-        console.error(error, 'error tracking housemate view')
-        return errorMsg(res, 500, 'Could not track view')
+        console.error('Error occurred on trackHousemateView:', error)
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
 }

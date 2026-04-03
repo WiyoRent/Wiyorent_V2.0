@@ -8,7 +8,7 @@ export const getSaved = async (endpoint) => {
     try {
         const session = await auth()
         const userId = session?.user?.id || null
-        
+
         const response = await fetch(endpoint, {
             headers : {
                 'X-User-Id' : userId,
@@ -17,21 +17,34 @@ export const getSaved = async (endpoint) => {
             cache : 'no-store'
         })
 
+        if (!response.ok) {
+            let message = 'An error occurred. Try again later.'
+            try {
+                const err = await response.json()
+                message = err.message || message
+            } catch (parseErr) {
+                console.error('[getSaved] failed to parse error response as JSON:', parseErr)
+            }
+            throw new Error(message)
+        }
+
         const result = await response.json() || []
 
         return result.data
     } catch (error) {
-        console.error(error)
+        console.error('[getSaved] caught error:', error)
+        throw error
     }
-    
+
 }
 
 export const getSavedListings = async () => {
     try {
         const url = getBaseURL() + 'api/v1/public/fetchSavedListings'
-        return await getSaved(url)    
+        return await getSaved(url)
     } catch (error) {
-        console.error(error.message || 'An error occured on get saved listings')
+        console.error('[getSavedListings] caught error:', error)
+        throw error
     }
 
 }
@@ -42,7 +55,8 @@ export const getWaitlistedListings = async () => {
         const url = getBaseURL() + 'api/v1/public/fetchWaitlistedListings'
         return await getSaved(url)
     } catch (error) {
-        console.error(error.message || 'An error occurred on get waitlisted listings')
+        console.error('[getWaitlistedListings] caught error:', error)
+        throw error
     }
 }
 
@@ -51,7 +65,8 @@ export const getSavedHousemates = async () => {
         const url = getBaseURL() + 'api/v1/public/fetchSavedHousemates'
         return await getSaved(url)
     } catch (error) {
-        console.error(error.message || 'An error occured on get saved housemates')
+        console.error('[getSavedHousemates] caught error:', error)
+        throw error
     }
-    
+
 }

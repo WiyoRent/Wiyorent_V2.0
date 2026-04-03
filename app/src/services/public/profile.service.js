@@ -24,14 +24,24 @@ export const getProfile = async () => {
             }
         })
 
-        if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+        if (!res.ok) {
+            let message = 'An error occurred. Try again later.'
+            try {
+                const err = await res.json()
+                message = err.message || message
+            } catch (parseErr) {
+                console.error('[getProfile] failed to parse error response as JSON:', parseErr)
+            }
+            throw new Error(message)
+        }
+
         const result = await res.json()
 
         return result // { user, listing }
 
     } catch (error) {
-        console.error(error, 'Error on getProfile service')
-        throw new Error(error.message || 'An internal server error occurred on getProfile')
+        console.error('[getProfile] caught error:', error)
+        throw error
     }
 }
 
@@ -40,8 +50,8 @@ export const editProfile = async (formData) => {
     try {
         const session = await auth()
 
-        if(!session){
-            throw new Error('Unauthentificated Action. Login and retry')
+        if (!session) {
+            throw new Error('Unauthenticated Action. Login and retry')
         }
 
 
@@ -67,7 +77,7 @@ export const editProfile = async (formData) => {
                 console.log('[editProfile] error body:', err)
                 message = err.message || message
             } catch (parseErr) {
-                console.error('[editProfile] failed to parse error response as JSON:', parseErr.message)
+                console.error('[editProfile] failed to parse error response as JSON:', parseErr)
             }
             throw new Error(message)
         }
@@ -79,7 +89,6 @@ export const editProfile = async (formData) => {
         return result
     } catch (error) {
         console.error('[editProfile] caught error:', error)
-
-        throw new Error(error.message || 'An internal server error occured on editProfile')
+        throw error
     }
 }

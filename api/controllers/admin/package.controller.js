@@ -22,8 +22,8 @@ export const getPackages = async (req, res) => {
 
         return successMsg(res, 200, '', packages)
     } catch (error) {
-        console.error(error.message)
-        return errorMsg(res, error.status || 500, error.message || 'An internal server error occured')
+        console.error('Error occurred on getPackages:', error)
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
 }
 
@@ -56,8 +56,8 @@ export const createPackage = async (req, res) => {
 
         return successMsg(res, 200, 'Package created', new_package)
     } catch (error) {
-        console.error(error.message)
-        return errorMsg(res, error.status || 500, error.message || 'An internal server error occured')
+        console.error('Error occurred on createPackage:', error)
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
 }
 
@@ -101,8 +101,8 @@ export const updatePackage = async (req, res) => {
 
         return successMsg(res, 200, 'Package updated', updated_package)
     } catch (error) {
-        console.error(error.message)
-        return errorMsg(res, error.status || 500, error.message || 'An internal server error occured')
+        console.error('Error occurred on updatePackage:', error)
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
 }
 
@@ -124,7 +124,7 @@ export const deletePackage = async (req, res) => {
 
         return successMsg(res, 200, 'Package deleted', [])
     } catch (error) {
-        console.error(error.message)
-        return errorMsg(res, error.status || 500, error.message || 'An internal server error occured')
+        console.error('Error occurred on deletePackage:', error)
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
 }

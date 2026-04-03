@@ -378,7 +378,7 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
       console.error(error, '-error on profile frontend');
       toast.update(loadingToast, {
         type: 'error',
-        render: error.message || 'An internal server error occurred',
+        render: error.message || 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.',
         autoClose: 4000,
         isLoading: false,
       });

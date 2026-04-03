@@ -4,29 +4,10 @@ import { verifyHeaders } from "../../utils/verifyHeaders.js";
 
 
 export const fetchHousemates = async (req, res) => {
-    //  {
-    //     profile_id: 'hm_7721',
-    //     full_name: 'Keza A.',
-    //     nationality: 'Rwandan',
-    //     university_name: 'University of Rwanda',
-    //     bio_short: 'Loves football and clean spaces. Studying computer science and looking for a focused, chill roommate.',
-    //     budget: { min: 100000, max: 150000 },
-    //     preferred_locations: ['Kicukiro', 'Remera'],
-    //     avatar_url: null,
-    //     gender: 'female',
-    //     is_verified: true,
-    //   }
-    const { clientKey, userId } = verifyHeaders(req)
-    if (!clientKey || clientKey !== process.env.INTERNAL_BACKEND_KEY) {
-        console.error('No client')
-        return errorMsg(res, 403, 'Unauthorized access')
-    }
-    if (!userId) {
-        return errorMsg(res, 401, 'Unauthentificated access. Login required')
-    }
     const { allow_pets, max, min, cleanliness, gender, has_a_house, smoker, max_housemates, move_in_date, preferred_locations, sleep_schedule, social_habit, university, dont_mind_pets, dont_mind_smoker, has_pet, private_room, urgency } = req.query
     console.log(req.query, '---fetchhousemate query')
     try {
+        const { userId } = verifyHeaders(req)
         let query = `
             SELECT
                 u.id as profile_id,
@@ -193,8 +174,11 @@ export const fetchHousemates = async (req, res) => {
         console.log(housemates, '--housemates from fetchHousemates')
         return successMsg(res, 200, housemates.length === 0 ? 'No housemates found' : '', { housemates, filter_meta })
     } catch (error) {
-        console.error(error, 'error on fetch housemates')
-        return errorMsg(res, 500, 'A server error occured, Could not fetch housemates')
+        console.error('Error occurred on fetchHousemates:', error)
+        if (error.status && error.status < 500) {
+            return errorMsg(res, error.status, error.message)
+        }
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
 }
 
@@ -246,9 +230,12 @@ export const fetchHousemate = async (req,res) => {
 
         return successMsg(res,200,"Housemate fetched successfully", housemate)
         
-    } catch (error) { 
-        console.error(error, 'error on fetch housemate')
-        return errorMsg(res, error.status || 500, error.message)
+    } catch (error) {
+        console.error('Error occurred on fetchHousemate:', error)
+        if (error.status && error.status < 500) {
+            return errorMsg(res, error.status, error.message)
+        }
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
 }
 
@@ -281,8 +268,11 @@ export const fetchHousemateContactDetail = async (req,res) => {
 
         return successMsg(res, 200, 'Contact Details fetched successfully', contactDetails)
     } catch (error) {
-        console.error(error,'Error on fetch housemate contact details')
-        errorMsg(res, error.status || 500, error.message || 'An error occured')
+        console.error('Error occurred on fetchHousemateContactDetail:', error)
+        if (error.status && error.status < 500) {
+            return errorMsg(res, error.status, error.message)
+        }
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
     
 
@@ -317,8 +307,11 @@ export const saveHousemate = async (req,res) => {
 
         return successMsg(res, 200, 'Listing succesffuly saved', [])
     } catch (error) {
-        console.error(error)
-        return errorMsg(res, error.status || 500, error.message || 'Internal Server error')
+        console.error('Error occurred on saveHousemate:', error)
+        if (error.status && error.status < 500) {
+            return errorMsg(res, error.status, error.message)
+        }
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
     
 }
@@ -379,6 +372,7 @@ export const fetchSavedHousemates = async (req,res) => {
         return successMsg(res,200,'',saved_housemates)
         
     } catch (error) {
-        console.error(error, 'error on favourite listing page listings')
+        console.error('Error occurred on fetchSavedHousemates:', error)
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
 }

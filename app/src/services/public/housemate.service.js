@@ -1,9 +1,11 @@
+"use server"
+
 import { auth } from "@/auth"
 import { getBaseURL } from "@/lib/getBaseURL"
 
 
 
-export const fetchHousemates = async (query) => { 
+export const fetchHousemates = async (query) => {
 
     const session = await auth()
     const userId = session?.user?.id || null
@@ -16,7 +18,18 @@ export const fetchHousemates = async (query) => {
                 'X-INTERNAL-API-KEY' : process.env.INTERNAL_BACKEND_KEY,
                 'X-User-Id' : userId
             }
-        }) 
+        })
+
+        if (!response.ok) {
+            let message = 'An error occurred. Try again later.'
+            try {
+                const err = await response.json()
+                message = err.message || message
+            } catch (parseErr) {
+                console.error('[fetchHousemates] failed to parse error response as JSON:', parseErr)
+            }
+            throw new Error(message)
+        }
 
         const result = await response.json()
 
@@ -27,8 +40,8 @@ export const fetchHousemates = async (query) => {
             filter_meta: result.data?.filter_meta ?? null
         }
     } catch (error) {
-        console.error("Proxy Fetch Housemates Error", error)
-        return { housemates: [], filter_meta: null }
+        console.error('[fetchHousemates] caught error:', error)
+        throw error
     }
 }
 
@@ -48,7 +61,14 @@ export const fetchHousemateDetail = async (housemateId) => {
         });
 
         if (!response.ok) {
-            throw new Error("An error occurred on fetch housemate details");
+            let message = 'An error occurred. Try again later.'
+            try {
+                const err = await response.json()
+                message = err.message || message
+            } catch (parseErr) {
+                console.error('[fetchHousemateDetail] failed to parse error response as JSON:', parseErr)
+            }
+            throw new Error(message)
         }
 
         const result = await response.json();
@@ -71,7 +91,7 @@ export const fetchHousemateDetail = async (housemateId) => {
             about_me: rawData.about_me,
             preferred_method : rawData.preferred_method,
             urgency : rawData.urgency,
-            
+
             basic_profile: {
                 gender: rawData.gender,
                 age: rawData.age,
@@ -81,9 +101,9 @@ export const fetchHousemateDetail = async (housemateId) => {
 
             housing_preferences: {
                 move_in_date: rawData.move_in_date?.split('T')[0], // Extracting date YYYY-MM-DD
-                budget: { 
-                    min: rawData.min, 
-                    max: rawData.max 
+                budget: {
+                    min: rawData.min,
+                    max: rawData.max
                 },
                 max_housemates: rawData.max_housemates,
                 preferred_locations: rawData.preferred_locations || [],
@@ -98,7 +118,7 @@ export const fetchHousemateDetail = async (housemateId) => {
                 social_habits: rawData.social_habits,
             },
 
-            saved : rawData.saved, 
+            saved : rawData.saved,
 
             user_listing_data : rawData.price ? {
                 price: rawData?.price,
@@ -122,7 +142,7 @@ export const fetchHousemateDetail = async (housemateId) => {
         return mappedData;
 
     } catch (error) {
-        console.error("Proxy Fetch Error:", error);
-        return null; 
+        console.error('[fetchHousemateDetail] caught error:', error)
+        throw error
     }
 }

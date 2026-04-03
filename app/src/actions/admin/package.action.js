@@ -21,13 +21,18 @@ export const deletePackage = async (id) => {
             },
         })
 
-        const result = await res.json()
-
         if (!res.ok) {
-            throw new Error(result.message)
+            let message = 'An error occurred. Try again later.'
+            try {
+                const err = await res.json()
+                message = err.message || message
+            } catch (parseErr) {
+                console.error('[deletePackage] failed to parse error response as JSON:', parseErr)
+            }
+            throw new Error(message)
         }
     } catch (error) {
-        console.error(error.message)
-        throw new Error(error.message || 'An internal server error occured while deleting package')
+        console.error('[deletePackage] caught error:', error)
+        throw error
     }
 }

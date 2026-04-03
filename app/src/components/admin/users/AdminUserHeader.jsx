@@ -189,7 +189,7 @@ export default function AdminUserHeader({
       });
     } catch (error) {
       toast.update(loading_toast, {
-        render: error.message || 'An internal server error occurred',
+        render: error.message || 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.',
         isLoading: false,
         type: 'error',
         autoClose: 4000,

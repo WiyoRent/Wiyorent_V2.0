@@ -18,18 +18,25 @@ export async function contactHousemate (profile_id){
             }
         })
 
-        if(!response.ok){
-            throw new Error("An error occured when fetching user contact")
+        if (!response.ok) {
+            let message = 'An error occurred. Try again later.'
+            try {
+                const err = await response.json()
+                message = err.message || message
+            } catch (parseErr) {
+                console.error('[contactHousemate] failed to parse error response as JSON:', parseErr)
+            }
+            throw new Error(message)
         }
 
         const result = await response.json()
         const housemate = result.data[0]
 
-        if(!result){
+        if (!result) {
             return null
         }
 
-        if(housemate?.preferred_method == 'email'){
+        if (housemate?.preferred_method == 'email') {
 
             const senderName = session?.user?.full_name || "A student";
             const subject = encodeURIComponent(`New Housemate Inquiry - Wiyorent (${senderName})`);
@@ -52,21 +59,21 @@ export async function contactHousemate (profile_id){
                 preferred_contact_method : housemate.preferred_method
             };
         }
-        
+
         const senderName = session?.user?.full_name || "A student";
         // Including "Wiyorent" so they know it's about the house-hunting app
         const message = encodeURIComponent(
             `Hi! I'm ${senderName}. 🏠 I saw your profile on the Wiyorent website and I'm interested in being your housemate! Are you still looking?`
         );
 
-        const cleanNumber = housemate?.phone_number?.replace(/\D/g, '');        
+        const cleanNumber = housemate?.phone_number?.replace(/\D/g, '');
         return {
             url : `https://wa.me/${cleanNumber}?text=${message}`,
             preferred_contact_method : housemate.preferred_method
         };
     } catch (error) {
-        console.error(error)
-        return null
+        console.error('[contactHousemate] caught error:', error)
+        throw error
     }
-    
+
 }

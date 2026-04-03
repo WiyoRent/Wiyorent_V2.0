@@ -76,8 +76,8 @@ export const getUserReviews = async (req, res) => {
         return successMsg(res, 200, '', { reviews })
 
     } catch (error) {
-        console.error(error.message)
-        return errorMsg(res, 500, error.message || 'An internal server error occurred')
+        console.error('Error occurred on getUserReviews:', error)
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
 }
 
@@ -105,10 +105,10 @@ export const approveUserReview = async (req,res) => {
 
         return successMsg(res,200,'User review approved', [])
     } catch (error) {
-        console.error(error.message )
-        return errorMsg(res, 500 || error.status, error.message || "An internal server error occured")
+        console.error('Error occurred on approveUserReview:', error)
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
-    
+
 }
 
 export const rejectUserReview = async (req,res) => {
@@ -139,10 +139,10 @@ export const rejectUserReview = async (req,res) => {
 
         return successMsg(res,200,'User review rejected', [])
     } catch (error) {
-        console.error(error.message )
-        return errorMsg(res, 500 || error.status, error.message || "An internal server error occured")
+        console.error('Error occurred on rejectUserReview:', error)
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
-    
+
 }
 
 export const deleteUserReview = async (req, res) => {
@@ -155,7 +155,7 @@ export const deleteUserReview = async (req, res) => {
         if (result.rowCount === 0) return errorMsg(res, 404, "Review not found")
         return successMsg(res, 200, 'Review deleted successfully', [])
     } catch (error) {
-        console.error(error.message)
-        return errorMsg(res, 500, error.message || "An internal server error occurred")
+        console.error('Error occurred on deleteUserReview:', error)
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
 }

@@ -106,8 +106,8 @@ export const fetchUsers = async (req, res) => {
         return successMsg(res, 200, '', { users, filter_meta })
 
     } catch (error) {
-        console.error(error, 'error on fetch users')
-        return errorMsg(res, 500, 'A server error occurred, Could not fetch users')
+        console.error('Error occurred on fetchUsers:', error)
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
 }
 
@@ -214,7 +214,8 @@ export const fetchSingleUser = async (req,res) => {
         return successMsg(res, 200, '', user_account_detail)
 
     } catch (error) {
-        console.error(error, '---An error occured on fetch user')
+        console.error('Error occurred on fetchSingleUser:', error)
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
 }
 
@@ -258,8 +259,8 @@ export const updatedUser = async (req, res) => {
 
         return successMsg(res, 200, 'User successfully updated');
     } catch (error) {
-        console.error(error);
-        return errorMsg(res, 500, error.message || 'An internal server error occurred');
+        console.error('Error occurred on updatedUser:', error)
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
 };
 
@@ -290,7 +291,7 @@ export const deleteUser = async (req, res) => {
 
         return successMsg(res, 200, 'User Deleted Successfully')
     } catch (error) {
-        console.error('error on delete user', error)
-        return errorMsg(res, error.http_code || error.status || 500, error.message || "Internal Server Error")
+        console.error('Error occurred on deleteUser:', error)
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
 }

@@ -280,7 +280,8 @@ export const fetchSingleListing = async (req,res) => {
         return res.status(200).json({data:listingDetail})
 
     } catch (error) {
-        console.error(error)
+        console.error('Error occurred on fetchSingleListing:', error)
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
 
 }
@@ -313,8 +314,8 @@ export const saveListing = async (req,res) => {
 
         return successMsg(res,200)
     } catch (error) {
-        console.error(error)
-        return errorMsg(res,500,"Internal DB Error")
+        console.error('Error occurred on saveListing:', error)
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
     
 }
@@ -343,8 +344,8 @@ export const toggleWaitlist = async (req, res) => {
         console.log(userId, listingId, isOnWaitlist, '---toggleWaitlist')
         return successMsg(res, 200, 'Waitlist updated', [])
     } catch (error) {
-        console.error(error.message)
-        return errorMsg(res, 500, 'Internal DB Error')
+        console.error('Error occurred on toggleWaitlist:', error)
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
 }
 
@@ -415,7 +416,8 @@ export const fetchSavedListings = async (req,res) => {
         
         
     } catch (error) {
-        console.error(error, 'error on favourite listing page listings')
+        console.error('Error occurred on fetchSavedListings:', error)
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
 
 }
@@ -466,8 +468,8 @@ export const fetchWaitlistedListings = async (req, res) => {
         console.log(listings, '---waitlistedListings')
         return successMsg(res, 200, '', listings)
     } catch (error) {
-        console.error(error.message)
-        return errorMsg(res, 500, 'Internal DB Error')
+        console.error('Error occurred on fetchWaitlistedListings:', error)
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
 }
 

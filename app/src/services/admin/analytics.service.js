@@ -12,12 +12,21 @@ export const getAdminAnalytics = async () => {
         'X-USER-ROLE': session?.user?.role,
       },
     })
-    if (!res.ok) throw new Error(`Analytics fetch failed: ${res.status}`)
+    if (!res.ok) {
+      let message = 'An error occurred. Try again later.'
+      try {
+        const err = await res.json()
+        message = err.message || message
+      } catch (parseErr) {
+        console.error('[getAdminAnalytics] failed to parse error response as JSON:', parseErr)
+      }
+      throw new Error(message)
+    }
     const result = await res.json()
     if (!result.success) throw new Error(result.message)
     return result.data
   } catch (error) {
-    console.error(error.message)
-    return {}
+    console.error('[getAdminAnalytics] caught error:', error)
+    throw error
   }
 }

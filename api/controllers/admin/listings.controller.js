@@ -72,8 +72,8 @@ export const createListing = async (req, res) => {
         return successMsg(res, 201, 'Listing successfully created', { listing_id: listingId })
 
     } catch (error) {
-        console.error(error, '---ERROR')
-        return errorMsg(res, 500, 'A server error occurred')
+        console.error('Error occurred on createListing:', error)
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
 }
 
@@ -110,8 +110,8 @@ export const setListingImages = async (req, res) => {
         return successMsg(res, 200, 'Images set successfully')
 
     } catch (error) {
-        console.error(error, '---setListingImages ERROR')
-        return errorMsg(res, 500, 'A server error occurred')
+        console.error('Error occurred on setListingImages:', error)
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
 }
 
@@ -122,6 +122,7 @@ export const fetchSingleListing = async (req,res) => {
         return errorMsg(res, 404, "Listing Not Found. Couldn't get product ID")
     }
 
+    try {
     const result = await pool.query(`
         SELECT 
             l.*,
@@ -194,6 +195,10 @@ export const fetchSingleListing = async (req,res) => {
 
 
     return successMsg(res, 200, 'Listing Fetched Successfully', listing)
+    } catch (error) {
+        console.error('Error occurred on fetchSingleListing:', error)
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
+    }
 }
 
 export const editListing = async (req, res) => {
@@ -328,8 +333,8 @@ export const editListing = async (req, res) => {
         return successMsg(res, 200, 'Listing updated successfully')
 
     } catch (error) {
-        console.error(error, '---ERROR---')
-        return errorMsg(res, 500, error.message || 'Sorry an unexpected server error occurred')
+        console.error('Error occurred on editListing:', error)
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
 }
 
@@ -455,8 +460,8 @@ export const fetchAllListings = async (req, res) => {
         return successMsg(res, 200, '', { listings, filter_meta })
 
     } catch (error) {
-        console.error(error, '---fetchAllListings error')
-        return errorMsg(res, 500, 'Could not fetch listings')
+        console.error('Error occurred on fetchAllListings:', error)
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
 }
 
@@ -485,8 +490,8 @@ export const toggleListingActive = async (req, res) => {
         return successMsg(res, 200, 'Listing visibility updated successfully', result.rows[0])
 
     } catch (error) {
-        console.error(error, '---toggleListingActive error')
-        return errorMsg(res, 500, 'A server error occurred')
+        console.error('Error occurred on toggleListingActive:', error)
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
 }
 
@@ -495,7 +500,7 @@ export const deleteListing = async (req,res) => {
         const id = req.params.id
 
         if(!id){
-            return errorMsg(res,404, "Couldn't find listing")
+            return errorMsg(res,400, "Couldn't find listing")
         }
 
         const result = await pool.query(`
@@ -518,7 +523,7 @@ export const deleteListing = async (req,res) => {
 
         return successMsg(res,200,"Item Successfully Deleted")
     } catch (error) {
-        console.error(error, '---deleteListing error')
-        return errorMsg(res, 500, 'A server error occurred')
+        console.error('Error occurred on deleteListing:', error)
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
 }

@@ -62,8 +62,11 @@ export const getProfile = async (req, res) => {
         })
 
     } catch (error) {
-        console.error(error)
-        return errorMsg(res, error.status || 500, error.message || 'An error occurred fetching profile')
+        console.error('Error occurred on getProfile:', error)
+        if (error.status && error.status < 500) {
+            return errorMsg(res, error.status, error.message)
+        }
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
 }
 
@@ -295,8 +298,11 @@ export const updateProfile = async (req, res) => {
         return successMsg(res, 200, 'Your profile has been successfully updated.')
 
     } catch (error) {
-        console.error(error)
-        return errorMsg(res, error.status || 500, error.message || 'An error occurred on profile update')
+        console.error('Error occurred on updateProfile:', error)
+        if (error.status && error.status < 500) {
+            return errorMsg(res, error.status, error.message)
+        }
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
 }
 

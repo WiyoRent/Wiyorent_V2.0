@@ -39,10 +39,12 @@ export const createReview = async (req,res) => {
 
 
     } catch (error) {
-        console.error('error on creat review: ',error)
-        return errorMsg(res, error.status || 500, error.message || "An internal server error occured")
-
-    } 
+        console.error('Error occurred on createReview:', error)
+        if (error.status && error.status < 500) {
+            return errorMsg(res, error.status, error.message)
+        }
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
+    }
 
 
 }
@@ -83,13 +85,15 @@ export const editReview = async (req,res) => {
 
 
     } catch (error) {
-        console.error('error on update listing review: ',error)
-        return errorMsg(res, error.status || 500, error.message || "An internal server error occured")
+        console.error('Error occurred on editReview:', error)
+        if (error.status && error.status < 500) {
+            return errorMsg(res, error.status, error.message)
+        }
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
 }
 
 export const deleteReview = async (req,res) => {
-    const {userId} = verifyHeaders(req)
     const reviewId = req.params.id
 
     if(!reviewId){
@@ -97,6 +101,8 @@ export const deleteReview = async (req,res) => {
     }
 
     try {
+        const {userId} = verifyHeaders(req)
+
         const result = await pool.query(`
             DELETE FROM listing_reviews lr
             WHERE lr.id = $1 AND lr.user_id = $2
@@ -111,7 +117,10 @@ export const deleteReview = async (req,res) => {
         return successMsg(res, 200, "Review deleted successfully", result.rows[0]);
 
     } catch (error) {
-        console.error('Error on delete review')
-        return errorMsg(res,error.status || 500, error.message || 'Internal server error occured on delete action')
+        console.error('Error occurred on deleteReview:', error)
+        if (error.status && error.status < 500) {
+            return errorMsg(res, error.status, error.message)
+        }
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
 }

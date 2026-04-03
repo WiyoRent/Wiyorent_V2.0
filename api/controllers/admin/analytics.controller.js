@@ -128,7 +128,7 @@ export const fetchAnalytics = async (req, res) => {
         return successMsg(res, 200, '', analytics)
 
     } catch (error) {
-        console.error(error, 'error on fetch analytics')
-        return errorMsg(res, 500, 'A server error occurred, could not fetch analytics')
+        console.error('Error occurred on fetchAnalytics:', error)
+        return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
     }
 }

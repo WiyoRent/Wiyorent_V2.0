@@ -12,13 +12,22 @@ export const getAdminListings = async (queryString = '') => {
         'X-USER-ROLE': session?.user?.role,
       },
     })
-    if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+    if (!res.ok) {
+      let message = 'An error occurred. Try again later.'
+      try {
+        const err = await res.json()
+        message = err.message || message
+      } catch (parseErr) {
+        console.error('[getAdminListings] failed to parse error response as JSON:', parseErr)
+      }
+      throw new Error(message)
+    }
     const result = await res.json()
     if (!result.success) throw new Error(result.message)
     return result.data
   } catch (error) {
-    console.error(error.message)
-    return { listings: [], filter_meta: null }
+    console.error('[getAdminListings] caught error:', error)
+    throw error
   }
 }
 
@@ -55,7 +64,7 @@ export const createListing = async (formData) => {
                 console.log('[createListing] error body:', err)
                 message = err.message || message
             } catch (parseErr) {
-                console.error('[createListing] failed to parse error response as JSON:', parseErr.message)
+                console.error('[createListing] failed to parse error response as JSON:', parseErr)
             }
             throw new Error(message)
         }
@@ -65,7 +74,7 @@ export const createListing = async (formData) => {
         return result.data.listing_id
     } catch (error) {
         console.error('[createListing] caught error:', error)
-        throw new Error(error.message || 'An internal server error occured while creating listing')
+        throw error
     }
 }
 
@@ -94,14 +103,16 @@ export const setListingImages = async (listing_id, image_urls) => {
             try {
                 const err = await res.json()
                 message = err.message || message
-            } catch (_) {}
+            } catch (parseErr) {
+                console.error('[setListingImages] failed to parse error response as JSON:', parseErr)
+            }
             throw new Error(message)
         }
 
         return await res.json()
     } catch (error) {
         console.error('[setListingImages] caught error:', error)
-        throw new Error(error.message || 'An internal server error occured while setting listing images')
+        throw error
     }
 }
 
@@ -128,14 +139,16 @@ export const deleteListing = async (listing_id) => {
             try {
                 const err = await res.json()
                 message = err.message || message
-            } catch (_) {}
+            } catch (parseErr) {
+                console.error('[deleteListing] failed to parse error response as JSON:', parseErr)
+            }
             throw new Error(message)
         }
 
         return await res.json()
     } catch (error) {
         console.error('[deleteListing] caught error:', error)
-        throw new Error(error.message || 'An internal server error occured while deleting listing')
+        throw error
     }
 }
 
@@ -159,13 +172,23 @@ export const toggleListingActive = async (listing_id, is_active) => {
             body: JSON.stringify({ is_active }),
         })
 
-        if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+        if (!res.ok) {
+            let message = 'An error occurred. Try again later.'
+            try {
+                const err = await res.json()
+                message = err.message || message
+            } catch (parseErr) {
+                console.error('[toggleListingActive] failed to parse error response as JSON:', parseErr)
+            }
+            throw new Error(message)
+        }
+
         const result = await res.json()
 
         return result
     } catch (error) {
-        console.error(error.message)
-        throw new Error(error.message || 'An internal server error occured while updating listing visibility')
+        console.error('[toggleListingActive] caught error:', error)
+        throw error
     }
 }
 
@@ -199,7 +222,7 @@ export const editListing = async (listing_id, formData) => {
                 console.log('[editListing] error body:', err)
                 message = err.message || message
             } catch (parseErr) {
-                console.error('[editListing] failed to parse error response as JSON:', parseErr.message)
+                console.error('[editListing] failed to parse error response as JSON:', parseErr)
             }
             throw new Error(message)
         }
@@ -209,6 +232,6 @@ export const editListing = async (listing_id, formData) => {
         return result
     } catch (error) {
         console.error('[editListing] caught error:', error)
-        throw new Error(error.message || 'An internal server error occured while editing listing')
+        throw error
     }
 }

@@ -20,13 +20,23 @@ export const getPackages = async () => {
             },
         })
 
-        if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+        if (!res.ok) {
+            let message = 'An error occurred. Try again later.'
+            try {
+                const err = await res.json()
+                message = err.message || message
+            } catch (parseErr) {
+                console.error('[getPackages] failed to parse error response as JSON:', parseErr)
+            }
+            throw new Error(message)
+        }
+
         const result = await res.json()
 
         return result.data
     } catch (error) {
-        console.error(error.message)
-        throw new Error(error.message || 'An internal server error occured while fetching packages')
+        console.error('[getPackages] caught error:', error)
+        throw error
     }
 }
 
@@ -50,13 +60,23 @@ export const createPackage = async (pkg) => {
             body: JSON.stringify(pkg),
         })
 
-        if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+        if (!res.ok) {
+            let message = 'An error occurred. Try again later.'
+            try {
+                const err = await res.json()
+                message = err.message || message
+            } catch (parseErr) {
+                console.error('[createPackage] failed to parse error response as JSON:', parseErr)
+            }
+            throw new Error(message)
+        }
+
         const result = await res.json()
 
         return result.data
     } catch (error) {
-        console.error(error.message)
-        throw new Error(error.message || 'An internal server error occured while creating package')
+        console.error('[createPackage] caught error:', error)
+        throw error
     }
 }
 
@@ -80,12 +100,22 @@ export const updatePackage = async (id, pkg) => {
             body: JSON.stringify(pkg),
         })
 
-        if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+        if (!res.ok) {
+            let message = 'An error occurred. Try again later.'
+            try {
+                const err = await res.json()
+                message = err.message || message
+            } catch (parseErr) {
+                console.error('[updatePackage] failed to parse error response as JSON:', parseErr)
+            }
+            throw new Error(message)
+        }
+
         const result = await res.json()
 
         return result.data
     } catch (error) {
-        console.error(error.message)
-        throw new Error(error.message || 'An internal server error occured while updating package')
+        console.error('[updatePackage] caught error:', error)
+        throw error
     }
 }

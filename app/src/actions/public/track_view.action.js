@@ -11,7 +11,7 @@ export const trackView = async (listingId) => {
 
     let sessionId = cookieStore.get('sessionId')?.value
 
-    if(!sessionId){
+    if (!sessionId) {
         sessionId = uuidv4()
         cookieStore.set('sessionId', sessionId, {
             maxAge : 60 * 60 * 24 * 365
@@ -34,8 +34,20 @@ export const trackView = async (listingId) => {
                 sessionId : sessionId || null
             })
         })
+
+        if (!res.ok) {
+            let message = 'An error occurred. Try again later.'
+            try {
+                const err = await res.json()
+                message = err.message || message
+            } catch (parseErr) {
+                console.error('[trackView] failed to parse error response as JSON:', parseErr)
+            }
+            throw new Error(message)
+        }
     } catch (error) {
-        console.error(error)
+        console.error('[trackView] caught error:', error)
+        throw error
     }
 }
 
@@ -56,7 +68,7 @@ export const trackHousemateView = async (housemateId) => {
 
     try {
         const endpoint = getBaseURL() + `api/v1/public/housemates/${housemateId}/view`
-        await fetch(endpoint, {
+        const res = await fetch(endpoint, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -68,7 +80,19 @@ export const trackHousemateView = async (housemateId) => {
                 sessionId: sessionId || null
             })
         })
+
+        if (!res.ok) {
+            let message = 'An error occurred. Try again later.'
+            try {
+                const err = await res.json()
+                message = err.message || message
+            } catch (parseErr) {
+                console.error('[trackHousemateView] failed to parse error response as JSON:', parseErr)
+            }
+            throw new Error(message)
+        }
     } catch (error) {
-        console.error(error)
+        console.error('[trackHousemateView] caught error:', error)
+        throw error
     }
 }

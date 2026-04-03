@@ -28,7 +28,7 @@ const fetchSingleListing = async (id) => {
 
   } catch (error) {
     console.error(error.message)
-    throw new Error(error.message || 'An internal server error occurred while fetching listing')
+    throw new Error(error.message || 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com. while fetching listing')
   }
 }
 

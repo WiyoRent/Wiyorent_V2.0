@@ -19,25 +19,24 @@ export const getListingsProxy = async (query) => {
             headers : {
                 'X-INTERNAL-API-KEY' : process.env.INTERNAL_BACKEND_KEY,
                 'X-User-Id' : user
-            } 
+            }
         })
 
         if (!response.ok) {
-            console.error("Backend Error:", response.statusText);
-            return { listings: [], filter_meta: null };
+            let message = 'An error occurred. Try again later.'
+            try {
+                const err = await response.json()
+                message = err.message || message
+            } catch (parseErr) {
+                console.error('[getListingsProxy] failed to parse error response as JSON:', parseErr)
+            }
+            throw new Error(message)
         }
 
         const result = await response.json()
         return { listings: result.data.listings ?? [], filter_meta: result.data.filter_meta ?? null }
     } catch (error) {
-        console.error("Proxy Fetch Error:", error);
-        return { listings: [], filter_meta: null };
+        console.error('[getListingsProxy] caught error:', error)
+        throw error
     }
-} 
-
-
-
-
-
-
-
+}
