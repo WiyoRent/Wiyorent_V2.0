@@ -9,7 +9,8 @@ import PricingRow from '@/components/public/listing/PricingRow';
 import { toggleWaitlistListing } from '@/actions/public/favorites.action';
 import { formatRWF } from '@/lib/formatRWF';
 
-const WHATSAPP_URL = 'https://wa.me/250794089835';
+const WHATSAPP_NUMBER = '250794089835';
+const LISTING_BASE_URL = 'https://wiyorent.com/listings';
 
 export default function PricingSidebar({ financials, total_first_payment, listing_id, is_a_wiyorent_house = false, available_status, is_on_waitlist = false }) {
   const { price_per_month, commission_fee, caution_fee, upfront_months = 1 } = financials;
@@ -19,12 +20,16 @@ export default function PricingSidebar({ financials, total_first_payment, listin
   const session = useSession();
   const router = useRouter();
 
+  const listing_url = `${LISTING_BASE_URL}/${listing_id}`;
+
   const handleBookNow = () => {
-    window.open(WHATSAPP_URL, '_blank');
+    const message = encodeURIComponent(`Hi! I'm interested in booking this listing and would like to proceed:\n${listing_url}`);
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, '_blank');
   };
 
   const handleContact = () => {
-    window.open(WHATSAPP_URL, '_blank');
+    const message = encodeURIComponent(`Hi! I'd like to get more information about this listing:\n${listing_url}`);
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, '_blank');
   };
 
   const handleWaitlist = () => {
@@ -165,24 +170,25 @@ export default function PricingSidebar({ financials, total_first_payment, listin
       {/* ── Action Buttons ──────────────────────────────────── */}
       <div className="flex flex-col gap-2.5">
 
-        {/* Book Now — disabled when booked */}
-        <button
-          onClick={handleBookNow}
-          disabled={!is_available}
-          className={`btn btn-accent w-full rounded-field font-primary font-extrabold text-sm uppercase tracking-wider gap-2 transition-all duration-200 ${is_available ? 'active:scale-95' : 'opacity-50 cursor-not-allowed'}`}
-        >
-          <MessageCircle size={16} />
-          Book Now
-        </button>
+        {/* Book Now + Enquire — side by side */}
+        <div className="flex gap-2">
+          <button
+            onClick={handleBookNow}
+            disabled={!is_available}
+            className={`btn btn-accent flex-1 rounded-field font-primary font-extrabold text-sm uppercase tracking-wider gap-2 transition-all duration-200 ${is_available ? 'active:scale-95' : 'opacity-50 cursor-not-allowed'}`}
+          >
+            <MessageCircle size={16} />
+            Book Now
+          </button>
 
-        {/* Contact Now — always enabled */}
-        <button
-          onClick={handleContact}
-          className="btn btn-secondary w-full rounded-field font-primary font-extrabold text-sm uppercase tracking-wider gap-2 active:scale-95 transition-all duration-200"
-        >
-          <Phone size={16} />
-          Contact Now
-        </button>
+          <button
+            onClick={handleContact}
+            className="btn btn-outline btn-accent flex-1 rounded-field font-primary font-extrabold text-sm uppercase tracking-wider gap-2 active:scale-95 transition-all duration-200 hover:bg-accent hover:text-accent-content hover:border-accent"
+          >
+            <Phone size={16} />
+            Enquire
+          </button>
+        </div>
 
         {/* Join Waitlist — only when booked */}
         {!is_available && (

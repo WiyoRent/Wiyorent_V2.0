@@ -50,7 +50,9 @@ export default function ListingCard({ listing }) {
   const handleBookNow = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    window.open('https://wa.me/250794089835', '_blank');
+    const listing_url = `https://wiyorent.com/listings/${listing.listing_id}`;
+    const message = encodeURIComponent(`Hi! I'm interested in booking this listing and would like to proceed:\n${listing_url}`);
+    window.open(`https://wa.me/250794089835?text=${message}`, '_blank');
   };
 
   const handleLike = (e) => {
