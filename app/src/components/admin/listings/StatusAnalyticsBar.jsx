@@ -1,4 +1,4 @@
-import { Eye, Heart, ShieldCheck, EyeOff, Building2, Info } from 'lucide-react';
+import { Eye, Heart, Clock, ShieldCheck, EyeOff, Building2, Info } from 'lucide-react';
 
 export default function StatusAnalyticsBar({ is_active, set_is_active, analytics, is_verified, is_a_wiyorent_house, set_is_a_wiyorent_house }) {
   return (
@@ -30,6 +30,20 @@ export default function StatusAnalyticsBar({ is_active, set_is_active, analytics
               </span>
               <span className="font-secondary text-xs text-base-content/40 uppercase tracking-wide">
                 Saves
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 bg-warning/10 rounded-full flex items-center justify-center">
+              <Clock size={18} className="text-warning" />
+            </div>
+            <div className="flex flex-col">
+              <span className="font-primary text-xl font-extrabold text-base-content">
+                {analytics?.number_of_waitlists?.toLocaleString()}
+              </span>
+              <span className="font-secondary text-xs text-base-content/40 uppercase tracking-wide">
+                Waitlist
               </span>
             </div>
           </div>

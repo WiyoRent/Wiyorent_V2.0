@@ -134,7 +134,8 @@ export const fetchSingleListing = async (req,res) => {
             ) as available_from,
             ARRAY_AGG(li.image_url) as image_urls,
             l.view_count as number_of_views,
-            (select count(*) from saved_listings where l.id = listing_id) as number_of_saves
+            (select count(*) from saved_listings where l.id = listing_id) as number_of_saves,
+            (select count(*) from waitlists where listing_id = l.id) as number_of_waitlists
         FROM listings l
         LEFT JOIN listing_images li
             ON l.id = li.listing_id
@@ -162,7 +163,8 @@ export const fetchSingleListing = async (req,res) => {
         available_from : listing.available_from,
         analytics : {
             number_of_saves : listing.number_of_saves || 0,
-            number_of_views : listing.number_of_views || 0
+            number_of_views : listing.number_of_views || 0,
+            number_of_waitlists : listing.number_of_waitlists || 0
         },
         landlord : {
             full_name : listing.full_name,
@@ -362,6 +364,7 @@ export const fetchAllListings = async (req, res) => {
                 bedroom_number,
                 created_at,
                 (SELECT COUNT(*) FROM saved_listings WHERE listing_id = listings.id) AS number_of_saves,
+                (SELECT COUNT(*) FROM waitlists WHERE listing_id = listings.id) AS number_of_waitlists,
                 view_count as number_of_views
             FROM listings
             WHERE 1=1
@@ -445,6 +448,7 @@ export const fetchAllListings = async (req, res) => {
             analytics: {
                 number_of_saves: parseInt(listing.number_of_saves) || 0,
                 number_of_views: parseInt(listing.number_of_views) || 0,
+                number_of_waitlists: parseInt(listing.number_of_waitlists) || 0,
             },
             landlord: {
                 full_name: listing.full_name,

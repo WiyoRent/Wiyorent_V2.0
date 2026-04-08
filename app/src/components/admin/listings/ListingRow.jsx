@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { Eye, Heart, Edit2, Trash2, MapPin } from 'lucide-react';
+import { Eye, Heart, Clock, Edit2, Trash2, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
@@ -99,6 +99,12 @@ export default function ListingRow({ listing, on_toggle_active }) {
             <Heart size={13} className="text-error" />
             <span className="font-secondary text-sm font-semibold text-base-content">
               {listing.analytics.number_of_saves}
+            </span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Clock size={13} className="text-warning" />
+            <span className="font-secondary text-sm font-semibold text-base-content">
+              {listing.analytics.number_of_waitlists}
             </span>
           </div>
         </div>
