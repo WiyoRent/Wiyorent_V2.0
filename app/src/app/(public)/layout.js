@@ -26,7 +26,7 @@ export default function RootLayout({ children }) {
         <ClientSessionProvider>
           <Analytics />
           <SpeedInsights/>
-          <div className="flex min-h-screen">
+          <div className="flex h-screen">
             <Sidebar />
             <main className="flex-1 overflow-y-auto mt-12 lg:mt-0">
               {children}
