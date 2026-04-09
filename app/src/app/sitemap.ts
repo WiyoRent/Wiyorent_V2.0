@@ -26,8 +26,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const { data } = await res.json()
 
     const listing_routes: MetadataRoute.Sitemap = (data.listings ?? []).map(
-      (l: { id: string }) => ({
-        url: `${SITE_URL}/listings/${l.id}`,
+      (l: { listing_id: string }) => ({
+        url: `${SITE_URL}/listings/${l.listing_id}`,
         changeFrequency: 'weekly' as const,
         priority: 0.8,
       })
