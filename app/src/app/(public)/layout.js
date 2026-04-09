@@ -5,6 +5,8 @@ import ClientSessionProvider from "@/context/ClientSessionProvider";
 import { ToastContainer } from "react-toastify";
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/next"
+import {GoogleAnalytics} from '@next/third-parties/google'
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,6 +32,7 @@ export default function RootLayout({ children }) {
             <Sidebar />
             <main className="flex-1 overflow-y-auto mt-12 lg:mt-0">
               {children}
+              <GoogleAnalytics gaId="G-4G7RH351VL"/>
             </main>
           </div>
           <ToastContainer  />
