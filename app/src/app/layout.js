@@ -50,6 +50,10 @@ export const metadata = {
     description:
       "Verified apartments and rooms in Kigali — no visiting fees, no hidden charges. Roommate matching and settling-in support for students across Africa.",
   },
+  icons: {
+    icon: '/icon.png',
+    shortcut: '/favicon.ico',
+  },
   robots: {
     index: true,
     follow: true,
