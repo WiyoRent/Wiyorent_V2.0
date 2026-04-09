@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight, Expand } from 'lucide-react';
+import Image from 'next/image';
 
 export default function ImageGallery({ image_urls, title }) {
   const [active_index, set_active_index] = useState(0);
@@ -20,8 +21,11 @@ export default function ImageGallery({ image_urls, title }) {
         {/* Main Image */}
         <div className="relative flex-1 overflow-hidden group cursor-pointer bg-base-300"
           onClick={() => set_lightbox_open(true)}>
-          <img
-            src={image_urls[active_index] || []}
+          <Image
+            fill
+            priority
+            loading="eager"
+            src={image_urls[active_index] || ''}
             alt={`${title} — photo ${active_index + 1}`}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
@@ -86,7 +90,9 @@ export default function ImageGallery({ image_urls, title }) {
                 }`}
                 aria-label={`Select photo ${idx + 1}`}
               >
-                <img
+                <Image
+                  fill
+                  loading="eager"
                   src={url}
                   alt={`Thumbnail ${idx + 1}`}
                   className="w-full h-full object-cover"
@@ -107,7 +113,11 @@ export default function ImageGallery({ image_urls, title }) {
             className="relative max-w-5xl w-full max-h-[90vh]"
             onClick={(e) => e.stopPropagation()}
           >
-            <img
+            <Image
+              priority
+              loading="eager"
+              width={1920}
+              height={1080}
               src={image_urls[active_index]}
               alt={title}
               className="w-full max-h-[85vh] object-contain rounded-box"

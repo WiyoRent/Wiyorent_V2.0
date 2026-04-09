@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ShieldCheck, MapPin, GraduationCap, Wallet, Home, Zap } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import InformationModal from '../shared/InformationModal';
 import { useRouter } from 'next/navigation';
 import { Eye, Bookmark, Loader2 } from 'lucide-react';
@@ -192,8 +193,9 @@ export default function HousemateCard({ profile, my_verification_status, my_is_b
                     {listing_snapshot ? (
                       <>
                         {listing_snapshot.thumbnail && (
-                          <div className="w-full aspect-video bg-base-300 overflow-hidden">
-                            <img
+                          <div className="relative w-full aspect-video bg-base-300 overflow-hidden">
+                            <Image
+                              fill
                               src={listing_snapshot.thumbnail}
                               alt="Room preview"
                               className="w-full h-full object-cover"

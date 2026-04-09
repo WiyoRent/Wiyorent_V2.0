@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Eye, Heart, MapPin, Edit2, Trash2 } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 import { deleteListing } from '@/actions/admin/listings.action';
@@ -41,8 +42,8 @@ export default function ListingCard({ listing }) {
       {/* Identity */}
       <div className="flex items-start gap-3">
         <div className="avatar flex-shrink-0">
-          <div className="w-12 h-12 rounded-field">
-            <img src={listing.thumbnail_url} alt={listing.title} />
+          <div className="relative w-12 h-12 rounded-field">
+            <Image fill src={listing.thumbnail_url} alt={listing.title} className="object-cover" />
           </div>
         </div>
         <div className="flex-1 min-w-0">

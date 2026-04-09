@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 export default function UserAvatar({ full_name, avatar_url }) {
   const initials = full_name
     ?.split(' ')
@@ -8,8 +10,8 @@ export default function UserAvatar({ full_name, avatar_url }) {
 
   if (avatar_url) {
     return (
-      <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
-        <img src={avatar_url} alt={full_name} className="w-full h-full object-cover" />
+      <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+        <Image fill src={avatar_url} alt={full_name} className="w-full h-full object-cover" />
       </div>
     );
   }

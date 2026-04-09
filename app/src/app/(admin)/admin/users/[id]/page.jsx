@@ -8,6 +8,7 @@ import HousingPreferencesSection from '@/components/public/housemate/HousingPref
 import LifestyleSection from '@/components/public/housemate/LifestyleSection';
 import AdminReadOnlyListingSection from '@/components/admin/users/AdminReadOnlyListingSection';
 import { getBaseURL } from '@/lib/getBaseURL';
+import Image from 'next/image';
 import { auth } from '@/auth';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -263,7 +264,7 @@ export default async function UserDetailPage({ params }) {
               <div className="h-72 w-full bg-base-200 rounded-lg overflow-hidden border border-base-300 relative group">
                 {u?.passport_id ? (
                   <>
-                    <img src={u?.passport_id} className="w-full h-full object-cover" alt="Passport / ID" />
+                    <Image fill src={u?.passport_id} className="w-full h-full object-cover" alt="Passport / ID" />
                     <a
                       href={u?.passport_id}
                       target="_blank"
@@ -289,7 +290,7 @@ export default async function UserDetailPage({ params }) {
               <div className="h-72 w-full bg-base-200 rounded-lg overflow-hidden border border-base-300 relative group">
                 {u?.admission_letter ? (
                   <>
-                    <img src={u?.admission_letter} className="w-full h-full object-cover" alt="Admission Letter" />
+                    <Image fill src={u?.admission_letter} className="w-full h-full object-cover" alt="Admission Letter" />
                     <a
                       href={u?.admission_letter}
                       target="_blank"

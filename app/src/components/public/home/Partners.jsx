@@ -1,4 +1,5 @@
 "use client";
+import Image from 'next/image';
 
 const UNIVERSITIES = [
   {
@@ -46,8 +47,9 @@ export default function Partners() {
               data-aos-delay={i * 150}
               className="card-lift flex flex-col items-center gap-4 group"
             >
-              <div className="w-56 h-40 rounded-xl flex items-center justify-center overflow-hidden bg-white border border-white/10 p-4 shadow-[0_4px_24px_rgba(0,0,0,0.3)] group-hover:border-accent/50 transition-all duration-300">
-                <img
+              <div className="relative w-56 h-40 rounded-xl flex items-center justify-center overflow-hidden bg-white border border-white/10 p-4 shadow-[0_4px_24px_rgba(0,0,0,0.3)] group-hover:border-accent/50 transition-all duration-300">
+                <Image
+                  fill
                   src={uni.src}
                   alt={uni.alt}
                   className="w-full h-full object-contain"

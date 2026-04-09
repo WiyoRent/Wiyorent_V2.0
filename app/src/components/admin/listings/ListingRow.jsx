@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Eye, Heart, Clock, Edit2, Trash2, MapPin } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 import { deleteListing } from '@/actions/admin/listings.action';
@@ -49,8 +50,8 @@ export default function ListingRow({ listing, on_toggle_active }) {
       <td>
         <div className="flex items-center gap-3">
           <div className="avatar">
-            <div className="w-10 h-10 rounded-full">
-              <img src={listing.thumbnail_url} alt={listing.title} />
+            <div className="relative w-10 h-10 rounded-full">
+              <Image fill src={listing.thumbnail_url} alt={listing.title} className="object-cover" />
             </div>
           </div>
           <div className="flex flex-col">

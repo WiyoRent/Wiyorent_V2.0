@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import Image from 'next/image';
 
 export default function ImageCarousel({ images }) {
   const [active, set_active] = useState(0);
@@ -10,7 +11,9 @@ export default function ImageCarousel({ images }) {
   return (
     <div className="flex flex-col gap-2 flex-shrink-0">
       <div className="relative border border-accent w-full aspect-video rounded-box overflow-hidden bg-base-300">
-        <img
+        <Image
+          fill
+          loading="eager"
           src={images[active]}
           alt={`Listing image ${active + 1}`}
           className="w-full h-full object-cover"
@@ -61,12 +64,12 @@ export default function ImageCarousel({ images }) {
             <button
               key={i}
               onClick={() => set_active(i)}
-              className={`flex-shrink-0 w-14 h-10 rounded-field overflow-hidden border-2 transition-all ${
+              className={`relative flex-shrink-0 w-14 h-10 rounded-field overflow-hidden border-2 transition-all ${
                 i === active ? 'border-accent opacity-100' : 'border-transparent opacity-50 hover:opacity-80'
               }`}
               aria-label={`Go to image ${i + 1}`}
             >
-              <img src={img} alt={`Thumb ${i + 1}`} className="w-full h-full object-cover" />
+              <Image fill loading="eager" src={img} alt={`Thumb ${i + 1}`} className="w-full h-full object-cover" />
             </button>
           ))}
         </div>

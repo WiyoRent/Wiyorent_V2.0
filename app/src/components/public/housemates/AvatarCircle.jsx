@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 export default function AvatarCircle({ full_name, avatar_url, gender }) {
   const initials = full_name
     .split(' ')
@@ -13,8 +15,8 @@ export default function AvatarCircle({ full_name, avatar_url, gender }) {
       : 'from-violet-300 to-indigo-400';
   if (avatar_url && !avatar_url.includes('api.wiyorent.com')) {
     return (
-      <div className="w-20 h-20 rounded-full overflow-hidden border border-accent shadow-md flex-shrink-0">
-        <img src={avatar_url} alt={full_name} className="w-full h-full object-cover" />
+      <div className="relative w-20 h-20 rounded-full overflow-hidden border border-accent shadow-md flex-shrink-0">
+        <Image fill src={avatar_url} alt={full_name} className="w-full h-full object-cover" />
       </div>
     );
   }

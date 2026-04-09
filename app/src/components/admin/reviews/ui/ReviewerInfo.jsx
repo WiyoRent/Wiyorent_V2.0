@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 export default function ReviewerInfo({ name, avatar }) {
   const initials = name
     .split(' ')
@@ -9,8 +11,8 @@ export default function ReviewerInfo({ name, avatar }) {
   return (
     <div className="flex items-center gap-3">
       {avatar ? (
-        <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
-          <img src={avatar} alt={name} className="w-full h-full object-cover" />
+        <div className="relative w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+          <Image fill src={avatar} alt={name} className="w-full h-full object-cover" />
         </div>
       ) : (
         <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center flex-shrink-0">

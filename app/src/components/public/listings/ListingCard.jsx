@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { toggleSaveListing, toggleWaitlistListing } from '@/actions/public/favorites.action';
 import { formatRWF } from '@/lib/formatRWF';
+import Image from 'next/image';
 
 import {
   Heart,
@@ -73,11 +74,11 @@ export default function ListingCard({ listing }) {
     <Link href={`/listings/${listing.listing_id}`}>
         <div className="bg-base-100 rounded-box shadow-md flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-xl group">
           <div className="relative overflow-hidden h-48 sm:h-52 bg-base-300 rounded-t-2xl">
-            <img
+            <Image
+              fill
               src={listing.thumbnail_url}
               alt={listing.title}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              loading="lazy"
             />
 
             <div className="absolute top-3 left-3">

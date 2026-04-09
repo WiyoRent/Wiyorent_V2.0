@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
+import Image from 'next/image';
 import StarRating from '@/components/public/listing/ReviewSectionComponents/StarRating';
 import StatusBadge from '@/components/public/listing/ReviewSectionComponents/StatusBadge';
 
@@ -30,9 +31,9 @@ export default function ReviewCard({ entry, current_user_id, on_edit, on_delete 
         entry._optimistic ? 'opacity-70' : 'opacity-100'
       }`}
     >
-      <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0 overflow-hidden">
+      <div className="relative w-10 h-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0 overflow-hidden">
         {entry.avatar ? (
-          <img src={entry.avatar} alt={entry.name} className="w-full h-full object-cover" />
+          <Image fill src={entry.avatar} alt={entry.name} className="w-full h-full object-cover" />
         ) : (
           <span className="font-primary text-sm font-bold text-primary-content">{initials}</span>
         )}

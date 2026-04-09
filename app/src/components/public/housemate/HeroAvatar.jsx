@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 export default function HeroAvatar({ full_name, avatar_url, gender }) {
   const initials = full_name
     ?.split(' ')
@@ -15,8 +17,8 @@ export default function HeroAvatar({ full_name, avatar_url, gender }) {
 
   if (avatar_url && !avatar_url.includes('api.wiyorent.com')) {
     return (
-      <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-2 border-accent ring-4 ring-base-100 shadow-xl flex-shrink-0">
-        <img src={avatar_url} alt={full_name} className="w-full h-full object-cover" />
+      <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-2 border-accent ring-4 ring-base-100 shadow-xl flex-shrink-0">
+        <Image fill priority src={avatar_url} alt={full_name} className="w-full h-full object-cover" />
       </div>
     );
   }
