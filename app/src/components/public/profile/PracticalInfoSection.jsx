@@ -113,7 +113,6 @@ export default function PracticalInfoSection({
                     accept=".png, .jpg"
                     onChange={handle_admission_change}
                     className="file-input file-input-bordered file-input-accent w-full rounded-field font-secondary text-sm"
-                    required
                   />
                 )}
                 <p className="mt-2 font-secondary text-[10px] text-base-content/35 italic">
@@ -180,7 +179,6 @@ export default function PracticalInfoSection({
                     accept=".png, .jpg"
                     onChange={handle_passport_change}
                     className="file-input file-input-bordered file-input-accent w-full rounded-field font-secondary text-sm"
-                    required
                   />
                 )}
                 <p className="mt-2 font-secondary text-[10px] text-base-content/35 italic">

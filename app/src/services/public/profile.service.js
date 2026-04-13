@@ -79,7 +79,7 @@ export const editProfile = async (formData) => {
             } catch (parseErr) {
                 console.error('[editProfile] failed to parse error response as JSON:', parseErr)
             }
-            throw new Error(message)
+            return { error: message }
         }
 
         const result = await res.json()
@@ -89,6 +89,6 @@ export const editProfile = async (formData) => {
         return result
     } catch (error) {
         console.error('[editProfile] caught error:', error)
-        throw error
+        return { error: error.message || 'An unexpected error occurred. Please try again.' }
     }
 }

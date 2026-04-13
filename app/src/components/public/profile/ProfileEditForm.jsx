@@ -194,6 +194,40 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
         toast.error('A profile photo is required');
         return false;
       }
+      if (!first_name?.trim() || !last_name?.trim()) {
+        toast.error('Please enter your first and last name');
+        return false;
+      }
+      if (!date_of_birth) {
+        toast.error('Please enter your date of birth');
+        return false;
+      }
+      const _dob = new Date(date_of_birth);
+      const _age = (Date.now() - _dob) / (1000 * 60 * 60 * 24 * 365.25);
+      if (isNaN(_dob.getTime()) || _age < 16) {
+        toast.error('You must be at least 16 years old');
+        return false;
+      }
+      if (!gender) {
+        toast.error('Please select your gender');
+        return false;
+      }
+      if (!nationality) {
+        toast.error('Please select your country of origin');
+        return false;
+      }
+      if (!university_name?.trim()) {
+        toast.error('Please select your university');
+        return false;
+      }
+      if (!program?.trim()) {
+        toast.error('Please enter your program / course');
+        return false;
+      }
+      if (!year_of_study) {
+        toast.error('Please select your year of study');
+        return false;
+      }
       try {
         checkPhoneNumber(phone_number);
       } catch (error) {
@@ -201,9 +235,43 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
         return false;
       }
     }
+    if (step === 2) {
+      if (!sleep_schedule) {
+        toast.error('Please select your sleep schedule');
+        return false;
+      }
+      if (!cleanliness) {
+        toast.error('Please select your cleanliness preference');
+        return false;
+      }
+      if (!social_habits) {
+        toast.error('Please select your social habits');
+        return false;
+      }
+      if (!about_me || !about_me.trim()) {
+        toast.error('Please add a short bio before continuing');
+        return false;
+      }
+    }
     if (step === 3) {
-      if (budget_min === 0 || budget_max === 0) {
-        toast.error('Please enter your minimum and maximum rent budget');
+      if (!move_in_date) {
+        toast.error('Please select your expected move-in date');
+        return false;
+      }
+      if (!lease_duration) {
+        toast.error('Please select your preferred lease duration');
+        return false;
+      }
+      if (!preferred_locations || preferred_locations.length === 0) {
+        toast.error('Please select at least one preferred neighbourhood');
+        return false;
+      }
+      if (!max_housemates) {
+        toast.error('Please select your preferred number of housemates');
+        return false;
+      }
+      if (!budget_min || !budget_max) {
+        toast.error('Please set your minimum and maximum rent budget');
         return false;
       }
     }
@@ -264,15 +332,80 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
       toast.error('A profile photo is required');
       return;
     }
-
+    if (!first_name?.trim() || !last_name?.trim()) {
+      toast.error('Please enter your first and last name');
+      return;
+    }
+    if (!date_of_birth) {
+      toast.error('Please enter your date of birth');
+      return;
+    }
+    const _dob = new Date(date_of_birth);
+    const _age = (Date.now() - _dob) / (1000 * 60 * 60 * 24 * 365.25);
+    if (isNaN(_dob.getTime()) || _age < 16) {
+      toast.error('You must be at least 16 years old');
+      return;
+    }
+    if (!gender) {
+      toast.error('Please select your gender');
+      return;
+    }
+    if (!nationality) {
+      toast.error('Please select your country of origin');
+      return;
+    }
+    if (!university_name?.trim()) {
+      toast.error('Please select your university');
+      return;
+    }
+    if (!program?.trim()) {
+      toast.error('Please enter your program / course');
+      return;
+    }
+    if (!year_of_study) {
+      toast.error('Please select your year of study');
+      return;
+    }
     try {
       checkPhoneNumber(phone_number);
     } catch (error) {
       toast.error(error.message);
       return;
     }
-    if (budget_min === 0 || budget_max === 0) {
-      toast.error('Please enter your minimum and maximum rent budget');
+    if (!sleep_schedule) {
+      toast.error('Please select your sleep schedule');
+      return;
+    }
+    if (!cleanliness) {
+      toast.error('Please select your cleanliness preference');
+      return;
+    }
+    if (!social_habits) {
+      toast.error('Please select your social habits');
+      return;
+    }
+    if (!about_me || !about_me.trim()) {
+      toast.error('Please add a short bio before saving');
+      return;
+    }
+    if (!move_in_date) {
+      toast.error('Please select your expected move-in date');
+      return;
+    }
+    if (!lease_duration) {
+      toast.error('Please select your preferred lease duration');
+      return;
+    }
+    if (!preferred_locations || preferred_locations.length === 0) {
+      toast.error('Please select at least one preferred neighbourhood');
+      return;
+    }
+    if (!max_housemates) {
+      toast.error('Please select your preferred number of housemates');
+      return;
+    }
+    if (!budget_min || !budget_max) {
+      toast.error('Please set your minimum and maximum rent budget');
       return;
     }
     if (has_house) {
@@ -362,17 +495,27 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
     const loadingToast = toast.loading('Updating Your Profile..');
     try {
       const result = await editProfile(formData);
+
+      if (result?.error) {
+        toast.update(loadingToast, {
+          type: 'error',
+          render: result.error,
+          autoClose: 6000,
+          isLoading: false,
+        });
+        return;
+      }
+
       toast.update(loadingToast, {
         type: 'success',
-        render: result.message || !initial_data.is_onboarded ? 'Profile updated successfully' : 'Onboarding process completed successfully',
+        render: result.message || (!initial_data.is_onboarded ? 'Onboarding process completed successfully' : 'Profile updated successfully'),
         autoClose: 4000,
         isLoading: false,
       });
       if (!initial_data.is_onboarded && redirect_to) {
         router.push(redirect_to);
-        return
+        return;
       }
-
 
     } catch (error) {
       console.error(error, '-error on profile frontend');

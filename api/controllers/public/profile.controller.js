@@ -75,6 +75,8 @@ export const updateProfile = async (req, res) => {
     try {
         const { userId } = verifyHeaders(req)
 
+        console.log('[updateProfile] entry — userId:', userId, 'body keys:', Object.keys(req.body))
+
         const blockedCheck = await pool.query(
             `SELECT is_blocked FROM users WHERE id = $1`,
             [userId]
@@ -82,8 +84,6 @@ export const updateProfile = async (req, res) => {
         if (blockedCheck.rows[0]?.is_blocked) {
             return errorMsg(res, 403, 'Your account has been suspended. You cannot update your profile.')
         }
-
-        console.log(req.body, '-------req_body')
 
         const {
             full_name,
@@ -235,7 +235,9 @@ export const updateProfile = async (req, res) => {
             userId
         ]
 
+        console.log('[updateProfile] writing user row — userId:', userId, 'full_name:', full_name, 'has_house:', has_house)
         const result = await pool.query(query, values)
+        console.log('[updateProfile] user row written — rowCount:', result.rowCount)
 
         if (result.rowCount == 0) {
             return errorMsg(res, 404, "Couldn't find account")
@@ -252,14 +254,18 @@ export const updateProfile = async (req, res) => {
 
         if (existingAvatar && existingAvatar !== avatar_url) {
             const publicId = extractPublicId(existingAvatar)
+            console.log('[updateProfile] deleting old avatar — publicId:', publicId)
             await cloudinary.uploader.destroy(publicId)
+            console.log('[updateProfile] old avatar deleted — publicId:', publicId)
         }
 
+        console.log('[updateProfile] writing documents row — userId:', userId, 'avatar_url set:', !!avatar_url, 'admission_letter set:', !!admission_letter_url, 'passport_id set:', !!passport_id_url)
         const uploadResult = await pool.query(`
             UPDATE users
             SET avatar_url = $1, admission_letter = $2, passport_id = $3
             WHERE id = $4
         `, [avatar_url, admission_letter_url, passport_id_url, userId])
+        console.log('[updateProfile] documents row written — rowCount:', uploadResult.rowCount)
 
         if (uploadResult.rowCount == 0) {
             return errorMsg(res, 404, "Couldn't update your documents")
@@ -273,40 +279,49 @@ export const updateProfile = async (req, res) => {
                     : [req.body.listing_images_existing]
                 : []
 
+            console.log('[updateProfile] calling create_user_listing — imageCount:', listingImages.length)
             await create_user_listing(req.body, listingImages, userId)
+            console.log('[updateProfile] create_user_listing done')
         }
 
         // ------ Onboarding flag ------
         if (!user.is_onboarded) {
+            console.log('[updateProfile] first onboarding — setting is_onboarded=true for userId:', user.id)
             await pool.query(`
-                UPDATE users SET 
-                    is_onboarded = true, 
+                UPDATE users SET
+                    is_onboarded = true,
                     updated_at = NOW(),
                     verification_status = 'pending'
                 WHERE id = $1
             `, [user.id])
+            console.log('[updateProfile] onboarding flag set')
             try {
+                console.log('[updateProfile] sending verification request email — userId:', user.id)
                 await sendVerificationRequestEmail(user.full_name, user.id, user.email)
+                console.log('[updateProfile] verification request email sent')
             } catch (emailErr) {
-                console.error('[updateProfile] sendVerificationRequestEmail failed:', emailErr.message)
+                console.error('[updateProfile] sendVerificationRequestEmail failed:', emailErr.message, emailErr.stack)
             }
             return successMsg(res, 200, 'Onboarding details saved. We are currently verifying your account.');
         }
 
+        console.log('[updateProfile] profile update — setting has_performed_an_update=true for userId:', user.id)
         await pool.query(`
             UPDATE users SET has_performed_an_update = true WHERE id = $1
         `, [user.id]);
 
         try {
+            console.log('[updateProfile] sending admin update alert — userId:', user.id)
             await sendAdminUpdateAlert(user.full_name, user.id)
+            console.log('[updateProfile] admin update alert sent')
         } catch (emailErr) {
-            console.error('[updateProfile] sendAdminUpdateAlert failed:', emailErr.message)
+            console.error('[updateProfile] sendAdminUpdateAlert failed:', emailErr.message, emailErr.stack)
         }
 
         return successMsg(res, 200, 'Your profile has been successfully updated.')
 
     } catch (error) {
-        console.error('Error occurred on updateProfile:', error)
+        console.error('[updateProfile] unhandled error:', error.message, error.stack)
         if (error.status && error.status < 500) {
             return errorMsg(res, error.status, error.message)
         }
@@ -381,6 +396,7 @@ const create_user_listing = async (body, listing_images, userId) => {
         const house_rules_array = listing_house_rules.split(',').map(item => item.trim())
 
         // ------ Upsert listing row ------
+        console.log('[updateProfile] create_user_listing — upserting listing for userId:', userId, 'neighborhood:', listing_neighborhood, 'price:', listing_price)
         const listingResult = await pool.query(`
             INSERT INTO user_listings (
                 user_id, 
@@ -434,6 +450,7 @@ const create_user_listing = async (body, listing_images, userId) => {
             house_rules_array
         ])
 
+        console.log('[updateProfile] create_user_listing — listing upserted, rowCount:', listingResult.rowCount)
         if (listingResult.rowCount == 0) {
             throwError(400, "Couldn't save user listing")
         }
@@ -443,6 +460,7 @@ const create_user_listing = async (body, listing_images, userId) => {
         const imageUrls = listing_images
 
         // ------ Sync images ------
+        console.log('[updateProfile] create_user_listing — syncing images, userListingId:', userListingId, 'incoming count:', imageUrls.length)
         const existingRes = await pool.query(`
             SELECT image_url FROM user_listing_images WHERE user_listing_id = $1
         `, [userListingId])
@@ -451,32 +469,35 @@ const create_user_listing = async (body, listing_images, userId) => {
         const urlsToRemove = existingUrls.filter(url => !imageUrls.includes(url))
         const urlsToAdd = imageUrls.filter(url => !existingUrls.includes(url))
 
+        console.log('[updateProfile] create_user_listing — toRemove:', urlsToRemove.length, 'toAdd:', urlsToAdd.length)
+
         if (urlsToRemove.length > 0) {
+            console.log('[updateProfile] create_user_listing — deleting image rows from DB, count:', urlsToRemove.length)
             await pool.query(`
                 DELETE FROM user_listing_images
                 WHERE user_listing_id = $1 AND image_url = ANY($2)
             `, [userListingId, urlsToRemove])
+            console.log('[updateProfile] create_user_listing — image rows deleted')
 
-            const publicIds = urlsToRemove.map(url => {
-                return extractPublicId(url)
-            })
+            const publicIds = urlsToRemove.map(url => extractPublicId(url))
 
-            console.log(publicIds, '---publicIds to delete')
-
+            console.log('[updateProfile] create_user_listing — deleting from Cloudinary, publicIds:', publicIds)
             await Promise.all(publicIds.map(id => cloudinary.uploader.destroy(id)))
+            console.log('[updateProfile] create_user_listing — Cloudinary deletes done')
         }
 
         for (const url of urlsToAdd) {
+            console.log('[updateProfile] create_user_listing — inserting image row, userListingId:', userListingId)
             await pool.query(`
                 INSERT INTO user_listing_images (user_id, user_listing_id, image_url)
                 VALUES ($1, $2, $3)
             `, [userId, userListingId, url])
         }
 
-        console.log(`Listing synced — ${urlsToAdd.length} images added, ${urlsToRemove.length} removed`)
+        console.log('[updateProfile] create_user_listing — sync complete, added:', urlsToAdd.length, 'removed:', urlsToRemove.length)
 
     } catch (error) {
-        console.error(error, 'Error in create_user_listing')
+        console.error('[updateProfile] create_user_listing error:', error.message, error.stack)
         throwError(error.status || 500, error.message || 'Error occurred saving listing')
     }
 }
