@@ -252,7 +252,7 @@ export const updateProfile = async (req, res) => {
 
         if (existingAvatar && existingAvatar !== avatar_url) {
             const publicId = extractPublicId(existingAvatar)
-            await cloudinary.api.delete_resources([publicId])
+            await cloudinary.uploader.destroy(publicId)
         }
 
         const uploadResult = await pool.query(`
@@ -285,7 +285,11 @@ export const updateProfile = async (req, res) => {
                     verification_status = 'pending'
                 WHERE id = $1
             `, [user.id])
-            await sendVerificationRequestEmail(user.full_name, user.id, user.email)
+            try {
+                await sendVerificationRequestEmail(user.full_name, user.id, user.email)
+            } catch (emailErr) {
+                console.error('[updateProfile] sendVerificationRequestEmail failed:', emailErr.message)
+            }
             return successMsg(res, 200, 'Onboarding details saved. We are currently verifying your account.');
         }
 
@@ -293,7 +297,11 @@ export const updateProfile = async (req, res) => {
             UPDATE users SET has_performed_an_update = true WHERE id = $1
         `, [user.id]);
 
-        await sendAdminUpdateAlert(user.full_name, user.id)
+        try {
+            await sendAdminUpdateAlert(user.full_name, user.id)
+        } catch (emailErr) {
+            console.error('[updateProfile] sendAdminUpdateAlert failed:', emailErr.message)
+        }
 
         return successMsg(res, 200, 'Your profile has been successfully updated.')
 
@@ -455,7 +463,7 @@ const create_user_listing = async (body, listing_images, userId) => {
 
             console.log(publicIds, '---publicIds to delete')
 
-            await cloudinary.api.delete_resources(publicIds)
+            await Promise.all(publicIds.map(id => cloudinary.uploader.destroy(id)))
         }
 
         for (const url of urlsToAdd) {
