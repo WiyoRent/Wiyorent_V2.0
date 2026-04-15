@@ -93,10 +93,11 @@ export const fetchHousemateDetail = async (housemateId) => {
             urgency : rawData.urgency,
 
             basic_profile: {
-                gender: rawData.gender,
-                age: rawData.age,
-                program: rawData.program,
-                year_of_study: `${rawData.year_of_study} Year`, // Formatting as string like '3rd Year'
+                gender:          rawData.gender,
+                age:             rawData.age,
+                program:         rawData.program,
+                year_of_study:   `${rawData.year_of_study} Year`, // Formatting as string like '3rd Year'
+                university_name: rawData.university_name,
             },
 
             housing_preferences: {

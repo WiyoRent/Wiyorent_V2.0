@@ -1,8 +1,8 @@
-import { User, Calendar, BookOpen, GraduationCap } from 'lucide-react';
+import { User, Calendar, BookOpen, GraduationCap, Building2 } from 'lucide-react';
 import ProfileRow from '@/components/public/housemate/ProfileRow';
 
 export default function BasicProfileSection({ basic_profile }) {
-  const { gender, age, program, year_of_study } = basic_profile || {};
+  const { gender, age, program, year_of_study, university_name } = basic_profile || {};
 
   return (
     <section className="bg-base-100 rounded-box p-5 shadow-sm">
@@ -14,6 +14,7 @@ export default function BasicProfileSection({ basic_profile }) {
       <div>
         <ProfileRow icon={User}          label="Gender"        value={gender || ''} />
         <ProfileRow icon={Calendar}      label="Age"           value={`${age || ''} years old`} />
+        <ProfileRow icon={Building2}      label="University"    value={university_name || ''} />
         <ProfileRow icon={BookOpen}      label="Program"       value={program || ""} />
         <ProfileRow icon={GraduationCap} label="Year of Study" value={year_of_study || ''} />
       </div>

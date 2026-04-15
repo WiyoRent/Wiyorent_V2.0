@@ -162,10 +162,11 @@ export const fetchSingleUser = async (req,res) => {
             about_me:        user.about_me,
 
             basic_profile: {
-                gender:        user.gender,
-                age:           user.age,
-                year_of_study: user.year_of_study,
-                program : user.program
+                gender:          user.gender,
+                age:             user.age,
+                year_of_study:   user.year_of_study,
+                program:         user.program,
+                university_name: user.university_name,
             },
 
             housing_preferences: {

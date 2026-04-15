@@ -264,7 +264,7 @@ export default async function UserDetailPage({ params }) {
               <div className="h-72 w-full bg-base-200 rounded-lg overflow-hidden border border-base-300 relative group">
                 {u?.passport_id ? (
                   <>
-                    <Image fill src={u?.passport_id} className="w-full h-full object-cover" alt="Passport / ID" />
+                    <Image fill src={u?.passport_id} className="object-contain" alt="Passport / ID" sizes="(max-width: 768px) 100vw, 50vw" />
                     <a
                       href={u?.passport_id}
                       target="_blank"
@@ -290,7 +290,7 @@ export default async function UserDetailPage({ params }) {
               <div className="h-72 w-full bg-base-200 rounded-lg overflow-hidden border border-base-300 relative group">
                 {u?.admission_letter ? (
                   <>
-                    <Image fill src={u?.admission_letter} className="w-full h-full object-cover" alt="Admission Letter" />
+                    <Image fill src={u?.admission_letter} className="object-contain" alt="Admission Letter" sizes="(max-width: 768px) 100vw, 50vw" />
                     <a
                       href={u?.admission_letter}
                       target="_blank"
