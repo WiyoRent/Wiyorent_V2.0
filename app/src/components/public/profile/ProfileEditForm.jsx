@@ -468,8 +468,12 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
     formData.append('sleep_schedule', sleep_schedule);
     formData.append('cleanliness', cleanliness);
     formData.append('social_habits', social_habits);
-    formData.append('admission_letter', admission_letter);
-    formData.append('passport_id', passport_id);
+    if (admission_letter && typeof admission_letter === 'string') {
+      formData.append('admission_letter', admission_letter);
+    }
+    if (passport_id && typeof passport_id === 'string') {
+      formData.append('passport_id', passport_id);
+    }
     formData.append('is_profile_public', is_profile_public);
     formData.append('about_me', about_me);
     formData.append('has_house', has_house);

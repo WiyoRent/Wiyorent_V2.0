@@ -249,8 +249,11 @@ export const updateProfile = async (req, res) => {
 
         // ------ Handle document/avatar updates (all are URL strings now) ------
         const avatar_url = req.body.avatar
-        const admission_letter_url = req.body.admission_letter
-        const passport_id_url = req.body.passport_id
+        const raw_admission = req.body.admission_letter
+        const raw_passport  = req.body.passport_id
+        // Fall back to existing DB values if the field was omitted or sent as the string "null"
+        const admission_letter_url = (raw_admission && raw_admission !== 'null') ? raw_admission : (user?.admission_letter ?? null)
+        const passport_id_url      = (raw_passport  && raw_passport  !== 'null') ? raw_passport  : (user?.passport_id      ?? null)
 
         if (existingAvatar && existingAvatar !== avatar_url) {
             const publicId = extractPublicId(existingAvatar)
