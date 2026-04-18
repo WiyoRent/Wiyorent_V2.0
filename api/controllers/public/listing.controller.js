@@ -104,6 +104,7 @@ export const fetchListings = async (req,res) => {
 
         query += `
             GROUP BY l.id, sl.id, w.id
+            ORDER BY l.available_status = 'available' DESC
         `
 
         console.log(query, '---query')
