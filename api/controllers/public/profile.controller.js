@@ -247,13 +247,30 @@ export const updateProfile = async (req, res) => {
 
         const existingAvatar = user?.avatar_url
 
-        // ------ Handle document/avatar updates (all are URL strings now) ------
+        // ------ Handle document/avatar updates  ------
         const avatar_url = req.body.avatar
         const raw_admission = req.body.admission_letter
         const raw_passport  = req.body.passport_id
-        // Fall back to existing DB values if the field was omitted or sent as the string "null"
-        const admission_letter_url = (raw_admission && raw_admission !== 'null') ? raw_admission : (user?.admission_letter ?? null)
-        const passport_id_url      = (raw_passport  && raw_passport  !== 'null') ? raw_passport  : (user?.passport_id      ?? null)
+
+        // Onboarded + not rejected → ignore incoming docs
+        const docs_locked = user.is_onboarded && user.verification_status !== 'rejected'
+
+        const admission_letter_url = docs_locked
+            ? (user.admission_letter ?? null)
+            : (raw_admission && raw_admission !== 'null') ? raw_admission : (user.admission_letter ?? null)
+
+        const passport_id_url = docs_locked
+            ? (user.passport_id ?? null)
+            : (raw_passport && raw_passport !== 'null') ? raw_passport : (user.passport_id ?? null)
+
+        if (!user.is_onboarded) {
+            if (!admission_letter_url) {
+                return errorMsg(res, 400, 'Admission letter is required to complete onboarding')
+            }
+            if (!passport_id_url) {
+                return errorMsg(res, 400, 'Passport or national ID is required to complete onboarding')
+            }
+        }
 
         if (existingAvatar && existingAvatar !== avatar_url) {
             const publicId = extractPublicId(existingAvatar)

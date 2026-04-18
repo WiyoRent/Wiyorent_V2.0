@@ -440,6 +440,17 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
       }
     }
 
+    if (!initial_data.is_onboarded) {
+      if (!admission_letter || typeof admission_letter !== 'string') {
+        toast.error('Please upload your admission letter to complete verification');
+        return;
+      }
+      if (!passport_id || typeof passport_id !== 'string') {
+        toast.error('Please upload your passport or national ID to complete verification');
+        return;
+      }
+    }
+
     set_is_saving(true);
     const formData = new FormData();
     formData.append('full_name', `${first_name} ${last_name}`.trim());
@@ -744,6 +755,7 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
           admission_letter={admission_letter}
           set_admission_letter={set_admission_letter}
           verification_status={initial_data.verification_status}
+          is_onboarded={initial_data.is_onboarded}
         />
       )}
 

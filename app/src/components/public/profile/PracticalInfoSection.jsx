@@ -5,16 +5,17 @@ import { useState } from 'react';
 import { toast } from 'react-toastify';
 import useCloudinaryUpload from '@/hooks/useCloudinaryUpload';
 
-export default function PracticalInfoSection({ 
-  preferred_method, 
-  set_preferred_method, 
-  is_profile_public, 
+export default function PracticalInfoSection({
+  preferred_method,
+  set_preferred_method,
+  is_profile_public,
   set_is_profile_public,
   admission_letter,
   set_admission_letter,
   passport_id,
   set_passport_id,
   verification_status,
+  is_onboarded,
 }) {
   const is_rejected = verification_status === 'rejected';
 
@@ -212,6 +213,13 @@ export default function PracticalInfoSection({
           </div>
 
         </div>
+
+        {is_onboarded && !is_rejected && (
+          <p className="font-secondary text-[11px] text-base-content/40 italic text-center -mt-2">
+            Documents are locked after verification. To update, contact{' '}
+            <a href="mailto:wiyorent@gmail.com" className="text-accent underline">wiyorent@gmail.com</a>.
+          </p>
+        )}
 
         <div className="divider opacity-50"></div>
 
