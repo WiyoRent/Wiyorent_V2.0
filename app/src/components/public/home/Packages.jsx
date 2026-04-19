@@ -4,7 +4,7 @@ import { getBaseURL } from "@/lib/getBaseURL";
 async function fetchPackages() {
   try {
     const res = await fetch(`${getBaseURL()}api/v1/public/get/packages`, {
-      cache: "no-store",
+      next: { revalidate: 86400 },
     });
     if (!res.ok) return [];
     const json = await res.json();
