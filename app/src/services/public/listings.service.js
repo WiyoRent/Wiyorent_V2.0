@@ -19,7 +19,8 @@ export const getListingsProxy = async (query) => {
             headers : {
                 'X-INTERNAL-API-KEY' : process.env.INTERNAL_BACKEND_KEY,
                 'X-User-Id' : user
-            }
+            },
+            next: { revalidate: 60 }
         })
 
         if (!response.ok) {

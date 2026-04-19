@@ -1,4 +1,3 @@
-export const dynamic =  'force-dynamic'
 
 import ImageGallery from '@/components/public/listing/ImageGallery';
 import ListingHeader from '@/components/public/listing/ListingHeader';
@@ -93,7 +92,7 @@ const fetchSingleListing = async (id, userId = null) => {
     const params = userId ? `?userId=${userId}` : ''
     const url = getBaseURL() + `api/v1/public/getSingleListing/${id}${params}`
 
-    const response = await fetch(url)
+    const response = await fetch(url, { next: { revalidate: 300 } })
 
     if(!response.ok){
       throw new Error("An error occured. Couldn't fetch listing")
