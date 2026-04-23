@@ -141,7 +141,7 @@ export default function HousemateCard({ profile, my_verification_status, my_is_b
     setSaved(profile?.saved);
   }, [profile?.saved]);
   return (
-    <div className={`bg-base-100 rounded-box shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 flex flex-col group w-full${is_urgent ? ' ring-2 ring-accent ring-offset-1' : ''}`}>
+    <div className={`bg-base-100 rounded-box shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 flex flex-col group w-full${(is_urgent || has_house) ? ' ring-2 ring-accent ring-offset-1' : ''}`}>
       {/* Dynamic modal */}
       <InformationModal
         title={modalData.title}
@@ -156,6 +156,14 @@ export default function HousemateCard({ profile, my_verification_status, my_is_b
         <div className="flex items-center gap-1.5 px-4 py-1.5 bg-accent rounded-t-box">
           <span className="font-primary text-[10px] font-extrabold uppercase tracking-widest text-secondary">
             IS Looking for a place ASAP
+          </span>
+        </div>
+      )}
+      {/* ── Has-a-house strip — shown when has_house and not urgent ─────── */}
+      {has_house && !is_urgent && (
+        <div className="flex items-center gap-1.5 px-4 py-1.5 bg-accent rounded-t-box">
+          <span className="font-primary text-[10px] font-extrabold uppercase tracking-widest text-secondary">
+            Looking for a Housemate
           </span>
         </div>
       )}
