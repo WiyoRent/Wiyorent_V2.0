@@ -293,7 +293,7 @@ export default function HousemateCard({ profile, my_verification_status, my_is_b
         )}
       </div>
       {/* Divider */}
-      <div className="border-t border-base-200 mx-6" />
+      <div className="border-t border-base-200 mx-6 mt-auto" />
       {/* CTA row */}
       <div className="p-5 flex gap-2 items-center">
         <button
