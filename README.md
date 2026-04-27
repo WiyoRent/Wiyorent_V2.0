@@ -4,7 +4,7 @@
 
 **Live**: [wiyorent.com](https://wiyorent.com)
 
-WiyoRent connects university students and young professionals with verified rental listings and compatible housemates. The platform provides a dual marketplace — browse curated housing listings or find a roommate — backed by an admin dashboard for listing management, user verification, and review moderation.
+Finding student housing in Kigali is broken. Listings scatter across WhatsApp groups, verification doesn't exist, and international students arriving at universities have no real way to find compatible roommates. WiyoRent fixes that — a full-stack marketplace for curated rentals and housemate matching, built for actual users in Kigali and live at [wiyorent.com](https://wiyorent.com). Building it meant solving real problems: switching to Cloudinary signed uploads after mobile uploads kept failing, wiring NextAuth.js v5 (still in beta) to a serverless Postgres adapter on Neon, and designing a schema that captures lifestyle compatibility not just price and bedroom count. 
 
 ---
 
