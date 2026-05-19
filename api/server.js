@@ -5,10 +5,19 @@ import { connectCloudinary } from './config/cloudinary.js'
 import cors from "cors"
 import adminRouter from './routes/admin/index.js'
 import publicRouter from './routes/public/index.js'
+import rateLimit from 'express-rate-limit'
 
 // app config
 const app = express()
 const port = process.env.PORT || 4000
+
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    standardHeaders: true,
+    legacyHeaders: false,
+})
+
 connectCloudinary()
 
 // middleware

@@ -7,7 +7,6 @@ import publicPackageRouter from './package.routes.js'
 
 const publicRouter = express.Router()
 
-// Simply use the routers. Because we kept the full paths
 publicRouter.use('/', profileRouter)
 publicRouter.use('/', listingRouter)
 publicRouter.use('/', housemateRouter)
