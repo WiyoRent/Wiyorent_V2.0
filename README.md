@@ -4,7 +4,7 @@
 
 **Live**: [wiyorent.com](https://wiyorent.com)
 
-Finding student housing in Kigali is broken. Listings scatter across WhatsApp groups, verification doesn't exist, and international students arriving at universities have no real way to find compatible roommates. WiyoRent fixes that — a full-stack marketplace for curated rentals and housemate matching, built for actual users in Kigali and live at [wiyorent.com](https://wiyorent.com). Building it meant solving real problems: switching to Cloudinary signed uploads after mobile uploads kept failing, wiring NextAuth.js v5 (still in beta) to a serverless Postgres adapter on Neon, and designing a schema that captures lifestyle compatibility not just price and bedroom count. 
+WiyoRent connects university students and young professionals with verified rental listings and compatible housemates. The platform provides a dual marketplace — browse curated housing listings or find a roommate — backed by an admin dashboard for listing management, user verification, and review moderation.
 
 ---
 
@@ -80,7 +80,7 @@ WiyoRent is a full-stack web application with:
 - **Housemate Matching** — Dedicated matching page to find compatible roommates
 - **User Listings** — Students can post their own housing ads with photos, amenities, and house rules
 - **Save & Waitlist** — Save favourite listings and join waitlists for booked properties
-- **Reviews & Ratings** — Leave star ratings and written reviews for listings and profiles
+- **Reviews & Ratings** — Leave star ratings and written reviews for listings and profiles. Comments are automatically screened by the content moderation service — clean reviews go live instantly, flagged reviews await admin approval, and toxic content is rejected before storage
 - **Profile Onboarding** — Upload admission letter, passport, housing preferences, and lifestyle details
 - **Email Notifications** — Receive emails on verification approval/rejection, account changes, and waitlist availability
 
@@ -88,7 +88,7 @@ WiyoRent is a full-stack web application with:
 
 - **Listings Management** — Create, edit, toggle visibility, and delete listings with image management
 - **User Management** — View all users, verify accounts, block/unblock with reasons
-- **Review Moderation** — Approve or reject reviews with rejection notes
+- **Review Moderation** — Approve or reject reviews with rejection notes; clean reviews are auto-approved by the CMS and skip the queue
 - **Package Management** — Create and manage subscription/listing packages
 - **Analytics Dashboard** — Track user signups, listing views, and platform activity
 - **Cron Job** — Automated listing availability status updates
@@ -296,6 +296,7 @@ WiyoRent uses **NextAuth.js v5** with Google OAuth.
 | [Google OAuth](https://console.cloud.google.com) | User authentication |
 | [Sentry](https://sentry.io) | Error monitoring (org: `wiyorent-ltd`) |
 | [Vercel Analytics](https://vercel.com/analytics) | Web analytics and speed insights |
+| CMS Microservice (Railway) | Automated review content moderation |
 
 **Emails sent**:
 - Welcome on new signup
@@ -304,8 +305,54 @@ WiyoRent uses **NextAuth.js v5** with Google OAuth.
 - Account blocked / unblocked notifications
 - Admin alerts on profile updates
 - Waitlist availability notifications
+- Review auto-published notification (admin) for CMS-approved clean reviews
+- Review submitted / edited alerts (admin) for flagged reviews pending approval
 
 Set `SEND_EMAILS=false` to suppress all emails in development.
+
+---
+
+## Content Moderation
+
+All review comments are screened through a content moderation microservice before being persisted.
+
+**Service:** `https://cms-production-8d9e.up.railway.app/`  
+**Endpoint:** `POST /moderate` — `{ "text": "..." }`
+
+**Response shape:**
+```json
+{
+  "text": "...",
+  "label": "clean | flagged | toxic",
+  "confidence": 0.93,
+  "scores": { "clean": 0.01, "flagged": 0.93, "toxic": 0.05 }
+}
+```
+
+### Routing logic
+
+| Label | Action | `is_approved` stored | Admin email |
+|-------|--------|----------------------|-------------|
+| `clean` | Published immediately | `approved` | "Review Auto-Published" |
+| `flagged` | Held for manual review | `pending` | "New Review Awaiting Approval" |
+| `toxic` | Rejected — not stored | — | None |
+
+The same gate runs on both **new submissions** and **edits**. Editing a previously approved review re-runs moderation — a clean edit stays live, a flagged edit resets to `pending`.
+
+**Implementation files:**
+
+| File | Purpose |
+|------|---------|
+| `api/utils/cms.js` | `moderateContent(text)` — calls the CMS endpoint |
+| `api/controllers/public/review.controller.js` | Moderation gate in `createReview` and `editReview` |
+| `api/utils/mail.js` | `sendReviewAutoPublishedAlert` — admin alert for auto-published reviews |
+
+**Required DB migration (ran in Neon console):**
+```sql
+ALTER TABLE listing_reviews
+  ADD COLUMN moderation_label      VARCHAR(10),
+  ADD COLUMN moderation_confidence DECIMAL(6,4);
+```
 
 ---
 
