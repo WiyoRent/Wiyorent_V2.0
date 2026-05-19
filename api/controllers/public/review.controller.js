@@ -1,7 +1,8 @@
 import pool from "../../config/db.js";
-import { sendReviewSubmittedAlert, sendReviewEditedAlert } from "../../utils/mail.js";
+import { sendReviewSubmittedAlert, sendReviewEditedAlert, sendReviewAutoPublishedAlert } from "../../utils/mail.js";
 import { errorMsg, successMsg } from "../../utils/returnMsg.js";
 import { verifyHeaders } from "../../utils/verifyHeaders.js";
+import { moderateContent } from "../../utils/cms.js";
 
 
 
@@ -18,22 +19,52 @@ export const createReview = async (req,res) => {
             return errorMsg(res, 400, "Incomplete fields")
         }
 
-        const result = await pool.query(
-            `
-                INSERT INTO listing_reviews(
-                    user_id,
-                    listing_id,
-                    rating,
-                    comment
-                )VALUES($1,$2,$3,$4)
-                RETURNING *
-            `, [userId,listing_id, rating,comment])
+        const moderation = await moderateContent(comment)
+        const { label, confidence } = moderation
+
+        if (label === 'toxic') {
+            return errorMsg(res, 400, "Your review contains inappropriate content and cannot be posted.")
+        }
+
+        let result
+        if (label === 'clean') {
+            result = await pool.query(
+                `
+                    INSERT INTO listing_reviews(
+                        user_id,
+                        listing_id,
+                        rating,
+                        comment,
+                        is_approved,
+                        moderation_label,
+                        moderation_confidence
+                    )VALUES($1,$2,$3,$4,'approved',$5,$6)
+                    RETURNING *
+                `, [userId, listing_id, rating, comment, label, confidence])
+        } else {
+            result = await pool.query(
+                `
+                    INSERT INTO listing_reviews(
+                        user_id,
+                        listing_id,
+                        rating,
+                        comment,
+                        moderation_label,
+                        moderation_confidence
+                    )VALUES($1,$2,$3,$4,$5,$6)
+                    RETURNING *
+                `, [userId, listing_id, rating, comment, label, confidence])
+        }
 
         console.log(result.rows[0], '---result from create review');
-        
+
         const review = result.rows[0]
 
-        await sendReviewSubmittedAlert(user_full_name, listing_title, listing_id)
+        if (label === 'clean') {
+            await sendReviewAutoPublishedAlert(user_full_name, listing_title, listing_id)
+        } else {
+            await sendReviewSubmittedAlert(user_full_name, listing_title, listing_id)
+        }
 
         return successMsg(res, 200, "Review created", review);
 
@@ -59,27 +90,40 @@ export const editReview = async (req,res) => {
             return errorMsg(res, 400, "Incomplete fields")
         }
 
+        const moderation = await moderateContent(comment)
+        const { label, confidence } = moderation
+
+        if (label === 'toxic') {
+            return errorMsg(res, 400, "Your updated review contains inappropriate content and cannot be saved.")
+        }
+
+        const newApprovalStatus = label === 'clean' ? 'approved' : 'pending'
+
         const result = await pool.query(
             `
                 UPDATE listing_reviews
-                SET 
+                SET
                     rating = $1,
                     comment = $2,
                     edited_at = NOW(),
-                    is_approved = 'pending'
-                WHERE user_id = $3 AND listing_id = $4
+                    is_approved = $3,
+                    moderation_label = $4,
+                    moderation_confidence = $5
+                WHERE user_id = $6 AND listing_id = $7
                 RETURNING *
-            `, [rating, comment, userId, listing_id])
+            `, [rating, comment, newApprovalStatus, label, confidence, userId, listing_id])
 
         const review = result.rows[0]
-
-        console.log(review, 'edited reviewwwww')
 
         if (!review) {
             return errorMsg(res, 404, "Review not found or unauthorized");
         }
 
-        await sendReviewEditedAlert(user_full_name, listing_title)
+        if (label === 'clean') {
+            await sendReviewAutoPublishedAlert(user_full_name, listing_title, listing_id)
+        } else {
+            await sendReviewEditedAlert(user_full_name, listing_title)
+        }
 
         return successMsg(res,200,"Review Edited", review)
 

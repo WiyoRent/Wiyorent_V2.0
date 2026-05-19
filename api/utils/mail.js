@@ -247,6 +247,31 @@ export const sendReviewSubmittedAlert = (userName, listingTitle, listingId) =>
     `),
   }));
 
+export const sendReviewAutoPublishedAlert = (userName, listingTitle, listingId) =>
+  sendEmail('sendReviewAutoPublishedAlert', () => resend.emails.send({
+    from: FROM_EMAIL,
+    to: [ADMIN_GMAIL],
+    subject: `Review Auto-Published — ${listingTitle}`,
+    html: emailWrapper(`
+      <div style="margin: 0 0 28px;">
+        <span style="display: inline-block; background-color: ${C_YELLOW}; color: ${C_YELLOW_TEXT}; padding: 5px 14px; font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; border-radius: 3px; font-family: sans-serif;">&#10003;&nbsp; Auto-Published</span>
+      </div>
+      <h2 style="margin: 0 0 20px; font-size: 22px; font-weight: 800; color: ${C_BLACK}; line-height: 1.25; font-family: sans-serif;">Review Published Automatically</h2>
+      <table style="width: 100%; border-collapse: collapse; margin: 0 0 28px; border: 1px solid #ebebeb;">
+        <tr>
+          <td style="padding: 12px 16px; font-size: 11px; font-weight: 700; color: #aaa; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid #ebebeb; font-family: sans-serif; width: 28%;">Reviewer</td>
+          <td style="padding: 12px 16px; font-size: 15px; color: #333; font-weight: 700; border-bottom: 1px solid #ebebeb; font-family: sans-serif;">${userName}</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px 16px; font-size: 11px; font-weight: 700; color: #aaa; text-transform: uppercase; letter-spacing: 0.1em; font-family: sans-serif;">Listing</td>
+          <td style="padding: 12px 16px; font-size: 15px; color: #333; font-family: sans-serif;">${listingTitle}</td>
+        </tr>
+      </table>
+      <p style="margin: 0 0 8px; font-size: 15px; color: #444; font-family: sans-serif;">This review passed automated content moderation and is already <strong>live on the platform</strong>. No action is required.</p>
+      ${ctaButton(`${FRONTEND_URL}/admin/reviews`, 'View Review Queue')}
+    `),
+  }));
+
 export const sendReviewEditedAlert = (userName, listingTitle) =>
   sendEmail('sendReviewEditedAlert', () => resend.emails.send({
     from: FROM_EMAIL,
