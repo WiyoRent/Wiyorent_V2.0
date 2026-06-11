@@ -12,7 +12,9 @@ export const metadata = {
 export default async function LoginPage() {
   const session = await auth();
 
-  // If already logged in, redirect to dashboard
+  // If already logged in, send the user onward instead of showing the login
+  // form again: incomplete profiles go to /profile to finish onboarding,
+  // everyone else goes straight to /listings.
   if (session?.user) {
     if(!session?.is_onboarded){
       redirect('/profile');

@@ -6,6 +6,7 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.Wiyorent_Resend_API_KEY);
 
+// ── Brand constants & email styling helpers ────────────────────
 const C_BLACK       = '#010101';
 const C_YELLOW      = '#F1C528';
 const C_YELLOW_TEXT = '#3a2e05';
@@ -15,6 +16,8 @@ const SUPPORT_EMAIL = 'support@wiyorent.com';
 const FROM_EMAIL    = 'Wiyorent <no-reply@wiyorent.com>';
 
 // ── Dev guard ─────────────────────────────────────────────────
+// Skips actually sending emails unless SEND_EMAILS=true, so local/dev
+// environments don't spam real inboxes
 const sendEmail = async (label, fn) => {
   if (process.env.SEND_EMAILS !== 'true') {
     console.log(`📧 [EMAIL SKIPPED] ${label}`)
@@ -75,6 +78,8 @@ const sendWelcomeEmail = (email, name) =>
   }));
 
 // ── Auth config ───────────────────────────────────────────────
+// Google OAuth via NextAuth, persisted to the same Postgres DB as the rest of
+// the app through the Neon adapter
 export const { handlers, signIn, signOut, auth } = NextAuth(() => {
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
   return {
@@ -89,6 +94,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth(() => {
       signIn: '/login',
     },
     callbacks: {
+      // jwt runs first: copy custom user fields from the DB user record onto
+      // the token so they're available without a DB lookup on every request
       async jwt({ token, user }) {
         if (user) {
           token.role              = user.role;
@@ -99,6 +106,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth(() => {
         }
         return token;
       },
+      // session runs after jwt: expose those same fields on session.user so
+      // both the proxy middleware and client components can read them
       async session({ session, token }) {
         if (token) {
           session.user.id               = token.id;
@@ -111,6 +120,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth(() => {
       },
     },
     events: {
+      // Send the welcome email exactly once, on a brand-new account's first sign-in
       async signIn({ user, isNewUser }) {
         if (isNewUser && user.email && user.name) {
           sendWelcomeEmail(user.email, user.name).catch(console.error);

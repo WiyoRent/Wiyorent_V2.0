@@ -13,6 +13,8 @@ export const metadata = {
   },
 };
 
+// Layout for the (auth) route group - centers its children (login, post-login)
+// in a simple full-screen container, separate from the main site layout.
 export default function RootLayout({ children }) {
   return (
     <div className="relative flex min-h-screen w-full flex-col items-center justify-center p-4">

@@ -22,11 +22,13 @@ const VALUE_PROPS = [
 
 const PATTERN_BG = `url("data:image/svg+xml,%3Csvg width='48' height='48' viewBox='0 0 48 48' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolygon points='24,1 47,24 24,47 1,24' fill='none' stroke='%23F1C528' stroke-width='0.7' stroke-opacity='0.22'/%3E%3C/svg%3E")`;
 
+// Two-column layout: branding/value-props on the left (hidden content on
+// small screens collapses since the column stacks), LoginCard on the right.
 export default function LoginForm() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
 
-      {/* ── Left column — branding / hero ───────────────────────────────────── */}
+      {/* ########## Left column - branding / hero ########## */}
       <div className="relative flex flex-col justify-between p-8 sm:p-10 lg:p-12 bg-secondary overflow-hidden lg:w-1/2 lg:min-h-screen">
 
         {/* Geometric diamond-mesh pattern */}
@@ -89,7 +91,7 @@ export default function LoginForm() {
         </div>
       </div>
 
-      {/* ── Right column — login form ────────────────────────────────────────── */}
+      {/* ########## Right column - login form ########## */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-10 sm:px-10 sm:py-14 bg-base-200">
         <LoginCard />
       </div>

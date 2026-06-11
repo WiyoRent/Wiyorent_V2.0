@@ -3,6 +3,9 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { googleSignIn } from '@/actions/auth.action';
 
+// Renders the sign-in card shown on the right side of the login screen.
+// loading tracks whether the Google OAuth redirect is in progress so the
+// button can swap its icon for a spinner and disable itself.
 export default function LoginCard() {
   const [loading, set_loading] = useState(false);
 
@@ -20,7 +23,10 @@ export default function LoginCard() {
           </p>
         </div>
 
-        {/* ── Google Sign In — server action untouched ── */}
+        {/* ########## Google sign-in form ########## */}
+        {/* googleSignIn is a server action - it kicks off NextAuth's Google OAuth */}
+        {/* flow and redirects to /post-login on success. set_loading just drives */}
+        {/* the spinner while the redirect is in flight. */}
         <form onSubmit={() => set_loading(true)} action={googleSignIn}>
           <button
             type="submit"
@@ -52,7 +58,7 @@ export default function LoginCard() {
         </div>
       </div>
 
-      {/* Support link — below card */}
+      {/* Support link - below card */}
       <p className="font-secondary text-sm text-base-content/40 text-center mt-5">
         Need help?{' '}
         <a href="mailto:wiyorent@gmail.com" className="text-accent hover:underline font-semibold">

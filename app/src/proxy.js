@@ -2,12 +2,16 @@ import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";
 import { auth } from "./auth";
 
+// Next.js middleware (run before matched routes - see `config.match` below).
+// Each block below is an independent guard checked in order; the first one
+// that matches wins and redirects, otherwise the request proceeds normally.
 export async function proxy (req){
     const session = await auth()
     const user = session?.user
     const {pathname} = req.nextUrl
 
     // Protected Admin Paths -- NOT ADMIN
+    // /admin/* requires role === 'admin'; everyone else is sent to /login
     const adminProtectRoutes = ['/admin']
     const role = user?.role
     const isAdminRoute = adminProtectRoutes.some(path => pathname.startsWith(path))
@@ -17,6 +21,7 @@ export async function proxy (req){
     }
 
     // Protected User Paths --- NOT LOGIN
+    // /housemates and /profile require any authenticated user
     const protectedUserPaths = ['/housemates', '/profile']
     const isProtectedUserPath = protectedUserPaths.some(path => pathname.startsWith(path))
 
@@ -30,6 +35,8 @@ export async function proxy (req){
     }
 
     // Protected HouseMate Path
+    // Viewing a specific housemate's profile requires the visitor to be
+    // verified themselves (not pending/unverified)
     const isVerified = user?.verification_status
     const completedOnboarding = user?.is_onboarded
     if(pathname.startsWith('/housemates/') && (!isVerified || isVerified === 'pending')){
@@ -40,6 +47,7 @@ export async function proxy (req){
 
 }
 
+// Limits this middleware to only run on the routes it actually guards
 export const config = {
     match : ['/housemates/:path*', '/profile', '/admin/:path*']
 }
