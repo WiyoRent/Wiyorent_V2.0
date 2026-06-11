@@ -6,6 +6,11 @@ import { moderateContent } from "../../utils/cms.js";
 
 
 
+// ########## Create a listing review ##########
+// Reviews go through automated content moderation before being stored:
+//  - 'clean'  -> auto-approved and published immediately
+//  - 'toxic'  -> rejected outright, never stored
+//  - anything else (e.g. 'flagged') -> stored as pending for admin review
 export const createReview = async (req,res) => {
 
     try {
@@ -60,6 +65,7 @@ export const createReview = async (req,res) => {
 
         const review = result.rows[0]
 
+        // Notify the admin: either "auto-published" (clean) or "needs review" (pending)
         if (label === 'clean') {
             await sendReviewAutoPublishedAlert(user_full_name, listing_title, listing_id)
         } else {
@@ -80,6 +86,9 @@ export const createReview = async (req,res) => {
 
 }
 
+// ########## Edit a listing review ##########
+// Editing re-runs content moderation on the new comment. A previously
+// approved review can drop back to 'pending' if the edited text is flagged.
 export const editReview = async (req,res) => {
     try {
         const {userId} = verifyHeaders(req)
@@ -137,6 +146,8 @@ export const editReview = async (req,res) => {
     }
 }
 
+// ########## Delete a listing review ##########
+// WHERE clause includes user_id, so users can only delete their own reviews
 export const deleteReview = async (req,res) => {
     const reviewId = req.params.id
 

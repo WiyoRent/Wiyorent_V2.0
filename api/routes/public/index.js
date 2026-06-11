@@ -7,6 +7,9 @@ import publicPackageRouter from './package.routes.js'
 
 const publicRouter = express.Router()
 
+// ########## Route mounts ##########
+// No auth middleware here - these routes are reachable by anonymous visitors.
+// Individual routers/controllers handle their own auth checks where needed.
 publicRouter.use('/', profileRouter)
 publicRouter.use('/', listingRouter)
 publicRouter.use('/', housemateRouter)

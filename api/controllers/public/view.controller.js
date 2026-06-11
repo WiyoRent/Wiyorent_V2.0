@@ -2,6 +2,9 @@ import pool from "../../config/db.js";
 import { successMsg, errorMsg } from "../../utils/returnMsg.js";
 
 
+// ########## Track a listing page view ##########
+// De-duplicates views: a given user (or anonymous session) only counts once
+// per listing per hour, so refreshing the page doesn't inflate view_count.
 export const trackListingView = async (req, res) => {
 
     const { id } = req.params
@@ -9,7 +12,6 @@ export const trackListingView = async (req, res) => {
     const {userId, sessionId} = req.body
 
     try {
-        
         if (userId) {
             const existing = await pool.query(
                 `SELECT id FROM listing_views 
@@ -52,6 +54,8 @@ export const trackListingView = async (req, res) => {
     }
 }
 
+// ########## Track a housemate profile view ##########
+// Same hourly de-duplication as trackListingView, but against housemate_views
 export const trackHousemateView = async (req, res) => {
 
     const { id } = req.params

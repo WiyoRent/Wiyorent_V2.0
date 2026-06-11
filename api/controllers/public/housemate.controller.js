@@ -3,11 +3,19 @@ import { errorMsg, successMsg } from "../../utils/returnMsg.js";
 import { verifyHeaders } from "../../utils/verifyHeaders.js";
 
 
+// ########## Browse housemates (public listing, with filters) ##########
 export const fetchHousemates = async (req, res) => {
     const { allow_pets, max, min, cleanliness, gender, has_a_house, smoker, max_housemates, move_in_date, preferred_locations, sleep_schedule, social_habit, university, dont_mind_pets, dont_mind_smoker, has_pet, private_room, urgency } = req.query
     console.log(req.query, '---fetchhousemate query')
     try {
+        // verifyHeaders checks the internal API key and extracts the
+        // requesting user's ID (used to exclude their own profile and to
+        // mark which housemates they've already saved)
         const { userId } = verifyHeaders(req)
+
+        // Base query: only show profiles that are public, onboarded, not
+        // blocked, not rejected, and not the current user's own profile.
+        // Filters below append " AND ..." clauses for whatever the user picked.
         let query = `
             SELECT
                 u.id as profile_id,
@@ -70,6 +78,7 @@ export const fetchHousemates = async (req, res) => {
             smoker === 'true' ? query += ` AND is_smoker = true` : query += ` AND is_smoker = false`
         }
         if (max_housemates) {
+            // "4+" is a UI-only bucket meaning "4 or more" - turn it into a >= comparison
             if (max_housemates === '4+') {
                 query += ` AND max_housemates >= 4`
             } else {
@@ -82,6 +91,8 @@ export const fetchHousemates = async (req, res) => {
             values.push(move_in_date)
         }
         if (preferred_locations) {
+            // preferred_locations arrives as "kigali,remera,kacyiru" - split into
+            // an array and use && (array overlap) to match if any location matches
             const location_list = preferred_locations.split(',')
             query += ` AND preferred_locations && $${paramIndex++}::text[]`
             values.push(location_list)
@@ -117,6 +128,8 @@ export const fetchHousemates = async (req, res) => {
             values.push(urgency)
         }
 
+        // Run the filtered housemate query alongside an unfiltered "meta" query
+        // that powers the filter sidebar (budget range, universities, locations)
         const [result, metaResult] = await Promise.all([
             pool.query(query, values),
             pool.query(`
@@ -163,6 +176,8 @@ export const fetchHousemates = async (req, res) => {
             verification_status: user.verification_status,
             has_house: user.has_house ?? false,
             urgency: user.urgency ?? null,
+            // Only show a listing preview if this housemate actually has a
+            // house with pricing info attached
             listing_snapshot: (user.has_house && user.listing_price) ? {
                 price: user.listing_price,
                 neighborhood: user.listing_neighborhood,
@@ -182,12 +197,15 @@ export const fetchHousemates = async (req, res) => {
     }
 }
 
+// ########## Fetch single housemate profile ##########
 export const fetchHousemate = async (req,res) => {
 
-    try { 
+    try {
         const housemateId = req.params.id
         verifyHeaders(req,res)
 
+        // Pulls the full profile plus their listing (if they have a house)
+        // and that listing's images, all in one query
         const result = await pool.query(
             `
                 SELECT
@@ -239,6 +257,9 @@ export const fetchHousemate = async (req,res) => {
     }
 }
 
+// ########## Fetch housemate contact details ##########
+// Separate endpoint (rather than including contact info in fetchHousemate) so
+// contact details are only fetched on demand, e.g. when the user clicks "Contact"
 export const fetchHousemateContactDetail = async (req,res) => {
     try {
         const housemateId = req.params.id
@@ -279,6 +300,8 @@ export const fetchHousemateContactDetail = async (req,res) => {
 
 }
 
+// ########## Save / unsave a housemate profile ##########
+// isSaved acts as a toggle: true inserts a saved_housemates row, false removes it
 export const saveHousemate = async (req,res) => {
 
     console.log(req.body, '---received body from save housemate')
@@ -316,11 +339,15 @@ export const saveHousemate = async (req,res) => {
     
 }
 
+// ########## Fetch the current user's saved housemates ##########
 export const fetchSavedHousemates = async (req,res) => {
     try {
         const rawUserId = req.headers['x-user-id']
         const clientKey = req.headers['x-internal-api-key']
 
+        // This endpoint is called server-to-server from the Next.js app, not
+        // directly by the browser, so it's gated by a shared internal API key
+        // rather than a user session
         if(clientKey !== process.env.INTERNAL_BACKEND_KEY){
             return errorMsg(res, 403, "Not authorized")
         }
@@ -328,7 +355,7 @@ export const fetchSavedHousemates = async (req,res) => {
         const userId = rawUserId && rawUserId !== 'null' ? rawUserId : null
 
         const result = await pool.query(`
-            SELECT 
+            SELECT
                 u.id as profile_id,
                 u.full_name,
                 u.nationality,

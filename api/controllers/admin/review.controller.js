@@ -3,10 +3,13 @@ import { errorMsg, successMsg } from "../../utils/returnMsg.js"
 import formatDate from "../../utils/formatDate.js"
 import { sendReviewApprovedEmail, sendReviewRejectedEmail } from "../../utils/mail.js"
 
+// ########## Get reviews (admin moderation table) ##########
 export const getUserReviews = async (req, res) => {
     try {
         const { status, rating, date_from, date_to, search } = req.query
 
+        // Base query joins reviews to their reviewer and the reviewed listing.
+        // Filters are appended conditionally below, same pattern as fetchAllListings.
         let query = `
             SELECT
                 lr.id AS review_id,
@@ -49,6 +52,8 @@ export const getUserReviews = async (req, res) => {
             values.push(`%${search}%`, `%${search}%`)
         }
 
+        // Pending reviews always surface at the top, regardless of sort order,
+        // so admins see what needs moderation first
         query += ` ORDER BY (lr.is_approved = 'pending') DESC, lr.created_at DESC`
 
         const result = await pool.query(query, values)
@@ -81,6 +86,7 @@ export const getUserReviews = async (req, res) => {
     }
 }
 
+// ########## Approve review ##########
 export const approveUserReview = async (req,res) => {
     const reviewId = req.params.id
     const {status, email, full_name, property_title } = req.body
@@ -111,6 +117,7 @@ export const approveUserReview = async (req,res) => {
 
 }
 
+// ########## Reject review ##########
 export const rejectUserReview = async (req,res) => {
     const reviewId = req.params.id
     const {status, email, full_name, property_title, review_rejection_note } = req.body
@@ -145,6 +152,7 @@ export const rejectUserReview = async (req,res) => {
 
 }
 
+// ########## Delete review ##########
 export const deleteUserReview = async (req, res) => {
     const reviewId = req.params.id
     if (!reviewId) return errorMsg(res, 400, "Couldn't get review ID")

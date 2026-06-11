@@ -9,22 +9,25 @@ import { sendAdminUpdateAlert, sendVerificationRequestEmail } from "../../utils/
 
 
 
+// ########## Get the logged-in user's own profile ##########
 export const getProfile = async (req, res) => {
     try {
         const { userId } = verifyHeaders(req)
 
-        // Fetch user profile
+        // Fetch user profile.
+        // move_in_date is clamped to "today" if it's in the past, and age is
+        // derived from date_of_birth on the fly
         const userRes = await pool.query(
-            `SELECT 
-                *, 
+            `SELECT
+                *,
                 TO_CHAR(
-                    CASE 
+                    CASE
                         WHEN move_in_date <= CURRENT_DATE THEN CURRENT_DATE
                         ELSE move_in_date
                     END, 'YYYY-MM-DD'
                 ) AS move_in_date,
                 TO_CHAR(date_of_birth, 'YYYY-MM-DD'),
-                date_part('year', age(date_of_birth))::int AS age 
+                date_part('year', age(date_of_birth))::int AS age
             FROM users WHERE id = $1
                 `,
             [userId]
@@ -36,7 +39,7 @@ export const getProfile = async (req, res) => {
 
         const user = userRes.rows[0]
 
-        // Fetch listing + images
+        // Fetch the user's own listing (if they have a house to rent out) + its images
         const listingRes = await pool.query(`
             SELECT 
                 ul.*,
@@ -71,12 +74,18 @@ export const getProfile = async (req, res) => {
 }
 
 
+// ########## Update profile (onboarding + later edits) ##########
+// Handles three flows in one endpoint:
+//  1. First-time onboarding (sets is_onboarded + verification_status='pending')
+//  2. Regular profile edits (flags has_performed_an_update for the admin)
+//  3. Optional listing creation/update if the user marks has_house = 'true'
 export const updateProfile = async (req, res) => {
     try {
         const { userId } = verifyHeaders(req)
 
         console.log('[updateProfile] entry — userId:', userId, 'body keys:', Object.keys(req.body))
 
+        // Blocked users cannot edit their profile at all
         const blockedCheck = await pool.query(
             `SELECT is_blocked FROM users WHERE id = $1`,
             [userId]
@@ -147,6 +156,7 @@ export const updateProfile = async (req, res) => {
 
         
 
+        // Reject obviously-invalid or implausible dates of birth
         const dob = new Date(date_of_birth)
         const now = new Date()
         if (isNaN(dob.getTime())) {
@@ -164,9 +174,11 @@ export const updateProfile = async (req, res) => {
             return errorMsg(res, 400, "Please enter a valid profile picture")
         }
 
+        // Form sends preferred_locations as a comma-separated string - convert
+        // to a trimmed array for storage (used with && array-overlap filters elsewhere)
         const preferred_locations_array = preferred_locations.split(',').map(item => item.trim())
 
-        
+
 
         // ------ Update basic user info ------
         const query = `
@@ -252,7 +264,10 @@ export const updateProfile = async (req, res) => {
         const raw_admission = req.body.admission_letter
         const raw_passport  = req.body.passport_id
 
-        // Onboarded + not rejected → ignore incoming docs
+        // Once a user is onboarded and verified (not rejected), their
+        // verification documents are locked - the edit form re-submits the
+        // same values, but we ignore them and keep whatever is already on file.
+        // This prevents an approved user's docs from being silently overwritten.
         const docs_locked = user.is_onboarded && user.verification_status !== 'rejected'
 
         const admission_letter_url = docs_locked
@@ -263,6 +278,7 @@ export const updateProfile = async (req, res) => {
             ? (user.passport_id ?? null)
             : (raw_passport && raw_passport !== 'null') ? raw_passport : (user.passport_id ?? null)
 
+        // First-time onboarding requires both verification documents
         if (!user.is_onboarded) {
             if (!admission_letter_url) {
                 return errorMsg(res, 400, 'Admission letter is required to complete onboarding')
@@ -272,6 +288,8 @@ export const updateProfile = async (req, res) => {
             }
         }
 
+        // Avatar changed - delete the old Cloudinary image so it doesn't
+        // linger as orphaned storage
         if (existingAvatar && existingAvatar !== avatar_url) {
             const publicId = extractPublicId(existingAvatar)
             console.log('[updateProfile] deleting old avatar — publicId:', publicId)
@@ -292,6 +310,7 @@ export const updateProfile = async (req, res) => {
         }
 
         // ------ Handle listing creation/update ------
+        // FormData sends booleans as strings, so compare against 'true' literally
         if (has_house === 'true') {
             const listingImages = req.body.listing_images_existing
                 ? Array.isArray(req.body.listing_images_existing)
@@ -305,6 +324,8 @@ export const updateProfile = async (req, res) => {
         }
 
         // ------ Onboarding flag ------
+        // First time through: mark the user as onboarded and queue them for
+        // admin verification, then notify them by email
         if (!user.is_onboarded) {
             console.log('[updateProfile] first onboarding — setting is_onboarded=true for userId:', user.id)
             await pool.query(`
@@ -325,6 +346,8 @@ export const updateProfile = async (req, res) => {
             return successMsg(res, 200, 'Onboarding details saved. We are currently verifying your account.');
         }
 
+        // Already onboarded: just flag that the user changed something, so
+        // the admin dashboard can surface "updated" profiles for re-review
         console.log('[updateProfile] profile update — setting has_performed_an_update=true for userId:', user.id)
         await pool.query(`
             UPDATE users SET has_performed_an_update = true WHERE id = $1
@@ -350,6 +373,10 @@ export const updateProfile = async (req, res) => {
 }
 
 
+// ########## Create or update a user's own listing ##########
+// Called from updateProfile when has_house = 'true'. Validates the listing
+// fields/images, upserts the user_listings row, then syncs the gallery
+// images (same diff-and-sync pattern as editListing in the admin controller).
 const create_user_listing = async (body, listing_images, userId) => {
     const {
         listing_price,
@@ -412,10 +439,14 @@ const create_user_listing = async (body, listing_images, userId) => {
     }
 
     try {
+        // Same comma-separated string -> array conversion used elsewhere for
+        // amenities/house_rules
         const amenities_array = listing_amenities.split(',').map(item => item.trim())
         const house_rules_array = listing_house_rules.split(',').map(item => item.trim())
 
         // ------ Upsert listing row ------
+        // ON CONFLICT (user_id) means each user has at most one listing -
+        // re-saving the form updates the existing row instead of duplicating it
         console.log('[updateProfile] create_user_listing — upserting listing for userId:', userId, 'neighborhood:', listing_neighborhood, 'price:', listing_price)
         const listingResult = await pool.query(`
             INSERT INTO user_listings (
@@ -480,6 +511,8 @@ const create_user_listing = async (body, listing_images, userId) => {
         const imageUrls = listing_images
 
         // ------ Sync images ------
+        // Diff incoming images against what's already stored: remove rows
+        // (and Cloudinary files) that are no longer in the list, insert new ones
         console.log('[updateProfile] create_user_listing — syncing images, userListingId:', userListingId, 'incoming count:', imageUrls.length)
         const existingRes = await pool.query(`
             SELECT image_url FROM user_listing_images WHERE user_listing_id = $1

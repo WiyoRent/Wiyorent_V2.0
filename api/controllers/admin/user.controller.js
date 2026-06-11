@@ -4,10 +4,13 @@ import formatDate from "../../utils/formatDate.js"
 import {v2 as cloudinary} from 'cloudinary'
 import { sendApprovalEmail, sendRejectionEmail, sendBlockedEmail, sendUnblockedEmail } from "../../utils/mail.js"
 
+// ########## Fetch all users (admin table, with filters) ##########
 export const fetchUsers = async (req, res) => {
     try {
         const { verification_status, is_blocked, gender, university_name, has_house, is_onboarded, sort, urgency, budget_min, budget_max, preferred_location } = req.query
 
+        // Same conditional-filter pattern as fetchAllListings: start from a
+        // base query and append " AND ..." clauses only for filters provided
         let query = `
             SELECT
                 u.id,
@@ -70,6 +73,8 @@ export const fetchUsers = async (req, res) => {
 
         query += sort === 'oldest' ? ` ORDER BY u.created_at ASC` : ` ORDER BY u.created_at DESC`
 
+        // Run the filtered user query alongside an unfiltered "meta" query that
+        // powers the filter sidebar (budget range, universities, locations)
         const [result, metaResult] = await Promise.all([
             pool.query(query, values),
             pool.query(`
@@ -111,10 +116,13 @@ export const fetchUsers = async (req, res) => {
     }
 }
 
+// ########## Fetch single user (admin detail view) ##########
 export const fetchSingleUser = async (req,res) => {
     try {
         const {id} = req.params
 
+        // Joins the user's profile with their listing (if they have a house to
+        // rent out) and that listing's images
         const result = await pool.query(
             `
                 SELECT
@@ -220,6 +228,7 @@ export const fetchSingleUser = async (req,res) => {
     }
 }
 
+// ########## Update user (verification/block status, admin notes) ##########
 export const updatedUser = async (req, res) => {
     try {
         const { user_id, admin_note, has_performed_an_update, is_blocked, is_blocked_reason, verification_status } = req.body;
@@ -247,7 +256,9 @@ export const updatedUser = async (req, res) => {
             WHERE id = $6
         `, [admin_note, has_performed_an_update || false, is_blocked, is_blocked_reason, verification_status, user_id]);
 
-        // 3. Send appropriate email based on what changed
+        // 3. Send appropriate email based on what changed.
+        // Compare old vs new status/blocked flags to detect a transition -
+        // we only want to email on the transition, not on every save.
         const isNewlyApproved  = ['pending', 'rejected', null].includes(oldStatus) && verification_status === 'approved';
         const isNewlyRejected  = oldStatus !== 'rejected' && verification_status === 'rejected';
         const isNewlyBlocked   = !wasBlocked && is_blocked;
@@ -265,12 +276,15 @@ export const updatedUser = async (req, res) => {
     }
 };
 
+// ########## Delete user ##########
 export const deleteUser = async (req, res) => {
     try {
         const userId = req.params.id
 
         const folderPath = `wiyorent/users/${userId}`
 
+        // Best-effort cleanup of the user's uploaded files (avatar, ID docs,
+        // listing images) - doesn't block the DB delete if it fails
         try {
             await cloudinary.api.delete_resources_by_prefix(folderPath)
             await cloudinary.api.delete_folder(folderPath)

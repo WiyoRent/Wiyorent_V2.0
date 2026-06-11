@@ -4,10 +4,12 @@ import { v2 as cloudinary } from "cloudinary"
 import { extractPublicId } from 'cloudinary-build-url'
 import { sendWaitlistAvailabilityEmail } from "../../utils/mail.js"
 
+// ########## Create listing ##########
 export const createListing = async (req, res) => {
     try {
         const { title, is_active, is_verified, description, available_status, available_from, amenities, house_rules, price_per_month, commission_fee, caution_fee, upfront_months, is_a_wiyorent_house, full_name, phone_number, neighborhood, city, country, bedroom_number, bathroom_number, max_roommates, property_type, is_furnished } = req.body
 
+        // Fields that must be present and non-empty before we attempt the insert
         const requiredFields = {
             title,
             description,
@@ -35,6 +37,8 @@ export const createListing = async (req, res) => {
             return errorMsg(res, 400, `Missing required fields: ${missingFields.join(', ')}`);
         }
 
+        // Form sends amenities/house_rules as a comma-separated string
+        // (e.g. "wifi, parking, pool") - convert to a trimmed array for storage
         const amenities_array = amenities.split(',').map(item => item.trim())
         const house_rules_array = house_rules.split(',').map(item => item.trim())
 
@@ -77,6 +81,9 @@ export const createListing = async (req, res) => {
     }
 }
 
+// ########## Set listing images ##########
+// images: array of Cloudinary URLs. The first URL becomes the listing's
+// thumbnail; the rest are stored as the gallery in listing_images.
 export const setListingImages = async (req, res) => {
     try {
         const { id } = req.params
@@ -95,6 +102,8 @@ export const setListingImages = async (req, res) => {
             [images[0], id]
         )
 
+        // Replace the gallery wholesale: clear existing rows, then re-insert
+        // everything after the thumbnail
         await pool.query(
             `DELETE FROM listing_images WHERE listing_id = $1`,
             [id]
@@ -115,6 +124,7 @@ export const setListingImages = async (req, res) => {
     }
 }
 
+// ########## Fetch single listing (admin detail view) ##########
 export const fetchSingleListing = async (req,res) => {
     const id = req.params.id
 
@@ -123,8 +133,11 @@ export const fetchSingleListing = async (req,res) => {
     }
 
     try {
+    // available_from is clamped to "today" if it's in the past, so the
+    // frontend never displays a stale availability date.
+    // image_urls aggregates every row from listing_images for this listing.
     const result = await pool.query(`
-        SELECT 
+        SELECT
             l.*,
             TO_CHAR(
                 CASE
@@ -139,9 +152,9 @@ export const fetchSingleListing = async (req,res) => {
         FROM listings l
         LEFT JOIN listing_images li
             ON l.id = li.listing_id
-        WHERE 
+        WHERE
             l.id = $1
-        GROUP BY 
+        GROUP BY
             l.id
     `, [id])
 
@@ -152,6 +165,8 @@ export const fetchSingleListing = async (req,res) => {
 
     let listing = result.rows
 
+    // Reshape the flat DB row into the nested structure the admin
+    // listing detail page expects (analytics/landlord/financials/etc grouped)
     listing = listing.map(listing => ({
         listing_id : id,
         title : listing.title,
@@ -190,6 +205,8 @@ export const fetchSingleListing = async (req,res) => {
             city: listing.city,
             country: listing.country
         },
+        // Thumbnail is stored separately from the gallery, so prepend it
+        // here to give the frontend one combined image list
         image_urls: [listing.thumbnail_url, ...listing.image_urls]
     }))
 
@@ -203,6 +220,7 @@ export const fetchSingleListing = async (req,res) => {
     }
 }
 
+// ########## Edit listing ##########
 export const editListing = async (req, res) => {
     try {
         const { id } = req.params
@@ -251,6 +269,7 @@ export const editListing = async (req, res) => {
             return errorMsg(res, 403, 'Please upload at least 4 images for this property')
         }
 
+        // Same comma-separated string -> array conversion as createListing
         const amenities_array = amenities.split(',').map(item => item.trim())
         const house_rules_array = house_rules.split(',').map(item => item.trim())
 
@@ -287,7 +306,8 @@ export const editListing = async (req, res) => {
             return errorMsg(res, 404, "Couldn't edit listing")
         }
 
-        // Sync gallery
+        // Sync gallery: diff the new gallery list against what's already in
+        // listing_images so we only touch rows that actually changed
         const existingRes = await pool.query(
             `SELECT image_url FROM listing_images WHERE listing_id = $1`, [id]
         )
@@ -301,6 +321,8 @@ export const editListing = async (req, res) => {
                 `DELETE FROM listing_images WHERE listing_id = $1 AND image_url = ANY($2)`,
                 [id, urlToRemove]
             )
+            // Also remove the now-unused files from Cloudinary so storage
+            // doesn't accumulate orphaned images
             const publicIds = urlToRemove.map(url => extractPublicId(url))
             await Promise.all(publicIds.map(id => cloudinary.uploader.destroy(id)))
         }
@@ -340,10 +362,14 @@ export const editListing = async (req, res) => {
     }
 }
 
+// ########## Fetch all listings (admin table, with filters) ##########
 export const fetchAllListings = async (req, res) => {
     try {
         const { is_active, neighborhood, is_furnished, min_price, max_price, sort, available_status, property_type, bedroom_number, is_a_wiyorent_house, landlord } = req.query
 
+        // Base query plus per-row aggregate counts. Filters below are appended
+        // conditionally, building up `query` and `values` ($1, $2, ...) together
+        // so only the filters the admin actually picked are applied.
         let query = `
             SELECT
                 id,
@@ -401,6 +427,8 @@ export const fetchAllListings = async (req, res) => {
             values.push(property_type)
         }
         if (bedroom_number !== undefined && bedroom_number !== '') {
+            // "4+" is a UI-only bucket for "4 or more bedrooms" - translate it
+            // to a >= comparison instead of an exact match
             if (bedroom_number === '4+') {
                 query += ` AND bedroom_number >= 4`
             } else {
@@ -419,6 +447,8 @@ export const fetchAllListings = async (req, res) => {
 
         query += sort === 'oldest' ? ` ORDER BY created_at ASC` : ` ORDER BY created_at DESC`
 
+        // Run the filtered listing query alongside an unfiltered "meta" query
+        // that powers the filter sidebar (price range, available neighborhoods, etc.)
         const [data, metaResult] = await Promise.all([
             pool.query(query, values),
             pool.query(`
@@ -469,6 +499,7 @@ export const fetchAllListings = async (req, res) => {
     }
 }
 
+// ########## Toggle listing visibility ##########
 export const toggleListingActive = async (req, res) => {
     try {
         const { id } = req.params
@@ -499,6 +530,7 @@ export const toggleListingActive = async (req, res) => {
     }
 }
 
+// ########## Delete listing ##########
 export const deleteListing = async (req,res) => {
     try {
         const id = req.params.id
@@ -518,6 +550,8 @@ export const deleteListing = async (req,res) => {
             return errorMsg(res, 404, "Couldn't find listing")
         }
 
+        // Best-effort cleanup of the listing's Cloudinary folder. The DB row is
+        // already gone, so we don't fail the request if this part errors.
         try {
             await cloudinary.api.delete_resources_by_prefix(`wiyorent/listings/${id}`)
             await cloudinary.api.delete_folder(`wiyorent/listings/${id}`)

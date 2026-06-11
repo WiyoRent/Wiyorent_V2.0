@@ -11,18 +11,21 @@ import { sendWaitlistAvailabilityEmail } from "../../utils/mail.js"
 
 const adminRouter = express.Router()
 
-// Middleware
+// ########## Middleware ##########
+// Every admin route below requires a valid admin session
 adminRouter.use(requireAdmin)
 
-// Routes
+// ########## Route mounts ##########
 adminRouter.use('/', listingRouter)
 adminRouter.use('/', reviewsRouter)
 adminRouter.use('/', userAdminRouter)
 adminRouter.use('/', packageRouter)
 adminRouter.use('/', analyticsRouter)
 
-// Cron job
+// ########## Cron job ##########
 
+// Triggered by an external scheduler (not requireAdmin), so it is guarded by a
+// shared secret header instead of an admin session
 adminRouter.post('/internal/process-available-listings', async (req, res) => {
     if (req.headers['x-cron-secret'] !== process.env.CRON_SECRET) {
         return errorMsg(res, 401, 'Unauthorized')
@@ -32,6 +35,7 @@ adminRouter.post('/internal/process-available-listings', async (req, res) => {
     try {
         await client.query('BEGIN')
 
+        // Flip any "booked" listings to "available" once their available_from date has arrived
         const listingRes = await client.query(`
             UPDATE listings
                 SET available_status = 'available'
@@ -42,9 +46,10 @@ adminRouter.post('/internal/process-available-listings', async (req, res) => {
         `)
         const listings = listingRes.rows
 
+        // For each listing that just became available, notify everyone on its waitlist
         for (const listing of listings) {
             const emailRes = await client.query(`
-                SELECT 
+                SELECT
                     u.email,
                     u.name,
                     l.title

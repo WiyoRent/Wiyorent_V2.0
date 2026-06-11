@@ -1,6 +1,8 @@
 import pool from "../../config/db.js"
 import { errorMsg, successMsg } from "../../utils/returnMsg.js"
 
+// ########## Get packages ##########
+// Used by both the admin packages page and the public pricing section
 export const getPackages = async (req, res) => {
     try {
         const result = await pool.query(`
@@ -9,6 +11,7 @@ export const getPackages = async (req, res) => {
             ORDER BY price ASC
         `)
 
+        // Reshape DB columns into the camelCase-ish keys the frontend expects
         const packages = result.rows.map((row) => ({
             package_id: row.id,
             name: row.name,
@@ -27,6 +30,7 @@ export const getPackages = async (req, res) => {
     }
 }
 
+// ########## Create package ##########
 export const createPackage = async (req, res) => {
     const { name, price, description, inclusions, is_popular } = req.body
 
@@ -61,6 +65,7 @@ export const createPackage = async (req, res) => {
     }
 }
 
+// ########## Update package ##########
 export const updatePackage = async (req, res) => {
     const packageId = req.params.id
     const { name, price, description, inclusions, is_popular } = req.body
@@ -106,6 +111,7 @@ export const updatePackage = async (req, res) => {
     }
 }
 
+// ########## Delete package ##########
 export const deletePackage = async (req, res) => {
     const packageId = req.params.id
 

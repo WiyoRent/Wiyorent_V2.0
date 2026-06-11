@@ -1,6 +1,9 @@
 import pool from "../../config/db.js"
 import { errorMsg, successMsg } from "../../utils/returnMsg.js"
 
+// Builds the full admin analytics dashboard payload. Runs four independent
+// queries in parallel (one big aggregate plus three breakdown tables) and
+// merges them into a single object for the frontend dashboard.
 export const fetchAnalytics = async (req, res) => {
     try {
         const [mainResult, universitiesResult, locationsResult, nationalitiesResult] = await Promise.all([
@@ -116,6 +119,9 @@ export const fetchAnalytics = async (req, res) => {
             `),
         ])
 
+        // mainResult.rows[0] is a single row of aggregate counts/averages (the
+        // big SELECT above); the breakdown queries each return one row per
+        // group (e.g. { university: "...", total: 12 })
         const analytics = {
             ...mainResult.rows[0],
             universities: universitiesResult.rows,

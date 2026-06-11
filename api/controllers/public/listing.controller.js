@@ -1,8 +1,12 @@
 import pool from "../../config/db.js"
 import { errorMsg, successMsg } from "../../utils/returnMsg.js"
 
+// ########## Browse listings (public listing, with filters) ##########
 export const fetchListings = async (req,res) => {
 
+    // Called server-to-server from the Next.js app, gated by a shared
+    // internal API key. x-user-id (if present) is used to flag which
+    // listings the current visitor has saved/waitlisted.
     const clientKey = req.headers['x-internal-api-key']
     const rawUserId = req.headers['x-user-id']
 
@@ -13,11 +17,15 @@ export const fetchListings = async (req,res) => {
     }
 
     const {min, max, wiyorent_only, available_only, bedrooms, max_roommates, furnished_status, neighborhood, available_from} = req.query
+    // neighborhood arrives as "kigali,remera" - split into an array for the ANY() filter below
     const neighborhoodList = neighborhood ? neighborhood.split(',') : []
-    
+
 
     try {
 
+        // Base query: only active listings, with is_saved/is_on_waitlist flags
+        // for the current user. Filters below append " AND ..." clauses for
+        // whatever the visitor picked in the sidebar.
         let query = `
             SELECT
                 l.id,
@@ -69,6 +77,7 @@ export const fetchListings = async (req,res) => {
         }
 
         if (bedrooms) {
+            // "4+" is a UI-only bucket meaning "4 or more bedrooms"
             if (bedrooms === '4+') {
                 query += ` AND l.bedroom_number >= 4`
             } else {
@@ -78,6 +87,7 @@ export const fetchListings = async (req,res) => {
         }
 
         if (max_roommates) {
+            // Same "4+" bucket convention as bedrooms above
             if (max_roommates === '4+') {
                 query += ` AND l.max_roommates >= 4`
             } else {
@@ -102,15 +112,18 @@ export const fetchListings = async (req,res) => {
             values.push(available_from)
         }
 
+        // Available listings are always shown first, then newest-first within each group
         query += `
             GROUP BY l.id, sl.id, w.id
-            ORDER BY 
+            ORDER BY
                 l.available_status = 'available' DESC,
                 l.created_at DESC
         `
 
         console.log(query, '---query')
 
+        // Run the filtered listing query alongside an unfiltered "meta" query
+        // that powers the filter sidebar (price range, available neighborhoods)
         const [result, metaResult] = await Promise.all([
             pool.query(query, values),
             pool.query(`
@@ -166,12 +179,16 @@ export const fetchListings = async (req,res) => {
     
 }
 
+// ########## Fetch single listing (public detail page) ##########
 export const fetchSingleListing = async (req,res) => {
 
     try {
         const listingId = req.params.id
         const userId = req.query.userId || null
 
+        // Pulls the listing, its gallery images, its waitlist status for this
+        // user, and a pre-aggregated `reviews` JSON object (average rating,
+        // total count, and the list of approved review entries) in one query
         const result = await pool.query(`
             SELECT
                 l.id,
@@ -203,6 +220,8 @@ export const fetchSingleListing = async (req,res) => {
                 ARRAY_AGG(DISTINCT li.image_url) as image_urls,
                 l.house_rules,
                 (w.id IS NOT NULL) AS is_on_waitlist,
+                -- reviews: { average_rating, total_count, entries: [...] } built
+                -- from approved reviews only; falls back to zeros/[] if there are none
                 COALESCE(
                     json_build_object(
                         'average_rating', ROUND(AVG(lr.rating) FILTER (WHERE lr.is_approved = 'approved')),
@@ -272,6 +291,8 @@ export const fetchSingleListing = async (req,res) => {
             is_verified: listing.is_verified,
             thumbnail_url: listing.thumbnail_url,
             description: listing.description,
+            // Thumbnail is stored separately from the gallery, so prepend it
+            // here to give the frontend one combined image list
             image_urls: [listing.thumbnail_url,...listing.image_urls],
             house_rules: listing.house_rules,
             is_on_waitlist: listing.is_on_waitlist,
@@ -289,6 +310,8 @@ export const fetchSingleListing = async (req,res) => {
 
 }
 
+// ########## Save / unsave a listing ##########
+// isLiked acts as a toggle: true inserts a saved_listings row, false removes it
 export const saveListing = async (req,res) => {
     const {userId, listingId, isLiked} = req.body;
     const clientKey = req.headers['x-internal-api-key']
@@ -323,6 +346,10 @@ export const saveListing = async (req,res) => {
     
 }
 
+// ########## Join / leave a listing's waitlist ##########
+// isOnWaitlist acts as a toggle: true inserts a waitlists row, false removes it.
+// Users on the waitlist get notified by the cron job in routes/admin/index.js
+// when the listing becomes available again.
 export const toggleWaitlist = async (req, res) => {
     const { userId, listingId, isOnWaitlist } = req.body
     const clientKey = req.headers['x-internal-api-key']
@@ -352,6 +379,7 @@ export const toggleWaitlist = async (req, res) => {
     }
 }
 
+// ########## Fetch the current user's saved listings ##########
 export const fetchSavedListings = async (req,res) => {
 
     try {
@@ -425,6 +453,7 @@ export const fetchSavedListings = async (req,res) => {
 
 }
 
+// ########## Fetch the current user's waitlisted listings ##########
 export const fetchWaitlistedListings = async (req, res) => {
     const rawUserId = req.headers['x-user-id']
     const clientKey = req.headers['x-internal-api-key']
