@@ -3,6 +3,7 @@
 import { auth } from "@/auth"
 import { getBaseURL } from "@/lib/getBaseURL"
 
+// Same auth + internal-API-key forwarding pattern as listings.action.js
 export const deletePackage = async (id) => {
     try {
         const session = await auth()

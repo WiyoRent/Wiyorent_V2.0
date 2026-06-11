@@ -3,6 +3,8 @@
 import { auth } from "@/auth";
 import { getBaseURL } from "@/lib/getBaseURL";
 
+// Server Action: fetches a housemate's contact details and builds a ready-to-use
+// contact link (mailto or WhatsApp) based on their preferred contact method.
 export async function contactHousemate (profile_id){
 
     const session = await auth()
@@ -30,12 +32,14 @@ export async function contactHousemate (profile_id){
         }
 
         const result = await response.json()
+        // API returns the contact details as a single-row array
         const housemate = result.data[0]
 
         if (!result) {
             return null
         }
 
+        // Build a mailto: link with a pre-filled subject and message
         if (housemate?.preferred_method == 'email') {
 
             const senderName = session?.user?.full_name || "A student";
@@ -60,12 +64,14 @@ export async function contactHousemate (profile_id){
             };
         }
 
+        // Otherwise, build a wa.me (WhatsApp) link with a pre-filled message
         const senderName = session?.user?.full_name || "A student";
         // Including "Wiyorent" so they know it's about the house-hunting app
         const message = encodeURIComponent(
             `Hi! I'm ${senderName}. 🏠 I saw your profile on the Wiyorent website and I'm interested in being your housemate! Are you still looking?`
         );
 
+        // wa.me links require digits only (no +, spaces, or dashes)
         const cleanNumber = housemate?.phone_number?.replace(/\D/g, '');
         return {
             url : `https://wa.me/${cleanNumber}?text=${message}`,

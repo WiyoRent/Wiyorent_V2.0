@@ -5,6 +5,9 @@ import { getBaseURL } from "@/lib/getBaseURL";
 
 
 
+// Fetches the public listings browse page. X-User-Id (when logged in) lets the
+// API mark which listings the current user has saved/waitlisted. Cached for 60s
+// (Next.js ISR) since listing data doesn't need to be instantly fresh.
 export const getListingsProxy = async (query) => {
 
     console.log(query, '---query')

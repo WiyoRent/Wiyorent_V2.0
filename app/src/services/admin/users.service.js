@@ -2,6 +2,8 @@
 import { auth } from "@/auth"
 import { getBaseURL } from "@/lib/getBaseURL"
 
+// Same read-only fetch pattern as getAdminAnalytics. queryString carries the
+// admin users table's filters/pagination (e.g. ?page=2&status=pending).
 export const getAdminUsers = async (queryString = '') => {
   try {
     const session = await auth()

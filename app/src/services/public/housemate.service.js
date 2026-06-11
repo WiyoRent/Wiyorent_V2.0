@@ -5,6 +5,9 @@ import { getBaseURL } from "@/lib/getBaseURL"
 
 
 
+// Fetches the public housemate-matching list. X-User-Id (when logged in) lets
+// the API mark which profiles the current user has already saved.
+// Returns the housemates array plus filter_meta (options for the filter sidebar).
 export const fetchHousemates = async (query) => {
 
     const session = await auth()
@@ -79,7 +82,8 @@ export const fetchHousemateDetail = async (housemateId) => {
         console.log(rawData, '--rawdata fetch housemate')
 
 
-        // --- Mapping logic to match your frontend expectation ---
+        // Reshape the flat API row into the nested structure the profile page
+        // components expect (basic_profile, housing_preferences, etc.)
         const mappedData = {
             profile_id: rawData.id,
             full_name: rawData.full_name,
@@ -121,6 +125,8 @@ export const fetchHousemateDetail = async (housemateId) => {
 
             saved : rawData.saved,
 
+            // Only present if this housemate also has their own listing (price
+            // is only set when a listing is joined in the API query)
             user_listing_data : rawData.price ? {
                 price: rawData?.price,
                 caution_fee : rawData?.caution_fee,

@@ -3,6 +3,9 @@
 import { auth } from "@/auth"
 import { getBaseURL } from "@/lib/getBaseURL"
 
+// Same auth + internal-API-key forwarding pattern as listings.action.js.
+// email/full_name/property_title are passed through to the API so it can
+// include them in the approval notification email without an extra lookup.
 export const approveReview = async (review_id, email, full_name, property_title) => {
 
     const session = await auth()
@@ -51,6 +54,7 @@ export const approveReview = async (review_id, email, full_name, property_title)
     }
 }
 
+// review_rejection_note is shown to the user in the rejection email
 export const rejectReview = async (review_id, email, full_name, property_title, review_rejection_note) => {
 
     const session = await auth()

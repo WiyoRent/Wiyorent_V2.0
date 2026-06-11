@@ -3,6 +3,7 @@
 import { auth } from "@/auth"
 import { getBaseURL } from "@/lib/getBaseURL"
 
+// Same read-only fetch pattern as getAdminAnalytics
 export const getPackages = async () => {
     try {
         const session = await auth()
@@ -40,6 +41,8 @@ export const getPackages = async () => {
     }
 }
 
+// Same auth + internal-API-key forwarding pattern as listings.action.js, but a
+// write (POST) - pkg is the new package's fields as a plain object
 export const createPackage = async (pkg) => {
     try {
         const session = await auth()
@@ -80,6 +83,7 @@ export const createPackage = async (pkg) => {
     }
 }
 
+// Same pattern as createPackage, but PATCHes an existing package by id
 export const updatePackage = async (id, pkg) => {
     try {
         const session = await auth()

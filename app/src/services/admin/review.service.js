@@ -2,6 +2,8 @@
 import { auth } from "@/auth"
 import { getBaseURL } from "@/lib/getBaseURL"
 
+// Same read-only fetch pattern as getAdminAnalytics. queryString carries the
+// admin reviews table's filters/pagination (e.g. ?status=pending).
 export const getReviews = async (queryString = '') => {
     try {
         const session = await auth()

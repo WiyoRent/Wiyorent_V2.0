@@ -4,6 +4,8 @@ import { auth } from "@/auth"
 import { getBaseURL } from "@/lib/getBaseURL"
 
 
+// Same auth + internal-API-key forwarding pattern as listings.action.js.
+// `data` carries the fields being changed (verification_status, is_blocked, etc.)
 export const updateUserStatus = async (data) => {
     try {
         const session = await auth()
@@ -50,6 +52,7 @@ export const updateUserStatus = async (data) => {
 }
 
 export const deleteUser = async (userId) => {
+    // Permanently removes the user (and their Cloudinary files) - no undo
     try {
         const session = await auth()
 

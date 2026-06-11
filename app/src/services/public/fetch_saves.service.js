@@ -4,6 +4,9 @@ import { getBaseURL } from "@/lib/getBaseURL"
 import { auth } from "@/auth"
 
 
+// Shared helper for fetching the current user's saved/waitlisted items.
+// Identifies the user via X-User-Id (set to null for anonymous visitors,
+// who simply get an empty list back from the API).
 export const getSaved = async (endpoint) => {
     try {
         const session = await auth()

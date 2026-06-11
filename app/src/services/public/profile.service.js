@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import { getBaseURL } from "@/lib/getBaseURL";
 
+// Fetches the logged-in user's own profile, plus their listing if they have one
 export const getProfile = async () => {
     try {
         const session = await auth()
@@ -46,6 +47,9 @@ export const getProfile = async () => {
 }
 
 
+// Submits the onboarding/profile-edit form. On failure this returns
+// { error: message } instead of throwing, so the form can show the error
+// inline without an error boundary.
 export const editProfile = async (formData) => {
     try {
         const session = await auth()

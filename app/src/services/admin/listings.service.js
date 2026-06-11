@@ -2,6 +2,8 @@
 import { auth } from "@/auth"
 import { getBaseURL } from "@/lib/getBaseURL"
 
+// Same read-only fetch pattern as getAdminAnalytics. queryString carries the
+// admin listings table's filters/pagination (e.g. ?page=2&bedrooms=4%2B).
 export const getAdminListings = async (queryString = '') => {
   try {
     const session = await auth()
@@ -31,6 +33,9 @@ export const getAdminListings = async (queryString = '') => {
   }
 }
 
+// Same auth + internal-API-key forwarding pattern as listings.action.js, but a
+// write (POST) - sends the new listing's fields as multipart form data and
+// returns the new listing_id (images are attached afterwards via setListingImages)
 export const createListing = async (formData) => {
     try {
         const session = await auth()
@@ -39,13 +44,15 @@ export const createListing = async (formData) => {
             throw new Error('Unauthenticated access')
         }
 
-        // Strip images — they are uploaded separately after getting the listing_id
+        // Strip images - they are uploaded separately after getting the listing_id
         formData.delete('images')
 
         const endPoint = getBaseURL() + 'api/v1/admin/createListing'
 
         console.log('[createListing] fetching', endPoint)
 
+        // No Content-Type header: fetch sets the multipart boundary itself when
+        // the body is a FormData instance
         const res = await fetch(endPoint, {
             method: 'POST',
             headers: {
@@ -78,6 +85,9 @@ export const createListing = async (formData) => {
     }
 }
 
+// Second step of listing creation/edit: attaches the uploaded Cloudinary URLs to
+// the listing (the API splits image_urls into a thumbnail + gallery, see
+// setListingImages in listings.controller.js)
 export const setListingImages = async (listing_id, image_urls) => {
     try {
         const session = await auth()
@@ -116,6 +126,7 @@ export const setListingImages = async (listing_id, image_urls) => {
     }
 }
 
+// Same auth + internal-API-key forwarding pattern as listings.action.js
 export const deleteListing = async (listing_id) => {
     try {
         const session = await auth()
@@ -152,6 +163,7 @@ export const deleteListing = async (listing_id) => {
     }
 }
 
+// Flips a listing between active (visible to renters) and hidden
 export const toggleListingActive = async (listing_id, is_active) => {
     try {
         const session = await auth()
@@ -192,6 +204,7 @@ export const toggleListingActive = async (listing_id, is_active) => {
     }
 }
 
+// Same multipart pattern as createListing, but PATCHes an existing listing
 export const editListing = async (listing_id, formData) => {
     try {
         const session = await auth()

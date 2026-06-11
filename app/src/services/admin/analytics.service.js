@@ -2,6 +2,9 @@
 import { auth } from "@/auth"
 import { getBaseURL } from "@/lib/getBaseURL"
 
+// Server-side data-fetching helper (not a Server Action - it only reads data).
+// Forwards the admin's role + internal API key so requireAdmin allows the
+// request, then unwraps result.data for the analytics dashboard.
 export const getAdminAnalytics = async () => {
   try {
     const session = await auth()

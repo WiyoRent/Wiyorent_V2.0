@@ -4,6 +4,9 @@ import { auth } from "@/auth";
 import { getBaseURL } from "@/lib/getBaseURL";
 
 
+// Shared helper for create/edit review requests. `method` is spread into the
+// fetch options (e.g. { method: 'POST' }) so createReview and editReview can
+// reuse the same request/error-handling logic.
 export const reviewAction = async (endpoint, method, review) => {
 
     try {
@@ -56,6 +59,7 @@ export const editReview = async (review) => {
     return await reviewAction(endpoint, { method: 'PATCH' }, review)
 }
 
+// Deletes one of the current user's own reviews
 export const deleteReview = async (reviewId) => {
 
     const session = await auth()

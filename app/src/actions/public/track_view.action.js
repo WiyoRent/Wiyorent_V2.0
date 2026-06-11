@@ -5,6 +5,9 @@ import { getBaseURL } from "@/lib/getBaseURL"
 import { cookies } from "next/headers"
 import {v4 as uuidv4} from 'uuid'
 
+// Server Action: records a listing page view. Logged-in users are tracked by
+// userId; anonymous visitors get a long-lived sessionId cookie so the API can
+// dedupe repeat views from the same browser (see view.controller.js).
 export const trackView = async (listingId) => {
 
     const cookieStore = await cookies()
@@ -51,6 +54,7 @@ export const trackView = async (listingId) => {
     }
 }
 
+// Same pattern as trackView, for housemate profile views
 export const trackHousemateView = async (housemateId) => {
 
     const cookieStore = await cookies()

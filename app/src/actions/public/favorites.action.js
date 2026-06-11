@@ -3,6 +3,8 @@
 import { auth } from "../../auth"
 import { getBaseURL } from "../../lib/getBaseURL"
 
+// Shared helper for toggle-style Server Actions (save/unsave a listing or housemate,
+// join/leave a waitlist). POSTs the current desired state and the API flips the row.
 const toggleSave = async (endpoint, payload) => {
     try {
         const session = await auth()

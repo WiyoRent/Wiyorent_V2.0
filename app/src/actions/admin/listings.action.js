@@ -3,6 +3,10 @@
 import { auth } from "@/auth"
 import { getBaseURL } from "@/lib/getBaseURL"
 
+// Server Action: deletes a listing via the admin Express API.
+// Requires an active session, then forwards the internal API key (proves the
+// call comes from our server, not the browser) and the user's role (checked
+// by requireAdmin on the API side) as headers.
 export const deleteListing = async (listing_id) => {
     try {
         const session = await auth()
