@@ -4,6 +4,8 @@ import { UserCircle, Calendar } from 'lucide-react';
 import PhoneInputWithCountrySelect from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 
+// Step 2 of the edit-listing form: landlord contact details and availability
+// status/date, pre-filled from the listing's landlord and top-level fields.
 export default function LandlordAvailabilitySection({
   landlord_name,
   set_landlord_name,
@@ -89,6 +91,7 @@ export default function LandlordAvailabilitySection({
             </span>
           </label>
           <br />
+          {/* available_from is stored as a full date/time; convert to YYYY-MM-DD for the date input */}
           <input
             type="date"
             min={new Date().toISOString().split('T')[0]}

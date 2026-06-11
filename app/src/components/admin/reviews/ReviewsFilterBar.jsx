@@ -13,6 +13,8 @@ export default function ReviewsFilterBar({ total_count = 0 }) {
   const router = useRouter();
   const pathname = usePathname();
 
+  // Default status is 'pending' since the moderation queue should open showing
+  // reviews that still need action.
   const [status_filter, set_status_filter] = useState('pending');
   const [rating_filter, set_rating_filter] = useState('');
   const [search, set_search] = useState('');
@@ -28,6 +30,7 @@ export default function ReviewsFilterBar({ total_count = 0 }) {
     set_date_to(searchParams.get('date_to') || '');
   }, [searchParams]);
 
+  // Updates a single query param and navigates, removing it entirely when empty
   const push_filter = (key, value) => {
     const params = new URLSearchParams(searchParams.toString());
     if (value !== '' && value != null) {
@@ -38,7 +41,7 @@ export default function ReviewsFilterBar({ total_count = 0 }) {
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  // Debounce search input
+  // Debounce search input - waits 400ms after typing stops before updating the URL
   useEffect(() => {
     const timer = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
@@ -53,6 +56,8 @@ export default function ReviewsFilterBar({ total_count = 0 }) {
     router.push(`${pathname}?status=pending`);
   };
 
+  // status_filter only counts as "active" when it's been changed away from the
+  // default 'pending' view, since 'pending' is the baseline state.
   const active_count = [
     status_filter !== 'pending' ? status_filter : '',
     rating_filter,

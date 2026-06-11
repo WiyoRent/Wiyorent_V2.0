@@ -11,6 +11,7 @@ import { approveReview, rejectReview, deleteReview } from '@/actions/admin/revie
 import { useRouter } from 'next/navigation';
 
 // ── Mobile card ───────────────────────────────────────────────────────────────
+// Mirrors ReviewRow's content/actions but laid out as a stacked card for small screens.
 function ReviewCard({ review, on_approve, on_reject, on_delete }) {
   const [show_delete_confirm, set_show_delete_confirm] = useState(false);
 
@@ -84,10 +85,13 @@ function ReviewCard({ review, on_approve, on_reject, on_delete }) {
 }
 
 // ── Table ─────────────────────────────────────────────────────────────────────
+// reviews shape: array of { review_id, reviewer: { name, avatar, email },
+// property: { title }, rating, comment, date, status: 'pending' | 'approved' | 'rejected' }
 export default function ReviewsTable({ reviews }) {
 
   const router = useRouter()
 
+  // re-fetches the server data after an approve/reject/delete so the list reflects the new status
   const after_action = () => {
     router.refresh()
   }
@@ -129,7 +133,7 @@ export default function ReviewsTable({ reviews }) {
     set_pending_rejection(review);
   };
 
-  // Called by modal on confirm — note is guaranteed non-empty
+  // Called by modal on confirm - note is guaranteed non-empty
   const handle_reject_confirm = async (review_id, email, name, property_title,review_rejection_note) => {
 
     console.log(review_id, email, name, property_title, review_rejection_note, '---received' )

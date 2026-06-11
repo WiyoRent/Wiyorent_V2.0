@@ -8,7 +8,9 @@ import PillGroup from '@/components/admin/shared/PillGroup';
 import { formatRWF, formatRWFNumber } from '@/lib/formatRWF';
 
 // ── Main component ─────────────────────────────────────────────────────────────
-
+// Filter UI for the listings table. Each filter is mirrored in local state AND
+// the URL query string - the URL is the source of truth (so filters survive
+// refresh/sharing) and local state just drives the controlled inputs.
 export default function ListingsFilterBar({ filter_options = {} }) {
   const { price_range = { min: 0, max: 500000 }, neighborhoods = [], property_types = [], landlords = [] } = filter_options;
 
@@ -27,7 +29,8 @@ export default function ListingsFilterBar({ filter_options = {} }) {
   const [is_a_wiyorent_house, set_is_a_wiyorent_house] = useState('');
   const [landlord, set_landlord] = useState('');
 
-  // Sync from URL on mount/change
+  // Sync from URL on mount/change - keeps inputs in sync if the URL changes
+  // externally (back/forward navigation, links with preset filters, etc.)
   useEffect(() => {
     set_is_active(searchParams.get('is_active') || '');
     set_available_status(searchParams.get('available_status') || '');
@@ -41,6 +44,8 @@ export default function ListingsFilterBar({ filter_options = {} }) {
     set_landlord(searchParams.get('landlord') || '');
   }, [searchParams]);
 
+  // Updates a single query param (removing it entirely if empty/null) and navigates,
+  // which triggers the server-side listings query to re-run with the new filter
   const push_filter = (key, value) => {
     const params = new URLSearchParams(searchParams.toString());
     if (value !== '' && value != null) {
@@ -51,7 +56,9 @@ export default function ListingsFilterBar({ filter_options = {} }) {
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  // Debounce max_price slider
+  // Debounce max_price slider - waits 400ms after the user stops dragging before
+  // pushing to the URL, avoiding a navigation (and re-fetch) on every pixel of movement.
+  // Only sets the param when below the absolute max (max = "no filter applied").
   useEffect(() => {
     const timer = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
@@ -64,6 +71,8 @@ export default function ListingsFilterBar({ filter_options = {} }) {
   const handle_reset = () => router.replace(pathname);
 
 
+  // Count of active filters shown in the badge - includes max_price only if it's
+  // been moved below the default max (otherwise it's not really "filtering" anything)
   const active_count = [is_active, available_status, neighborhood, is_furnished, sort, property_type, bedroom_number, is_a_wiyorent_house, landlord].filter(Boolean).length + (max_price < price_range.max ? 1 : 0);
   const has_active_filters = active_count > 0;
 
@@ -165,7 +174,8 @@ export default function ListingsFilterBar({ filter_options = {} }) {
           </select>
         </div>
 
-        {/* Bedrooms */}
+        {/* Bedrooms - "4+" is sent as the literal string '4+' and translated by
+            the API into a `bedroom_number >= 4` comparison */}
         <div>
           <FilterLabel>Bedrooms</FilterLabel>
           <PillGroup

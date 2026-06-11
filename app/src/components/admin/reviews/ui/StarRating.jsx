@@ -2,6 +2,7 @@ import { Star } from 'lucide-react';
 
 export default function StarRating({ rating }) {
   const max_stars = 5;
+  // rounds e.g. 4.3 -> 4 filled stars, 4.6 -> 5 filled stars
   const filled = Math.round(rating);
 
   return (

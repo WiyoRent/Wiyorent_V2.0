@@ -1,3 +1,4 @@
+// Maps a listing's available_status to a colored DaisyUI badge + label
 export default function StatusBadge({ status }) {
   const variants = {
     available: 'badge-success',

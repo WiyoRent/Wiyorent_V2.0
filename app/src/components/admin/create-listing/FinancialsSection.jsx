@@ -1,6 +1,8 @@
 import { Banknote, Percent, ShieldAlert, CalendarDays } from 'lucide-react';
 import { formatRWF } from '@/lib/formatRWF';
 
+// Field config drives both the input and its hint text below. `is_rwf` fields
+// show a live formatted RWF preview once a value is entered, otherwise the hint.
 const FIELDS = [
   {
     key: 'price_per_month',
@@ -39,7 +41,9 @@ const FIELDS = [
   },
 ];
 
+// `financials` shape: { price_per_month, commission_fee, caution_fee, upfront_months }
 export default function FinancialsSection({ financials, set_financials }) {
+  // Merges a single field update into the financials object, keeping the rest intact
   const handle_change = (field, value) => {
     set_financials({ ...financials, [field]: value });
   };
@@ -73,6 +77,7 @@ export default function FinancialsSection({ financials, set_financials }) {
               onChange={(e) => handle_change(key, e.target.value === '' ? '' : Number(e.target.value))}
               required
             />
+            {/* Once a positive RWF amount is entered, swap the static hint for a formatted preview */}
             {is_rwf && financials[key] > 0 ? (
               <p className="font-secondary text-xs text-base-content/40 mt-1">
                 {formatRWF(financials[key])}

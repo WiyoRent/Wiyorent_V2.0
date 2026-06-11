@@ -17,9 +17,10 @@ import {
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  // controls the slide-in mobile sidebar (hidden by default, toggled via the mobile header button)
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter()
-  
+
   const menuItems = [
     { label: "Analytics", icon: BarChart3, href: "/admin/analytics" },
     { label: "Manage Listings", icon: Home, href: "/admin/listings" },
@@ -109,7 +110,7 @@ export default function AdminSidebar() {
           </ul>
         </nav>
 
-        {/* Footer / Logout */}
+        {/* Footer / Logout - sends the admin back to the public listings page */}
         <div className="p-4 border-t border-gray-800">
           <button onClick={()=> router.push('/listings')} className="flex items-center gap-3 px-4 py-3 w-full text-gray-400 hover:bg-red-500/10 hover:text-red-500 rounded-lg transition-colors text-sm font-secondary">
             <LogOut className="w-5 h-5" />

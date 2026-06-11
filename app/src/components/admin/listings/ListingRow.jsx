@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { deleteListing } from '@/actions/admin/listings.action';
 import StatusBadge from '@/components/admin/listings/StatusBadge';
 
+// Desktop table row for a listing (hidden on mobile, where ListingCard is used instead).
 export default function ListingRow({ listing, on_toggle_active }) {
 
   const router = useRouter()
@@ -15,11 +16,14 @@ export default function ListingRow({ listing, on_toggle_active }) {
   const [is_active, set_is_active] = useState(listing.is_active);
   const [show_delete_confirm, set_show_delete_confirm] = useState(false);
 
+  // Local toggle is updated immediately for responsiveness; the actual API call
+  // and error handling/revert live in the parent's on_toggle_active (ListingsTable)
   const handle_toggle = () => {
     set_is_active(!is_active);
     on_toggle_active(listing.listing_id, !is_active);
   };
 
+  // Called only after the user confirms via the "Confirm" button shown by show_delete_confirm
   const handle_delete = async () => {
     const loadingToast = toast.loading('Deleting listing...');
     try {

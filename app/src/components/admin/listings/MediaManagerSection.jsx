@@ -2,11 +2,16 @@
 
 import { Image as ImageIcon, X, Plus } from 'lucide-react';
 
+// Image gallery editor for a listing. `image_urls` mixes two types of entries:
+// existing Cloudinary URL strings (already uploaded) and new File objects
+// (picked but not yet uploaded - the parent form uploads these on save).
+// The first item in the array is treated as the listing's thumbnail.
 export default function MediaManagerSection({ image_urls, set_image_urls }) {
   const handle_remove_image = (index) => {
     set_image_urls(image_urls.filter((_, i) => i !== index));
   };
 
+  // Appends newly picked files to the existing list (doesn't replace it)
   const handle_image = (e) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -25,12 +30,14 @@ export default function MediaManagerSection({ image_urls, set_image_urls }) {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {/* Images */}
+        {/* ########## Existing + newly picked images ########## */}
         {image_urls.map((url, index) => (
           <div
             key={typeof url === 'string' ? url : `${url.name}-${url.size}`}
             className="relative aspect-square rounded-field overflow-hidden bg-base-300 group"
           >
+            {/* Existing entries are URL strings (render directly); new picks are File
+                objects that need a temporary object URL to preview before upload */}
             <img
               src={typeof url === 'string' ? url : URL.createObjectURL(url)}
               alt={`Property image ${index + 1}`}
@@ -52,7 +59,7 @@ export default function MediaManagerSection({ image_urls, set_image_urls }) {
           </div>
         ))}
 
-        {/* Add Image Placeholder */}
+        {/* ########## Add image trigger (opens hidden file input) ########## */}
         <label
           htmlFor="uploadImg"
           className="aspect-square rounded-field border-2 border-dashed border-base-300 hover:border-accent bg-base-200 hover:bg-accent/5 flex flex-col items-center justify-center gap-2 transition-all duration-200 cursor-pointer"

@@ -12,7 +12,9 @@ import VerificationBadge from '@/components/admin/shared/VerificationBadge';
 import UpdatedBadge from '@/components/admin/users/UpdatedBadge';
 
 // ── Mobile card ───────────────────────────────────────────────────────────────
+// Mirrors UserRow's content/actions but laid out as a stacked card for small screens.
 function UserCard({ user, on_delete }) {
+  // toggles inline "Confirm / X" delete confirmation in place of the Delete button
   const [show_delete_confirm, set_show_delete_confirm] = useState(false);
 
   const formatted_date = new Date(user.registration_date).toLocaleDateString('en-US', {
@@ -74,10 +76,15 @@ function UserCard({ user, on_delete }) {
 }
 
 // ── Table ─────────────────────────────────────────────────────────────────────
+// users shape: array of { user_id, full_name, email, avatar_url, account_status,
+// is_blocked, verification_status, has_performed_an_update, view_count,
+// number_of_saves, registration_date }
 export default function UsersTable({ users }) {
 
   const router = useRouter()
 
+  // placeholder - not wired up here. Full block flow with required reason
+  // lives in AdminUserHeader on the user detail page.
   const handle_block = (user_id) => {
     console.log(`Block user ${user_id}`);
     // PUT /api/admin/users/${user_id} { is_blocked: true, is_blocked_reason: '...' }

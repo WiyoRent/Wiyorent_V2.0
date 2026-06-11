@@ -5,7 +5,10 @@ import ReviewerInfo from './ui/ReviewerInfo';
 import StarRating from './ui/StarRating';
 import StatusBadge from './ui/StatusBadge';
 
+// review shape: { review_id, reviewer: { name, avatar, email }, property: { title },
+// rating, comment, date, status: 'pending' | 'approved' | 'rejected' }
 export default function ReviewRow({ review, on_approve, on_reject, on_delete }) {
+  // toggles inline "Confirm / X" delete confirmation in place of the Delete button
   const [show_delete_confirm, set_show_delete_confirm] = useState(false);
 
   const formatted_date = new Date(review.date).toLocaleDateString('en-US', {
@@ -55,7 +58,7 @@ export default function ReviewRow({ review, on_approve, on_reject, on_delete }) 
       {/* Actions */}
       <td>
         <div className="flex items-center gap-1">
-          {/* Approve Button */}
+          {/* Approve Button - hidden once already approved */}
           {review.status !== 'approved' && (
             <button
               onClick={() => on_approve(review.review_id)}
@@ -67,7 +70,7 @@ export default function ReviewRow({ review, on_approve, on_reject, on_delete }) 
             </button>
           )}
 
-          {/* Reject Button — opens modal via parent */}
+          {/* Reject Button - opens RejectionNoteModal via parent, hidden once already rejected */}
           {review.status !== 'rejected' && (
             <button
               onClick={() => on_reject(review)}

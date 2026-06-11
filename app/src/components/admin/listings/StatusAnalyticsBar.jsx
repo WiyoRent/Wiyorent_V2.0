@@ -1,10 +1,13 @@
 import { Eye, Heart, Clock, ShieldCheck, EyeOff, Building2, Info } from 'lucide-react';
 
+// Top bar of the edit-listing form's first step. Shows read-only engagement stats
+// (views/saves/waitlists) plus two live toggles (WiyoRent House, Active/Hidden)
+// that feed directly into EditListingForm's state. `is_verified` is display-only here.
 export default function StatusAnalyticsBar({ is_active, set_is_active, analytics, is_verified, is_a_wiyorent_house, set_is_a_wiyorent_house }) {
   return (
     <div className="bg-base-100 rounded-box shadow-sm p-5">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        {/* Analytics */}
+        {/* ########## Engagement analytics (views, saves, waitlists, verified badge) ########## */}
         <div className="flex flex-wrap items-center gap-4 sm:gap-6">
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
@@ -58,7 +61,7 @@ export default function StatusAnalyticsBar({ is_active, set_is_active, analytics
           )}
         </div>
 
-        {/* WiyoRent House Toggle */}
+        {/* ########## WiyoRent House toggle (waives service fee for tenants) ########## */}
         <div className="flex items-center justify-between bg-base-200 rounded-field px-4 py-3 w-full md:w-auto md:min-w-50 gap-4">
           <div className="flex items-center gap-2">
             <span className="font-secondary text-sm font-semibold text-base-content">
@@ -76,7 +79,7 @@ export default function StatusAnalyticsBar({ is_active, set_is_active, analytics
           />
         </div>
 
-        {/* Visibility Toggle */}
+        {/* ########## Active/Hidden visibility toggle ########## */}
         <div className="flex items-center justify-between bg-base-200 rounded-field px-4 py-3 w-full md:w-auto md:min-w-50">
           <div className="flex items-center gap-2">
             {is_active ? (

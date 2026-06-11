@@ -7,6 +7,10 @@ import ImageCarousel from '@/components/shared/ImageCarousel';
 import { formatRWF } from '@/lib/formatRWF';
 
 // ── Main component ─────────────────────────────────────────────────────────────
+// Read-only view of a "has house, looking for housemate" user's listing, shown
+// on their admin detail page. All listing_* props are flattened fields from
+// that user's listing record. listing_landlord_name/number are only ever shown
+// here (admin-only) and never on the public listing.
 export default function AdminReadOnlyListingSection({
   has_house,
   listing_images,
@@ -25,6 +29,7 @@ export default function AdminReadOnlyListingSection({
   listing_amenities,
   listing_house_rules,
 }) {
+  // no listing data to show (user hasn't created one)
   if (!listing_price) return null;
 
   const available = listing_available_from
@@ -93,7 +98,8 @@ export default function AdminReadOnlyListingSection({
             </p>
           </div>
 
-          {/* Stat chips */}
+          {/* Stat chips - each entry is built conditionally (false when the value
+              is missing/falsy) then filtered out, so only relevant chips render */}
           <div className="flex flex-wrap gap-2">
             {[
               listing_bedrooms   && { icon: <Bed size={13} />,   label: `${listing_bedrooms} Bedroom${listing_bedrooms > 1 ? 's' : ''}` },
@@ -168,7 +174,7 @@ export default function AdminReadOnlyListingSection({
             </div>
           )}
 
-          {/* ── Landlord — admin only ──────────────────────────────────── */}
+          {/* ── Landlord - admin only ──────────────────────────────────── */}
           {(listing_landlord_name || listing_landlord_number) && (
             <div className="pt-4 border-t border-base-200">
               <div className="flex items-center gap-1.5 mb-3">

@@ -8,6 +8,7 @@ import PageHeader from '@/components/admin/packages/PageHeader';
 import { createPackage, updatePackage } from '@/services/admin/package.service';
 import { deletePackage } from '@/actions/admin/package.action';
 
+// default shape for a brand-new package handed to PackageModal
 const empty_package = {
   package_id: null,
   name: '',
@@ -18,8 +19,10 @@ const empty_package = {
 };
 
 export default function PackagesClient({ initial_packages }) {
+  // packages list is seeded from the server and then managed client-side with optimistic updates
   const [packages, set_packages] = useState(initial_packages ?? []);
   const [is_modal_open, set_is_modal_open] = useState(false);
+  // the package currently being created/edited in the modal (null when modal is closed)
   const [active_package, set_active_package] = useState(null);
 
   // ── Open modal ──────────────────────────────────────────────────────────────
@@ -52,7 +55,7 @@ export default function PackagesClient({ initial_packages }) {
 
     if (is_edit) {
       const previous = packages;
-      // Optimistic update
+      // Optimistic update - show the edited package immediately, roll back on failure
       set_packages((prev) =>
         prev.map((p) => (p.package_id === saved_package.package_id ? saved_package : p))
       );
@@ -68,6 +71,8 @@ export default function PackagesClient({ initial_packages }) {
         set_packages(previous);
       }
     } else {
+      // Optimistic create - insert a temporary package with a placeholder id,
+      // then replace it with the server's record (or remove it on failure)
       const optimistic = { ...saved_package, package_id: `optimistic_${Date.now()}`, _optimistic: true };
       set_packages((prev) => [...prev, optimistic]);
       close_modal();
@@ -86,6 +91,7 @@ export default function PackagesClient({ initial_packages }) {
 
   // ── Delete ──────────────────────────────────────────────────────────────────
   const handle_delete = async (id) => {
+    // Optimistic delete - remove from the list immediately, restore on failure
     const snapshot = packages;
     set_packages((prev) => prev.filter((p) => p.package_id !== id));
 

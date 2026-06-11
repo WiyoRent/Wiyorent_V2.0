@@ -6,6 +6,9 @@ const STATUS_OPTIONS = [
   { value: 'maintenance', label: 'Maintenance' },
 ];
 
+// Each toggle/field here maps to a top-level field on the listing (not nested
+// under financials/specifications/etc.), so each comes with its own setter
+// rather than a shared object + handle_change like the other sections.
 export default function StatusSection({
   is_active,
   set_is_active,
@@ -62,7 +65,7 @@ export default function StatusSection({
           />
         </div>
 
-        {/* is_a_wiyorent_house toggle */}
+        {/* is_a_wiyorent_house toggle - waives the service fee for tenants on this listing */}
         <div className="flex items-center justify-between p-3 bg-base-200 rounded-field">
           <div className="flex items-center gap-2">
             <span className="font-secondary text-xs font-semibold uppercase tracking-wide text-base-content/70">
@@ -109,6 +112,7 @@ export default function StatusSection({
               Available From
             </span>
           </label>
+          {/* min prevents picking a date in the past - listing can't be available "from yesterday" */}
           <input
             min={new Date().toISOString().split('T')[0]}
             type="date"

@@ -53,6 +53,8 @@ const SECTION_STYLES = {
 // ─────────────────────────────────────────────────────────────────────────────
 
 // ── Collapsible section wrapper ────────────────────────────────────────────────
+// Each top-level analytics group (Users, Listings, Engagement, Compatibility) is
+// wrapped in one of these. `id` looks up border/bg/icon colors from SECTION_STYLES.
 function Section({ id, title, icon: Icon, children, default_open = true }) {
   const [open, set_open] = useState(default_open);
   const s = SECTION_STYLES[id];
@@ -81,6 +83,7 @@ function Section({ id, title, icon: Icon, children, default_open = true }) {
 
 // ── Stat card ──────────────────────────────────────────────────────────────────
 function StatCard({ label, value, icon: Icon, href, raw_value }) {
+  // Cards showing a 0 value are visually dimmed so non-zero stats stand out
   const dimmed = raw_value !== undefined && is_zero(raw_value);
   const inner = (
     <div
@@ -147,6 +150,7 @@ function DonutCard({ title, a_val, b_val, a_label, b_label, a_color, b_color, ic
   const a = Number(a_val) || 0;
   const b = Number(b_val) || 0;
   const total = a + b;
+  // Convert a's share into degrees for the conic-gradient; if both are 0, split 50/50
   const pct_a = total > 0 ? (a / total) * 360 : 180;
 
   return (
@@ -189,6 +193,7 @@ function DonutCard({ title, a_val, b_val, a_label, b_label, a_color, b_color, ic
 function BudgetRangeCard({ min_val, max_val }) {
   const min_n = Number(min_val) || 0;
   const max_n = Number(max_val) || 0;
+  // Ceiling gives the bar some headroom past max_n so the range isn't flush against the edge
   const ceiling = max_n * 1.25 || 500000;
   const left_pct = (min_n / ceiling) * 100;
   const width_pct = ((max_n - min_n) / ceiling) * 100;
@@ -307,7 +312,12 @@ function RankedList({ title, items, value_key, label_key, icon: Icon, show_flag 
 // ─────────────────────────────────────────────────────────────────────────────
 // Main dashboard
 // ─────────────────────────────────────────────────────────────────────────────
+// `data` is the merged result of 4 parallel queries from analytics.service.js:
+// main KPIs plus user/listing/engagement/compatibility breakdowns. Each field
+// referenced below (total_users, average_rent_per_month, etc.) comes from one
+// of those queries and is rendered read-only - this component does no fetching.
 export default function AnalyticsDashboard({ data }) {
+  // "Last updated" timestamp reflects render time, not the data's actual fetch time
   const updated_at = new Date().toLocaleString('en-GB', {
     day: '2-digit', month: 'short', year: 'numeric',
     hour: '2-digit', minute: '2-digit',

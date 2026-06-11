@@ -6,6 +6,9 @@
 
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
+// steps shape: array of { id, label } - current_step is 1-indexed.
+// submit_node is rendered in place of the "Next" button on the final step
+// (e.g. a real submit button for the listing form).
 export default function ListingFormStepper({
   steps,
   current_step,
@@ -31,7 +34,8 @@ export default function ListingFormStepper({
           </span>
         </div>
 
-        {/* Circles + connectors */}
+        {/* Circles + connectors - a step is "complete" once the user has moved past it,
+            "active" while it's the current step, otherwise it's upcoming */}
         <div className="flex items-center">
           {steps.map((step, idx) => {
             const is_complete = idx + 1 < current_step;

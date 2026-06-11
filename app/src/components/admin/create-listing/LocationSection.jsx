@@ -1,6 +1,8 @@
 import { MapPin } from 'lucide-react';
 
+// `location` shape: { neighborhood, city, country }
 export default function LocationSection({ location, set_location }) {
+  // Merges a single field update into the location object, keeping the rest intact
   const handle_change = (field, value) => {
     set_location({ ...location, [field]: value });
   };

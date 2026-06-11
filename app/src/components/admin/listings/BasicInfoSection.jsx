@@ -1,5 +1,8 @@
 import { FileText } from 'lucide-react';
 
+// Step 1 of the edit-listing form: title, description, and location fields,
+// each pre-filled from the listing being edited and controlled via individual
+// value/setter pairs from EditListingForm's flat state (not a nested object).
 export default function BasicInfoSection({
   title,
   set_title,

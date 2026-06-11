@@ -21,6 +21,10 @@ const STEPS = [
   { id: 4, label: 'Media & Amenities' },
 ];
 
+// Multi-step edit form for an existing listing, reusing section components from
+// create-listing/listings but pre-filling every field from `initial_data` (the
+// listing record fetched server-side). Each field gets its own useState + setter
+// (flattened, not nested objects) so the section components below can stay "dumb".
 export default function EditListingForm({ initial_data, listingId }) {
   // --- State Initialization ---
   const [is_active, set_is_active] = useState(initial_data?.is_active);
@@ -72,6 +76,8 @@ export default function EditListingForm({ initial_data, listingId }) {
     }
 
     // ── 1. Separate existing URLs from new File objects ───────────────────────
+    // image_urls mixes strings (already-uploaded Cloudinary URLs kept from initial_data)
+    // and File objects (newly picked images awaiting upload) - split them apart here.
     const existingUrls = image_urls.filter(item => typeof item === 'string')
     const newFiles = image_urls.filter(item => item instanceof File)
 
@@ -79,6 +85,8 @@ export default function EditListingForm({ initial_data, listingId }) {
     const loadingToast = toast.loading('Saving listing...', { autoClose: false });
     try {
       // ── 2. Upload new files to scoped folder ──────────────────────────────
+      // Each new image is uploaded to a per-listing Cloudinary folder; if any
+      // upload fails, bail out early so we don't save a listing with missing images.
       const uploadedUrls = []
       for (const file of newFiles) {
         const url = await upload(file, `wiyorent/listings/${listingId}`)
@@ -110,6 +118,9 @@ export default function EditListingForm({ initial_data, listingId }) {
 
       const formData = new FormData();
 
+      // Flatten nested objects (landlord, financials, specifications, location) into
+      // top-level form fields by their inner key names; arrays (amenities, house_rules)
+      // and primitives are appended as-is, matching what the backend expects.
       for (const [key, value] of Object.entries(payload)) {
         if (typeof value === 'object' && key !== 'amenities' && key !== 'house_rules') {
           for (const [nestedKey, nestedValue] of Object.entries(value ?? {})) {
@@ -120,6 +131,7 @@ export default function EditListingForm({ initial_data, listingId }) {
         }
       }
 
+      // Final image list (existing URLs + newly uploaded ones), sent under the same key
       for (const img of allUrls) {
         formData.append('images', img);
       }

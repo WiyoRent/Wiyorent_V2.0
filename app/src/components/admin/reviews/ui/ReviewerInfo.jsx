@@ -1,6 +1,7 @@
 import Image from 'next/image';
 
 export default function ReviewerInfo({ name, avatar }) {
+  // falls back to up to 2 initials (e.g. "John Doe" -> "JD") when there's no avatar
   const initials = name
     .split(' ')
     .map((n) => n[0])

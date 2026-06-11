@@ -5,10 +5,15 @@ import { toggleListingActive } from '@/services/admin/listings.service';
 import ListingCard from '@/components/admin/listings/ListingCard';
 import ListingRow from '@/components/admin/listings/ListingRow';
 
+// Renders listings as cards on mobile and a table on desktop (both fed from the
+// same `listings` array). Active/inactive toggling is handled here for the
+// desktop rows so a failed API call can trigger a full refresh to resync state.
 export default function ListingsTable({ listings }) {
 
   const router = useRouter();
 
+  // ListingRow updates its own toggle state optimistically before calling this;
+  // if the API call fails, refresh the page so the row reflects the real server state
   const handle_toggle_active = async (listing_id, new_state) => {
     try {
       await toggleListingActive(listing_id, new_state);

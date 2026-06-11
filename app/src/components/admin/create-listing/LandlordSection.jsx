@@ -4,7 +4,9 @@ import { User, Phone } from 'lucide-react';
 import PhoneInputWithCountrySelect from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 
+// `landlord` shape: { full_name, phone_number }
 export default function LandlordSection({ landlord, set_landlord }) {
+  // Merges a single field update into the landlord object, keeping the rest intact
   const handle_change = (field, value) => {
     set_landlord({ ...landlord, [field]: value });
   };

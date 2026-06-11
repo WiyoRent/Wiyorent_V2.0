@@ -9,11 +9,14 @@ import { deleteListing } from '@/actions/admin/listings.action';
 import { toggleListingActive } from '@/services/admin/listings.service';
 import StatusBadge from '@/components/admin/listings/StatusBadge';
 
+// Mobile-card view of a listing row, shown on small screens (md:hidden in
+// ListingsTable). Mirrors ListingRow's data and actions in a stacked layout.
 export default function ListingCard({ listing }) {
   const router = useRouter();
   const [is_active, set_is_active] = useState(listing.is_active);
   const [show_delete_confirm, set_show_delete_confirm] = useState(false);
 
+  // Optimistically flips the active toggle, then reverts it if the API call fails
   const handle_toggle = async () => {
     const new_state = !is_active;
     set_is_active(new_state); // optimistic
@@ -26,6 +29,7 @@ export default function ListingCard({ listing }) {
     }
   };
 
+  // Called only after the user confirms via the "Confirm" button shown by show_delete_confirm
   const handle_delete = async () => {
     const loadingToast = toast.loading('Deleting listing...');
     try {
@@ -39,7 +43,7 @@ export default function ListingCard({ listing }) {
 
   return (
     <div className="bg-base-100 rounded-box shadow-sm border border-base-200 mx-3 my-2 p-4">
-      {/* Identity */}
+      {/* ########## Identity (thumbnail, title, location, status) ########## */}
       <div className="flex items-start gap-3">
         <div className="avatar flex-shrink-0">
           <div className="relative w-12 h-12 rounded-field">
@@ -57,7 +61,7 @@ export default function ListingCard({ listing }) {
         <StatusBadge status={listing.available_status} />
       </div>
 
-      {/* Landlord + performance */}
+      {/* ########## Landlord + performance ########## */}
       <div className="flex items-center justify-between mt-3 pt-3 border-t border-base-200">
         <div>
           <p className="font-secondary text-xs font-semibold text-base-content">{listing.landlord.full_name}</p>
@@ -75,7 +79,7 @@ export default function ListingCard({ listing }) {
         </div>
       </div>
 
-      {/* Visibility + actions */}
+      {/* ########## Visibility toggle + edit/delete actions ########## */}
       <div className="flex items-center justify-between mt-3 pt-3 border-t border-base-200">
         <div className="flex items-center gap-2">
           <input type="checkbox" checked={is_active} onChange={handle_toggle} className="toggle toggle-success toggle-sm" />

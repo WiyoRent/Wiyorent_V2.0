@@ -7,7 +7,11 @@ import AccountStatusBadge from '@/components/admin/shared/AccountStatusBadge';
 import VerificationBadge from '@/components/admin/shared/VerificationBadge';
 import UpdatedBadge from '@/components/admin/users/UpdatedBadge';
 
+// user shape (relevant fields): { user_id, full_name, email, avatar_url,
+// account_status, is_blocked, verification_status, has_performed_an_update,
+// view_count, number_of_saves, registration_date }
 export default function UserRow({ user, on_block, on_delete }) {
+  // toggles inline "Confirm / X" delete confirmation in place of the Delete button
   const [show_delete_confirm, set_show_delete_confirm] = useState(false);
 
   const formatted_date = new Date(user.registration_date).toLocaleDateString('en-US', {
@@ -42,7 +46,7 @@ export default function UserRow({ user, on_block, on_delete }) {
         <VerificationBadge status={user.verification_status} />
       </td>
 
-      {/* Profile Updated — new column */}
+      {/* Profile Updated - shows a badge if the user edited their profile after verification */}
       <td>
         {user.has_performed_an_update
           ? <UpdatedBadge />

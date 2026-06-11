@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { X, Plus, Trash2, Star, Save } from 'lucide-react';
 
+// active_package shape: { package_id, name, description, price, is_popular, inclusions: string[] }
+// package_id is null when creating a new package - is_edit below uses that to branch the UI
 export default function PackageModal({
   is_open,
   active_package,
@@ -11,6 +13,7 @@ export default function PackageModal({
   on_close,
 }) {
   const [inclusion_input, set_inclusion_input] = useState('');
+  // shows a validation message when trying to save with zero inclusions
   const [inclusions_error, set_inclusions_error] = useState(false);
 
   if (!is_open || !active_package) return null;
@@ -56,6 +59,7 @@ export default function PackageModal({
   const handle_submit = (e) => {
     e.preventDefault();
 
+    // require at least one inclusion before allowing save
     if (active_package.inclusions.length === 0) {
       set_inclusions_error(true);
       return;

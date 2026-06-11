@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Pencil, Check, Trash2 } from 'lucide-react';
 
+// pkg shape: { package_id, name, description, price, is_popular, inclusions: string[] }
 export default function PackageCard({ pkg, on_edit, on_delete }) {
+  // toggles inline "Yes / No" delete confirmation in place of the Delete button
   const [confirming_delete, set_confirming_delete] = useState(false);
   const { name, description, price, is_popular, inclusions } = pkg;
 
@@ -50,7 +52,8 @@ export default function PackageCard({ pkg, on_edit, on_delete }) {
 
         {/* Inclusions */}
         <div className="flex flex-col gap-3">
-          {/* Contextual sub-header */}
+          {/* Premium/Gold packages build on the tier below them, so show a
+              "Everything in X, Plus:" sub-header instead of repeating items */}
           {(name.toLowerCase() === 'premium' || name.toLowerCase() === 'gold') && (
             <p className="font-secondary text-[10px] font-bold uppercase tracking-widest text-base-content/30">
               Everything in{' '}
@@ -99,6 +102,7 @@ export default function PackageCard({ pkg, on_edit, on_delete }) {
         </button>
 
         {!confirming_delete ? (
+          // first click only arms the confirmation - no delete happens yet
           <button
             type="button"
             onClick={() => set_confirming_delete(true)}

@@ -2,8 +2,12 @@
 import { useState } from 'react';
 import { AlertCircle, X } from 'lucide-react';
 
+// review shape (relevant fields): { review_id, reviewer: { name, email }, property: { title } }
+// on_confirm receives the trimmed note, which becomes the review's rejection note
+// shown to the reviewed user.
 export default function RejectionNoteModal({ review, on_confirm, on_cancel }) {
   const [note, set_note] = useState('');
+  // shows validation message if admin tries to confirm with an empty note
   const [error, set_error] = useState(false);
 
   const handle_confirm = () => {

@@ -1,5 +1,7 @@
 import { Tag, AlignLeft } from 'lucide-react';
 
+// First step section of the "new listing" wizard - just the title and description
+// fields. `title`/`description` and their setters come from the parent form's state.
 export default function BasicInfoSection({ title, set_title, description, set_description }) {
   return (
     <div className="bg-base-100 rounded-box shadow-sm p-6">

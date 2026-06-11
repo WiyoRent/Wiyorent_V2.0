@@ -9,6 +9,8 @@ import { formatRWF, formatRWFNumber } from '@/lib/formatRWF';
 
 // ── Main component ─────────────────────────────────────────────────────────────
 
+// filter_options shape: { budget_range: { min, max }, universities: string[], locations: string[] }
+// - drives the select/range option lists below.
 export default function UsersFilterBar({ filter_options = {} }) {
   const { budget_range = { min: 0, max: 500000 }, universities = [], locations = [] } = filter_options;
 
@@ -41,6 +43,7 @@ export default function UsersFilterBar({ filter_options = {} }) {
     set_preferred_location(searchParams.get('preferred_location') || '');
   }, [searchParams]);
 
+  // Updates a single query param and navigates, removing it entirely when empty
   const push_filter = (key, value) => {
     const params = new URLSearchParams(searchParams.toString());
     if (value !== '' && value != null) {
@@ -51,7 +54,7 @@ export default function UsersFilterBar({ filter_options = {} }) {
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  // Debounce budget_max slider
+  // Debounce budget_max slider - waits 400ms after dragging stops before updating the URL
   useEffect(() => {
     const timer = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
@@ -63,7 +66,7 @@ export default function UsersFilterBar({ filter_options = {} }) {
 
   const handle_reset = () => router.replace(pathname);
 
-
+  // budget_max only counts as an active filter when it's been lowered below the max
   const active_count = [verification_status, gender, university, has_house, is_onboarded, sort, is_blocked, urgency, preferred_location].filter(Boolean).length + (budget_max < budget_range.max ? 1 : 0);
   const has_active_filters = active_count > 0;
 

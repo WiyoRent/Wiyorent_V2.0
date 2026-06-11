@@ -7,7 +7,9 @@ const PROPERTY_TYPES = [
   { value: 'house', label: 'House' }
 ];
 
+// `specifications` shape: { property_type, bedroom_number, bathroom_number, max_roommates, is_furnished }
 export default function SpecificationsSection({ specifications, set_specifications }) {
+  // Merges a single field update into the specifications object, keeping the rest intact
   const handle_change = (field, value) => {
     set_specifications({ ...specifications, [field]: value });
   };

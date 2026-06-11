@@ -10,6 +10,14 @@ import AccountStatusBadge from '@/components/admin/shared/AccountStatusBadge';
 import VerificationBadge from '@/components/admin/shared/VerificationBadge';
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Sticky header for the admin user-detail page. Holds all the editable
+// verification/block/account-status state locally and sends it to the server
+// in one batch via "Save Changes" (handle_save below).
+//   account_status: 'Pending' | 'Active' | 'Inactive'
+//   verification_status: 'pending' | 'approved' | 'rejected'
+//   is_blocked / is_blocked_reason: blocking overrides verification actions
+//   admin_note: shown to the user when verification is rejected
+//   has_performed_an_update: true if the user edited their profile after being verified
 export default function AdminUserHeader({
   user_id,
   full_name,
@@ -26,10 +34,12 @@ export default function AdminUserHeader({
   const router = useRouter()
 
   // ── Update alert ────────────────────────────────────────────────────────────
+  // Banner shown when the user edited their profile after verification, prompting
+  // the admin to review the changes and approve/dismiss.
   const [show_update_banner, set_show_update_banner] = useState(initial_has_update ?? false);
   const [update_approved,    set_update_approved]    = useState(false);
 
-  // Both dismiss and approve update stage the same intent —
+  // Both dismiss and approve update stage the same intent -
   // has_performed_an_update: false will be sent on Save Changes
   const handle_dismiss_update = () => {
     set_show_update_banner(false);
@@ -64,13 +74,15 @@ export default function AdminUserHeader({
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Verification logic
-  //   • Already-approved + has update → Approve Update + Reject only
-  //   • Set Pending removed — it's automatic on account creation
-  //   • Blocked user → no verification actions
+  //   - Already-approved + has update -> Approve Update + Reject only
+  //   - Set Pending removed - it's automatic on account creation
+  //   - Blocked user -> no verification actions
   // ─────────────────────────────────────────────────────────────────────────────
   const is_already_approved_with_update =
     verification_status === 'approved' && show_update_banner;
 
+  // "Approve" only makes sense when the user isn't already approved (and isn't
+  // in the "approved with pending update" state, which uses "Approve Update" instead)
   const show_approve_btn =
     !is_blocked &&
     !is_already_approved_with_update &&
@@ -83,6 +95,7 @@ export default function AdminUserHeader({
   const show_reject_btn = !is_blocked;
 
   // ── Handlers ─────────────────────────────────────────────────────────────────
+  // Approving verification also activates the account if it was still Pending
   const handle_approve = () => {
     set_verification_status('approved');
     set_show_reject_form(false);
@@ -97,6 +110,7 @@ export default function AdminUserHeader({
     set_reject_note_error(false);
   };
 
+  // requires a non-empty note - this becomes admin_note, shown to the rejected user
   const handle_reject_confirm = () => {
     if (!reject_note_draft.trim()) { set_reject_note_error(true); return; }
     set_verification_status('rejected');
@@ -117,6 +131,7 @@ export default function AdminUserHeader({
     set_block_reason_error(false);
   };
 
+  // requires a non-empty reason - this becomes is_blocked_reason, shown to the blocked user
   const handle_block_confirm = () => {
     if (!block_reason_draft.trim()) { set_block_reason_error(true); return; }
     set_is_blocked(true);
@@ -171,6 +186,8 @@ export default function AdminUserHeader({
     set_is_saving(true);
     const loading_toast = toast.loading('Updating user status...', { autoClose: false });
     try {
+      // has_performed_an_update is only included (and reset to false) if the
+      // admin dismissed or approved the "profile updated" banner this session
       const payload = {
         user_id,
         verification_status,
@@ -208,7 +225,7 @@ export default function AdminUserHeader({
           <div className="flex items-center gap-2">
             <AlertTriangle size={13} className="text-warning flex-shrink-0" />
             <p className="font-secondary text-xs font-semibold text-base-content">
-              Profile updated since last verification —
+              Profile updated since last verification -
               <span className="font-normal text-base-content/60 ml-1">
                 review changes and approve or reject.
               </span>
@@ -258,7 +275,7 @@ export default function AdminUserHeader({
           </div>
         </div>
 
-        {/* Rejection note / block reason pills */}
+        {/* Rejection note / block reason pills - shows the note that will be visible to the user */}
         {((verification_status === 'rejected' && admin_note) || (is_blocked && is_blocked_reason)) && (
           <div className="flex flex-wrap gap-2">
             {verification_status === 'rejected' && admin_note && (

@@ -1,5 +1,7 @@
 import { Save, RotateCcw } from 'lucide-react';
 
+// Reset/submit buttons for the "new listing" wizard. Both buttons swap their
+// label for a spinner while `isLoading` is true and are disabled to prevent double-submits.
 export default function FormActions({ on_reset, isLoading }) {
   return (
     <div className="flex flex-col sm:flex-row items-center justify-end gap-3 py-4">

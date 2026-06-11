@@ -1,6 +1,9 @@
 import { DollarSign, CalendarDays } from 'lucide-react';
 import { formatRWF } from '@/lib/formatRWF';
 
+// Step 3 of the edit-listing form: combines pricing fields and property
+// specifications in one section. Each value/setter pair is part of EditListingForm's
+// flat state, pre-filled from the listing's financials/specifications objects.
 export default function FinancialsSpecsSection({
   price_per_month,
   set_price_per_month,
@@ -33,7 +36,7 @@ export default function FinancialsSpecsSection({
       </div>
 
       <div className="flex flex-col gap-5">
-        {/* Financials Grid */}
+        {/* ########## Pricing fields ########## */}
         <div>
           <h3 className="font-secondary text-xs font-semibold uppercase tracking-wide text-base-content/50 mb-3">
             Pricing
@@ -129,7 +132,7 @@ export default function FinancialsSpecsSection({
 
         <div className="border-t border-base-200" />
 
-        {/* Specifications Grid */}
+        {/* ########## Property specifications ########## */}
         <div>
           <h3 className="font-secondary text-xs font-semibold uppercase tracking-wide text-base-content/50 mb-3">
             Property Details
@@ -189,6 +192,7 @@ export default function FinancialsSpecsSection({
                   Property Type
                 </span>
               </label>
+              {/* Note: includes "villa" here, unlike the create-listing PROPERTY_TYPES list */}
               <select
                 value={property_type}
                 onChange={(e) => set_property_type(e.target.value)}
