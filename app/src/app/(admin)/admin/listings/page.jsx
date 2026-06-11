@@ -8,6 +8,10 @@ import Link from 'next/link';
 
 export const metadata = { title: 'Manage Listings | WiyoRent Admin' };
 
+// Forwards the page's query string (filters/sort/pagination from the URL)
+// straight to the listings service, then derives the filter bar's available
+// options from filter_meta (min/max price and distinct neighborhoods/types/
+// landlords across the current result set).
 export default async function AdminListingsPage({ searchParams }) {
   const params = await searchParams;
   const queryString = new URLSearchParams(params).toString();

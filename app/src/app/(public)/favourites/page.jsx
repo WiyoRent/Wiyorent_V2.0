@@ -7,7 +7,7 @@ import { auth } from '@/auth';
 import Link from 'next/link';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Mock saved profiles — replace body with: await getSavedProfiles() || []
+// Mock saved profiles - replace body with: await getSavedProfiles() || []
 // Structure mirrors housemate_profiles shape from HousematesPage
 // ─────────────────────────────────────────────────────────────────────────────
 // const mock_saved_profiles = [
@@ -71,11 +71,15 @@ export const metadata = {
   },
 };
 
+// /favourites requires auth (enforced by proxy.js middleware), but this page
+// also gracefully handles a missing session by showing a login prompt below.
 export default async function FavouritesPage() {
 
 
   const session = await auth()
 
+  // Only fetch saved data when logged in - otherwise skip the requests and
+  // render empty lists (the login prompt is shown instead in that case).
   const [favourited_listings, profiles] = session
     ? await Promise.all([getSavedListings(), getSavedHousemates()])
     : [[], []]

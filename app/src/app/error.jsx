@@ -4,6 +4,10 @@ import Link from 'next/link';
 import { useEffect } from 'react';
 import { RefreshCw, Home } from 'lucide-react';
 
+// Route-level error boundary - Next.js renders this in place of the page
+// whenever a render or data-fetching error is thrown. `reset` re-renders the
+// segment to retry, and `error.digest` (if present) is a server-logged ID for
+// debugging.
 export default function ErrorPage({ error, reset }) {
   useEffect(() => {
     console.error(error);
@@ -25,7 +29,7 @@ export default function ErrorPage({ error, reset }) {
         }
       `}</style>
 
-      {/* Scanning line — the signature element that distinguishes this from 404 */}
+      {/* Scanning line - the signature element that distinguishes this from 404 */}
       <div
         className="absolute left-0 w-full pointer-events-none"
         style={{
@@ -47,7 +51,7 @@ export default function ErrorPage({ error, reset }) {
         ERR
       </span>
 
-      {/* Content — lifted above the backdrop */}
+      {/* Content - lifted above the backdrop */}
       <div className="relative flex flex-col items-center gap-6 max-w-sm">
 
         <div className="flex items-center gap-2">

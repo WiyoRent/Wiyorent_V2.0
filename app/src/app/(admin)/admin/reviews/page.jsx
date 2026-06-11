@@ -6,6 +6,8 @@ import { getReviews } from '@/services/admin/review.service';
 
 export const metadata = { title: 'Review Management | WiyoRent Admin' };
 
+// Review moderation queue. Forwards URL filters/sort to the reviews service,
+// defaulting to pending reviews so admins land directly on their action queue.
 export default async function AdminReviewsPage({ searchParams }) {
   const params = await searchParams;
   // Default moderation status to 'pending' so the admin lands on their action queue

@@ -6,6 +6,9 @@ import { getAdminUsers } from '@/services/admin/users.service';
 
 export const metadata = { title: 'User Management | WiyoRent Admin' };
 
+// Forwards the page's query string (filters/sort/pagination from the URL) to
+// the users service, then derives the filter bar's available options from
+// filter_meta (budget range and distinct universities/locations).
 export default async function UsersPage({ searchParams }) {
   const params = await searchParams;
   const queryString = new URLSearchParams(params).toString();

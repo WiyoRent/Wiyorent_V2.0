@@ -12,7 +12,7 @@ import Image from 'next/image';
 import { auth } from '@/auth';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Mock user detail — in production: await fetch(`/api/admin/users/${params.id}`)
+// Mock user detail - in production: await fetch(`/api/admin/users/${params.id}`)
 // Fields map directly to DB columns: users + user_listings + user_listing_images
 // ─────────────────────────────────────────────────────────────────────────────
 // const user_details = {
@@ -63,7 +63,7 @@ import { auth } from '@/auth';
 //     languages:      ['English', 'Kinyarwanda', 'French'],
 //   },
 
-//   // ── Verification documents — both plain image URLs (users.passport_id / users.admission_letter) ──
+//   // ── Verification documents - both plain image URLs (users.passport_id / users.admission_letter) ──
 //   admission_letter:      'https://images.unsplash.com/photo-1568667256549-094345857637?w=800',
 //   passport_id:           'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800',
 //   documents_uploaded_at: '2024-08-25T10:00:00Z',
@@ -90,6 +90,10 @@ import { auth } from '@/auth';
 //   ],
 // };
 
+// Fetches the full admin view of a single user, including their profile,
+// housing preferences, lifestyle answers, verification documents, and (if
+// has_house) their own listing - shaped per the mock object above. Returns []
+// on error so the page can still render with empty/optional fields.
 const fetchUserDetails = async (userId) => {
 
   try {
@@ -113,9 +117,11 @@ const fetchUserDetails = async (userId) => {
     console.error('Error on fetchUserDetails function:', error)
     return []
   }
-  
+
 }
 
+// Dynamic page title using the user's name, e.g. "Jane Doe - User Detail |
+// WiyoRent Admin". `params.id` is the route's [id] segment.
 export async function generateMetadata({ params }) {
   const {id} = await params
   const user_details = await fetchUserDetails(id)
@@ -167,7 +173,7 @@ export default async function UserDetailPage({ params }) {
           />
         </div>
 
-        {/* ── House Listing — full-width below the 3-col grid ──────────────── */}
+        {/* ── House Listing - full-width below the 3-col grid ──────────────── */}
         {/* Uses the same HouseListingSection layout as the user profile page,   */}
         {/* but all inputs are disabled (read-only). Landlord name + number are  */}
         {/* exposed here since this is the admin view.                           */}
@@ -197,19 +203,19 @@ export default async function UserDetailPage({ params }) {
         {/* ── Three-column body ─────────────────────────────────────────────── */}
         <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-          {/* Column 1 — About + Lifestyle */}
+          {/* Column 1 - About + Lifestyle */}
           <div className="flex flex-col gap-6">
             <AboutSection about_me={u?.about_me} />
             <LifestyleSection lifestyle={u?.lifestyle_personality} />
           </div>
 
-          {/* Column 2 — Basic profile + Housing prefs */}
+          {/* Column 2 - Basic profile + Housing prefs */}
           <div className="flex flex-col gap-6">
             <BasicProfileSection basic_profile={u?.basic_profile} />
             <HousingPreferencesSection preferences={u?.housing_preferences} />
           </div>
 
-          {/* Column 3 — Account details */}
+          {/* Column 3 - Account details */}
           <div className="flex flex-col gap-6">
             <div className="bg-base-100 rounded-box p-5 shadow-sm">
               <h3 className="font-primary text-sm font-extrabold text-base-content uppercase tracking-widest mb-4 flex items-center gap-3">
@@ -282,7 +288,7 @@ export default async function UserDetailPage({ params }) {
               </div>
             </div>
 
-            {/* Admission Letter — image (not PDF) */}
+            {/* Admission Letter - image (not PDF) */}
             <div className="flex flex-col gap-2">
               <span className="font-secondary text-xs font-bold text-base-content/50 uppercase">
                 Admission Letter:

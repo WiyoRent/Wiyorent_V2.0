@@ -4,6 +4,9 @@ import * as Sentry from "@sentry/nextjs";
 import NextError from "next/error";
 import { useEffect } from "react";
 
+// Top-level error boundary - catches errors that escape app/error.jsx (e.g.
+// errors in the root layout itself). Must render its own <html>/<body> since
+// it replaces the entire root layout. Reports the error to Sentry.
 export default function GlobalError({
   error,
 }: {

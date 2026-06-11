@@ -9,10 +9,10 @@ export default function Loading() {
           <div className="skeleton h-4 w-48 rounded-field mt-2" />
         </div>
 
-        {/* Form sections — each card */}
+        {/* Form sections - each card */}
         <div className="flex flex-col gap-6">
 
-          {/* Basic Profile — tallest, has avatar */}
+          {/* Basic Profile - tallest, has avatar */}
           <div className="bg-base-100 rounded-box shadow-sm p-6 sm:p-8">
             <div className="skeleton h-5 w-36 rounded-field mb-6" />
             <div className="flex items-center gap-6 mb-6">

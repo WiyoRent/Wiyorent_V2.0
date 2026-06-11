@@ -10,6 +10,9 @@ export const metadata = {
   },
 };
 
+// Layout for all (admin)/admin/* pages - access is restricted to role 'admin'
+// users by proxy.js middleware before this renders. Wraps pages with the
+// admin sidebar nav and a toast container for action feedback.
 export default function AdminLayout({ children }) {
   return (
     <div className="flex min-h-screen bg-primary ">

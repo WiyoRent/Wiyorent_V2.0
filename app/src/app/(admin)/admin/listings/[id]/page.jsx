@@ -3,6 +3,9 @@ import { getBaseURL } from '@/lib/getBaseURL';
 import { auth } from '@/auth';
 
 
+// Fetches one listing's full detail for the admin edit form. The backend
+// returns an array (`result.data`), so we take the first element. Sends the
+// admin's role in a header so the backend can authorize the request.
 const fetchSingleListing = async (id) => {
   try {
     const session = await auth()
@@ -71,6 +74,8 @@ const fetchSingleListing = async (id) => {
 //   ],
 // };
 
+// Dynamic page title that includes the listing's name, e.g. "Edit Luxury
+// Apartment in Remera | WiyoRent Admin". `params.id` is the route's [id] segment.
 export async function generateMetadata({ params }) {
 
   const {id} = await params

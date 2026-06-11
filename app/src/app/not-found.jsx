@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft, Home } from "lucide-react";
 
+// Automatically rendered by Next.js for unmatched routes (or via notFound()).
 export default function NotFound() {
   return (
     <div className="min-h-screen bg-secondary flex flex-col items-center justify-center px-6 text-center">
@@ -10,7 +11,7 @@ export default function NotFound() {
         404
       </span>
 
-      {/* Content — overlaid on the 404 */}
+      {/* Content - overlaid on the 404 */}
       <div className="-mt-16 sm:-mt-24 flex flex-col items-center gap-6">
 
         <div className="flex items-center gap-2">

@@ -10,7 +10,7 @@ import { getBaseURL } from '@/lib/getBaseURL.js';
 import { auth } from '@/auth';
 
 // ---------------------------------------------------------------------------
-// Mock listing detail — replace this async fetch in production:
+// Mock listing detail - replace this async fetch in production:
 //   const listing_detail = await fetch(`/api/listings/${params.id}`).then(r => r.json())
 // ---------------------------------------------------------------------------
 // const listing_detail = {
@@ -87,6 +87,9 @@ import { auth } from '@/auth';
 
 
 
+// Fetches the full listing record by id. Passing userId lets the API
+// personalize the response (e.g. flag is_on_waitlist for the current user).
+// Cached for 5 minutes (revalidate: 300) since listing details change rarely.
 const fetchSingleListing = async (id, userId = null) => {
   try {
     const params = userId ? `?userId=${userId}` : ''
@@ -108,9 +111,13 @@ const fetchSingleListing = async (id, userId = null) => {
     console.error(error.message)
     return null
   }
-  
+
 }
 
+// Builds per-listing SEO metadata (title, description, OG/Twitter cards) from
+// the fetched listing data. Falls back to a "not found" metadata block if the
+// listing doesn't exist, and only allows search indexing while the listing
+// is still "available".
 export async function generateMetadata({ params }) {
   const { id } = await params;
   const listing = await fetchSingleListing(id);
@@ -135,7 +142,7 @@ export async function generateMetadata({ params }) {
 
   const description = listing.description
     ? listing.description.slice(0, 155)
-    : `${furnished} ${bedrooms ? `${bedrooms}-bedroom` : ""} student ${listing.specifications?.property_type ?? "property"} in ${location}${price ? ` from ${price}` : ""}. ${verified ? "Verified listing" : ""} on WiyoRent — no visiting fees, no hidden charges.`;
+    : `${furnished} ${bedrooms ? `${bedrooms}-bedroom` : ""} student ${listing.specifications?.property_type ?? "property"} in ${location}${price ? ` from ${price}` : ""}. ${verified ? "Verified listing" : ""} on WiyoRent - no visiting fees, no hidden charges.`;
 
   return {
     title: `${listing.title} | Student House in ${location} | WiyoRent`,
@@ -153,7 +160,7 @@ export async function generateMetadata({ params }) {
             url: listing.thumbnail_url,
             width: 1200,
             height: 630,
-            alt: `${listing.title} — student housing in ${location}`,
+            alt: `${listing.title} - student housing in ${location}`,
           },
         ],
       }),
@@ -175,6 +182,8 @@ export default async function ListingDetailPage({ params }) {
 
   const {id} = await params
 
+  // Logged-in user (if any) - used to personalize the fetch (waitlist
+  // status) and to pre-fill the reviewer's name in ReviewsSection.
   const session = await auth()
   const user = session?.user
   const full_name = user?.full_name
@@ -183,7 +192,9 @@ export default async function ListingDetailPage({ params }) {
 
   const { financials, specifications, reviews} = listing_detail;
 
-  // Total first payment calculation
+  // Total first payment calculation: rent for the required upfront months,
+  // plus the refundable caution fee, plus WiyoRent's commission - unless this
+  // is a WiyoRent-owned house, in which case no commission is charged.
   const upfront_months = financials?.upfront_months ?? 1;
   const is_a_wiyorent_house = listing_detail?.is_a_wiyorent_house;
   const total_first_payment =

@@ -11,6 +11,8 @@ import Footer from "@/components/public/home/Footer.jsx";
 import AOSProvider from "@/context/AOSProvider.jsx";
 import { ToastContainer } from "react-toastify";
 
+// Structured data (schema.org LocalBusiness) injected into the page so search
+// engines can show rich results (address, contact links, social profiles).
 const JSON_LD = {
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
@@ -40,6 +42,8 @@ const JSON_LD = {
   ]
 };
 
+// Landing page - assembles the marketing sections in order. AOSProvider enables
+// scroll animations (AOS library) for the sections below.
 export default function HomePage() {
   return (
     <AOSProvider>

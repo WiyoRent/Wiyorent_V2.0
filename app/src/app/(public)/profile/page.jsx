@@ -5,6 +5,8 @@ import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import { getProfile } from '@/services/public/profile.service';
 
+// Title/description vary depending on whether the user has finished
+// onboarding, prompting them to complete their profile if not.
 export async function generateMetadata() {
   const session = await auth();
   const isOnboarded = session?.user?.is_onboarded;
@@ -23,14 +25,22 @@ export async function generateMetadata() {
 
 export default async function ProfileEditPage({searchParams}) {
 
+  // This route requires auth (also enforced by proxy.js middleware) -
+  // bounce unauthenticated visitors to /login.
   const session = await auth();
   if (!session?.user) {
     return redirect('/login');
   }
 
-  const { redirect: redirectTo } = await searchParams; 
+  // `redirect` query param lets callers send the user back to a specific
+  // page (e.g. /listings) once they finish editing their profile.
+  const { redirect: redirectTo } = await searchParams;
   const { user, listing } = await getProfile();
 
+  // Flattens and reshapes the raw `user`/`listing` records from getProfile()
+  // into the grouped shape ProfileEditForm expects (basic info, contact,
+  // lifestyle, housing preferences, listing fields, etc.), filling in
+  // sensible defaults for any missing values.
   const user_profile_data = {
 
     // Basic Profile Information
@@ -88,6 +98,9 @@ export default async function ProfileEditPage({searchParams}) {
     // House availability
     has_house: user.has_house,
 
+    // Only populated if the user already has a house and created a listing
+    // for it (has_house = true). All fields fall back to empty/false values
+    // when no listing exists yet.
     // ── Listing fields ──
     listing_price:            listing?.price             ?? '',
     listing_caution_fee:      listing?.caution_fee       ?? '',
@@ -114,6 +127,8 @@ export default async function ProfileEditPage({searchParams}) {
   };
 
 
+  // Fixed list of Kigali neighborhoods offered as options for housing
+  // preferences and listing location in ProfileEditForm.
   const available_neighborhoods = [
       'Kabeza', 
       'Kanombe', 

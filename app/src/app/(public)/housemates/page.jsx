@@ -8,7 +8,7 @@ import { fetchHousemates } from '@/services/public/housemate.service';
 
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Mock data — swap for async fetch('/api/housemates') in production
+// Mock data - swap for async fetch('/api/housemates') in production
 // ─────────────────────────────────────────────────────────────────────────────
 // const housemate_profiles = [
 //   {
@@ -88,7 +88,7 @@ import { fetchHousemates } from '@/services/public/housemate.service';
 export const metadata = {
   title: "Find a Housemate in Kigali",
   description:
-    "Browse verified student housemate profiles in Kigali. Filter by budget, university, move-in date, gender, neighbourhood, lifestyle habits, and more — Kigali's first student roommate matching platform.",
+    "Browse verified student housemate profiles in Kigali. Filter by budget, university, move-in date, gender, neighbourhood, lifestyle habits, and more - Kigali's first student roommate matching platform.",
   keywords: [
     "find a housemate Kigali",
     "student roommate Kigali Rwanda",
@@ -113,19 +113,25 @@ export const metadata = {
     card: "summary_large_image",
     title: "Find a Housemate in Kigali | WiyoRent",
     description:
-      "Kigali's first student roommate matching platform. Filter by budget, university, lifestyle, and more — verified students only.",
+      "Kigali's first student roommate matching platform. Filter by budget, university, lifestyle, and more - verified students only.",
   },
   robots: {
-    index: false,  // public page, worth indexing
+    // Despite the description above, this page is intentionally kept out of
+    // search results (housemate profiles are personal/dynamic content).
+    index: false,
     follow: false,
   },
 };
 
 export default async function  HousematesPage({searchParams}) {
 
+  // searchParams carries active filters (budget, university, gender, etc.)
+  // forwarded as a query string to fetchHousemates.
   const params = await searchParams
   const query = new URLSearchParams(params).toString()
 
+  // session is optional here - this browse page is open to anonymous
+  // visitors, but onboarding/blocked status only applies to logged-in users.
   const session = await auth()
   const user = session?.user
   const is_onboarded = user?.is_onboarded
@@ -133,6 +139,9 @@ export default async function  HousematesPage({searchParams}) {
   const is_blocked = user?.is_blocked
   const is_blocked_reason = user?.is_blocked_reason
 
+  // housemate_profiles: array of profile cards for the grid.
+  // filter_meta: server-computed bounds/options (budget range, universities,
+  // locations) used to populate the filter sidebar.
   const { housemates: housemate_profiles, filter_meta } = await fetchHousemates(query)
 
   const filter_options = {
@@ -148,7 +157,11 @@ export default async function  HousematesPage({searchParams}) {
 
   return (
     <div className="min-h-screen bg-base-200">
+      {/* Blocked users still see the page behind the modal but are warned they
+          can't interact with housemates */}
       <InformationModal title="Account Suspended" showModal={is_blocked === true} message="Your account has been suspended by the WiyoRent team. You cannot browse or contact housemates while your account is suspended. Please reach out to support@wiyorent.com for assistance." />
+      {/* Logged-in but not-yet-onboarded users (and not blocked) get nudged
+          to /profile to complete their profile before browsing */}
       <InformationModal  title = 'Almost there' showModal={!is_blocked && !is_onboarded} message={"Let's get you set up! You'll need a profile to browse and connect with housemates. Redirecting you there now...."} redirectTo={'/profile'}/>
       {/* Page header */}
       <div className="bg-base-100 border-b border-base-300">

@@ -13,6 +13,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Site-wide SEO defaults (title, description, OG/Twitter cards, icons, robots).
+// `template` lets child routes set just a page-specific title segment, e.g.
+// metadata.title = "Listings" renders as "Listings | WiyoRent".
 export const metadata = {
   title: {
     default: "WiyoRent | Student Housing in Kigali, Rwanda",
@@ -60,6 +63,8 @@ export const metadata = {
   },
 };
 
+// Wraps every page in the app. `data-theme="mytheme"` applies the DaisyUI
+// brand theme globally, and GoogleAnalytics tracks pageviews site-wide.
 export default function RootLayout({ children }) {
   return (
     <html lang="en" data-theme="mytheme">

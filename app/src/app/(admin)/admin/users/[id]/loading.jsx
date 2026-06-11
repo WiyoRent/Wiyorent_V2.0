@@ -77,7 +77,7 @@ export default function Loading() {
         {/* ── Three-column grid ───────────────────────────── */}
         <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
 
-          {/* Column 1 — About + Lifestyle */}
+          {/* Column 1 - About + Lifestyle */}
           <div className="flex flex-col gap-6">
             <div className="bg-base-100 rounded-box shadow-sm p-6">
               <div className="skeleton h-5 w-20 rounded-field mb-4" />
@@ -101,7 +101,7 @@ export default function Loading() {
             </div>
           </div>
 
-          {/* Column 2 — Basic profile + Housing prefs */}
+          {/* Column 2 - Basic profile + Housing prefs */}
           <div className="flex flex-col gap-6">
             <div className="bg-base-100 rounded-box shadow-sm p-6">
               <div className="skeleton h-5 w-32 rounded-field mb-4" />
@@ -127,7 +127,7 @@ export default function Loading() {
             </div>
           </div>
 
-          {/* Column 3 — Contact card */}
+          {/* Column 3 - Contact card */}
           <div className="bg-base-100 rounded-box shadow-sm p-6">
             <div className="skeleton h-5 w-28 rounded-field mb-6" />
             <div className="flex flex-col gap-3">

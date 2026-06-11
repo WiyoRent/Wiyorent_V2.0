@@ -161,12 +161,16 @@ export const metadata = {
 
 // ── Page ───────────────────────────────────────────────────────────────────────
 
+// Static marketing/landing page explaining the housemate-matching feature
+// (how it works, filters, who it's for, trust signals) with CTAs that send
+// visitors to /login or /housemates. No data fetching - all content is the
+// hardcoded arrays defined above.
 export default function HousemateMatchingPage() {
   return (
     <div className="bg-primary">
 
       {/* ══════════════════════════════════════════════════════════════════════
-          § 1 — HERO
+          § 1 - HERO
       ══════════════════════════════════════════════════════════════════════ */}
       <section
         aria-label="Find a Housemate in Kigali — WiyoRent Student Roommate Matching"
@@ -241,7 +245,7 @@ export default function HousemateMatchingPage() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════════════════
-          § 2 — HOW IT WORKS
+          § 2 - HOW IT WORKS
       ══════════════════════════════════════════════════════════════════════ */}
       <section
         aria-label="How WiyoRent Housemate Matching Works"
@@ -305,7 +309,7 @@ export default function HousemateMatchingPage() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════════════════
-          § 3 — FILTER SHOWCASE
+          § 3 - FILTER SHOWCASE
       ══════════════════════════════════════════════════════════════════════ */}
       <section
         aria-label="Housemate Filter Options — Budget, University, Lifestyle and More"
@@ -377,7 +381,7 @@ export default function HousemateMatchingPage() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════════════════
-          § 4 — WHO'S IT FOR
+          § 4 - WHO'S IT FOR
       ══════════════════════════════════════════════════════════════════════ */}
       <section
         aria-label="Who WiyoRent Housemate Matching Is For"
@@ -405,7 +409,7 @@ export default function HousemateMatchingPage() {
           {/* Two cards */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-            {/* Card A — Looking for a housemate */}
+            {/* Card A - Looking for a housemate */}
             <div className="bg-secondary rounded-2xl p-8 flex flex-col gap-6 card-lift">
               <div className="w-12 h-12 bg-accent/20 rounded-full flex items-center justify-center">
                 <Search className="w-6 h-6 text-accent" />
@@ -447,7 +451,7 @@ export default function HousemateMatchingPage() {
               </Link>
             </div>
 
-            {/* Card B — Already has a house */}
+            {/* Card B - Already has a house */}
             <div className="bg-accent rounded-2xl p-8 flex flex-col gap-6 card-lift">
               <div className="w-12 h-12 bg-secondary/20 rounded-full flex items-center justify-center">
                 <Home className="w-6 h-6 text-secondary" />
@@ -485,7 +489,7 @@ export default function HousemateMatchingPage() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════════════════
-          § 5 — TRUST SIGNAL
+          § 5 - TRUST SIGNAL
       ══════════════════════════════════════════════════════════════════════ */}
       <section
         aria-label="Why WiyoRent Housemate Matching Is Safe and Trustworthy"
@@ -559,7 +563,7 @@ export default function HousemateMatchingPage() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════════════════
-          § 6 — CTA BANNER
+          § 6 - CTA BANNER
       ══════════════════════════════════════════════════════════════════════ */}
       <section
         aria-label="Get Started with WiyoRent Housemate Matching"

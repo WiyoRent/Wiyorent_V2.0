@@ -17,8 +17,9 @@ import { toast } from 'react-toastify';
 import { checkPhoneNumber } from '@/validators/phone';
 import useCloudinaryUpload from '@/hooks/useCloudinaryUpload';
 
-// Default mockup
-
+// Initial shape of the listing form's state - mirrors the fields the backend
+// expects on create, grouped by section (landlord, financials, specifications,
+// location). image_urls temporarily holds File objects until upload.
 const default_listing = {
   title: '',
   description: '',
@@ -61,6 +62,9 @@ const STEPS = [
   { id: 4, label: 'Media & Amenities' },
 ];
 
+// Multi-step "Add New Listing" form. Form state lives in a single `listing`
+// object updated via small per-field setters, and the wizard steps (STEPS)
+// control which section is currently visible.
 export default function CreateListingPage() {
   const [listing, set_listing] = useState(default_listing);
   const [current_step, set_current_step] = useState(1);
@@ -94,6 +98,11 @@ export default function CreateListingPage() {
   const [isLoading, setIsLoading] = useState(false)
 
 
+  // Creates the listing in two phases: the DB row is created first (without
+  // images), then images are uploaded to Cloudinary under a folder scoped to
+  // the new listing's ID, and finally attached to the listing. If image upload
+  // fails partway through, the just-created listing row is deleted to avoid
+  // leaving an orphaned, image-less listing behind.
   const handle_submit = async (e) => {
     e.preventDefault();
 
@@ -129,6 +138,8 @@ export default function CreateListingPage() {
       formData.append(key, value)
     }
 
+    // amenities/house_rules are allowed to be empty arrays; every other field
+    // must have a value before we proceed.
     for (const [key, value] of formData.entries()) {
       if (key !== 'amenities' && key !== 'house_rules' && !value) {
         return toast.error(`Please enter all fields you missed: ${key}`)
@@ -201,7 +212,7 @@ export default function CreateListingPage() {
             submit_node={<FormActions on_reset={handle_reset} isLoading={isLoading} />}
           >
 
-            {/* ── Step 1 — Listing Info ─────────────────────────────── */}
+            {/* ── Step 1 - Listing Info ─────────────────────────────── */}
             {current_step === 1 && (
               <div className="flex flex-col gap-6">
                 <StatusSection
@@ -229,7 +240,7 @@ export default function CreateListingPage() {
               </div>
             )}
 
-            {/* ── Step 2 — Landlord ─────────────────────────────────── */}
+            {/* ── Step 2 - Landlord ─────────────────────────────────── */}
             {current_step === 2 && (
               <LandlordSection
                 landlord={listing.landlord}
@@ -237,7 +248,7 @@ export default function CreateListingPage() {
               />
             )}
 
-            {/* ── Step 3 — Financials & Specs ───────────────────────── */}
+            {/* ── Step 3 - Financials & Specs ───────────────────────── */}
             {current_step === 3 && (
               <div className="flex flex-col gap-6">
                 <FinancialsSection
@@ -251,7 +262,7 @@ export default function CreateListingPage() {
               </div>
             )}
 
-            {/* ── Step 4 — Media & Amenities ────────────────────────── */}
+            {/* ── Step 4 - Media & Amenities ────────────────────────── */}
             {current_step === 4 && (
               <div className="flex flex-col gap-6">
                 <AmenitiesRulesSection

@@ -25,9 +25,13 @@ export const metadata = {
   },
 };
 
+// /waitlist requires auth (enforced by proxy.js middleware), but this page
+// also gracefully handles a missing session by showing a login prompt below.
 export default async function WaitlistPage() {
   const session = await auth()
 
+  // Only fetch waitlisted listings when logged in - otherwise render an
+  // empty grid (the login prompt is shown instead in that case).
   const listings = session ? (await getWaitlistedListings() || []) : []
 
   return (

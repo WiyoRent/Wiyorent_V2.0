@@ -23,6 +23,9 @@ export const metadata = {
   description: "Find your perfect student home",
 };
 
+// Shared layout for all routes inside the (public) group - wraps every page
+// (listings, housemates, profile, favourites, waitlist, etc.) with the
+// session provider, persistent sidebar nav, and analytics/toast widgets.
 export default function RootLayout({ children }) {
   return (
         <ClientSessionProvider>
@@ -36,6 +39,6 @@ export default function RootLayout({ children }) {
             </main>
           </div>
           <ToastContainer  />
-        </ClientSessionProvider>  
+        </ClientSessionProvider>
   );
 }

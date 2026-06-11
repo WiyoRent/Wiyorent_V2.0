@@ -11,7 +11,7 @@ import InformationModal from '@/components/public/shared/InformationModal';
 import { auth } from '@/auth';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Mock detail — replace with: await fetch(`/api/housemates/${params.id}`)
+// Mock detail - replace with: await fetch(`/api/housemates/${params.id}`)
 // ─────────────────────────────────────────────────────────────────────────────
 // const housemate_detail = {
 //   profile_id: 'hm_9901',
@@ -47,6 +47,9 @@ import { auth } from '@/auth';
 //   },
 // };
 
+// Builds per-profile SEO metadata from the fetched housemate detail. These
+// profile pages are never indexed (robots.index: false below) since they
+// contain personal info and require viewer verification to access.
 export async function generateMetadata({ params }) {
   const { id } = await params;
   const h = await fetchHousemateDetail(id);
@@ -74,10 +77,10 @@ export async function generateMetadata({ params }) {
     : `${h.full_name} is a verified student at ${university} looking for a housemate in ${locations ?? "Kigali"}${moveIn ? `, moving in ${moveIn}` : ""}. Find and connect on WiyoRent.`;
 
   return {
-    title: `${h.full_name} — Student Housemate in Kigali | WiyoRent`,
+    title: `${h.full_name} - Student Housemate in Kigali | WiyoRent`,
     description,
     openGraph: {
-      title: `${h.full_name} — Student Housemate in Kigali | WiyoRent`,
+      title: `${h.full_name} - Student Housemate in Kigali | WiyoRent`,
       description,
       url: `https://wiyorent.com/housemates/${id}`,
       siteName: "WiyoRent",
@@ -96,7 +99,7 @@ export async function generateMetadata({ params }) {
     },
     twitter: {
       card: "summary",
-      title: `${h.full_name} — Student Housemate in Kigali | WiyoRent`,
+      title: `${h.full_name} - Student Housemate in Kigali | WiyoRent`,
       description,
       ...(h.avatar_url && { images: [h.avatar_url] }),
     },
@@ -107,11 +110,15 @@ export async function generateMetadata({ params }) {
   };
 }
 
+// Note: this route requires the viewer to be verified (enforced by
+// proxy.js middleware) before they can reach this page at all.
 export default async function HousemateDetailPage({params}) {
 
   const {id} = await params
   const housemate_detail = await fetchHousemateDetail(id)
 
+  // Used only to warn a blocked viewer that they can't interact with this
+  // profile - the page content still renders behind the modal.
   const session = await auth()
   const viewer_is_blocked = session?.user?.is_blocked
   const viewer_is_blocked_reason = session?.user?.is_blocked_reason
@@ -143,13 +150,13 @@ export default async function HousemateDetailPage({params}) {
         {/* ── Three-column body ───────────────────────────── */}
         <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
 
-          {/* Column 1 — About + Lifestyle */}
+          {/* Column 1 - About + Lifestyle */}
           <div className="flex flex-col gap-6">
             <AboutSection about_me={housemate_detail?.about_me} />
             <LifestyleSection lifestyle={housemate_detail?.lifestyle_personality} />
           </div>
 
-          {/* Column 2 — Basic profile + Housing prefs */}
+          {/* Column 2 - Basic profile + Housing prefs */}
           <div className="flex flex-col gap-6">
             <BasicProfileSection basic_profile={housemate_detail?.basic_profile} />
             <HousingPreferencesSection
@@ -157,7 +164,7 @@ export default async function HousemateDetailPage({params}) {
             />
           </div>
 
-          {/* Column 3 — Sticky contact card */}
+          {/* Column 3 - Sticky contact card */}
           <div>
             <div className="lg:sticky lg:top-24">
               <ContactCard

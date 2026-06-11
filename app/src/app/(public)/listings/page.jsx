@@ -4,6 +4,8 @@ import FilterSidebar from '@/components/public/listings/FilterSidebar.jsx';
 import ListingCard from '@/components/public/listings/ListingCard';
 import { getListingsProxy } from '@/services/public/listings.service';
 
+// Reference shape for a single listing returned by getListingsProxy(),
+// kept here as documentation for the fields ListingCard/ListingsGrid expect.
 // Mock listings data matching the required data structure
 // const listings = [
 //   {
@@ -155,10 +157,12 @@ import { getListingsProxy } from '@/services/public/listings.service';
 //   }
 // };
 
+// Static SEO metadata for the public /listings browse page (open to
+// anonymous visitors).
 export const metadata = {
   title: "Student Rooms & Apartments in Kigali",
   description:
-    "Browse verified student rooms and apartments in Kigali, Rwanda. Filter by price, location, furnished, availability date, number of bedrooms, and more — no visiting fees, no hidden charges.",
+    "Browse verified student rooms and apartments in Kigali, Rwanda. Filter by price, location, furnished, availability date, number of bedrooms, and more - no visiting fees, no hidden charges.",
   keywords: [
     "student rooms Kigali",
     "student apartments Kigali Rwanda",
@@ -173,7 +177,7 @@ export const metadata = {
   openGraph: {
     title: "Student Rooms & Apartments in Kigali | WiyoRent",
     description:
-      "Browse verified student rooms and apartments in Kigali. Filter by price, location, furnished status, availability date, and more — no visiting fees, no hidden charges.",
+      "Browse verified student rooms and apartments in Kigali. Filter by price, location, furnished status, availability date, and more - no visiting fees, no hidden charges.",
     url: "https://wiyorent.com/listings",
     siteName: "WiyoRent",
     locale: "en_US",
@@ -183,7 +187,7 @@ export const metadata = {
     card: "summary_large_image",
     title: "Student Rooms & Apartments in Kigali | WiyoRent",
     description:
-      "Browse verified student rooms and apartments in Kigali. Filter by price, location, furnished status, and availability — no visiting fees, no hidden charges.",
+      "Browse verified student rooms and apartments in Kigali. Filter by price, location, furnished status, and availability - no visiting fees, no hidden charges.",
   },
   robots: {
     index: true,
@@ -194,10 +198,17 @@ export const metadata = {
 
 export default async function ListingsPage({searchParams}) {
 
+  // searchParams holds active filters (price, neighborhood, etc.) - forward
+  // them as a query string so getListingsProxy returns only matching listings.
   const params = await searchParams
   const queryString = new URLSearchParams(params).toString()
+  // listings: array of matching listing records for the grid.
+  // filter_meta: server-computed bounds/options (price range, available
+  // neighborhoods) used to populate the filter sidebar.
   const { listings, filter_meta } = await getListingsProxy(queryString)
 
+  // Builds the option set passed to FilterSidebar, falling back to sensible
+  // defaults if filter_meta is missing values.
   const filter_options = {
     price_range: {
       min: filter_meta?.price_min ?? 50000,

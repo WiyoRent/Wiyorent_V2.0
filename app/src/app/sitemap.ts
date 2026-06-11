@@ -3,6 +3,9 @@ import { getBaseURL } from '@/lib/getBaseURL'
 
 const SITE_URL = 'https://wiyorent.com'
 
+// Generates /sitemap.xml automatically (Next.js convention). Combines fixed
+// marketing/legal routes with one entry per active listing fetched from the
+// public API, so new listings get indexed without a manual sitemap update.
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const static_routes: MetadataRoute.Sitemap = [
     { url: `${SITE_URL}/`,                   changeFrequency: 'daily',  priority: 1.0 },
@@ -13,6 +16,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]
 
   try {
+    // `X-User-Id: ''` signals an anonymous request to the backend, returning
+    // only publicly visible listings. Result is cached for 1 hour.
     const res = await fetch(getBaseURL() + 'api/v1/public/getListings', {
       headers: {
         'X-INTERNAL-API-KEY': process.env.INTERNAL_BACKEND_KEY ?? '',
@@ -35,6 +40,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     return [...static_routes, ...listing_routes]
   } catch (error) {
+    // Fall back to just the static routes so a backend hiccup never breaks
+    // the whole sitemap.
     console.error('[sitemap] failed to fetch listings:', error)
     return static_routes
   }

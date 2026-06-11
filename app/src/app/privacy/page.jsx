@@ -12,6 +12,9 @@ export const metadata = {
   },
 };
 
+// Each entry becomes a <section> on the page, rendered via SECTIONS.map below.
+// `content` is JSX (not a string) so sections can include lists, links, and
+// formatting directly.
 const SECTIONS = [
   {
     id: "information-we-collect",
@@ -241,6 +244,7 @@ export default function PrivacyPage() {
     <div className="min-h-screen flex flex-col bg-base-100">
       <LegalNav />
 
+      {/* ########## Page header ########## */}
       <header className="bg-secondary border-b-2 border-accent/30 pt-16 pb-12 px-6 lg:px-16">
         <div className="container mx-auto max-w-3xl">
           <p className="font-secondary text-xs font-semibold text-accent uppercase tracking-widest mb-3">
@@ -265,6 +269,7 @@ export default function PrivacyPage() {
             below.
           </p>
 
+          {/* ########## Policy sections (driven by SECTIONS array) ########## */}
           <div className="flex flex-col gap-12">
             {SECTIONS.map(({ id, heading, content }) => (
               <section key={id} id={id}>
@@ -294,6 +299,7 @@ export default function PrivacyPage() {
   );
 }
 
+// Minimal nav for legal pages - logo links home, CTA links to listings.
 function LegalNav() {
   return (
     <nav className="sticky top-0 z-50 bg-black/95 backdrop-blur-md border-b border-white/8 px-6 lg:px-16 py-3">

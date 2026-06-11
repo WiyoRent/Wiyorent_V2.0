@@ -7,6 +7,10 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+// Issues a signed upload signature so the client can upload directly to
+// Cloudinary without exposing the API secret. Requires an authenticated
+// session; the target folder template (e.g. "wiyorent/users/{userId}/...")
+// has "{userId}" replaced with the current user's ID to scope uploads to them.
 export async function POST(req) {
     const session = await auth();
     if (!session) {

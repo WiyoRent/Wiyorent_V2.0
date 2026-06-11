@@ -12,6 +12,9 @@ export const metadata = {
   },
 };
 
+// Each entry becomes a <section> on the page, rendered via SECTIONS.map below.
+// `content` is JSX (not a string) so sections can include lists, links, and
+// formatting directly.
 const SECTIONS = [
   {
     id: "about-wiyorent",
@@ -205,8 +208,8 @@ const SECTIONS = [
     heading: "Intellectual Property",
     content: (
       <p>
-        All content on the WiyoRent platform — including the logo, brand assets,
-        interface design, and written content — is owned by or licensed to WiyoRent Ltd.
+        All content on the WiyoRent platform - including the logo, brand assets,
+        interface design, and written content - is owned by or licensed to WiyoRent Ltd.
         You may not reproduce, distribute, or create derivative works from any part of
         the platform without our prior written consent. Content you post to the
         platform (such as profile information or reviews) remains yours, but you grant
@@ -278,6 +281,7 @@ export default function TermsPage() {
     <div className="min-h-screen flex flex-col bg-base-100">
       <LegalNav />
 
+      {/* ########## Page header ########## */}
       <header className="bg-secondary border-b-2 border-accent/30 pt-16 pb-12 px-6 lg:px-16">
         <div className="container mx-auto max-w-3xl">
           <p className="font-secondary text-xs font-semibold text-accent uppercase tracking-widest mb-3">
@@ -300,6 +304,7 @@ export default function TermsPage() {
             to be bound by these terms. If you do not agree, do not use the platform.
           </p>
 
+          {/* ########## Terms sections (driven by SECTIONS array) ########## */}
           <div className="flex flex-col gap-12">
             {SECTIONS.map(({ id, heading, content }) => (
               <section key={id} id={id}>
@@ -334,6 +339,7 @@ export default function TermsPage() {
   );
 }
 
+// Minimal nav for legal pages - logo links home, CTA links to listings.
 function LegalNav() {
   return (
     <nav className="sticky top-0 z-50 bg-black/95 backdrop-blur-md border-b border-white/8 px-6 lg:px-16 py-3">
