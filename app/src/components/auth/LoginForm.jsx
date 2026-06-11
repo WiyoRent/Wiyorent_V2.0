@@ -24,7 +24,7 @@ const PATTERN_BG = `url("data:image/svg+xml,%3Csvg width='48' height='48' viewBo
 
 // Two-column layout: branding/value-props on the left (hidden content on
 // small screens collapses since the column stacks), LoginCard on the right.
-export default function LoginForm() {
+export default function LoginForm({callbackUrl}) {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
 
@@ -93,7 +93,7 @@ export default function LoginForm() {
 
       {/* ########## Right column - login form ########## */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-10 sm:px-10 sm:py-14 bg-base-200">
-        <LoginCard />
+        <LoginCard callbackUrl={callbackUrl} />
       </div>
 
     </div>

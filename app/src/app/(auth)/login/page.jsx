@@ -4,17 +4,18 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import LoginForm from '@/components/auth/LoginForm';
 
+
 export const metadata = {
   title: 'Sign In | WiyoRent',
   description: 'Sign in to your WiyoRent account',
 };
 
-export default async function LoginPage() {
+export default async function LoginPage({searchParams }) {
   const session = await auth();
+  const params = await searchParams 
 
-  // If already logged in, send the user onward instead of showing the login
-  // form again: incomplete profiles go to /profile to finish onboarding,
-  // everyone else goes straight to /listings.
+  const callbackUrl = params?.callbackUrl || '/listings'
+
   if (session?.user) {
     if(!session?.is_onboarded){
       redirect('/profile');
@@ -22,5 +23,5 @@ export default async function LoginPage() {
     redirect('/listings');
   }
 
-  return <LoginForm />;
+  return <LoginForm callbackUrl = {callbackUrl} />;
 }

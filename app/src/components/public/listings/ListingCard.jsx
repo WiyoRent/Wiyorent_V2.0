@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { toggleSaveListing, toggleWaitlistListing } from '@/actions/public/favorites.action';
 import { formatRWF } from '@/lib/formatRWF';
 import Image from 'next/image';
@@ -34,17 +34,28 @@ export default function ListingCard({ listing }) {
 
   const router = useRouter()
   const session = useSession()
+  const pathname = usePathname()
+
+  // Const handle not signed in user redirection
+  const redirectToLogin = () => {
+    if(!session?.data?.user){
+      console.log('pathname:', pathname)
+      router.push(`/login?callbackUrl=${encodeURIComponent(pathname)}`)
+    }
+    return
+  }
+
 
   // toggle waitlist status optimistically; redirect to login if not signed in.
   // stopPropagation prevents the click from also triggering the card's Link navigation.
   const handleWaitlist = (e) => {
+
+    redirectToLogin()
+
     e.preventDefault()
     e.stopPropagation()
 
-    if (!session?.data) {
-      router.push('/login')
-      return
-    }
+  
 
     const next = !on_waitlist
     set_on_waitlist(next)
@@ -64,10 +75,7 @@ export default function ListingCard({ listing }) {
     e.preventDefault()
     e.stopPropagation()
 
-    if (!session?.data) {
-      router.push('/login')
-      return
-    }
+    redirectToLogin()
 
     const next = !is_liked
     set_is_liked(next)

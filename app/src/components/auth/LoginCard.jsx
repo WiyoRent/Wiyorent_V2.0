@@ -6,8 +6,10 @@ import { googleSignIn } from '@/actions/auth.action';
 // Renders the sign-in card shown on the right side of the login screen.
 // loading tracks whether the Google OAuth redirect is in progress so the
 // button can swap its icon for a spinner and disable itself.
-export default function LoginCard() {
+export default function LoginCard({callbackUrl}) {
   const [loading, set_loading] = useState(false);
+
+  const googleSignInWithCallback = googleSignIn.bind(null, callbackUrl)
 
   return (
     <div className="w-full max-w-[22rem]">
@@ -27,7 +29,8 @@ export default function LoginCard() {
         {/* googleSignIn is a server action - it kicks off NextAuth's Google OAuth */}
         {/* flow and redirects to /post-login on success. set_loading just drives */}
         {/* the spinner while the redirect is in flight. */}
-        <form onSubmit={() => set_loading(true)} action={googleSignIn}>
+
+        <form onSubmit={() => set_loading(true)} action={googleSignInWithCallback}>
           <button
             type="submit"
             disabled={loading}

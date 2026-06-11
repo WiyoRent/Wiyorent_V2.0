@@ -12,15 +12,23 @@ import { redirect } from 'next/navigation';
 export default async function PostLoginPage({ searchParams }) {
   const session = await auth();
 
-  const { redirect: redirectTo } = await searchParams;
+  // read the original destination the user was trying to reach
+  const params = await searchParams;
+  const callbackUrl = params.callbackUrl || 'listings'
 
   if (!session?.user) {
-    redirect(redirectTo ? `/login?redirect=${redirectTo}` : '/login');
+    redirect(`/login`);
   }
 
-  if (!session.user.is_onboarded) {
-    redirect(redirectTo ? `/profile?redirect=${redirectTo}` : '/profile');
+  // only enforce onboarding for routes that genuinely need a complete profile
+  const requiresOnboarding = ['/housemates'].some(
+    path => callbackUrl.startsWith(path)
+  )
+
+  if (!session.user.is_onboarded && requiresOnboarding) {
+    redirect(`/profile`)
   }
 
-  redirect(redirectTo || '/listings');
+  // Send them back to where they originally wanted to go
+  redirect(callbackUrl);
 }

@@ -200,6 +200,7 @@ export default async function ListingsPage({searchParams}) {
 
   // searchParams holds active filters (price, neighborhood, etc.) - forward
   // them as a query string so getListingsProxy returns only matching listings.
+  
   const params = await searchParams
   const queryString = new URLSearchParams(params).toString()
   // listings: array of matching listing records for the grid.
