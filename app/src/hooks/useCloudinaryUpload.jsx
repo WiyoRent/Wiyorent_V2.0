@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+// Downscales and re-encodes an image client-side (via canvas) before upload,
+// so large phone photos don't get sent to Cloudinary at full size.
 const compressImage = (file, maxWidthPx = 1920, quality = 0.82) => {
     return new Promise((resolve) => {
         const img = new Image();
@@ -31,6 +33,9 @@ export default function useCloudinaryUpload() {
     const [uploading, set_uploading] = useState(false);
     const [error, set_error] = useState(null);
 
+    // Uploads an image straight from the browser to Cloudinary (bypassing our
+    // API), using a short-lived signature so the Cloudinary API secret never
+    // reaches the client. Returns the resulting secure_url, or null on failure.
     const upload = async (file, folder) => {
         set_uploading(true);
         set_error(null);
