@@ -1,3 +1,5 @@
+// Single lifestyle trait tile (icon, label, value), used by LifestyleSection
+// to display sleep schedule, cleanliness and social habits.
 export default function LifestyleTile({ icon: Icon, label, value }) {
   return (
     <div className="bg-base-200 rounded-field p-3 flex flex-col gap-1.5">

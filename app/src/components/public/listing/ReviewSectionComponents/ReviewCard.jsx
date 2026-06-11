@@ -7,11 +7,14 @@ import StarRating from '@/components/public/listing/ReviewSectionComponents/Star
 import StatusBadge from '@/components/public/listing/ReviewSectionComponents/StatusBadge';
 
 export default function ReviewCard({ entry, current_user_id, on_edit, on_delete }) {
+  // entry.reviewer_id (or legacy entry.user_id) identifies the author; used to show
+  // edit/delete controls and the rejection note only to the review's own author
   const is_mine =
     current_user_id &&
     (entry.reviewer_id || entry.user_id) &&
     (entry.reviewer_id ?? entry.user_id) === current_user_id;
 
+  // two-step delete: first click asks "Delete?" with Yes/No before actually deleting
   const [confirming_delete, set_confirming_delete] = useState(false);
 
   const formatted_date = entry.date
@@ -99,6 +102,7 @@ export default function ReviewCard({ entry, current_user_id, on_edit, on_delete 
           {entry.comment}
         </p>
 
+        {/* Rejection reason is only shown to the review's author, to help them edit and resubmit */}
         {is_mine && entry.is_approved === 'rejected' && entry.review_rejection_note && (
           <div className="mt-2 px-3 py-2 bg-error/10 border-l-2 border-error rounded-r-md">
             <p className="font-secondary text-xs font-semibold text-error uppercase tracking-wide mb-0.5">

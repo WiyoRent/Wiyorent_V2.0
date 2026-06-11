@@ -1,10 +1,11 @@
 import { Target, Rocket } from "lucide-react";
 
+// "Where we stand / where we're going" section - mission and vision cards.
 export default function Mission() {
   return (
     <section data-aos="fade-up" className="py-20 px-6 lg:px-16 bg-black">
 
-      {/* ── Heading ─────────────────────────── */}
+      {/* ########## Heading ########## */}
       <div className="container mx-auto mb-14">
         <div className="flex items-center gap-3 mb-4 justify-center">
           <span className="section-rule" />
@@ -18,10 +19,10 @@ export default function Mission() {
         </h2>
       </div>
 
-      {/* ── Cards ──────────────────────────────── */}
+      {/* ########## Mission / vision cards ########## */}
       <div className="container mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        {/* Mission — white card */}
+        {/* Mission - white card */}
         <div
           data-aos="fade-right"
           data-aos-delay="100"
@@ -43,7 +44,7 @@ export default function Mission() {
           </div>
         </div>
 
-        {/* Vision — accent card */}
+        {/* Vision - accent card */}
         <div
           data-aos="fade-left"
           data-aos-delay="200"

@@ -3,6 +3,10 @@ import React, { useEffect, useRef } from 'react'
 import { redirect } from 'next/navigation'
 import { useRouter } from 'next/navigation'
 
+// Generic info/confirmation dialog. When redirectTo is provided, the modal acts
+// as an "auto-redirect" notice: it shows a spinner and navigates away after a
+// short delay (or immediately if the user clicks the button). Without
+// redirectTo, it behaves as a plain dismissible dialog.
 function InformationModal({ title, message, showModal, setShowModal, redirectTo }) {
 
     const router = useRouter()
@@ -28,6 +32,8 @@ function InformationModal({ title, message, showModal, setShowModal, redirectTo 
     }
   }, [showModal])
 
+  // Clicking the button cancels the pending auto-redirect timer and either
+  // navigates immediately (redirectTo case) or just closes the dialog.
   const handleButton = () => {
     timerRef.current ? clearTimeout(timerRef.current) : null
     if(redirectTo){

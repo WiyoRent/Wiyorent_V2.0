@@ -2,6 +2,8 @@ import { MessageSquare } from 'lucide-react';
 
 const MAX_CHARS = 500;
 
+// Bio editor for the "About Me" step. about_me is a single string field on the
+// profile, required before the user can finish the About Me step.
 export default function AboutMeSection({ about_me, set_about_me }) {
   const char_count = about_me?.length;
   const remaining = MAX_CHARS - char_count;

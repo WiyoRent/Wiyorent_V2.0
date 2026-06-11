@@ -5,6 +5,10 @@ import { useState } from 'react';
 import { toast } from 'react-toastify';
 import useCloudinaryUpload from '@/hooks/useCloudinaryUpload';
 
+// Final step: identity document upload + visibility/contact preferences.
+// admission_letter / passport_id are either Cloudinary URL strings (already
+// uploaded) or File objects pending upload; docs_locked-style behaviour is
+// handled via is_rejected below (only rejected users may replace docs).
 export default function PracticalInfoSection({
   preferred_method,
   set_preferred_method,
@@ -27,6 +31,8 @@ export default function PracticalInfoSection({
   const [uploading_admission, set_uploading_admission] = useState(false);
   const [uploading_passport, set_uploading_passport] = useState(false);
 
+  // Uploads to Cloudinary immediately and stores the resulting URL string;
+  // turns off the "replace" toggle once a new doc is successfully uploaded.
   const handle_admission_change = async (e) => {
     const file = e.target.files[0]
     if (!file) return
@@ -57,6 +63,8 @@ export default function PracticalInfoSection({
     e.target.value = '';
   }
 
+  // Show the file input (instead of the existing-doc preview) when there's no
+  // uploaded URL yet, or when a rejected user has toggled "Replace" for that doc.
   const show_admission_upload = typeof admission_letter !== 'string' || (is_rejected && replace_admission);
   const show_passport_upload  = typeof passport_id     !== 'string' || (is_rejected && replace_passport);
 
@@ -214,6 +222,9 @@ export default function PracticalInfoSection({
 
         </div>
 
+        {/* docs_locked notice: once onboarded and not rejected (i.e. pending or
+            approved), document fields stay read-only and re-submitted values
+            would be ignored by the API - users must contact support instead. */}
         {is_onboarded && !is_rejected && (
           <p className="font-secondary text-[11px] text-base-content/40 italic text-center -mt-2">
             Documents are locked after verification. To update, contact{' '}

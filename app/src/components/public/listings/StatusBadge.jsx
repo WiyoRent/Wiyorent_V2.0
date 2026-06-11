@@ -1,5 +1,6 @@
 import { ShieldCheck } from 'lucide-react';
 
+// small "Available"/"Booked" pill shown on listing card thumbnails
 export default function StatusBadge({ available_status }) {
   const is_available = available_status === 'available';
   return (

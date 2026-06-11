@@ -26,8 +26,11 @@ export default function Sidebar() {
     {icon: ShieldUser, label : "Admin Dashboard", href: '/admin/analytics'}
   ];
 
+  // Items that show a lock icon and require sign-in/onboarding to access.
   const lockedItems = ["Housemates", "My Profile"];
 
+  // "Housemates" is additionally locked for blocked or not-yet-onboarded users,
+  // even if they're logged in.
   const isLocked = (label) => {
     if (lockedItems.includes(label) && !session?.user?.id) return true;
     if (label === 'Housemates' && session?.user?.is_blocked) return true;
@@ -35,6 +38,8 @@ export default function Sidebar() {
     return false;
   };
 
+  // Renders each nav item, hiding "Admin Dashboard" entirely for non-admin/
+  // semi_admin users rather than just locking it.
   const displayNav = (item) => {
 
     if (item.label === 'Admin Dashboard' && (session?.user?.role !== 'admin' && session?.user?.role !== 'semi_admin')  ) {
@@ -70,6 +75,8 @@ export default function Sidebar() {
     router.push("/login");
   };
 
+  // Renders the bottom auth area: a loading spinner while NextAuth resolves,
+  // a Log Out button when signed in, or Log In / Sign Up buttons when signed out.
   const renderAuthSection = () => {
     // NextAuth is still resolving session
     if (isAuthLoading) {

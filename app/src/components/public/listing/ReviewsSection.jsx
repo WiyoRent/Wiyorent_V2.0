@@ -8,7 +8,9 @@ import { createReview, deleteReview, editReview } from '@/services/public/review
 import { toast } from 'react-toastify';
 
 export default function ReviewsSection({ listing_id, reviews, current_user, user_full_name, listing_title }) {
+  // reviews.entries: array of { id, reviewer_id/user_id, name, avatar, rating, comment, date, is_approved }
   const [entries, setEntries] = useState(reviews?.entries ?? []);
+  // the entry currently being edited (null when not editing); pre-fills ReviewForm in edit mode
   const [editing, setEditing] = useState(null);
   const [showOnboardingModal, setShowOnboardingModal] = useState(false);
 
@@ -17,9 +19,12 @@ export default function ReviewsSection({ listing_id, reviews, current_user, user
   const isMyReview = (e) => current_user != null && getReviewerId(e) === current_user.id;
 
   // Derived state
+  // Reviews go through moderation: 'approved' is shown to everyone, 'pending'/'rejected'
+  // entries are only visible to their own author (so they can see status and edit/resubmit).
   const visibleEntries = entries.filter(e => e.is_approved === 'approved' || isMyReview(e));
   const hasMyReview = entries.some(isMyReview);
 
+  // Average rating / count are computed only from approved (publicly visible) reviews
   const approvedEntries = entries.filter(e => e.is_approved === 'approved');
   const liveCount = approvedEntries.length;
   const liveAvg = liveCount
@@ -27,10 +32,14 @@ export default function ReviewsSection({ listing_id, reviews, current_user, user
     : '—';
 
   // Permissions
+  // a user can leave a review only if onboarded, doesn't already have one, and isn't mid-edit
   const canReview = current_user?.is_onboarded && !hasMyReview && !editing;
   const showOnboardingTeaser = current_user && !current_user.is_onboarded && !hasMyReview && !editing;
 
   // Handlers
+  // Optimistically inserts a temporary 'pending' review entry, then replaces it with the
+  // server-saved version once createReview resolves. New reviews always start as 'pending'
+  // until the moderation system marks them clean/toxic.
   const handleCreate = async ({ rating, comment }) => {
     const optimisticEntry = {
       id: `optimistic_${Date.now()}`,
@@ -56,6 +65,8 @@ export default function ReviewsSection({ listing_id, reviews, current_user, user
     }
   };
 
+  // Edits go back through moderation too, so the entry is marked 'pending' again
+  // immediately and exits edit mode while the save request is in flight.
   const handleEditSubmit = async ({ rating, comment }) => {
     const original = editing;
     setEntries(prev =>
@@ -73,6 +84,7 @@ export default function ReviewsSection({ listing_id, reviews, current_user, user
     }
   };
 
+  // Removes the entry immediately, restoring it (re-inserted at the top) if the delete fails
   const handleDelete = async (id) => {
     const snapshot = entries.find(e => e.id === id);
     setEntries(prev => prev.filter(e => e.id !== id));
@@ -107,7 +119,7 @@ export default function ReviewsSection({ listing_id, reviews, current_user, user
         </div>
       </div>
 
-      {/* Review cards */}
+      {/* Review cards - the entry being edited renders an inline ReviewForm instead of a card */}
       <div>
         {visibleEntries.map(entry =>
           editing?.id === entry.id ? (

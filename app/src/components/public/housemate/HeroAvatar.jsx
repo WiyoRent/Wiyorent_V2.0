@@ -1,5 +1,7 @@
 import Image from 'next/image';
 
+// Large hero-banner avatar for the profile detail page. Falls back to a
+// gradient circle with the user's initials when there's no real photo.
 export default function HeroAvatar({ full_name, avatar_url, gender }) {
   const initials = full_name
     ?.split(' ')
@@ -15,6 +17,8 @@ export default function HeroAvatar({ full_name, avatar_url, gender }) {
       ? 'from-sky-300 via-blue-300 to-indigo-400'
       : 'from-violet-300 to-purple-400';
 
+  // avatar_url pointing at our own API placeholder means "no real photo uploaded" -
+  // treat it the same as missing and fall back to the initials avatar.
   if (avatar_url && !avatar_url.includes('api.wiyorent.com')) {
     return (
       <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-2 border-accent ring-4 ring-base-100 shadow-xl flex-shrink-0">

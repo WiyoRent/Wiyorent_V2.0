@@ -10,6 +10,8 @@ import FieldLabel from '@/components/public/shared/FieldLabel';
 import { formatRWF, formatRWFNumber } from '@/lib/formatRWF';
 
 // ── Main component ─────────────────────────────────────────────────────────────
+// Filter sidebar for /housemates. Local state mirrors the URL query params so
+// filters survive navigation/refresh; "Apply filters" pushes the new query string.
 export default function HousemateFilterSidebar({ filter_options }) {
   const {
     budget_range,
@@ -19,6 +21,7 @@ export default function HousemateFilterSidebar({ filter_options }) {
     sleep_options = ['Early Bird', 'Night Owl'],
     clean_options = ['Very Tidy', 'Casual'],
     social_options = ['Social', 'Private'],
+    // "4+" is a bucket meaning "4 or more" - the API translates it to a >= 4 SQL comparison.
     housemate_counts = ['2', '3', '4+']
   } = filter_options;
 
@@ -52,6 +55,9 @@ export default function HousemateFilterSidebar({ filter_options }) {
   const [lifestyle_open, set_lifestyle_open] = useState(false);
 
   // ── Sync from URL ───────────────────────────────────────────────────────────
+  // Re-reads every filter value from the current query string whenever it changes,
+  // so the sidebar reflects back/forward navigation and shared/bookmarked URLs.
+  // Tri-state booleans (smoker, allow_pets, etc.) parse 'true'/'false'/missing into true/false/null.
   useEffect(() => {
     set_budget_max(Number(searchParams.get('max')) || budget_range.max);
     set_university(searchParams.get('university') || '');
@@ -76,6 +82,8 @@ export default function HousemateFilterSidebar({ filter_options }) {
   }, [searchParams]);
 
   // ── Active filter counts ────────────────────────────────────────────────────
+  // Drives the badge counts shown on each collapsible section header and the
+  // mobile trigger button, plus whether "Reset all" is shown.
   const essentials_active =
     (budget_max !== budget_range.max ? 1 : 0) +
     (university !== '' ? 1 : 0) +
@@ -98,6 +106,7 @@ export default function HousemateFilterSidebar({ filter_options }) {
   const has_filters = essentials_active > 0 || living_active > 0 || lifestyle_active > 0;
 
   // ── Reset ───────────────────────────────────────────────────────────────────
+  // Clears all local filter state and strips the query string entirely.
   const handle_reset = () => {
     set_budget_max(budget_range.max);
     set_university('');
@@ -125,6 +134,8 @@ export default function HousemateFilterSidebar({ filter_options }) {
     );
 
   // ── Apply ───────────────────────────────────────────────────────────────────
+  // Builds a fresh query string from local state (only including non-default
+  // values) and pushes it, which the housemates page reads to refetch results.
   const handle_apply = () => {
     const param = new URLSearchParams();
     if (budget_max !== budget_range.max) param.append('max', budget_max);
@@ -220,7 +231,7 @@ export default function HousemateFilterSidebar({ filter_options }) {
         on_toggle={() => set_essentials_open(v => !v)}
         active_count={essentials_active}
       >
-        {/* Budget — single max slider */}
+        {/* Budget - single max slider */}
         <div className="flex flex-col">
           <FieldLabel>Max budget</FieldLabel>
           <div className="flex items-baseline gap-1.5 mb-2">
@@ -263,7 +274,7 @@ export default function HousemateFilterSidebar({ filter_options }) {
           </div>
         </div>
 
-        {/* Urgency — no "Any" pill, deselect by clicking active */}
+        {/* Urgency - no "Any" pill, deselect by clicking active */}
         <div className="flex flex-col">
           <FieldLabel>Urgency</FieldLabel>
           <div className="flex flex-wrap gap-1.5">
@@ -295,7 +306,7 @@ export default function HousemateFilterSidebar({ filter_options }) {
         on_toggle={() => set_living_open(v => !v)}
         active_count={living_active}
       >
-        {/* Has a house — with sublabel + tooltip */}
+        {/* Has a house - with sublabel + tooltip */}
         <div className="flex items-center justify-between gap-3 py-0.5">
           <div className="flex flex-col gap-0.5">
             <span className="font-secondary text-[12px] font-medium text-base-content/70 flex items-center gap-1">
@@ -314,7 +325,7 @@ export default function HousemateFilterSidebar({ filter_options }) {
           />
         </div>
 
-        {/* Neighbourhood — pill chips */}
+        {/* Neighbourhood - pill chips */}
         <div className="flex flex-col">
           <FieldLabel>Neighbourhood</FieldLabel>
           <div className="flex flex-wrap gap-1.5">
@@ -324,7 +335,7 @@ export default function HousemateFilterSidebar({ filter_options }) {
           </div>
         </div>
 
-        {/* Private Room — full-width 3-col segmented control */}
+        {/* Private Room - full-width 3-col segmented control */}
         <div className="flex flex-col">
           <FieldLabel tip="Shared rooms cost significantly less but offer less privacy.">
             Private room

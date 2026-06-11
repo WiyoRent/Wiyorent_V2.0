@@ -3,8 +3,11 @@
 import { useState } from 'react';
 import { Star } from 'lucide-react';
 
+// `interactive` makes this a clickable star picker (used in ReviewForm); otherwise it's
+// a read-only display of `rating` (used in ReviewCard).
 export default function StarRating({ rating, max = 5, size = 14, interactive = false, on_change }) {
   const [hovered, set_hovered] = useState(0);
+  // while interactive and hovering, preview the hovered star count instead of the saved rating
   const display = interactive ? (hovered || rating) : rating;
 
   return (

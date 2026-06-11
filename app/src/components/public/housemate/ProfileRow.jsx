@@ -1,3 +1,5 @@
+// Generic icon + label + value row, used by BasicProfileSection for fields
+// like gender, age, university, program, year of study.
 export default function ProfileRow({ icon: Icon, label, value }) {
   return (
     <div className="flex items-center gap-3 py-2.5 border-b border-base-200 last:border-0">

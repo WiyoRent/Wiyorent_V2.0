@@ -16,12 +16,13 @@ const UNIVERSITIES = [
   },
 ];
 
+// "Trusted by students from..." section - displays partner university logos.
 export default function Partners() {
   return (
     <section id="partners" className="bg-secondary py-20 px-6 lg:px-16">
       <div className="container mx-auto">
 
-        {/* ── Heading ─────────────────────────── */}
+        {/* ########## Heading ########## */}
         <div className="mb-14">
           <div className="flex items-center gap-3 mb-4 justify-center">
             <span className="section-rule" />
@@ -38,7 +39,7 @@ export default function Partners() {
           </h2>
         </div>
 
-        {/* ── Logos ───────────────────────────── */}
+        {/* ########## Partner university logos ########## */}
         <div className="flex flex-wrap items-center justify-center gap-10 lg:gap-20">
           {UNIVERSITIES.map((uni, i) => (
             <div
@@ -67,7 +68,7 @@ export default function Partners() {
           ))}
         </div>
 
-        {/* ── Footer note ─────────────────────── */}
+        {/* ########## Footer note ########## */}
         <p
           data-aos="fade-up"
           data-aos-delay="300"

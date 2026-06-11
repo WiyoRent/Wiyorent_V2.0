@@ -24,15 +24,17 @@ const SOCIAL = [
   { href: LINKS.tiktok,    icon: TikTokIcon, label: "TikTok"    },
 ];
 
+// Site footer - brand/social links + contact info on the left/right, plus a
+// bottom bar with copyright and legal links.
 export default function Footer() {
   return (
     <footer id="contact" className="bg-secondary border-t-2 border-accent/30">
 
-      {/* ── Main body ───────────────────────── */}
+      {/* ########## Main body ########## */}
       <div className="py-16 px-6 lg:px-16">
         <div className="container mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
 
-          {/* Left — Brand */}
+          {/* Left - Brand */}
           <div className="flex flex-col gap-6">
             <div className="flex items-center gap-3">
               <Image
@@ -68,7 +70,7 @@ export default function Footer() {
             </nav>
           </div>
 
-          {/* Right — Contact */}
+          {/* Right - Contact */}
           <div className="flex flex-col gap-6">
             <h3 className="font-primary text-2xl lg:text-3xl font-bold text-white uppercase tracking-wide">
               Get in Touch
@@ -103,7 +105,7 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* ── Footer bar ──────────────────────── */}
+      {/* ########## Footer bar ########## */}
       <div className="border-t border-white/6 py-5 px-6 lg:px-16">
         <div className="container mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="font-secondary text-xs text-white/25 flex flex-wrap items-center gap-x-2 gap-y-1">

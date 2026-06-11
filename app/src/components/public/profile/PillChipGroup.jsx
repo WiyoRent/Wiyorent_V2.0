@@ -1,5 +1,7 @@
 'use client';
 
+// Renders a row of pill buttons; the option whose `val` matches `value` is
+// highlighted as selected. Used by PrefRow for yes/no/either-style questions.
 export default function PillChipGroup({ options, value, onChange }) {
   return (
     <div className="flex items-center gap-1.5 flex-shrink-0">

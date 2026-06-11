@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 
+// Generic image carousel with prev/next arrows, dot indicators, and a
+// thumbnail strip. images is an array of URL strings; renders nothing if empty.
 export default function ImageCarousel({ images }) {
   const [active, set_active] = useState(0);
   if (!images?.length) return null;

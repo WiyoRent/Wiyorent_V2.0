@@ -1,8 +1,13 @@
 import { Check, X } from "lucide-react";
 
+// Renders a single pricing/package card. all_inclusions is the union of every
+// inclusion across all packages (computed once by the parent), so each card
+// can show the full feature list with a check or cross depending on whether
+// this package's `inclusions` includes that item.
 export default function PackageInformation({ pkg, all_inclusions = [] }) {
   const { name, price, inclusions = [], is_popular } = pkg;
 
+  // "Contact Us" CTA opens WhatsApp with a pre-filled message naming this package.
   const whatsapp_message = encodeURIComponent(
     `Hi WiyoRent! I'm interested in the ${name} package. Could you please give me more details?`
   );
@@ -40,7 +45,8 @@ export default function PackageInformation({ pkg, all_inclusions = [] }) {
         </span>
       </div>
 
-      {/* Features */}
+      {/* Features - every known inclusion is listed; greyed out + struck */}
+      {/* through with an X if this package doesn't include it. */}
       <ul className="space-y-3 mb-8 flex-1">
         {all_inclusions.map((item, index) => {
           const included = inclusions.includes(item);

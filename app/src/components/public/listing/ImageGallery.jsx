@@ -5,9 +5,12 @@ import { ChevronLeft, ChevronRight, Expand } from 'lucide-react';
 import Image from 'next/image';
 
 export default function ImageGallery({ image_urls, title }) {
+  // image_urls[0] is the listing's thumbnail/cover photo, the rest are gallery images.
+  // active_index tracks which photo is shown in the main viewer + lightbox.
   const [active_index, set_active_index] = useState(0);
   const [lightbox_open, set_lightbox_open] = useState(false);
 
+  // wrap-around navigation so prev/next loop through the array
   const handle_prev = () =>
     set_active_index((i) => (i === 0 ? image_urls.length - 1 : i - 1));
 
@@ -76,7 +79,7 @@ export default function ImageGallery({ image_urls, title }) {
           </div>
         </div>
 
-        {/* Thumbnail strip — visible on sm+ */}
+        {/* Thumbnail strip - visible on sm+ */}
         {image_urls.length > 1 && (
           <div className="hidden sm:flex flex-col gap-2 w-28 lg:w-32 flex-shrink-0">
             {image_urls.map((url, idx) => (

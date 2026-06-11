@@ -25,6 +25,7 @@ import AmenityBadge from '@/components/public/listings/AmenityBadge';
 import StatusBadge from '@/components/public/listings/StatusBadge';
 
 export default function ListingCard({ listing }) {
+  // is_saved/is_on_waitlist come from the API reflecting the current user's existing state
   const [is_liked, set_is_liked] = useState(listing.is_saved || false);
   const [on_waitlist, set_on_waitlist] = useState(listing.is_on_waitlist || false);
   const is_available = listing.available_status === 'available';
@@ -34,6 +35,8 @@ export default function ListingCard({ listing }) {
   const router = useRouter()
   const session = useSession()
 
+  // toggle waitlist status optimistically; redirect to login if not signed in.
+  // stopPropagation prevents the click from also triggering the card's Link navigation.
   const handleWaitlist = (e) => {
     e.preventDefault()
     e.stopPropagation()
@@ -56,6 +59,7 @@ export default function ListingCard({ listing }) {
     window.open(`https://wa.me/250794089835?text=${message}`, '_blank');
   };
 
+  // toggle saved/favorited status optimistically; redirect to login if not signed in
   const handleLike = (e) => {
     e.preventDefault()
     e.stopPropagation()
@@ -101,6 +105,8 @@ export default function ListingCard({ listing }) {
             </button>
           </div>
 
+          {/* WiyoRent House strip - kept in the layout but invisible for non-WiyoRent
+              listings, so card heights stay consistent across the grid */}
           <div
             className={`tooltip tooltip-bottom relative z-[1] w-full ${listing.is_a_wiyorent_house ? '' : 'invisible'}`}
             data-tip="Owned & managed by WiyoRent · No agency fee charged"
@@ -163,6 +169,8 @@ export default function ListingCard({ listing }) {
               </div>
             )}
 
+            {/* Available listings get a single "Book Now" CTA; booked listings show a
+                disabled "Booked" button plus a waitlist toggle */}
             <div className="mt-auto pt-1 flex items-center gap-2">
               {is_available ? (
                 <button

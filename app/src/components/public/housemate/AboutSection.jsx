@@ -1,5 +1,6 @@
 import { MessageSquare } from 'lucide-react';
 
+// Renders the housemate's free-text bio from `profile.about_me`.
 export default function AboutSection({ about_me }) {
   return (
     <section className="bg-base-100 rounded-box p-5 shadow-sm">

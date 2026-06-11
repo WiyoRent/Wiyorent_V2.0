@@ -2,6 +2,9 @@ import ListingCard from '../listings/ListingCard';
 import { ClipboardList } from 'lucide-react';
 import Link from 'next/link';
 
+// Grid of listings the user has waitlisted (joined via toggleWaitlistListing).
+// When a waitlisted listing becomes available again, a cron job emails the user;
+// this page just displays the current waitlist with an empty-state fallback.
 export default function WaitlistGrid({ listings }) {
   if (!listings || listings.length === 0) {
     return (

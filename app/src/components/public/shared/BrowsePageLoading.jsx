@@ -61,6 +61,9 @@ function ListingCardSkeleton() {
   );
 }
 
+// Full-page skeleton shown while a browse page (listings or housemates) is
+// loading. card_type picks which card skeleton to repeat in the grid, and
+// title_width lets each page match its own heading's approximate width.
 export default function BrowsePageLoading({ title_width = 'w-48', card_type = 'listing' }) {
   const CardSkeleton = card_type === 'housemate' ? HousemateCardSkeleton : ListingCardSkeleton;
 

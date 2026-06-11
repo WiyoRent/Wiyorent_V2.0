@@ -20,6 +20,10 @@ const KIGALI_NEIGHBORHOODS = [
   'Zindiro'
 ];
 
+// Lets a user toggle "I already have a house" and, when enabled, fill in their
+// own listing details inline (images, pricing, property details, location,
+// landlord info, amenities/rules, description). All fields below are required
+// once has_house is true (validated in ProfileEditForm's step 4 / save logic).
 export default function HouseListingSection({
   has_house,
   set_has_house,
@@ -87,6 +91,8 @@ export default function HouseListingSection({
       </div>
 
       {/* ── Expandable listing form ── */}
+      {/* Only rendered while has_house is true; collapses away (and its values
+          are simply not sent/used) when the toggle above is switched off. */}
       {has_house && (
         <div className="mt-5 flex flex-col gap-5">
 
@@ -308,6 +314,8 @@ export default function HouseListingSection({
                   </span>
                 </label>
                 <br />
+                {/* WiyoRent currently only operates in Kigali, so this field is
+                    locked to that value (onChange is unreachable while disabled). */}
                 <input
                   type="text"
                   disabled

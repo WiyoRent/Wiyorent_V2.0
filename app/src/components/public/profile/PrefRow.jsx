@@ -1,6 +1,9 @@
 import PillChipGroup from '@/components/public/profile/PillChipGroup';
 import FilterTooltip from '@/components/public/shared/FilterTooltip';
 
+// A single labelled preference row (e.g. "Do you smoke?") with a row of pill
+// buttons for the answer. options is an array of { label, val } pairs - val
+// can be true/false/null (e.g. "Either" maps to null for private_room/furnished).
 export default function PrefRow({ label, tooltip, options, value, onChange, full_width = false }) {
   return (
     <div className={`flex flex-wrap items-center justify-between gap-3 bg-base-200 rounded-field px-4 py-3${full_width ? ' sm:col-span-2' : ''}`}>

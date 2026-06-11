@@ -12,6 +12,8 @@ import { checkPhoneNumber } from '@/validators/phone';
 import { editProfile } from '@/services/public/profile.service';
 import { useRouter } from 'next/navigation';
 
+// 5-step wizard mirroring the admin create-listing flow. Step 4 (House Listing) is
+// always rendered but only meaningful when has_house is true.
 const STEPS = [
   { id: 1, label: 'Basic Info' },
   { id: 2, label: 'About Me' },
@@ -20,6 +22,9 @@ const STEPS = [
   { id: 5, label: 'Verification' },
 ];
 
+// Top-level orchestrator for the profile edit/onboarding form. Holds all field
+// state, builds the multipart formData for editProfile, and renders the step
+// matching current_step. initial_data comes from getProfile (see profile.service.js).
 export default function ProfileEditForm({ initial_data, available_neighborhoods, redirect_to }) {
   const router = useRouter()
 
@@ -87,6 +92,9 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
   const [listing_house_rules, set_listing_house_rules] = useState(initial_data.listing_house_rules || []);
 
   // ───────────────────────── Change Detection ──────────────────────
+  // Snapshot of all field values as they were when the form first loaded.
+  // Compared against current_snapshot (below) to compute has_changes, which
+  // disables the Save button when nothing has actually been edited.
   const initial_snapshot = useMemo(() => ({
     full_name: initial_data.full_name,
     date_of_birth: initial_data.date_of_birth ?? '',
@@ -188,6 +196,8 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
   const has_changes = JSON.stringify(current_snapshot) !== JSON.stringify(initial_snapshot);
 
   // ───────────────────────── Step Validation ───────────────────────
+  // Validates the fields belonging to a given step before allowing "Next".
+  // Step 4's house listing fields are only required when has_house is true.
   const validate_step = (step) => {
     if (step === 1) {
       if (!avatar_url) {
@@ -319,6 +329,10 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
   // ───────────────────────── Save ──────────────────────────────────
   const [is_saving, set_is_saving] = useState(false);
 
+  // Re-runs full validation across all steps (not just the current one), then
+  // builds the multipart formData and posts it via editProfile. Admission letter
+  // and passport_id are only appended if they're newly-uploaded URL strings -
+  // for already-verified users these stay untouched server-side (docs_locked).
   const handle_save = async () => {
     if (!has_changes) {
       toast.info('No changes to save.');
@@ -440,6 +454,9 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
       }
     }
 
+    // First-time onboarding requires both identity documents to be uploaded
+    // (as Cloudinary URL strings). Already-onboarded users skip this since
+    // their docs are either locked (verified) or were submitted previously.
     if (!initial_data.is_onboarded) {
       if (!admission_letter || typeof admission_letter !== 'string') {
         toast.error('Please upload your admission letter to complete verification');
@@ -527,6 +544,8 @@ export default function ProfileEditForm({ initial_data, available_neighborhoods,
         autoClose: 4000,
         isLoading: false,
       });
+      // First-time onboarding completion redirects (e.g. back to the page the
+      // user was trying to reach before being routed into onboarding).
       if (!initial_data.is_onboarded && redirect_to) {
         router.push(redirect_to);
         return;

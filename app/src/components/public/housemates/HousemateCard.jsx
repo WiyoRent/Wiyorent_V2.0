@@ -11,6 +11,8 @@ import { contactHousemate } from '@/actions/public/contact_housemate.action.js';
 import { toggleSaveHousemate } from '@/actions/public/favorites.action';
 import AvatarCircle from '@/components/public/housemates/AvatarCircle';
 import { formatRWF } from '@/lib/formatRWF';
+// Card shown in the housemate browse grid. Handles its own contact/save/view
+// actions and gates them behind the viewer's verification status.
 export default function HousemateCard({ profile, my_verification_status, my_is_blocked, my_is_blocked_reason }) {
   const {
     profile_id,
@@ -38,10 +40,12 @@ export default function HousemateCard({ profile, my_verification_status, my_is_b
     message:
       "To ensure the safety of our community, our team manually reviews all profiles. You'll be able to view housemate details and contact housemates as soon as we approve your account (usually within 24 hours).",
   });
+  // Viewer must be approved (and not blocked) to view profiles, contact, or save housemates.
   const is_access_restricted = my_is_blocked === true || my_verification_status == null || my_verification_status == 'pending' || my_verification_status === 'rejected';
   const is_urgent = urgency === 'extremely_urgent';
 
   // Close house popup on outside click
+  // (only attaches the listener while the popup is open)
   useEffect(() => {
     if (!show_house_popup) return;
     const handle = (e) => {
@@ -53,6 +57,8 @@ export default function HousemateCard({ profile, my_verification_status, my_is_b
     return () => document.removeEventListener('mousedown', handle);
   }, [show_house_popup]);
 
+  // Picks the right modal copy depending on why access is restricted
+  // (suspended, rejected verification, or still pending review).
   const showVerificationModal = (status) => {
     if (my_is_blocked) {
       setModalData({
@@ -119,6 +125,7 @@ export default function HousemateCard({ profile, my_verification_status, my_is_b
       showVerificationModal(my_verification_status);
       return;
     }
+    // Optimistically flip the bookmark, then roll back if the server call fails.
     const previousSavedState = saved;
     const newSavedStatus = !saved;
     setSaved(newSavedStatus);
@@ -137,6 +144,7 @@ export default function HousemateCard({ profile, my_verification_status, my_is_b
       toast.error("Connection error. Could not save housemate.");
     }
   };
+  // Keep local saved state in sync if the parent re-fetches profiles with updated saved flags.
   useEffect(() => {
     setSaved(profile?.saved);
   }, [profile?.saved]);
@@ -151,7 +159,7 @@ export default function HousemateCard({ profile, my_verification_status, my_is_b
         showModal={showModal}
       />
 
-      {/* ── Urgency strip — only for extremely_urgent ─────────────────────── */}
+      {/* ── Urgency strip - only for extremely_urgent ─────────────────────── */}
       {is_urgent && (
         <div className="flex items-center gap-1.5 px-4 py-1.5 bg-accent rounded-t-box">
           <span className="font-primary text-[10px] font-extrabold uppercase tracking-widest text-secondary">
@@ -159,7 +167,7 @@ export default function HousemateCard({ profile, my_verification_status, my_is_b
           </span>
         </div>
       )}
-      {/* ── Has-a-house strip — shown when has_house and not urgent ─────── */}
+      {/* ── Has-a-house strip - shown when has_house and not urgent ─────── */}
       {has_house && !is_urgent && (
         <div className="flex items-center gap-1.5 px-4 py-1.5 bg-accent rounded-t-box">
           <span className="font-primary text-[10px] font-extrabold uppercase tracking-widest text-secondary">
@@ -168,7 +176,7 @@ export default function HousemateCard({ profile, my_verification_status, my_is_b
         </div>
       )}
 
-      {/* Card top — avatar + name block */}
+      {/* Card top - avatar + name block */}
       <div className="p-6 pb-4 flex items-center gap-5">
         <AvatarCircle full_name={full_name} avatar_url={avatar_url} gender={gender} />
         {/* Right column */}
@@ -185,6 +193,9 @@ export default function HousemateCard({ profile, my_verification_status, my_is_b
               <ShieldCheck size={15} className="text-success flex-shrink-0" aria-label="Verified" />
             )}
             {/* ── Has a Place badge + Quick View popup ───────────────── */}
+            {/* Toggling shows a small preview card with listing_snapshot data
+                (or a fallback "no details yet" message), closed via the
+                outside-click handler in the useEffect above. */}
             {has_house && (
               <div ref={house_btn_ref} className="relative flex-shrink-0">
                 <button
@@ -275,7 +286,7 @@ export default function HousemateCard({ profile, my_verification_status, my_is_b
           {bio_short}
         </p>
       </div>
-      {/* Location pills — single row, max 2 visible */}
+      {/* Location pills - single row, max 2 visible */}
       <div className="px-6 pb-4 flex items-center gap-2 flex-nowrap overflow-hidden">
         <MapPin size={13} className="text-base-content/30 flex-shrink-0" />
         {preferred_locations.slice(0, 2).map((loc) => (

@@ -6,7 +6,11 @@ import {
 import ImageCarousel from '@/components/shared/ImageCarousel';
 import { formatRWF } from '@/lib/formatRWF';
 
+// Shown only when this housemate has their own rental listing
+// (user_listing_data is non-null with a price). Renders the listing's
+// photos, price, stats, description, amenities and house rules.
 export default function UserListingSection({ listing }) {
+  // No listing, or listing has no price set yet - hide this section entirely.
   if (!listing?.price) return null;
 
   const available = listing?.available_from
@@ -37,10 +41,10 @@ export default function UserListingSection({ listing }) {
 
       <div className="p-6 sm:p-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-        {/* Left — image carousel */}
+        {/* Left - image carousel */}
         <ImageCarousel images={listing?.image_urls} />
 
-        {/* Right — listing details */}
+        {/* Right - listing details */}
         <div className="flex flex-col gap-5">
 
           {/* Price block */}
@@ -131,7 +135,7 @@ export default function UserListingSection({ listing }) {
             </div>
           )}
 
-          {/* Footer — landlord + availability */}
+          {/* Footer - landlord + availability */}
           <div className="mt-auto pt-4 border-t border-base-200 flex flex-wrap items-center justify-between gap-3">
             {available && (
               <div className="flex items-center gap-1.5">

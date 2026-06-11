@@ -27,6 +27,8 @@ const UNIVERSITIES = [
   { value: 'Jomo Kenyatta University - Kigali Campus',              label: 'Jomo Kenyatta University - Kigali Campus' },
 ];
 
+// Move-in urgency tiles shown at the bottom of this section. Each option carries
+// its own colour scheme (active vs. inactive states) used directly in the JSX below.
 const URGENCY_OPTIONS = [
   {
     value: 'not_urgent',
@@ -97,9 +99,14 @@ export default function BasicProfileSection({
   is_blocked_reason,
 }) {
   const options = useMemo(() => countryList()?.getData(), [])
+  // docs_locked-style rule: once a user is verified ('approved'), identity-related
+  // fields (name, gender, country of origin, date of birth) are locked/read-only,
+  // since the API ignores re-submitted values for already-verified users.
   const is_approved = verification_status === 'approved'
   const { upload, uploading } = useCloudinaryUpload();
 
+  // Uploads the chosen file straight to Cloudinary and stores the resulting
+  // secure URL in avatar_url (sent to the API as a string, not a file).
   const uploadProfilePicture = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -172,11 +179,16 @@ export default function BasicProfileSection({
       </div>
 
       {/* ── Verification status banner ─────────────────────────────────────── */}
+      {/* Only shown once onboarded, and only when there's something to flag:
+          the user is blocked, or their verification isn't yet approved
+          (pending/rejected). Approved & not blocked users see no banner. */}
       {is_onboarded && (is_blocked || verification_status !== 'approved') && (
         <VerificationStatusBanner verification_status={verification_status} admin_note={admin_note} is_blocked={is_blocked} is_blocked_reason={is_blocked_reason} />
       )}
 
       {/* Form grid — 2 cols on md+, single col on mobile */}
+      {/* Identity fields below (name, gender, DOB, country) are disabled when
+          is_approved is true, with a lock icon + tooltip explaining why. */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
         {/* First Name */}

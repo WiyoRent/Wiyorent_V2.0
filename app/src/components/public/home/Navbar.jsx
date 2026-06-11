@@ -13,16 +13,22 @@ const NAV_LINKS = [
   { id: "contact",      label: "Contact"     },
 ];
 
+// Sticky landing page navbar. Adds a background/shadow once the user scrolls
+// past the top, and smooth-scrolls to in-page sections (About, Services, etc.)
+// since the nav links aren't separate routes.
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled]     = useState(false);
 
+  // Track scroll position to swap the navbar's background/shadow once the
+  // page has scrolled past the hero.
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Smooth-scrolls to a section by id and closes the mobile drawer afterward.
   const scrollToSection = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
     setIsMenuOpen(false);
@@ -38,7 +44,7 @@ export default function Navbar() {
     >
       <div className="container mx-auto flex items-center justify-between">
 
-        {/* ── Brand ───────────────────────────── */}
+        {/* ########## Brand / logo ########## */}
         <div className="flex items-center gap-3">
           <Image
             src="/logo.svg"
@@ -52,7 +58,7 @@ export default function Navbar() {
           </span>
         </div>
 
-        {/* ── Desktop Nav ──────────────────────── */}
+        {/* ########## Desktop nav links ########## */}
         <ul className="hidden lg:flex items-center gap-8">
           {NAV_LINKS.map(({ id, label }) => (
             <li
@@ -68,14 +74,14 @@ export default function Navbar() {
           ))}
         </ul>
 
-        {/* ── Desktop CTA ──────────────────────── */}
+        {/* ########## Desktop CTA ########## */}
         <Link href="/listings" className="hidden lg:block">
           <button className="btn btn-accent font-primary font-bold text-secondary text-sm tracking-wide px-6 border-none rounded-lg">
             Find a House
           </button>
         </Link>
 
-        {/* ── Mobile Toggle ────────────────────── */}
+        {/* ########## Mobile menu toggle ########## */}
         <button
           onClick={() => setIsMenuOpen((o) => !o)}
           className="lg:hidden text-white active:scale-90 transition-transform duration-150"
@@ -85,7 +91,7 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* ── Mobile Drawer ─────────────────────── */}
+      {/* ########## Mobile nav drawer ########## */}
       <div
         className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${
           isMenuOpen ? "max-h-[480px] opacity-100" : "max-h-0 opacity-0"

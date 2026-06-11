@@ -19,6 +19,8 @@ const pill_cls = (is_active) =>
       : 'bg-base-100 border-base-300 text-base-content/60 hover:border-accent/60 hover:text-accent'
   }`;
 
+// filter_options shape (from the listings API's filter_meta):
+// { price_range: { min, max }, neighborhoods: string[], furnishing_options, availability_options }
 export default function FilterSidebar({ filter_options }) {
   const { price_range, neighborhoods, furnishing_options, availability_options } =
     filter_options;
@@ -43,8 +45,12 @@ export default function FilterSidebar({ filter_options }) {
   const [prefs_open, set_prefs_open] = useState(false);
   const [avail_open, set_avail_open] = useState(false);
 
+  // bedrooms/max_roommates pill values are either a number or the special "4+" bucket,
+  // which the API translates to a ">= 4" comparison
   const parse_pill = (val) => val ? (val === '4+' ? '4+' : Number(val)) : null
 
+  // keep all filter state in sync with the URL's query params, so the sidebar reflects
+  // whatever filters are currently applied (e.g. on page load or back/forward navigation)
   useEffect(() => {
     set_price_max(Number(searchParams.get('max')) || price_range.max)
     set_wiyorent_only(searchParams.get('wiyorent_only') === 'true')
@@ -57,6 +63,7 @@ export default function FilterSidebar({ filter_options }) {
   }, [searchParams])
 
   // ── Active filter counts per group (for dot indicators) ────────────────────
+  // each group's count drives the small badge shown on its collapsed header
   const type_loc_active =
     (wiyorent_only ? 1 : 0) +
     selected_neighborhoods.length;
@@ -84,6 +91,7 @@ export default function FilterSidebar({ filter_options }) {
     wiyorent_only ||
     available_from !== '';
 
+  // clear all local filter state and strip query params from the URL
   const handle_reset = () => {
     set_price_max(price_range.max);
     set_selected_neighborhoods([]);
@@ -96,6 +104,8 @@ export default function FilterSidebar({ filter_options }) {
     router.replace(pathname, {scroll: false})
   };
 
+  // build the query string from current filter state (only including non-default values)
+  // and navigate to it, which triggers the listings page to refetch with these filters
   const handle_apply = () => {
     const param = new URLSearchParams()
 
@@ -228,7 +238,7 @@ export default function FilterSidebar({ filter_options }) {
           />
         </div>
 
-        {/* Bedrooms */}
+        {/* Bedrooms - "4+" is a single bucket meaning "4 or more" */}
         <div className="flex flex-col gap-2">
           <label className={`${LABEL_CLS} flex items-center gap-1.5`}>
             <Bed size={12} className="text-base-content/40" /> Bedrooms

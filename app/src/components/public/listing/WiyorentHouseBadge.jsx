@@ -3,8 +3,12 @@
 import { useState, useRef } from 'react';
 import { Building2, Info } from 'lucide-react';
 
+// Badge shown on listings owned/managed directly by WiyoRent (no agency commission fee).
+// Hovering reveals a tooltip explaining what "WiyoRent House" means.
 export default function WiyorentHouseBadge() {
   const [visible, set_visible] = useState(false);
+  // when the badge sits too close to the left edge, open the tooltip to the right
+  // instead of below, so it doesn't get clipped off-screen
   const [open_right, set_open_right] = useState(false);
   const ref = useRef(null);
 

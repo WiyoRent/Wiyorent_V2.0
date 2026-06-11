@@ -11,6 +11,9 @@ export default function ImagesSection({ image_urls, set_image_urls, upload_folde
   const input_ref = useRef(null);
   const { upload, uploading } = useCloudinaryUpload();
 
+  // Two modes depending on upload_folder: immediately upload each file to
+  // Cloudinary and store the resulting URL strings, or (admin create flow)
+  // just stash the raw File objects in image_urls for upload at submit time.
   const handle_files = async (files) => {
     if (upload_folder) {
       for (const file of Array.from(files)) {
@@ -98,6 +101,9 @@ export default function ImagesSection({ image_urls, set_image_urls, upload_folde
       />
 
       {/* Image Previews */}
+      {/* Each entry can be either a Cloudinary URL string (already uploaded) or
+          a raw File object (pending upload) - createObjectURL gives File objects
+          a temporary preview URL. */}
       {image_urls.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {image_urls.map((url, index) => (

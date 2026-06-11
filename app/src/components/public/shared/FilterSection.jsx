@@ -2,6 +2,9 @@
 
 import { ChevronDown } from 'lucide-react';
 
+// Collapsible section used in filter sidebars (listings/housemates). is_open
+// and on_toggle are controlled by the parent; active_count shows a badge with
+// the number of active filters within this section when collapsed or open.
 export default function FilterSection({ title, is_open, on_toggle, active_count, children }) {
   return (
     <div>

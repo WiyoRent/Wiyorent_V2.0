@@ -7,12 +7,13 @@ const STATS = [
   { value: "24/7", label: "Support Available"  },
 ];
 
+// Simple stats banner - a row of headline numbers (students served, etc.).
 export default function Stats() {
   return (
     <section className="bg-primary border-y border-secondary/8 py-16 px-6 lg:px-16">
       <div className="container mx-auto">
 
-        {/* ── Grid ────────────────────────────── */}
+        {/* ########## Stats grid ########## */}
         <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-secondary/10">
           {STATS.map((stat, i) => (
             <div

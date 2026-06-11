@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { Clock, CheckCircle, XCircle, Info } from 'lucide-react';
 
+// Maps a review's moderation status to its badge styling, label, and explanatory tooltip text.
+// 'pending'/'rejected' badges are only ever shown to the review's own author (see ReviewCard).
 const STATUS_CONFIG = {
   pending: {
     icon: Clock,
@@ -30,6 +32,7 @@ export default function StatusBadge({ status }) {
   const Icon = cfg.icon;
   const ref = useRef(null);
 
+  // close the info popover when clicking anywhere outside the badge
   useEffect(() => {
     const handler = (e) => {
       if (ref.current && !ref.current.contains(e.target)) set_show(false);

@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import StarRating from '@/components/public/listing/ReviewSectionComponents/StarRating';
 
+// Used both to create a new review and to edit an existing one - passing `initial`
+// switches the form into edit mode (pre-fills fields, shows "Save Changes" + Cancel).
 export default function ReviewForm({ initial = null, on_submit, on_cancel }) {
   const is_edit = initial != null;
   const [rating, set_rating] = useState(initial?.rating ?? 0);

@@ -8,9 +8,10 @@ import InformationModal from '../shared/InformationModal';
 import { toggleSaveHousemate } from '@/actions/public/favorites.action';
 
 export default function ContactCard({ full_name, profile_id, verification_status, is_saved, my_is_blocked, my_is_blocked_reason }) {
+  // `saved` is optimistically toggled before the server action confirms it.
   const [saved, setSaved] = useState(is_saved);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   // Modal States
   const [showModal, setShowModal] = useState(false);
   const [modalData, setModalData] = useState({ title: '', message: '' });
@@ -18,6 +19,7 @@ export default function ContactCard({ full_name, profile_id, verification_status
   const first_name = full_name?.split(' ')[0];
 
   const handleContact = async () => {
+    // Suspended users can't contact or save housemates - show a blocking modal instead.
     if (my_is_blocked) {
       setModalData({
         title: 'Account Suspended',
@@ -29,6 +31,7 @@ export default function ContactCard({ full_name, profile_id, verification_status
 
     try {
       setIsLoading(true);
+      // Server action builds the contact link based on the housemate's preferred_method.
       const {url, preferred_contact_method} = await contactHousemate(profile_id);
 
       if (!url) {
@@ -39,7 +42,7 @@ export default function ContactCard({ full_name, profile_id, verification_status
         window.location.href = url;
       } else {
         const newWindow = window.open(url, '_blank');
-        
+
         // Check if pop-up was blocked
         if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
           setModalData({
@@ -58,6 +61,7 @@ export default function ContactCard({ full_name, profile_id, verification_status
   };
 
   const handleSave = async () => {
+    // Same suspension gate as handleContact - blocked users can't save profiles either.
     if (my_is_blocked) {
       setModalData({
         title: 'Account Suspended',
@@ -66,6 +70,7 @@ export default function ContactCard({ full_name, profile_id, verification_status
       setShowModal(true);
       return;
     }
+    // Optimistic toggle - flip the UI immediately, then persist via server action.
     const next = !saved;
     setSaved(next);
     await toggleSaveHousemate(profile_id, next);
@@ -95,7 +100,7 @@ export default function ContactCard({ full_name, profile_id, verification_status
           </p>
         </div>
 
-        {/* Verified note */}
+        {/* Verified note - only shown for housemates whose ID has been approved by WiyoRent */}
         {verification_status === 'approved' && (
           <div className="flex items-center gap-2 bg-success/8 border border-success/20 rounded-field px-3 py-2">
             <ShieldCheck size={14} className="text-success shrink-0" />

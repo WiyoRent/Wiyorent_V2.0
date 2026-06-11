@@ -36,6 +36,9 @@ const HOW_IT_WORKS = [
   },
 ];
 
+// "Find Your Housemate" landing page section: a heading, two CTA cards
+// (looking for a housemate vs already has a house to list), and a
+// "how it works" step-by-step explainer.
 export default function HousemateFeature() {
   return (
     <section
@@ -46,7 +49,7 @@ export default function HousemateFeature() {
     >
       <div className="container mx-auto flex flex-col gap-20">
 
-        {/* ── Section Label ───────────────────────────────────────── */}
+        {/* ########## Section label / heading ########## */}
         <div className="flex flex-col items-center text-center gap-3">
           <div className="inline-flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
@@ -71,10 +74,10 @@ export default function HousemateFeature() {
           </Link>
         </div>
 
-        {/* ── Sub-section 1: Two cards — Find a Housemate + Has a House ── */}
+        {/* ########## Two cards: Find a Housemate / Has a House ########## */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-          {/* Card A — Looking for a housemate */}
+          {/* Card A - Looking for a housemate */}
           <div
             data-aos="fade-right"
             className="bg-secondary rounded-2xl p-8 flex flex-col gap-6"
@@ -119,7 +122,7 @@ export default function HousemateFeature() {
             </Link>
           </div>
 
-          {/* Card B — Already has a house */}
+          {/* Card B - Already has a house */}
           <div
             data-aos="fade-left"
             className="bg-accent rounded-2xl p-8 flex flex-col gap-6"
@@ -162,7 +165,7 @@ export default function HousemateFeature() {
           </div>
         </div>
 
-        {/* ── Sub-section 2: How it works ─────────────────────────────── */}
+        {/* ########## How it works steps ########## */}
         <div data-aos="fade-up">
           <div className="flex items-center gap-3 mb-10">
             <UserCheck size={20} className="text-accent" />
@@ -190,7 +193,7 @@ export default function HousemateFeature() {
                   {body}
                 </p>
 
-                {/* Connector arrow — hidden on last */}
+                {/* Connector arrow - hidden on last step */}
                 {i < HOW_IT_WORKS.length - 1 && (
                   <div className="hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2 z-10">
                     <ArrowRight size={18} className="text-accent/40" />

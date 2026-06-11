@@ -4,7 +4,12 @@ import { Users } from 'lucide-react';
 import HousemateCard from '@/components/public/housemates/HousemateCard';
 import Link from 'next/link';
 
+// profiles is the array of saved housemate profile objects (each with at
+// least a profile_id). verification_status is the current user's own
+// verification state, passed through to HousemateCard so it can gate
+// contact details/actions for unverified viewers.
 export default function SavedProfilesGrid({ profiles, verification_status }) {
+  // Empty state - no saved housemate profiles yet
   if (!profiles || profiles.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
@@ -27,6 +32,7 @@ export default function SavedProfilesGrid({ profiles, verification_status }) {
     );
   }
 
+  // Saved housemate profiles grid
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
       {profiles.map((profile) => (

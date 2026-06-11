@@ -1,6 +1,7 @@
 'use client';
 
 export default function AmenitiesSection({ amenities }) {
+  // amenities is a flat array of strings (e.g. "wifi", "parking"); hide the section entirely if empty
   if (!amenities || amenities.length === 0) return null;
 
   return (

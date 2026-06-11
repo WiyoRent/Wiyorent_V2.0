@@ -25,9 +25,12 @@ const WHATSAPP_URL = `https://wa.me/250794089835?text=${encodeURIComponent(
   "Hi WiyoRent! I'd like to learn more about your student housing and settling-in services in Kigali."
 )}`;
 
+// Landing page hero - a crossfading background slideshow with headline,
+// CTAs, and dot/index indicators overlaid on top.
 export default function Hero() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  // Auto-advance the slideshow every 5s; cleared on unmount to avoid leaks.
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % HERO_SLIDES.length);
@@ -42,7 +45,7 @@ export default function Hero() {
       aria-label="WiyoRent — Student Housing, Roommate Matching and Settling-In Services in Kigali, Rwanda"
       className="relative h-[78vh] sm:h-[83vh] mx-3 sm:mx-6 lg:mx-16 mt-6 rounded-2xl overflow-hidden"
     >
-      {/* ── Crossfading slides ───────────────────── */}
+      {/* ########## Crossfading background slides ########## */}
       {HERO_SLIDES.map((slide, index) => (
         <div
           key={index}
@@ -54,11 +57,11 @@ export default function Hero() {
         />
       ))}
 
-      {/* ── Gradient overlay ─────────────────────── */}
+      {/* ########## Gradient overlay ########## */}
       <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-black/20" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
 
-      {/* ── Content ──────────────────────────────── */}
+      {/* ########## Content ########## */}
       <div className="relative z-10 h-full flex flex-col justify-center px-5 sm:px-8 lg:px-16 max-w-4xl">
 
         {/* Eyebrow */}
@@ -82,7 +85,7 @@ export default function Hero() {
           Compatible housemates from your university. Airport pickup, SIM card, bank setup and more.
         </p>
 
-        {/* CTAs — clear primary / secondary / tertiary hierarchy */}
+        {/* CTAs - primary (find a house), secondary (find a housemate), tertiary (contact) */}
         <div className="flex flex-wrap gap-3">
           <Link href="/listings">
             <button className="btn btn-accent font-primary font-bold text-secondary border-none rounded-lg tracking-wide">
@@ -102,7 +105,7 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* ── Caption ──────────────────────────────── */}
+      {/* ########## Slide caption ########## */}
       <div className="absolute bottom-10 sm:bottom-12 left-5 sm:left-8 lg:left-16 z-10">
         <p
           key={currentIndex}
@@ -113,7 +116,7 @@ export default function Hero() {
         </p>
       </div>
 
-      {/* ── Dot indicators ───────────────────────── */}
+      {/* ########## Dot indicators ########## */}
       <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
         {HERO_SLIDES.map((_, index) => (
           <button
@@ -129,7 +132,7 @@ export default function Hero() {
         ))}
       </div>
 
-      {/* ── Slide count ──────────────────────────── */}
+      {/* ########## Slide count ########## */}
       <div className="absolute bottom-5 right-5 sm:right-8 lg:right-16 z-10">
         <span className="font-primary text-xs text-white/30 tabular-nums">
           {String(currentIndex + 1).padStart(2, "0")} / {String(HERO_SLIDES.length).padStart(2, "0")}

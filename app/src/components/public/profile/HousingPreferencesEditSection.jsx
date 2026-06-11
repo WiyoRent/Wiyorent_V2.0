@@ -7,8 +7,12 @@ import PrefRow from '@/components/public/profile/PrefRow';
 import { formatRWF, formatRWFNumber } from '@/lib/formatRWF';
 
 // How many pills fit in one row before we show "Show more"
-const PILLS_ROW_MAX = 1; // measured in rows — we use overflow clipping instead
+const PILLS_ROW_MAX = 1; // measured in rows - we use overflow clipping instead
 
+// Editable housing preferences: move-in date, lease duration, preferred
+// neighbourhoods, budget range, smoking/pet/room/furnished preferences, and
+// max housemates. preferred_locations is an array of neighbourhood strings
+// toggled via the pill buttons below.
 export default function HousingPreferencesEditSection({
   move_in_date,
   set_move_in_date,
@@ -56,6 +60,8 @@ export default function HousingPreferencesEditSection({
     set_show_toggle(full_height > 44);
   }, [available_neighborhoods]);
 
+  // Adds/removes a neighbourhood from preferred_locations (array of strings,
+  // sent to the API as-is - this list is independent of the "4+" bucket pattern).
   const toggle_location = (loc) => {
     if (preferred_locations?.includes(loc)) {
       set_preferred_locations(prev => prev.filter((l) => l !== loc));
@@ -284,6 +290,8 @@ export default function HousingPreferencesEditSection({
         </div>
 
         {/* ── Number of Housemates ──────────────────────────────────── */}
+        {/* max_housemates is stored as a small numeric bucket (1-4), where 4
+            represents the open-ended "4+ housemates" option. */}
         <div className="form-control">
           <label className="label">
             <span className="label-text font-secondary text-xs font-semibold uppercase tracking-wide">

@@ -1,6 +1,8 @@
 import { User, Calendar, BookOpen, GraduationCap, Building2 } from 'lucide-react';
 import ProfileRow from '@/components/public/housemate/ProfileRow';
 
+// Renders the `basic_profile` block from the housemate detail payload as a
+// list of label+value rows. Falls back to '' for any missing field.
 export default function BasicProfileSection({ basic_profile }) {
   const { gender, age, program, year_of_study, university_name } = basic_profile || {};
 

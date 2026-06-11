@@ -1,6 +1,7 @@
 import { ScrollText, CircleDot } from 'lucide-react';
 
 export default function HouseRulesSection({ house_rules }) {
+  // house_rules is a flat array of strings; hide the whole section if there are none
   if (!house_rules || house_rules.length === 0) return null;
 
   return (

@@ -5,6 +5,10 @@ import { Heart, Users } from 'lucide-react';
 import FavouritesGrid from '@/components/public/favourites/FavouritesGrid';
 import SavedProfilesGrid from '@/components/public/favourites/SavedProfilesGrid';
 
+// Toggles between the user's saved listings and saved housemate profiles.
+// listings/profiles are the full arrays fetched server-side; verification_status
+// is forwarded to SavedProfilesGrid so housemate cards know the viewer's own
+// verification state (affects what actions/contact info they can see).
 export default function FavouritesTabView({ listings, profiles, verification_status }) {
   const [active_tab, set_active_tab] = useState('listings');
 
@@ -15,7 +19,7 @@ export default function FavouritesTabView({ listings, profiles, verification_sta
 
   return (
     <div>
-      {/* Tabs */}
+      {/* ########## Tab switcher ########## */}
       <div role="tablist" className="tabs tabs-box w-fit mb-6">
         {tabs.map(({ key, label, count, icon: Icon }) => {
           const is_active = active_tab === key;
@@ -45,7 +49,7 @@ export default function FavouritesTabView({ listings, profiles, verification_sta
         })}
       </div>
 
-      {/* Content */}
+      {/* ########## Active tab content ########## */}
       {active_tab === 'listings' ? (
         <FavouritesGrid listings={listings} />
       ) : (

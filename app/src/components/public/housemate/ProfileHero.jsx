@@ -4,6 +4,7 @@ import ReactCountryFlag from 'react-country-flag';
 import HeroAvatar from '@/components/public/housemate/HeroAvatar';
 import { formatRWF } from '@/lib/formatRWF';
 
+// Visual styling for the urgency badge variant (used when urgency_as_status_line is false).
 const URGENCY_MAP = {
   not_urgent: {
     label: 'Just Browsing',
@@ -39,6 +40,8 @@ const URGENCY_MAP = {
   },
 };
 
+// Compact status-line variant of urgency (used when urgency_as_status_line is true,
+// e.g. on admin views) - just a coloured dot and a short text line under the name.
 const URGENCY_STATUS_LINE = {
   not_urgent:       { dot: 'bg-success',             text: 'No immediate urgency' },
   slightly_urgent:  { dot: 'bg-warning',             text: 'Looking for a place within weeks' },
@@ -62,6 +65,8 @@ export default function ProfileHero({
   const urgencyMeta = URGENCY_MAP[urgency];
   const urgencyStatus = URGENCY_STATUS_LINE[urgency];
 
+  // For "extremely urgent" profiles, show the actual move-in date if known,
+  // otherwise fall back to the generic sublabel for the urgency level.
   const badge_sublabel = urgency === 'extremely_urgent'
     ? (move_in_date
         ? `Available from ${new Date(move_in_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`
@@ -85,6 +90,7 @@ export default function ProfileHero({
               {full_name}
             </h1>
 
+            {/* Verified badge - only shown once admin has approved this user's identity */}
             {verification_status === 'approved' && (
               <span className="inline-flex items-center gap-1.5 bg-success/10 text-success border border-success/25 px-2.5 py-1 rounded-field text-xs font-primary font-bold uppercase tracking-wide flex-shrink-0">
                 <ShieldCheck size={12} />
@@ -92,6 +98,7 @@ export default function ProfileHero({
               </span>
             )}
 
+            {/* Urgency badge variant - only rendered when urgency_as_status_line is false */}
             {!urgency_as_status_line && urgencyMeta && (
               <div className={`inline-flex items-center gap-2 ${urgencyMeta.bg} ${urgencyMeta.color} px-2.5 py-1.5 rounded-field flex-shrink-0`}>
                 {urgencyMeta.use_icon
@@ -110,7 +117,7 @@ export default function ProfileHero({
             )}
           </div>
 
-          {/* Urgency status line (admin view only) — sits directly below name row */}
+          {/* Urgency status line (admin view only) - sits directly below name row */}
           {urgency_as_status_line && urgencyStatus && (
             <div className="flex items-center gap-1.5 mt-1">
               <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${urgencyStatus.dot}`} />

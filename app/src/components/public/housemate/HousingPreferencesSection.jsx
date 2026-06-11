@@ -11,6 +11,9 @@ import PrefRow from '@/components/public/housemate/PrefRow';
 import BooleanBadge from '@/components/public/housemate/BooleanBadge';
 import { formatRWF } from '@/lib/formatRWF';
 
+// Renders the `housing_preferences` block from the housemate detail payload:
+// move-in date, budget range, max housemates, preferred locations and
+// furnished/pets/smoking preferences.
 export default function HousingPreferencesSection({ preferences }) {
   const {
     move_in_date,
@@ -91,7 +94,7 @@ export default function HousingPreferencesSection({ preferences }) {
           />
         </PrefRow>
 
-        {/* Smoking */}
+        {/* Smoking - badge value is inverted so "Non-Smoker" maps to !is_smoker */}
         <PrefRow icon={XCircle} label="Smoking">
           <BooleanBadge
             value={!is_smoker}

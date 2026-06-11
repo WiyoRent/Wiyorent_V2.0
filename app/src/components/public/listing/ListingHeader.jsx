@@ -19,10 +19,12 @@ export default function ListingHeader({
   available_from,
 }) {
 
+  // record a view for this listing once on mount (and again if the listing_id changes)
   useEffect(() => {
     trackView(listing_id)
   }, [listing_id])
 
+  // build a comma-separated address string, dropping any missing parts
   const full_address = [street_address, neighborhood, city, country]
     .filter(Boolean)
     .join(', ');

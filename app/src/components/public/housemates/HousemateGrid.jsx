@@ -2,6 +2,9 @@ import HousemateCard from './HousemateCard';
 import { Users } from 'lucide-react';
 import InformationModal from '../shared/InformationModal';
 
+// Renders the housemate browse grid, or an empty-state message when the
+// current filters return no results. Passes the viewer's own verification
+// status down to each card so it can gate contact/save/view actions.
 export default function HousematesGrid({ profiles, verification_status, is_blocked, is_blocked_reason }) {
 
   if (!profiles || profiles.length === 0) {

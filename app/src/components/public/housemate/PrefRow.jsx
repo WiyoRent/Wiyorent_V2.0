@@ -1,3 +1,6 @@
+// Generic icon + label + custom content row, used by HousingPreferencesSection.
+// Unlike ProfileRow, the value is passed as children so it can be a badge,
+// list of pills, or other rich content.
 export default function PrefRow({ icon: Icon, label, children }) {
   return (
     <div className="flex items-start gap-3 py-2.5 border-b border-base-200 last:border-0">

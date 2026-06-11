@@ -2,6 +2,7 @@ import ListingCard from '@/components/public/listings/ListingCard';
 import { Building2 } from 'lucide-react';
 
 export default function ListingsGrid({ listings }) {
+  // empty state shown when filters return no matching listings
   if (!listings || listings.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">

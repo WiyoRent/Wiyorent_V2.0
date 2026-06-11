@@ -13,9 +13,11 @@ const WHATSAPP_NUMBER = '250794089835';
 const LISTING_BASE_URL = 'https://wiyorent.com/listings';
 
 export default function PricingSidebar({ financials, total_first_payment, listing_id, is_a_wiyorent_house = false, available_status, is_on_waitlist = false }) {
+  // financials: { price_per_month, commission_fee, caution_fee, upfront_months }
   const { price_per_month, commission_fee, caution_fee, upfront_months = 1 } = financials;
   const is_available = available_status === 'available';
 
+  // optimistic local toggle, synced to the server via toggleWaitlistListing below
   const [on_waitlist, set_on_waitlist] = useState(is_on_waitlist);
   const session = useSession();
   const router = useRouter();
@@ -33,10 +35,12 @@ export default function PricingSidebar({ financials, total_first_payment, listin
   };
 
   const handleWaitlist = () => {
+    // require login before joining/leaving the waitlist
     if (!session?.data) {
       router.push('/login');
       return;
     }
+    // flip the UI immediately, then persist the change
     const next = !on_waitlist;
     set_on_waitlist(next);
     toggleWaitlistListing(listing_id, next);
@@ -85,7 +89,7 @@ export default function PricingSidebar({ financials, total_first_payment, listin
 
           <div className="border-t border-base-200" />
 
-          {/* Service / commission fee */}
+          {/* Service / commission fee - waived entirely for WiyoRent-managed houses */}
           <div className="flex items-start justify-between gap-3">
             <div className="flex flex-col gap-0.5">
               <div className="flex items-center gap-1.5">
@@ -170,7 +174,7 @@ export default function PricingSidebar({ financials, total_first_payment, listin
       {/* ── Action Buttons ──────────────────────────────────── */}
       <div className="flex flex-col gap-2.5">
 
-        {/* Book Now + Enquire — side by side */}
+        {/* Book Now + Enquire - side by side */}
         <div className="flex gap-2">
           <button
             onClick={handleBookNow}
@@ -190,7 +194,7 @@ export default function PricingSidebar({ financials, total_first_payment, listin
           </button>
         </div>
 
-        {/* Join Waitlist — only when booked */}
+        {/* Join Waitlist - only shown when the listing is currently booked/unavailable */}
         {!is_available && (
           <button
             onClick={handleWaitlist}

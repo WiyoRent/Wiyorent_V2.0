@@ -1,6 +1,9 @@
 import { Sparkles, Moon, Sun, Music } from 'lucide-react';
 import TileSelector from '@/components/public/profile/TileSelector';
 
+// Lifestyle/personality tiles: sleep schedule, cleanliness, and social habits.
+// Each is a single-select TileSelector; all three are required before the
+// About Me / Lifestyle step can be completed (validated in ProfileEditForm).
 export default function LifestyleEditSection({
   sleep_schedule,
   set_sleep_schedule,

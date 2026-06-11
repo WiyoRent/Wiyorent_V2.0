@@ -2,7 +2,11 @@ import ListingCard from '../listings/ListingCard';
 import { Heart } from 'lucide-react';
 import Link from 'next/link';
 
+// listings is the array of saved listing objects (each with at least a
+// listing_id) passed down from FavouritesTabView. Show an empty state with a
+// CTA to browse listings when the user hasn't saved anything yet.
 export default function FavouritesGrid({ listings }) {
+  // Empty state - no saved listings yet
   if (!listings || listings.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
@@ -25,6 +29,7 @@ export default function FavouritesGrid({ listings }) {
     );
   }
 
+  // Saved listings grid
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
       {listings.map((listing) => (

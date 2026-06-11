@@ -31,6 +31,8 @@ const FEATURES = [
   },
 ];
 
+// "Why WiyoRent" section on the landing page - a heading plus a 4-up grid
+// of feature cards (verification, roommate matching, settling-in, no fees).
 export default function AboutUs() {
   return (
     <section
@@ -40,7 +42,7 @@ export default function AboutUs() {
     >
       <div className="container mx-auto">
 
-        {/* ── Section heading ─────────────────── */}
+        {/* ########## Section heading ########## */}
         <div className="mb-14">
           <div className="flex items-center gap-3 mb-4 justify-center">
             <span className="section-rule" />
@@ -58,7 +60,7 @@ export default function AboutUs() {
           </p>
         </div>
 
-        {/* ── Feature cards ─────────────────────── */}
+        {/* ########## Feature cards ########## */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {FEATURES.map(({ icon: Icon, title, body, aos, delay }) => (
             <div

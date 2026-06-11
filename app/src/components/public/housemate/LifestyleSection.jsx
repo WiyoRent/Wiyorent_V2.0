@@ -1,6 +1,8 @@
 import { Moon, Sparkles, MessageCircle } from 'lucide-react';
 import LifestyleTile from '@/components/public/housemate/LifestyleTile';
 
+// Renders the `lifestyle_personality` block from the housemate detail payload
+// as a set of tiles (sleep schedule, cleanliness, social habits).
 export default function LifestyleSection({ lifestyle }) {
   const { sleep_schedule, cleanliness, social_habits } = lifestyle || {};
 

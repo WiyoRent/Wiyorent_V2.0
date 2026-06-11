@@ -1,5 +1,6 @@
 import { formatRWF } from '@/lib/formatRWF';
 
+// generic label/amount row used in pricing summaries; `highlight` emphasizes the row (e.g. monthly rent)
 export default function PricingRow({ label, sublabel, amount, highlight = false, size = 'normal' }) {
   return (
     <div className={`flex items-start justify-between gap-3 ${size === 'large' ? 'py-1' : ''}`}>

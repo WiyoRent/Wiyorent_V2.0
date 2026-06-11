@@ -1,6 +1,9 @@
 import PackageInformation from "@/components/public/home/PackageInformation";
 import { getBaseURL } from "@/lib/getBaseURL";
 
+// Fetches the public settling-in packages, cached for 24h (revalidate). Any
+// fetch/parse failure or non-OK response just falls back to an empty list,
+// which renders the "Packages Coming Soon" empty state below.
 async function fetchPackages() {
   try {
     const res = await fetch(`${getBaseURL()}api/v1/public/get/packages`, {
@@ -14,6 +17,8 @@ async function fetchPackages() {
   }
 }
 
+// Server component - fetches packages at render time and lays out the
+// "Settling-In Services" pricing section.
 export default async function Packages() {
   const packages = await fetchPackages();
 
@@ -41,6 +46,7 @@ export default async function Packages() {
           </p>
         </div>
 
+        {/* ########## Empty state vs package cards ########## */}
         {packages.length === 0 ? (
           <div className="text-center py-16 flex flex-col items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
@@ -67,6 +73,8 @@ export default async function Packages() {
             data-aos="zoom-in"
           >
             {(() => {
+              // Build the union of every inclusion across all packages so each
+              // card can render the same full feature list (ticked or crossed out).
               const all_inclusions = [...new Set(packages.flatMap((p) => p.inclusions ?? []))];
               return packages.map((pkg) => (
                 <PackageInformation key={pkg.package_id} pkg={pkg} all_inclusions={all_inclusions} />

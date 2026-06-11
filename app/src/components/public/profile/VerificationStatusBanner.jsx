@@ -1,5 +1,7 @@
 import { Clock, CheckCircle2, XCircle, ShieldCheck, Ban } from 'lucide-react';
 
+// Visual config per status: icon, label, description, and Tailwind/DaisyUI
+// classes for the banner container, icon, label text, and status dot.
 const VERIFICATION_CONFIG = {
   blocked: {
     icon: Ban,
@@ -40,6 +42,8 @@ const VERIFICATION_CONFIG = {
 };
 
 export default function VerificationStatusBanner({ verification_status, admin_note, is_blocked, is_blocked_reason }) {
+  // is_blocked takes priority over verification_status - a blocked user always
+  // sees the "Account Blocked" variant regardless of their verification state.
   const effective_status = is_blocked ? 'blocked' : verification_status;
   if (!effective_status) return null;
 

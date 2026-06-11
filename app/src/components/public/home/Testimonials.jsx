@@ -26,6 +26,8 @@ const TESTIMONIALS = [
   },
 ];
 
+// Student reviews section. The first testimonial is shown large/featured;
+// the rest are laid out in a smaller grid below.
 export default function Testimonials() {
   const [featured, ...rest] = TESTIMONIALS;
 
@@ -37,7 +39,7 @@ export default function Testimonials() {
     >
       <div className="container mx-auto">
 
-        {/* ── Heading ─────────────────────────── */}
+        {/* ########## Heading ########## */}
         <div className="mb-14">
           <div className="flex items-center gap-3 mb-4 justify-center">
             <span className="section-rule" />
@@ -51,7 +53,7 @@ export default function Testimonials() {
           </h2>
         </div>
 
-        {/* ── Featured testimonial ─────────────── */}
+        {/* ########## Featured testimonial ########## */}
         <div
           data-aos="fade-up"
           data-aos-delay="100"
@@ -74,7 +76,7 @@ export default function Testimonials() {
           </div>
         </div>
 
-        {/* ── Remaining testimonials ───────────── */}
+        {/* ########## Remaining testimonials grid ########## */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {rest.map((t, index) => (
             <div

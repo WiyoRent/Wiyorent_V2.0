@@ -2,6 +2,8 @@
 import { Plus, X, Sparkles, FileText } from 'lucide-react';
 import { useState } from 'react';
 
+// Reusable tag input: free-text entry that adds unique strings to `items` as
+// badges, each removable individually. Used for both amenities and house rules.
 function TagManager({ label, icon: Icon, items, set_items, placeholder }) {
   const [input_value, set_input_value] = useState('');
 
@@ -81,6 +83,8 @@ function TagManager({ label, icon: Icon, items, set_items, placeholder }) {
   );
 }
 
+// Shared between the admin create/edit listing form and the public profile's
+// own-listing editor. amenities and house_rules are both arrays of strings.
 export default function AmenitiesRulesSection({ amenities, set_amenities, house_rules, set_house_rules }) {
   return (
     <div className="bg-base-100 rounded-box shadow-sm p-6">

@@ -1,5 +1,7 @@
 import Image from 'next/image';
 
+// Small avatar used on housemate cards in the browse grid. Falls back to a
+// gradient circle with initials when there's no real photo (same logic as HeroAvatar).
 export default function AvatarCircle({ full_name, avatar_url, gender }) {
   const initials = full_name
     .split(' ')

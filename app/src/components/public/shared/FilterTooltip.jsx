@@ -3,10 +3,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { Info } from 'lucide-react';
 
+// Small "i" info icon that shows a tooltip on hover/click, used for explaining
+// non-obvious filter options. Used by FieldLabel and PrefRow.
 export default function FilterTooltip({ text }) {
   const [visible, set_visible] = useState(false);
   const ref = useRef(null);
 
+  // Closes the tooltip when the user clicks anywhere outside it (needed for
+  // the click-to-toggle behaviour on touch devices, where there's no hover-out).
   useEffect(() => {
     const handle = (e) => {
       if (ref.current && !ref.current.contains(e.target)) set_visible(false);

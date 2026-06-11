@@ -1,5 +1,6 @@
 import FilterTooltip from '@/components/public/shared/FilterTooltip';
 
+// Shared label for filter sidebar fields, with an optional info tooltip.
 export default function FieldLabel({ children, tip }) {
   return (
     <label className="flex items-center gap-1 font-secondary text-[11px] font-semibold text-base-content/50 tracking-wide mb-1.5">

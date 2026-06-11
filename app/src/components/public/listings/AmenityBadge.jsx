@@ -1,5 +1,6 @@
 import { Wifi, UtensilsCrossed, Microwave, Home } from 'lucide-react';
 
+// maps known amenity names (lowercase) to an icon; anything not listed falls back to Home
 const amenity_icon_map = {
   wifi: Wifi,
   stove: UtensilsCrossed,

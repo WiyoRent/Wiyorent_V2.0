@@ -1,3 +1,5 @@
+// Single-select grid of icon tiles (e.g. sleep schedule, cleanliness). Highlights
+// the tile whose option.value matches `value` and calls on_change with the new value.
 export default function TileSelector({ label, options, value, on_change, icon: Icon }) {
   return (
     <div>
