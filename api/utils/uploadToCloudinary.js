@@ -1,6 +1,8 @@
 import { v2 as cloudinary } from "cloudinary";
 import streamifier from "streamifier";
 
+// Streams an in-memory file buffer (from multer) directly to Cloudinary, so
+// uploaded images never touch the server's disk
 export async function uploadToCloudinary(fileBuffer, folder) {
 
     return new Promise((resolve, reject) => {

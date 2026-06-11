@@ -14,6 +14,8 @@ const C_YELLOW_TEXT = '#3a2e05';
 const C_LIGHT       = '#fafafa';
 const C_GREY        = '#555555';
 
+// In development, emails are skipped (and just logged) unless SEND_EMAILS=true
+// is set, so local dev/testing doesn't spam real inboxes.
 const sendEmail = async (label, fn) => {
   if (process.env.SEND_EMAILS !== 'true') {
     console.log(`[EMAIL SKIPPED] ${label}`)
@@ -22,11 +24,14 @@ const sendEmail = async (label, fn) => {
   return await fn()
 }
 
+// ########## Shared HTML building blocks for all email templates below ##########
+// Branded yellow CTA button used inside email bodies
 const ctaButton = (href, label) =>
   `<div style="margin: 32px 0;">
     <a href="${href}" style="display: inline-block; background-color: ${C_YELLOW}; color: ${C_YELLOW_TEXT}; padding: 14px 32px; text-decoration: none; border-radius: 4px; font-weight: 800; font-size: 13px; letter-spacing: 0.07em; text-transform: uppercase; font-family: sans-serif; line-height: 1;">${label} &rarr;</a>
   </div>`;
 
+// Footer with WiyoRent branding and links to privacy/terms pages
 const emailFooter = `
   <div style="background-color: ${C_BLACK}; padding: 28px 40px; text-align: center;">
     <p style="margin: 0 0 4px; font-size: 12px; font-weight: 800; color: ${C_YELLOW}; letter-spacing: 0.18em; text-transform: uppercase; font-family: sans-serif;">WiyoRent</p>
@@ -39,6 +44,8 @@ const emailFooter = `
     <p style="margin: 0; font-size: 11px; color: #444; font-family: sans-serif;">Automated notification &mdash; Questions? <a href="mailto:${SUPPORT_EMAIL}" style="color: #666; text-decoration: underline; font-family: sans-serif;">${SUPPORT_EMAIL_DISPLAY}</a></p>
   </div>`;
 
+// Wraps a template's body content in the shared header (logo on black/yellow
+// banner) and footer - every email below renders its content through this
 const emailWrapper = (content) =>
   `<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e8e8e8;">
     <div style="height: 3px; background-color: ${C_YELLOW};"></div>
@@ -51,6 +58,8 @@ const emailWrapper = (content) =>
     ${emailFooter}
   </div>`;
 
+// ########## User verification & moderation emails (sent to the applicant) ##########
+// Sent when an admin approves a user's verification documents
 export const sendApprovalEmail = (email, name) =>
   sendEmail('sendApprovalEmail', () => resend.emails.send({
     from: FROM_EMAIL,
@@ -76,6 +85,8 @@ export const sendApprovalEmail = (email, name) =>
     `),
   }));
 
+// Sent when an admin rejects a user's verification (e.g. unclear documents);
+// `reason` is shown to the user so they know what to fix before resubmitting
 export const sendRejectionEmail = (email, name, reason) =>
   sendEmail('sendRejectionEmail', () => resend.emails.send({
     from: FROM_EMAIL,
@@ -98,6 +109,7 @@ export const sendRejectionEmail = (email, name, reason) =>
     `),
   }));
 
+// Sent when an admin blocks a user's account for a guidelines violation
 export const sendBlockedEmail = (email, name, reason) =>
   sendEmail('sendBlockedEmail', () => resend.emails.send({
     from: FROM_EMAIL,
@@ -119,6 +131,7 @@ export const sendBlockedEmail = (email, name, reason) =>
     `),
   }));
 
+// Sent when an admin lifts a previous block, restoring the user's access
 export const sendUnblockedEmail = (email, name) =>
   sendEmail('sendUnblockedEmail', () => resend.emails.send({
     from: FROM_EMAIL,
@@ -135,6 +148,9 @@ export const sendUnblockedEmail = (email, name) =>
     `),
   }));
 
+// ########## Admin notification emails ##########
+// Sent to the admin when a previously-reviewed user (rejected, or already
+// onboarded) resubmits their profile and needs another look
 export const sendAdminUpdateAlert = (userName, userId) =>
   sendEmail('sendAdminUpdateAlert', () => resend.emails.send({
     from: FROM_EMAIL,
@@ -160,6 +176,8 @@ export const sendAdminUpdateAlert = (userName, userId) =>
     `),
   }));
 
+// Sent to the admin when a brand-new user finishes onboarding and is awaiting
+// their first verification review
 export const sendVerificationRequestEmail = (userName, userId) =>
   sendEmail('sendVerificationRequestEmail', () => resend.emails.send({
     from: FROM_EMAIL,
@@ -184,6 +202,8 @@ export const sendVerificationRequestEmail = (userName, userId) =>
     `),
   }));
 
+// ########## Review moderation emails ##########
+// Sent to the reviewer once an admin approves their pending review
 export const sendReviewApprovedEmail = (email, name, property_title) =>
   sendEmail('sendReviewApprovedEmail', () => resend.emails.send({
     from: FROM_EMAIL,
@@ -201,6 +221,7 @@ export const sendReviewApprovedEmail = (email, name, property_title) =>
     `),
   }));
 
+// Sent to the reviewer if an admin rejects their review; `reason` explains why
 export const sendReviewRejectedEmail = (email, name, property_title, reason) =>
   sendEmail('sendReviewRejectedEmail', () => resend.emails.send({
     from: FROM_EMAIL,
@@ -222,6 +243,8 @@ export const sendReviewRejectedEmail = (email, name, property_title, reason) =>
     `),
   }));
 
+// Sent to the admin when a new review is created and lands in 'pending'
+// (the moderation service flagged it as needing manual review)
 export const sendReviewSubmittedAlert = (userName, listingTitle, listingId) =>
   sendEmail('sendReviewSubmittedAlert', () => resend.emails.send({
     from: FROM_EMAIL,
@@ -247,6 +270,8 @@ export const sendReviewSubmittedAlert = (userName, listingTitle, listingId) =>
     `),
   }));
 
+// Sent to the admin (FYI only) when a new review passed automated moderation
+// ('clean') and was published immediately without needing manual approval
 export const sendReviewAutoPublishedAlert = (userName, listingTitle, listingId) =>
   sendEmail('sendReviewAutoPublishedAlert', () => resend.emails.send({
     from: FROM_EMAIL,
@@ -272,6 +297,8 @@ export const sendReviewAutoPublishedAlert = (userName, listingTitle, listingId) 
     `),
   }));
 
+// Sent to the admin when a user edits an already-published review - the edit
+// resets the review's status back to 'pending' for re-moderation
 export const sendReviewEditedAlert = (userName, listingTitle) =>
   sendEmail('sendReviewEditedAlert', () => resend.emails.send({
     from: FROM_EMAIL,
@@ -297,6 +324,9 @@ export const sendReviewEditedAlert = (userName, listingTitle) =>
     `),
   }));
 
+// ########## Waitlist emails ##########
+// Sent by the /internal/process-available-listings cron job when a listing a
+// user was waitlisted for becomes available again
 export const sendWaitlistAvailabilityEmail = (email, name, listingTitle, listingId) =>
   sendEmail('sendWaitlistAvailabilityEmail', () => resend.emails.send({
     from: FROM_EMAIL,

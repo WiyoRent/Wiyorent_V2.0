@@ -1,5 +1,8 @@
+// Guard used by routes that need a logged-in user. Checks two things:
+// 1) the internal API key proves the request came from our Next.js server (not the browser)
+// 2) X-User-Id identifies which logged-in user is making the request
 export const verifyHeaders = (req) => {
-    
+
     const clientKey = req.headers['x-internal-api-key'];
     const userId = req.headers['x-user-id'];
 
