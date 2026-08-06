@@ -2,11 +2,8 @@ import pool from "../../config/db.js"
 import { errorMsg, successMsg } from "../../utils/returnMsg.js"
 
 // ########## Browse listings (public listing, with filters) ##########
-export const fetchListings = async (req,res) => {
+export const fetchListings = async (req, res) => {
 
-    // Called server-to-server from the Next.js app, gated by a shared
-    // internal API key. x-user-id (if present) is used to flag which
-    // listings the current visitor has saved/waitlisted.
     const clientKey = req.headers['x-internal-api-key']
     const rawUserId = req.headers['x-user-id']
 
@@ -17,15 +14,10 @@ export const fetchListings = async (req,res) => {
     }
 
     const {min, max, wiyorent_only, available_only, bedrooms, max_roommates, furnished_status, neighborhood, available_from} = req.query
-    // neighborhood arrives as "kigali,remera" - split into an array for the ANY() filter below
     const neighborhoodList = neighborhood ? neighborhood.split(',') : []
-
 
     try {
 
-        // Base query: only active listings, with is_saved/is_on_waitlist flags
-        // for the current user. Filters below append " AND ..." clauses for
-        // whatever the visitor picked in the sidebar.
         let query = `
             SELECT
                 l.id,
@@ -55,16 +47,12 @@ export const fetchListings = async (req,res) => {
         let paramIndex = 2
 
         if(min){
-            query += `
-                AND l.price_per_month >= $${paramIndex++}
-            `
+            query += ` AND l.price_per_month >= $${paramIndex++}`
             values.push(Number(min))
         }
 
         if(max){
-            query += `
-                AND l.price_per_month <= $${paramIndex++}
-            `
+            query += ` AND l.price_per_month <= $${paramIndex++}`
             values.push(Number(max))
         }
 
@@ -77,7 +65,6 @@ export const fetchListings = async (req,res) => {
         }
 
         if (bedrooms) {
-            // "4+" is a UI-only bucket meaning "4 or more bedrooms"
             if (bedrooms === '4+') {
                 query += ` AND l.bedroom_number >= 4`
             } else {
@@ -87,7 +74,6 @@ export const fetchListings = async (req,res) => {
         }
 
         if (max_roommates) {
-            // Same "4+" bucket convention as bedrooms above
             if (max_roommates === '4+') {
                 query += ` AND l.max_roommates >= 4`
             } else {
@@ -108,11 +94,11 @@ export const fetchListings = async (req,res) => {
         }
 
         if (available_from) {
-            query += ` AND l.available_from <= $${paramIndex++} OR l.available_from < CURRENT_DATE`
+            // parenthesized so this OR doesn't escape the WHERE clause's AND chain
+            query += ` AND (l.available_from <= $${paramIndex++} OR l.available_from < CURRENT_DATE)`
             values.push(available_from)
         }
 
-        // Available listings are always shown first, then newest-first within each group
         query += `
             GROUP BY l.id, sl.id, w.id
             ORDER BY
@@ -120,10 +106,6 @@ export const fetchListings = async (req,res) => {
                 l.created_at DESC
         `
 
-        console.log(query, '---query')
-
-        // Run the filtered listing query alongside an unfiltered "meta" query
-        // that powers the filter sidebar (price range, available neighborhoods)
         const [result, metaResult] = await Promise.all([
             pool.query(query, values),
             pool.query(`
@@ -139,7 +121,7 @@ export const fetchListings = async (req,res) => {
 
         const listings = result.rows
 
-        const allListings = listings.map((listing,index) => (
+        const allListings = listings.map((listing) => (
             {
                 listing_id : listing.id,
                 title : listing.title,
@@ -168,13 +150,11 @@ export const fetchListings = async (req,res) => {
             neighborhoods: meta.neighborhoods ?? [],
         }
 
-        console.log(allListings, '--all_listings')
-
         return res.status(200).json({ data: { listings: allListings, filter_meta } })
 
     } catch (error) {
-        console.error(error, '----errrrrioorr')
-        return res.status(200).json({ data: { listings: [], filter_meta: null } })
+        console.error(error,)
+        return errorMsg(res, 500, 'Failed to fetch listings. Try again later.')
     }
     
 }
