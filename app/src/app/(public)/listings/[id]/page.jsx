@@ -90,13 +90,19 @@ import { notFound } from 'next/navigation';
 
 // Fetches the full listing record by id. Passing userId lets the API
 // personalize the response (e.g. flag is_on_waitlist for the current user).
-// Cached for 3 minutes (revalidate: 180) since listing details change rarely.
+// Cached for 1 minute (revalidate: 60), matching the /listings list page.
+// The API's own Redis cache is invalidated instantly on any admin write, so
+// this window is purely the worst-case propagation delay after that - it
+// shouldn't be looser here than on the list, since a visitor on a specific
+// listing's detail page is closer to acting on it (inquiring/booking) than
+// someone still browsing, making stale availability/pricing here more
+// consequential, not less.
 const fetchSingleListing = async (id, userId = null) => {
   try {
     const params = userId ? `?userId=${userId}` : ''
     const url = getBaseURL() + `api/v1/public/getSingleListing/${id}${params}`
 
-    const response = await fetch(url, { next: { revalidate: 180 } })
+    const response = await fetch(url, { next: { revalidate: 60 } })
 
     if(!response.ok){
       throw new Error("An error occured. Couldn't fetch listing")
