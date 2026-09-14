@@ -1,4 +1,5 @@
 import { Geist, Geist_Mono } from "next/font/google";
+import { preconnect } from "react-dom";
 import "./globals.css";
 import {GoogleAnalytics} from '@next/third-parties/google'
 
@@ -66,6 +67,11 @@ export const metadata = {
 // Wraps every page in the app. `data-theme="mytheme"` applies the DaisyUI
 // brand theme globally, and GoogleAnalytics tracks pageviews site-wide.
 export default function RootLayout({ children }) {
+  // Sentry's error/session-replay beacon is on the critical path for LCP on
+  // some routes - warm up the connection early instead of waiting for the
+  // first request to it.
+  preconnect("https://o4511156652277760.ingest.de.sentry.io");
+
   return (
     <html lang="en" data-theme="mytheme">
       <body

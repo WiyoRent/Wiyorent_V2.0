@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useSession } from 'next-auth/react';
 import { usePathname, useRouter } from 'next/navigation';
 import { toggleSaveListing, toggleWaitlistListing } from '@/actions/public/favorites.action';
 import { formatRWF } from '@/lib/formatRWF';
@@ -24,7 +23,7 @@ import Link from 'next/link';
 import AmenityBadge from '@/components/public/listings/AmenityBadge';
 import StatusBadge from '@/components/public/listings/StatusBadge';
 
-export default function ListingCard({ listing }) {
+export default function ListingCard({ listing, index = 0, isAuthenticated = false }) {
   // is_saved/is_on_waitlist come from the API reflecting the current user's existing state
   const [is_liked, set_is_liked] = useState(listing.is_saved || false);
   const [on_waitlist, set_on_waitlist] = useState(listing.is_on_waitlist || false);
@@ -33,12 +32,11 @@ export default function ListingCard({ listing }) {
   const price = listing.financials?.price_per_month || 0;
 
   const router = useRouter()
-  const session = useSession()
   const pathname = usePathname()
 
   // Const handle not signed in user redirection
   const redirectToLogin = () => {
-    if(!session?.data?.user){
+    if(!isAuthenticated){
       console.log('pathname:', pathname)
       router.push(`/login?callbackUrl=${encodeURIComponent(pathname)}`)
     }
@@ -90,6 +88,8 @@ export default function ListingCard({ listing }) {
               fill
               src={listing.thumbnail_url}
               alt={listing.title}
+              priority={index < 4}
+              sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, (max-width: 1535px) 40vw, 380px"
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
 

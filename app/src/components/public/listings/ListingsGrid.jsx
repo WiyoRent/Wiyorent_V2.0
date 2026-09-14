@@ -1,7 +1,16 @@
+'use client';
+
+import { useSession } from 'next-auth/react';
 import ListingCard from '@/components/public/listings/ListingCard';
 import { Building2 } from 'lucide-react';
 
 export default function ListingsGrid({ listings }) {
+  // Read the session once here instead of once per card - ListingCard only
+  // needs to know whether the visitor is signed in for its like/waitlist
+  // redirect-to-login check.
+  const session = useSession();
+  const isAuthenticated = !!session?.data?.user;
+
   // empty state shown when filters return no matching listings
   if (!listings || listings.length === 0) {
     return (
@@ -21,8 +30,13 @@ export default function ListingsGrid({ listings }) {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-3 gap-6">
-      {listings.map((listing) => (
-        <ListingCard key={listing.listing_id} listing={listing} />
+      {listings.map((listing, index) => (
+        <ListingCard
+          key={listing.listing_id}
+          listing={listing}
+          index={index}
+          isAuthenticated={isAuthenticated}
+        />
       ))}
     </div>
   );

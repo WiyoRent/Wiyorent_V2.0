@@ -145,7 +145,8 @@ export default function FilterSidebar({ filter_options }) {
             type="checkbox"
             checked={wiyorent_only}
             onChange={(e) => set_wiyorent_only(e.target.checked)}
-            className="toggle toggle-accent toggle-sm"
+            className="toggle toggle-accent"
+            aria-label="WiyoRent Houses"
           />
         </div>
 
@@ -183,7 +184,7 @@ export default function FilterSidebar({ filter_options }) {
         active_count={pricing_active}
       >
         <div className="flex flex-col">
-          <label className={LABEL_CLS}>Max budget</label>
+          <label htmlFor="filter-price-max" className={LABEL_CLS}>Max budget</label>
           <div className="flex items-baseline gap-1.5 mb-2 mt-1">
             <span className="font-secondary text-[11px] text-base-content/40">Up to</span>
             <span className="font-secondary text-[15px] font-bold text-base-content">
@@ -192,6 +193,7 @@ export default function FilterSidebar({ filter_options }) {
             <span className="font-secondary text-[11px] text-base-content/40">RWF/mo</span>
           </div>
           <input
+            id="filter-price-max"
             type="range"
             min={price_range.min}
             max={price_range.max}
@@ -223,7 +225,8 @@ export default function FilterSidebar({ filter_options }) {
             type="checkbox"
             checked={selected_furnishing === 'furnished'}
             onChange={(e) => set_selected_furnishing(e.target.checked ? 'furnished' : 'unfurnished')}
-            className="toggle toggle-accent toggle-sm"
+            className="toggle toggle-accent"
+            aria-label="Furnished"
           />
         </div>
 
@@ -234,7 +237,8 @@ export default function FilterSidebar({ filter_options }) {
             type="checkbox"
             checked={selected_availability}
             onChange={(e) => set_selected_availability(e.target.checked)}
-            className="toggle toggle-accent toggle-sm"
+            className="toggle toggle-accent"
+            aria-label="Available Now"
           />
         </div>
 
@@ -291,8 +295,9 @@ export default function FilterSidebar({ filter_options }) {
         active_count={avail_active}
       >
         <div className="flex flex-col gap-2">
-          <label className={LABEL_CLS}>Available From</label>
+          <label htmlFor="filter-available-from" className={LABEL_CLS}>Available From</label>
           <input
+            id="filter-available-from"
             type="date"
             value={available_from}
             min={new Date().toISOString()?.split('T')[0]}

@@ -26,7 +26,7 @@ export default function FilterTooltip({ text }) {
         onMouseEnter={() => set_visible(true)}
         onMouseLeave={() => set_visible(false)}
         onClick={() => set_visible(v => !v)}
-        className="text-base-content/25 hover:text-accent transition-colors duration-150"
+        className="text-base-content/25 hover:text-accent transition-colors duration-150 p-4 -m-4"
         aria-label="More info"
       >
         <Info size={11} />

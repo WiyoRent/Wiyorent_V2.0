@@ -8,6 +8,15 @@
     "start": "next start",
     "lint": "eslint"
   },
+  "browserslist": [
+    "chrome >= 96",
+    "edge >= 96",
+    "firefox >= 96",
+    "opera >= 82",
+    "safari >= 15",
+    "ios_saf >= 15",
+    "samsung >= 15"
+  ],
   "dependencies": {
     "@auth/neon-adapter": "^1.11.1",
     "@neondatabase/serverless": "^1.0.2",
@@ -36,6 +45,7 @@
     "@tailwindcss/postcss": "^4",
     "@types/node": "25.2.3",
     "@types/react": "19.2.14",
+    "critters": "^0.0.23",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4"
