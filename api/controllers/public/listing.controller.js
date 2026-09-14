@@ -145,7 +145,7 @@ export const fetchListings = async (req, res) => {
                 }
             ))
 
-            await redisClient.set(baseCacheKey, JSON.stringify(baseListings), {EX: 600})
+            await redisClient.set(baseCacheKey, JSON.stringify(baseListings), {EX: 3600})
         }
 
         // Per-user flags are cheap indexed loopups, these will run fresh every request
@@ -195,7 +195,7 @@ export const fetchListings = async (req, res) => {
                 neighborhoods: meta.neighborhoods ?? [],
             }
 
-            await redisClient.set(filterMetaCacheKey, JSON.stringify(filter_meta), {EX: 900})
+            await redisClient.set(filterMetaCacheKey, JSON.stringify(filter_meta), {EX: 7200})
         }
 
         return res.status(200).json({ data: { listings: allListings, filter_meta } })
@@ -329,7 +329,7 @@ export const fetchSingleListing = async (req,res) => {
 
             // save public object to Redis
 
-            await redisClient.set(listingCacheKey, JSON.stringify(listingDetail), {EX: 900})
+            await redisClient.set(listingCacheKey, JSON.stringify(listingDetail), {EX: 3600})
         }
 
         let isOnWaitlist = false;
