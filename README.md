@@ -356,6 +356,22 @@ ALTER TABLE listing_reviews
 
 ---
 
+## Caching
+
+Public listing reads are cached in Redis to reduce load on Postgres. Every admin write invalidates the relevant keys immediately, so the TTLs below are a safety-net ceiling, not the thing keeping data fresh.
+
+| Redis key | TTL | Set in |
+|---|---|---|
+| `listings_base:<filter-hash>` | 1 hour | `fetchListings` |
+| `listings:filter_meta` | 2 hours | `fetchListings` |
+| `listing:<id>` | 1 hour | `fetchSingleListing` |
+
+**Invalidation** — `api/utils/cache.js` exports `invalidateListingsCache()` (clears every `listings_base:*` key plus `filter_meta`) and `invalidateListingDetail(id)` (clears one `listing:<id>`), both best-effort so a Redis failure never fails a write that already succeeded in Postgres. Called after every admin listing write (create / edit / delete / toggle-active / set-images) and after review moderation (approve / reject / delete), since a listing's cached detail payload embeds its reviews.
+
+**Rule: never cache a personalized read.** `is_saved` / `is_on_waitlist` are computed fresh per request from the requesting user's ID and are deliberately excluded from the Redis cache above. The same rule holds one layer up: any Next.js `fetch()` to an endpoint whose response depends on `X-User-Id` (or similar) must use `cache: 'no-store'`, never `next: { revalidate }`. Next's fetch cache keys by URL only, not by request headers — caching a personalized response there means the next visitor to hit that same URL gets served someone else's data until the cache expires. (`getListingsProxy` in `app/src/services/public/listings.service.js` had exactly this bug; kept here as the cautionary example.)
+
+---
+
 ## Environment Variables
 
 ### Backend (`/api/.env`)
