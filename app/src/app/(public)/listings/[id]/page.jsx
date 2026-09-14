@@ -8,6 +8,7 @@ import ReviewsSection from '@/components/public/listing/ReviewsSection';
 import PricingSidebar from '@/components/public/listing/PricingSidebar';
 import { getBaseURL } from '@/lib/getBaseURL.js';
 import { auth } from '@/auth';
+import { notFound } from 'next/navigation';
 
 // ---------------------------------------------------------------------------
 // Mock listing detail - replace this async fetch in production:
@@ -89,13 +90,13 @@ import { auth } from '@/auth';
 
 // Fetches the full listing record by id. Passing userId lets the API
 // personalize the response (e.g. flag is_on_waitlist for the current user).
-// Cached for 5 minutes (revalidate: 300) since listing details change rarely.
+// Cached for 3 minutes (revalidate: 180) since listing details change rarely.
 const fetchSingleListing = async (id, userId = null) => {
   try {
     const params = userId ? `?userId=${userId}` : ''
     const url = getBaseURL() + `api/v1/public/getSingleListing/${id}${params}`
 
-    const response = await fetch(url, { next: { revalidate: 300 } })
+    const response = await fetch(url, { next: { revalidate: 180 } })
 
     if(!response.ok){
       throw new Error("An error occured. Couldn't fetch listing")
@@ -105,7 +106,7 @@ const fetchSingleListing = async (id, userId = null) => {
 
     const listing = result.data
 
-    return listing || []
+    return listing || null
 
   } catch (error) {
     console.error(error.message)
@@ -189,6 +190,12 @@ export default async function ListingDetailPage({ params }) {
   const full_name = user?.full_name
 
   const listing_detail = await fetchSingleListing(id, user?.id)
+
+  // fetchSingleListing returns null when the listing doesn't exist or the API
+  // call failed - render the 404 page instead of crashing on the destructure
+  if (!listing_detail) {
+    notFound();
+  }
 
   const { financials, specifications, reviews} = listing_detail;
 

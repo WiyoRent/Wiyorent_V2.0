@@ -1,5 +1,15 @@
 import pool from "../../config/db.js"
 import { errorMsg, successMsg } from "../../utils/returnMsg.js"
+import redisClient from "../../config/redis.js"
+
+function buildListingsCacheKey(query){
+    const { min, max, wiyorent_only, available_only, bedrooms, max_roommates, furnished_status, neighborhood, available_from } = query;
+
+    const normalizedNeighborhood = neighborhood ? neighborhood.split(',').sort().join(',') : '';
+
+    return `${min || ''}:${max || ''}:${wiyorent_only || ''}:${available_only || ''}:${bedrooms || ''}:${max_roommates || ''}:${furnished_status || ''}:${normalizedNeighborhood}:${available_from || ''}`;
+
+}
 
 // ########## Browse listings (public listing, with filters) ##########
 export const fetchListings = async (req, res) => {
@@ -18,7 +28,14 @@ export const fetchListings = async (req, res) => {
 
     try {
 
-        let query = `
+        // cache only holds the shared listings fields, no user-specific data like wailist and saved
+
+        const baseCacheKey = `listings_base:${buildListingsCacheKey(req.query)}`
+
+        let baseListings = JSON.parse((await redisClient.get(baseCacheKey)) || 'null')
+
+        if(!baseListings){
+            let query = `
             SELECT
                 l.id,
                 l.title,
@@ -42,73 +59,125 @@ export const fetchListings = async (req, res) => {
                 ON l.id = w.listing_id
                 AND w.user_id = $1
             WHERE is_active = true
-        `
-        const values = [userId]
-        let paramIndex = 2
+            `
+            const values = [userId]
+            let paramIndex = 2
 
-        if(min){
-            query += ` AND l.price_per_month >= $${paramIndex++}`
-            values.push(Number(min))
-        }
-
-        if(max){
-            query += ` AND l.price_per_month <= $${paramIndex++}`
-            values.push(Number(max))
-        }
-
-        if (wiyorent_only === 'true') {
-            query += ` AND l.is_a_wiyorent_house = true`
-        }
-
-        if (available_only === 'true') {
-            query += ` AND l.available_status = 'available'`
-        }
-
-        if (bedrooms) {
-            if (bedrooms === '4+') {
-                query += ` AND l.bedroom_number >= 4`
-            } else {
-                query += ` AND l.bedroom_number = $${paramIndex++}`
-                values.push(Number(bedrooms))
+            if(min){
+                query += ` AND l.price_per_month >= $${paramIndex++}`
+                values.push(Number(min))
             }
-        }
 
-        if (max_roommates) {
-            if (max_roommates === '4+') {
-                query += ` AND l.max_roommates >= 4`
-            } else {
-                query += ` AND l.max_roommates <= $${paramIndex++}`
-                values.push(Number(max_roommates))
+            if(max){
+                query += ` AND l.price_per_month <= $${paramIndex++}`
+                values.push(Number(max))
             }
+
+            if (wiyorent_only === 'true') {
+                query += ` AND l.is_a_wiyorent_house = true`
+            }
+
+            if (available_only === 'true') {
+                query += ` AND l.available_status = 'available'`
+            }
+
+            if (bedrooms) {
+                if (bedrooms === '4+') {
+                    query += ` AND l.bedroom_number >= 4`
+                } else {
+                    query += ` AND l.bedroom_number = $${paramIndex++}`
+                    values.push(Number(bedrooms))
+                }
+            }
+
+            if (max_roommates) {
+                if (max_roommates === '4+') {
+                    query += ` AND l.max_roommates >= 4`
+                } else {
+                    query += ` AND l.max_roommates <= $${paramIndex++}`
+                    values.push(Number(max_roommates))
+                }
+            }
+
+            if (furnished_status) {
+                furnished_status === 'furnished' ?
+                    query += ` AND l.is_furnished = true ` : 
+                    query += ` AND l.is_furnished = false`
+            }
+
+            if(neighborhoodList.length !== 0){
+                query += ` AND l.neighborhood = ANY($${paramIndex++})`
+                values.push(neighborhoodList)
+            }
+
+            if (available_from) {
+                // parenthesized so this OR doesn't escape the WHERE clause's AND chain
+                query += ` AND (l.available_from <= $${paramIndex++} OR l.available_from < CURRENT_DATE)`
+                values.push(available_from)
+            }
+
+            query += `
+                GROUP BY l.id, sl.id, w.id
+                ORDER BY
+                    l.available_status = 'available' DESC,
+                    l.created_at DESC
+            `
+
+            const result = await pool.query(query,values)
+
+            baseListings = result.rows.map((listing) => (
+                {
+                    listing_id : listing.id,
+                    title : listing.title,
+                    is_a_wiyorent_house: listing.is_a_wiyorent_house,
+                    financials : {
+                        price_per_month : listing.price_per_month
+                    },
+                    specifications: {
+                        bedroom_number: listing.bedroom_number,
+                        bathroom_number: listing.bathroom_number,
+                        max_roommates: listing.max_roommates,
+                    },
+                    neighborhood: listing.neighborhood,
+                    city: listing.city,
+                    available_status: listing.available_status,
+                    thumbnail_url: listing.thumbnail_url,
+                }
+            ))
+
+            await redisClient.set(baseCacheKey, JSON.stringify(baseListings), {EX: 600})
         }
 
-        if (furnished_status) {
-            furnished_status === 'furnished' ?
-                query += ` AND l.is_furnished = true ` : 
-                query += ` AND l.is_furnished = false`
+        // Per-user flags are cheap indexed loopups, these will run fresh every request
+        // rather than baked into the shared cache above
+
+        let savedSet = new Set()
+        let waitlistSet = new Set()
+
+        if(userId){
+            const [savedRes, waitlistRes] = await Promise.all([
+                pool.query(`SELECT listing_id FROM saved_listings WHERE user_id = $1`, [userId] ),
+                pool.query(`SELECT listing_id FROM waitlists WHERE user_id = $1`, [userId])
+            ])
+
+            savedSet = new Set(savedRes.rows.map(r => r.listing_id))
+            waitlistSet = new Set(waitlistRes.rows.map(r => r.listing_id )) 
         }
 
-        if(neighborhoodList.length !== 0){
-            query += ` AND l.neighborhood = ANY($${paramIndex++})`
-            values.push(neighborhoodList)
-        }
+        const allListings = baseListings.map((listing) => (
+            {
+                ...listing,
+                is_saved: savedSet.has(listing.listing_id),
+                is_on_waitlist: waitlistSet.has(listing.listing_id),
+            }
+        ))
 
-        if (available_from) {
-            // parenthesized so this OR doesn't escape the WHERE clause's AND chain
-            query += ` AND (l.available_from <= $${paramIndex++} OR l.available_from < CURRENT_DATE)`
-            values.push(available_from)
-        }
+        const filterMetaCacheKey = 'listings:filter_meta'
 
-        query += `
-            GROUP BY l.id, sl.id, w.id
-            ORDER BY
-                l.available_status = 'available' DESC,
-                l.created_at DESC
-        `
+        let filter_meta = JSON.parse((await redisClient.get(filterMetaCacheKey)) || 'null')
 
-        const [result, metaResult] = await Promise.all([
-            pool.query(query, values),
-            pool.query(`
+        if(!filter_meta){
+            const metaResult = await pool.query(`
                 SELECT
                     MIN(price_per_month) AS price_min,
                     MAX(price_per_month) AS price_max,
@@ -117,37 +186,16 @@ export const fetchListings = async (req, res) => {
                 FROM listings
                 WHERE is_active = true
             `)
-        ])
 
-        const listings = result.rows
+            const meta = metaResult.rows[0]
 
-        const allListings = listings.map((listing) => (
-            {
-                listing_id : listing.id,
-                title : listing.title,
-                is_a_wiyorent_house: listing.is_a_wiyorent_house,
-                financials : {
-                    price_per_month : listing.price_per_month
-                },
-                specifications: {
-                    bedroom_number: listing.bedroom_number,
-                    bathroom_number: listing.bathroom_number,
-                    max_roommates: listing.max_roommates,
-                },
-                neighborhood: listing.neighborhood,
-                city: listing.city,
-                available_status: listing.available_status,
-                thumbnail_url: listing.thumbnail_url,
-                is_saved: listing.is_saved,
-                is_on_waitlist: listing.is_on_waitlist
+            filter_meta = {
+                price_min: Number(meta.price_min) || 0,
+                price_max: Number(meta.price_max) || 300000,
+                neighborhoods: meta.neighborhoods ?? [],
             }
-        ))
 
-        const meta = metaResult.rows[0]
-        const filter_meta = {
-            price_min: Number(meta.price_min) || 0,
-            price_max: Number(meta.price_max) || 300000,
-            neighborhoods: meta.neighborhoods ?? [],
+            await redisClient.set(filterMetaCacheKey, JSON.stringify(filter_meta), {EX: 900})
         }
 
         return res.status(200).json({ data: { listings: allListings, filter_meta } })
@@ -169,119 +217,136 @@ export const fetchSingleListing = async (req,res) => {
         // Pulls the listing, its gallery images, its waitlist status for this
         // user, and a pre-aggregated `reviews` JSON object (average rating,
         // total count, and the list of approved review entries) in one query
-        const result = await pool.query(`
-            SELECT
-                l.id,
-                l.title,
-                l.price_per_month,
-                l.commission_fee,
-                l.caution_fee,
-                l.upfront_months,
-                l.is_a_wiyorent_house,
-                l.bedroom_number,
-                l.bathroom_number,
-                l.max_roommates,
-                l.property_type,
-                l.amenities,
-                l.neighborhood,
-                l.city,
-                l.country,
-                l.available_status,
-                TO_CHAR(
-                    CASE
-                        WHEN l.available_from < CURRENT_DATE THEN CURRENT_DATE
-                        ELSE l.available_from
-                    END, 'YYYY-MM-DD'
-                ) AS available_from,
-                l.is_furnished,
-                l.is_verified,
-                l.thumbnail_url,
-                l.description,
-                ARRAY_AGG(DISTINCT li.image_url) as image_urls,
-                l.house_rules,
-                (w.id IS NOT NULL) AS is_on_waitlist,
-                -- reviews: { average_rating, total_count, entries: [...] } built
-                -- from approved reviews only; falls back to zeros/[] if there are none
-                COALESCE(
-                    json_build_object(
-                        'average_rating', ROUND(AVG(lr.rating) FILTER (WHERE lr.is_approved = 'approved')),
-                        'total_count' , COUNT(lr.id) FILTER (WHERE lr.is_approved = 'approved'),
-                        'entries', COALESCE (
-                            json_agg(
-                                DISTINCT json_build_object(
-                                    'id', lr.id,
-                                    'reviewer_id', u.id,
-                                    'name', u.full_name,
-                                    'rating', lr.rating,
-                                    'comment', lr.comment,
-                                    'avatar', u.avatar_url,
-                                    'date', lr.created_at,
-                                    'is_approved', lr.is_approved,
-                                    'review_rejection_note' , lr.review_rejection_note
-                                )::jsonb
-                            ) FILTER (WHERE lr.id IS NOT NULL), '[]'
-                        )
-                    ), '{"average_rating" : 0, "total_count" : 0, "entries": [] }'
-                ) as reviews
-            FROM listings l
-            LEFT JOIN listing_images li
-                ON l.id = li.listing_id
-            LEFT JOIN listing_reviews lr
-                ON lr.listing_id = l.id
-            LEFT JOIN users u
-                ON u.id = lr.user_id
-            LEFT JOIN waitlists w
-                ON w.listing_id = l.id AND w.user_id = $2
-            WHERE
-                l.id = $1
-            GROUP BY l.id, w.id
-            `, [listingId, userId])
 
-        if(result.rowCount == 0){
-            return errorMsg(res, 404, "Couldn't find listing")
+
+        const listingCacheKey = `listing:${listingId}`
+
+        let listingDetail =  JSON.parse(await (redisClient.get(listingCacheKey)) || 'null')
+
+        if(!listingDetail){
+            const result = await pool.query(`
+                SELECT
+                    l.id,
+                    l.title,
+                    l.price_per_month,
+                    l.commission_fee,
+                    l.caution_fee,
+                    l.upfront_months,
+                    l.is_a_wiyorent_house,
+                    l.bedroom_number,
+                    l.bathroom_number,
+                    l.max_roommates,
+                    l.property_type,
+                    l.amenities,
+                    l.neighborhood,
+                    l.city,
+                    l.country,
+                    l.available_status,
+                    TO_CHAR(
+                        CASE
+                            WHEN l.available_from < CURRENT_DATE THEN CURRENT_DATE
+                            ELSE l.available_from
+                        END, 'YYYY-MM-DD'
+                    ) AS available_from,
+                    l.is_furnished,
+                    l.is_verified,
+                    l.thumbnail_url,
+                    l.description,
+                    ARRAY_AGG(DISTINCT li.image_url) as image_urls,
+                    l.house_rules,
+                    COALESCE(
+                        json_build_object(
+                            'average_rating', ROUND(AVG(lr.rating) FILTER (WHERE lr.is_approved = 'approved')),
+                            'total_count' , COUNT(lr.id) FILTER (WHERE lr.is_approved = 'approved'),
+                            'entries', COALESCE (
+                                json_agg(
+                                    DISTINCT json_build_object(
+                                        'id', lr.id,
+                                        'reviewer_id', u.id,
+                                        'name', u.full_name,
+                                        'rating', lr.rating,
+                                        'comment', lr.comment,
+                                        'avatar', u.avatar_url,
+                                        'date', lr.created_at,
+                                        'is_approved', lr.is_approved,
+                                        'review_rejection_note' , lr.review_rejection_note
+                                    )::jsonb
+                                ) FILTER (WHERE lr.id IS NOT NULL), '[]'
+                            )
+                        ), '{"average_rating" : 0, "total_count" : 0, "entries": [] }'
+                    ) as reviews
+                FROM listings l
+                LEFT JOIN listing_images li
+                    ON l.id = li.listing_id
+                LEFT JOIN listing_reviews lr
+                    ON lr.listing_id = l.id
+                LEFT JOIN users u
+                    ON u.id = lr.user_id
+                WHERE
+                    l.id = $1
+                GROUP BY l.id
+                `, [listingId])
+
+            if(result.rowCount == 0){
+                return errorMsg(res, 404, "Couldn't find listing")
+            }
+
+            const listing = result.rows[0]
+
+            console.log(listing, '--listing')
+
+            listingDetail = {
+                listing_id: listing.id,
+                title: listing.title,
+                is_a_wiyorent_house: listing.is_a_wiyorent_house,
+                financials: {
+                    price_per_month: listing.price_per_month,
+                    commission_fee: listing.commission_fee,   
+                    caution_fee: listing.caution_fee,     
+                    upfront_months: listing.upfront_months,
+                },
+                specifications: {
+                    bedroom_number: listing.bedroom_number,
+                    bathroom_number: listing.bathroom_number,
+                    max_roommates: listing.max_roommates,
+                    property_type: listing.property_type,
+                },
+                amenities: listing.amenities,
+                neighborhood: listing.neighborhood,
+                city: listing.city,
+                country: listing.country,
+                available_status: listing.available_status,
+                available_from: listing.available_from,
+                is_furnished: listing.is_furnished,
+                is_verified: listing.is_verified,
+                thumbnail_url: listing.thumbnail_url,
+                description: listing.description,
+                image_urls: [listing.thumbnail_url,...listing.image_urls],
+                house_rules: listing.house_rules,
+                reviews: listing.reviews
+            }; 
+
+            // save public object to Redis
+
+            await redisClient.set(listingCacheKey, JSON.stringify(listingDetail), {EX: 900})
         }
 
-        const listing = result.rows[0]
+        let isOnWaitlist = false;
 
-        console.log(listing, '--listing')
+        if(userId){
+            const waitlistCheck = await pool.query(
+                `SELECT 1 FROM waitlists WHERE listing_id = $1 AND user_id = $2 LIMIT 1`, [listingId, userId])
+            
+                isOnWaitlist = waitlistCheck.rowCount > 0;
+        }
 
-        const listingDetail = {
-            listing_id: listing.id,
-            title: listing.title,
-            is_a_wiyorent_house: listing.is_a_wiyorent_house,
-            financials: {
-                price_per_month: listing.price_per_month,
-                commission_fee: listing.commission_fee,   // 10% of one month rent (default)
-                caution_fee: listing.caution_fee,     // refundable by default
-                upfront_months: listing.upfront_months,
-            },
-            specifications: {
-                bedroom_number: listing.bedroom_number,
-                bathroom_number: listing.bathroom_number,
-                max_roommates: listing.max_roommates,
-                property_type: listing.property_type,
-            },
-            amenities: listing.amenities,
-            neighborhood: listing.neighborhood,
-            city: listing.city,
-            country: listing.country,
-            available_status: listing.available_status,
-            available_from: listing.available_from,
-            is_furnished: listing.is_furnished,
-            is_verified: listing.is_verified,
-            thumbnail_url: listing.thumbnail_url,
-            description: listing.description,
-            // Thumbnail is stored separately from the gallery, so prepend it
-            // here to give the frontend one combined image list
-            image_urls: [listing.thumbnail_url,...listing.image_urls],
-            house_rules: listing.house_rules,
-            is_on_waitlist: listing.is_on_waitlist,
-            reviews: listing.reviews
-        }; 
-
-        console.log(listingDetail, '---listing detail')
-
-        return res.status(200).json({data:listingDetail})
+        return res.status(200).json({
+            data: {
+                ...listingDetail,
+                is_on_waitlist: isOnWaitlist
+            }
+            
+        })
 
     } catch (error) {
         console.error('Error occurred on fetchSingleListing:', error)
@@ -372,60 +437,67 @@ export const fetchSavedListings = async (req,res) => {
 
         const userId = rawUserId && rawUserId !== 'null' ? rawUserId : null
 
-        const result = await pool.query(`
-            SELECT
-                l.id,
-                l.title,
-                l.price_per_month,
-                l.bedroom_number,
-                l.bathroom_number,
-                l.max_roommates,
-                l.neighborhood,
-                l.city,
-                l.available_status,
-                l.thumbnail_url,
-                l.is_verified,
-                l.is_a_wiyorent_house,
-                (w.id IS NOT NULL) AS is_on_waitlist
-            FROM listings l
-            JOIN saved_listings sl
-                ON l.id = sl.listing_id
-                AND sl.user_id = $1
-            LEFT JOIN waitlists w
-                ON l.id = w.listing_id
-                AND w.user_id = $1
-        `, [userId])
+        const savedListingsCacheKey = `savedListings:${userId}`
 
-        const listings = result.rows
+        let savedListings = JSON.parse(await (redisClient.get(savedListingsCacheKey)) || 'null')
 
-        const savedListing = listings.map((listing,index) => (
-            {
-                listing_id : listing.id,
-                title : listing.title,
-                is_a_wiyorent_house: listing.is_a_wiyorent_house,
-                financials : {
-                    price_per_month : listing.price_per_month
-                },
-                specifications: {
-                    bedroom_number: listing.bedroom_number,
-                    bathroom_number: listing.bathroom_number,
-                    max_roommates: listing.max_roommates,
-                },
-                neighborhood: listing.neighborhood,
-                city: listing.city,
-                available_status: listing.available_status,
-                thumbnail_url: listing.thumbnail_url,
-                is_saved: true,
-                is_on_waitlist: listing.is_on_waitlist,
-            }
-        )) 
+        if(!savedListings){
+            const result = await pool.query(`
+                SELECT
+                    l.id,
+                    l.title,
+                    l.price_per_month,
+                    l.bedroom_number,
+                    l.bathroom_number,
+                    l.max_roommates,
+                    l.neighborhood,
+                    l.city,
+                    l.available_status,
+                    l.thumbnail_url,
+                    l.is_verified,
+                    l.is_a_wiyorent_house,
+                    (w.id IS NOT NULL) AS is_on_waitlist
+                FROM listings l
+                JOIN saved_listings sl
+                    ON l.id = sl.listing_id
+                    AND sl.user_id = $1
+                LEFT JOIN waitlists w
+                    ON l.id = w.listing_id
+                    AND w.user_id = $1
+            `, [userId])
 
-        console.log(savedListing, '---savedListings')
+            const listings = result.rows
 
-        return successMsg(res,200,'',savedListing)
+            savedListings = listings.map((listing) => (
+                {
+                    listing_id : listing.id,
+                    title : listing.title,
+                    is_a_wiyorent_house: listing.is_a_wiyorent_house,
+                    financials : {
+                        price_per_month : listing.price_per_month
+                    },
+                    specifications: {
+                        bedroom_number: listing.bedroom_number,
+                        bathroom_number: listing.bathroom_number,
+                        max_roommates: listing.max_roommates,
+                    },
+                    neighborhood: listing.neighborhood,
+                    city: listing.city,
+                    available_status: listing.available_status,
+                    thumbnail_url: listing.thumbnail_url,
+                    is_saved: true,
+                    is_on_waitlist: listing.is_on_waitlist,
+                }
+            )) 
 
-        
-        
+            await redisClient.set(savedListingsCacheKey, JSON.stringify(savedListings), {EX: 600})
+
+        }
+
+        console.log(savedListings, '---savedListings')
+
+        return successMsg(res,200,'',savedListings)
+
     } catch (error) {
         console.error('Error occurred on fetchSavedListings:', error)
         return errorMsg(res, 500, 'Something went wrong on our end. Please check your connection, refresh the page, or try again later. If the issue persists, contact support at wiyorent@gmail.com.')
