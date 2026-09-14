@@ -284,6 +284,7 @@ export const fetchSingleListing = async (req,res) => {
                     ON u.id = lr.user_id
                 WHERE
                     l.id = $1
+                    AND l.is_active = true
                 GROUP BY l.id
                 `, [listingId])
 
@@ -437,62 +438,51 @@ export const fetchSavedListings = async (req,res) => {
 
         const userId = rawUserId && rawUserId !== 'null' ? rawUserId : null
 
-        const savedListingsCacheKey = `savedListings:${userId}`
+        const result = await pool.query(`
+            SELECT
+                l.id,
+                l.title,
+                l.price_per_month,
+                l.bedroom_number,
+                l.bathroom_number,
+                l.max_roommates,
+                l.neighborhood,
+                l.city,
+                l.available_status,
+                l.thumbnail_url,
+                l.is_verified,
+                l.is_a_wiyorent_house,
+                (w.id IS NOT NULL) AS is_on_waitlist
+            FROM listings l
+            JOIN saved_listings sl
+                ON l.id = sl.listing_id
+                AND sl.user_id = $1
+            LEFT JOIN waitlists w
+                ON l.id = w.listing_id
+                AND w.user_id = $1
+        `, [userId])
 
-        let savedListings = JSON.parse(await (redisClient.get(savedListingsCacheKey)) || 'null')
-
-        if(!savedListings){
-            const result = await pool.query(`
-                SELECT
-                    l.id,
-                    l.title,
-                    l.price_per_month,
-                    l.bedroom_number,
-                    l.bathroom_number,
-                    l.max_roommates,
-                    l.neighborhood,
-                    l.city,
-                    l.available_status,
-                    l.thumbnail_url,
-                    l.is_verified,
-                    l.is_a_wiyorent_house,
-                    (w.id IS NOT NULL) AS is_on_waitlist
-                FROM listings l
-                JOIN saved_listings sl
-                    ON l.id = sl.listing_id
-                    AND sl.user_id = $1
-                LEFT JOIN waitlists w
-                    ON l.id = w.listing_id
-                    AND w.user_id = $1
-            `, [userId])
-
-            const listings = result.rows
-
-            savedListings = listings.map((listing) => (
-                {
-                    listing_id : listing.id,
-                    title : listing.title,
-                    is_a_wiyorent_house: listing.is_a_wiyorent_house,
-                    financials : {
-                        price_per_month : listing.price_per_month
-                    },
-                    specifications: {
-                        bedroom_number: listing.bedroom_number,
-                        bathroom_number: listing.bathroom_number,
-                        max_roommates: listing.max_roommates,
-                    },
-                    neighborhood: listing.neighborhood,
-                    city: listing.city,
-                    available_status: listing.available_status,
-                    thumbnail_url: listing.thumbnail_url,
-                    is_saved: true,
-                    is_on_waitlist: listing.is_on_waitlist,
-                }
-            )) 
-
-            await redisClient.set(savedListingsCacheKey, JSON.stringify(savedListings), {EX: 600})
-
-        }
+        const savedListings = result.rows.map((listing) => (
+            {
+                listing_id : listing.id,
+                title : listing.title,
+                is_a_wiyorent_house: listing.is_a_wiyorent_house,
+                financials : {
+                    price_per_month : listing.price_per_month
+                },
+                specifications: {
+                    bedroom_number: listing.bedroom_number,
+                    bathroom_number: listing.bathroom_number,
+                    max_roommates: listing.max_roommates,
+                },
+                neighborhood: listing.neighborhood,
+                city: listing.city,
+                available_status: listing.available_status,
+                thumbnail_url: listing.thumbnail_url,
+                is_saved: true,
+                is_on_waitlist: listing.is_on_waitlist,
+            }
+        ))
 
         console.log(savedListings, '---savedListings')
 
