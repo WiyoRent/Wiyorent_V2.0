@@ -11,7 +11,7 @@ export default function FilterSection({ title, is_open, on_toggle, active_count,
       <button
         type="button"
         onClick={on_toggle}
-        className="flex items-center justify-between w-full py-3 group"
+        className="flex items-center justify-between w-full py-4 group"
       >
         <div className="flex items-center gap-2">
           <span className="font-primary text-[13px] font-bold uppercase tracking-widest text-base-content/70 group-hover:text-base-content transition-colors duration-150">

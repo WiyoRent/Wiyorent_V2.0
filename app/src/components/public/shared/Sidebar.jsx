@@ -139,7 +139,11 @@ export default function Sidebar() {
           <Image width={40} height={40} src="/logo.svg" alt="WiyoRent Logo" className="border border-accent rounded-lg" />
           <span className="font-primary text-xl font-bold tracking-wider text-white">WIYORENT</span>
         </div>
-        <button onClick={() => setIsOpen(!isOpen)} className="text-white hover:text-accent transition-colors">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="text-white hover:text-accent transition-colors"
+          aria-label={isOpen ? "Close menu" : "Open menu"}
+        >
           {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </div>
