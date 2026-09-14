@@ -3,6 +3,7 @@ import pool from "../../config/db.js"
 import { v2 as cloudinary } from "cloudinary"
 import { extractPublicId } from 'cloudinary-build-url'
 import { sendWaitlistAvailabilityEmail } from "../../utils/mail.js"
+import { invalidateListingsCache, invalidateListingDetail } from "../../utils/cache.js"
 
 // ########## Create listing ##########
 export const createListing = async (req, res) => {
@@ -73,6 +74,8 @@ export const createListing = async (req, res) => {
 
         const listingId = listing[0].id
 
+        await invalidateListingsCache()
+
         return successMsg(res, 201, 'Listing successfully created', { listing_id: listingId })
 
     } catch (error) {
@@ -115,6 +118,9 @@ export const setListingImages = async (req, res) => {
                 [id, url]
             )
         }
+
+        await invalidateListingDetail(id)
+        await invalidateListingsCache()
 
         return successMsg(res, 200, 'Images set successfully')
 
@@ -354,6 +360,9 @@ export const editListing = async (req, res) => {
             )
         }
 
+        await invalidateListingDetail(id)
+        await invalidateListingsCache()
+
         return successMsg(res, 200, 'Listing updated successfully')
 
     } catch (error) {
@@ -522,6 +531,9 @@ export const toggleListingActive = async (req, res) => {
             return errorMsg(res, 404, "Listing not found")
         }
 
+        await invalidateListingDetail(id)
+        await invalidateListingsCache()
+
         return successMsg(res, 200, 'Listing visibility updated successfully', result.rows[0])
 
     } catch (error) {
@@ -558,6 +570,9 @@ export const deleteListing = async (req,res) => {
         } catch (cloudinaryError) {
             console.error('Cloudinary cleanup failed (listing deleted from DB):', cloudinaryError.message)
         }
+
+        await invalidateListingDetail(id)
+        await invalidateListingsCache()
 
         return successMsg(res,200,"Item Successfully Deleted")
     } catch (error) {

@@ -8,6 +8,7 @@ import ReviewsSection from '@/components/public/listing/ReviewsSection';
 import PricingSidebar from '@/components/public/listing/PricingSidebar';
 import { getBaseURL } from '@/lib/getBaseURL.js';
 import { auth } from '@/auth';
+import { notFound } from 'next/navigation';
 
 // ---------------------------------------------------------------------------
 // Mock listing detail - replace this async fetch in production:
@@ -89,13 +90,19 @@ import { auth } from '@/auth';
 
 // Fetches the full listing record by id. Passing userId lets the API
 // personalize the response (e.g. flag is_on_waitlist for the current user).
-// Cached for 5 minutes (revalidate: 300) since listing details change rarely.
+// Cached for 1 minute (revalidate: 60), matching the /listings list page.
+// The API's own Redis cache is invalidated instantly on any admin write, so
+// this window is purely the worst-case propagation delay after that - it
+// shouldn't be looser here than on the list, since a visitor on a specific
+// listing's detail page is closer to acting on it (inquiring/booking) than
+// someone still browsing, making stale availability/pricing here more
+// consequential, not less.
 const fetchSingleListing = async (id, userId = null) => {
   try {
     const params = userId ? `?userId=${userId}` : ''
     const url = getBaseURL() + `api/v1/public/getSingleListing/${id}${params}`
 
-    const response = await fetch(url, { next: { revalidate: 300 } })
+    const response = await fetch(url, { next: { revalidate: 60 } })
 
     if(!response.ok){
       throw new Error("An error occured. Couldn't fetch listing")
@@ -105,7 +112,7 @@ const fetchSingleListing = async (id, userId = null) => {
 
     const listing = result.data
 
-    return listing || []
+    return listing || null
 
   } catch (error) {
     console.error(error.message)
@@ -189,6 +196,12 @@ export default async function ListingDetailPage({ params }) {
   const full_name = user?.full_name
 
   const listing_detail = await fetchSingleListing(id, user?.id)
+
+  // fetchSingleListing returns null when the listing doesn't exist or the API
+  // call failed - render the 404 page instead of crashing on the destructure
+  if (!listing_detail) {
+    notFound();
+  }
 
   const { financials, specifications, reviews} = listing_detail;
 

@@ -2,6 +2,7 @@ import pool from "../../config/db.js"
 import { errorMsg, successMsg } from "../../utils/returnMsg.js"
 import formatDate from "../../utils/formatDate.js"
 import { sendReviewApprovedEmail, sendReviewRejectedEmail } from "../../utils/mail.js"
+import { invalidateListingDetail } from "../../utils/cache.js"
 
 // ########## Get reviews (admin moderation table) ##########
 export const getUserReviews = async (req, res) => {
@@ -98,14 +99,17 @@ export const approveUserReview = async (req,res) => {
     try {
         const result = await pool.query(`
         UPDATE listing_reviews
-        SET 
+        SET
             is_approved = $1
         WHERE id = $2
+        RETURNING listing_id
         `, [status, reviewId])
 
         if(result.rowCount === 0){
             return errorMsg(res, 404, "Review not found")
         }
+
+        await invalidateListingDetail(result.rows[0].listing_id)
 
         await sendReviewApprovedEmail(email, full_name, property_title)
 
@@ -132,15 +136,18 @@ export const rejectUserReview = async (req,res) => {
     try {
         const result = await pool.query(`
         UPDATE listing_reviews
-        SET 
+        SET
             is_approved = $1,
             review_rejection_note = $2
         WHERE id = $3
+        RETURNING listing_id
         `, [status, review_rejection_note, reviewId])
 
         if(result.rowCount === 0){
             return errorMsg(res, 404, "Review not found")
         }
+
+        await invalidateListingDetail(result.rows[0].listing_id)
 
         await sendReviewRejectedEmail(email, full_name, property_title, review_rejection_note)
 
@@ -159,8 +166,12 @@ export const deleteUserReview = async (req, res) => {
     try {
         const result = await pool.query(`
             DELETE FROM listing_reviews WHERE id = $1
+            RETURNING listing_id
         `, [reviewId])
         if (result.rowCount === 0) return errorMsg(res, 404, "Review not found")
+
+        await invalidateListingDetail(result.rows[0].listing_id)
+
         return successMsg(res, 200, 'Review deleted successfully', [])
     } catch (error) {
         console.error('Error occurred on deleteUserReview:', error)

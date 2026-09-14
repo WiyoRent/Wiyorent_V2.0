@@ -4,11 +4,15 @@ import { useState } from 'react';
 import { ChevronLeft, ChevronRight, Expand } from 'lucide-react';
 import Image from 'next/image';
 
-export default function ImageGallery({ image_urls, title }) {
+export default function ImageGallery({ image_urls: image_urls_prop, title }) {
   // image_urls[0] is the listing's thumbnail/cover photo, the rest are gallery images.
   // active_index tracks which photo is shown in the main viewer + lightbox.
   const [active_index, set_active_index] = useState(0);
   const [lightbox_open, set_lightbox_open] = useState(false);
+
+  // a listing can come through with no photos at all - normalise to an array
+  // so the indexing and .map calls below never blow up
+  const image_urls = Array.isArray(image_urls_prop) ? image_urls_prop : [];
 
   // wrap-around navigation so prev/next loop through the array
   const handle_prev = () =>
@@ -16,6 +20,18 @@ export default function ImageGallery({ image_urls, title }) {
 
   const handle_next = () =>
     set_active_index((i) => (i === image_urls.length - 1 ? 0 : i + 1));
+
+  // Nothing to show - a placeholder keeps the layout intact and avoids
+  // rendering an <Image> with an empty src
+  if (image_urls.length === 0) {
+    return (
+      <div className="flex items-center justify-center rounded-box bg-base-300 h-64 sm:h-80 lg:h-96">
+        <span className="font-secondary text-sm text-base-content/40">
+          No photos available
+        </span>
+      </div>
+    );
+  }
 
   return (
     <>

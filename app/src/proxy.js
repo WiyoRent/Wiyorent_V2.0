@@ -49,7 +49,7 @@ export async function proxy (req){
 
 // Limits this middleware to only run on the routes it actually guards
 export const config = {
-    match : ['/housemates/:path*', '/profile', '/admin/:path*']
+    matcher : ['/housemates/:path*', '/profile', '/admin/:path*']
 }
 
 
