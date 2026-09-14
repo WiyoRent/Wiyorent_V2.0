@@ -378,6 +378,7 @@ Public listing reads are cached in Redis to reduce load on Postgres. Every admin
 
 ```env
 DATABASE_URL=postgresql://...
+REDIS_URL=redis://...
 CLOUDINARY_NAME=
 CLOUDINARY_API_KEY=
 CLOUDINARY_SECRET_KEY=
